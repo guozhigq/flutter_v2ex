@@ -43,6 +43,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
+  dynamic_color:
+    dependency: "direct main"
+    description:
+      name: dynamic_color
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.5.4"
   fake_async:
     dependency: transitive
     description:
@@ -158,3 +165,4 @@ packages:
     version: "2.1.2"
 sdks:
   dart: ">=2.18.6 <3.0.0"
+  flutter: ">=3.3.0"
