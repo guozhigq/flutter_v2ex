@@ -27,21 +27,21 @@ class _AppTabState extends State<AppTab> {
               Icons.lens_outlined,
               size: 19,
             ),
-            label: "home",
+            label: "首页",
           ),
           NavigationDestination(
             icon: Icon(
               Icons.favorite_border,
               size: 19,
             ),
-            label: "fav",
+            label: "收藏",
           ),
           NavigationDestination(
             icon: Icon(
               Icons.check_box_outline_blank,
               size: 19,
             ),
-            label: "mine",
+            label: "我的",
           ),
         ],
       ),

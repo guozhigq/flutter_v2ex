@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_v2ex/components/home/search_bar.dart';
+import 'package:flutter_v2ex/components/home/sticky_bar.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -114,75 +117,28 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      body: Column(
-        children: [
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onInverseSurface,
-              borderRadius: BorderRadius.circular(50),
+      body: Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: CustomScrollView(
+          slivers: [
+            const SliverToBoxAdapter(
+              child: HomeSearchBar(),
             ),
-            margin: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 10,
-                right: 10,
-                bottom: 10,
-                left: 10),
-            padding: const EdgeInsets.only(right: 11, left: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(children: [
-                  const Icon(Icons.search_outlined, size: 19),
-                  const SizedBox(width: 12),
-                  Text(
-                    '搜索...',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ]),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/images/avatar.png',
-                    fit: BoxFit.cover,
-                    width: 35,
-                    height: 35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ListView.builder(
-                  itemCount: entries.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListItem(index: index, item: entries[index]);
-                  },
-                ),
+            const HomeStickyBar(),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return ListItem(index: index, item: entries[index]);
+                },
+                childCount: entries.length,
               ),
             ),
-          ),
-        ],
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 10),
+            )
+          ],
+        ),
       ),
     );
-  }
-
-  Future<void> _onRefresh() async {
-    print("下拉刷新");
-    await Future.delayed(const Duration(milliseconds: 500), () {
-      // setState(() {
-      //   entries.add('D');
-      // });
-    });
   }
 }
