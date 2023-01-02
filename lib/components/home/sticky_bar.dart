@@ -1,40 +1,22 @@
 import 'package:flutter/material.dart';
 
 class HomeStickyBar extends StatefulWidget {
-  const HomeStickyBar({super.key});
-
+  HomeStickyBar({super.key, required this.tabs});
+  List<Map<dynamic, dynamic>> tabs;
   @override
   State<HomeStickyBar> createState() => _HomeStickyBarState();
 }
 
-List<Map<dynamic, dynamic>> tabs = [
-  {'name': '全部', 'id': 'all'},
-  {'name': '最热', 'id': 'all'},
-  {'name': '技术', 'id': 'all'},
-  {'name': '创意', 'id': 'all'},
-  {'name': '好玩', 'id': 'all'},
-  {'name': 'APPLE', 'id': 'all'},
-  {'name': '酷工作', 'id': 'all'},
-  {'name': '交易', 'id': 'all'},
-  {'name': '城市', 'id': 'all'},
-  {'name': '问与答', 'id': 'all'},
-  {'name': 'R2', 'id': 'all'},
-];
-
 class _HomeStickyBarState extends State<HomeStickyBar>
     with TickerProviderStateMixin {
-  late TabController _tabController;
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: tabs.length, vsync: this);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _tabController.dispose();
   }
 
   @override
@@ -61,7 +43,7 @@ class _HomeStickyBarState extends State<HomeStickyBar>
               ),
               padding: const EdgeInsets.only(top: 5),
               child: TabBar(
-                controller: _tabController,
+                // controller: _tabController,
                 onTap: (index) {},
                 isScrollable: true,
                 indicatorSize: TabBarIndicatorSize.label,
@@ -74,7 +56,7 @@ class _HomeStickyBarState extends State<HomeStickyBar>
                     Theme.of(context).colorScheme.inverseSurface,
                 enableFeedback: true,
                 // overlayColor: ,
-                tabs: tabs.map((f) {
+                tabs: widget.tabs.map((f) {
                   return Tab(text: f['name']);
                 }).toList(),
               ),

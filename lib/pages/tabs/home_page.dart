@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_v2ex/components/home/search_bar.dart';
@@ -11,7 +13,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List entries = <Map<dynamic, dynamic>>[
     {
       'name': '老强老强老强老强老强老强老强老强老强',
@@ -107,6 +109,19 @@ class _HomePageState extends State<HomePage> {
       'node': '闲聊'
     }
   ];
+  List<Map<dynamic, dynamic>> tabs = [
+    {'name': '全部', 'id': 'all'},
+    {'name': '最热', 'id': 'all'},
+    {'name': '技术', 'id': 'all'},
+    {'name': '创意', 'id': 'all'},
+    {'name': '好玩', 'id': 'all'},
+    {'name': 'APPLE', 'id': 'all'},
+    {'name': '酷工作', 'id': 'all'},
+    {'name': '交易', 'id': 'all'},
+    {'name': '城市', 'id': 'all'},
+    {'name': '问与答', 'id': 'all'},
+    {'name': 'R2', 'id': 'all'},
+  ];
 
   @override
   void initState() {
@@ -115,28 +130,34 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      body: Container(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        child: CustomScrollView(
-          slivers: [
-            const SliverToBoxAdapter(
-              child: HomeSearchBar(),
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        body: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          child: NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                const SliverToBoxAdapter(
+                  child: HomeSearchBar(),
+                ),
+                HomeStickyBar(tabs: tabs),
+              ];
+            },
+            body: TabBarView(
+              children: tabs.map((e) {
+                return ListView.builder(
+                    padding: const EdgeInsets.only(top: 1, bottom: 8),
+                    physics: const ClampingScrollPhysics(), //重要
+                    itemCount: entries.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListItem(index: index, item: entries[index]);
+                    });
+              }).toList(),
             ),
-            const HomeStickyBar(),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return ListItem(index: index, item: entries[index]);
-                },
-                childCount: entries.length,
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 10),
-            )
-          ],
+          ),
         ),
       ),
     );

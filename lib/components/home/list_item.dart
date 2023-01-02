@@ -20,7 +20,7 @@ class _ListItemState extends State<ListItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        margin: const EdgeInsets.only(top: 10, right: 12, bottom: 0, left: 12),
+        margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),
