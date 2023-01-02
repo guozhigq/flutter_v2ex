@@ -1,10 +1,10 @@
-import 'dart:ffi';
-
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_v2ex/components/home/search_bar.dart';
 import 'package:flutter_v2ex/components/home/sticky_bar.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   List entries = <Map<dynamic, dynamic>>[
     {
       'name': '老强老强老强老强老强老强老强老强老强',
@@ -111,21 +111,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   ];
   List<Map<dynamic, dynamic>> tabs = [
     {'name': '全部', 'id': 'all'},
-    {'name': '最热', 'id': 'all'},
-    {'name': '技术', 'id': 'all'},
-    {'name': '创意', 'id': 'all'},
-    {'name': '好玩', 'id': 'all'},
-    {'name': 'APPLE', 'id': 'all'},
-    {'name': '酷工作', 'id': 'all'},
-    {'name': '交易', 'id': 'all'},
-    {'name': '城市', 'id': 'all'},
-    {'name': '问与答', 'id': 'all'},
-    {'name': 'R2', 'id': 'all'},
+    // {'name': '最热', 'id': 'all'},
+    // {'name': '技术', 'id': 'all'},
+    // {'name': '创意', 'id': 'all'},
+    // {'name': '好玩', 'id': 'all'},
+    // {'name': 'APPLE', 'id': 'all'},
+    // {'name': '酷工作', 'id': 'all'},
+    // {'name': '交易', 'id': 'all'},
+    // {'name': '城市', 'id': 'all'},
+    // {'name': '问与答', 'id': 'all'},
+    // {'name': 'R2', 'id': 'all'},
   ];
-
+  late Future<List<TabTopicItem>> topicListFuture;
   @override
   void initState() {
     super.initState();
+    topicListFuture = getTopics();
+    print('topicListFuture');
+    print(topicListFuture);
+  }
+
+  Future<List<TabTopicItem>> getTopics() async {
+    return await DioRequestWeb.getTopicsByTabKey();
   }
 
   @override
@@ -148,12 +155,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             },
             body: TabBarView(
               children: tabs.map((e) {
-                return ListView.builder(
-                    padding: const EdgeInsets.only(top: 1, bottom: 8),
-                    physics: const ClampingScrollPhysics(), //重要
-                    itemCount: entries.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListItem(index: index, item: entries[index]);
+                // return ListView.builder(
+                //     padding: const EdgeInsets.only(top: 1, bottom: 8),
+                //     physics: const ClampingScrollPhysics(), //重要
+                //     itemCount: entries.length,
+                //     itemBuilder: (BuildContext context, int index) {
+                //       return ListItem(index: index, item: entries[index]);
+                //     });
+                return FutureBuilder<List<TabTopicItem>>(
+                    future: topicListFuture,
+                    builder: (context, snapshot) {
+                      return ListView.builder(
+                          padding: const EdgeInsets.only(top: 1, bottom: 8),
+                          physics: const ClampingScrollPhysics(), //重要
+                          itemCount: snapshot.data?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ListItem(topic: snapshot.data![index]);
+                          });
                     });
               }).toList(),
             ),

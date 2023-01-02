@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
-  ListItem({required this.index, required this.item, super.key});
-  int index = 0;
-  Map<dynamic, dynamic> item;
+  final TabTopicItem topic;
+
+  const ListItem({required this.topic, super.key});
+  // List<TabTopicItem> item;
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -14,6 +17,7 @@ class _ListItemState extends State<ListItem> {
   @override
   void initState() {
     super.initState();
+    print(widget.topic.avatar);
   }
 
   @override
@@ -48,20 +52,8 @@ class _ListItemState extends State<ListItem> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Image.asset(
-                    'assets/images/avatar.png',
-                    fit: BoxFit.cover,
-                    width: 33,
-                    height: 33,
-                  ),
-                ),
+                CAvatar(url: widget.topic.avatar, size: 33),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -69,7 +61,7 @@ class _ListItemState extends State<ListItem> {
                     Container(
                       width: 100,
                       child: Text(
-                        widget.item['name'],
+                        widget.topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: const TextStyle(
@@ -82,16 +74,16 @@ class _ListItemState extends State<ListItem> {
                     Row(
                       children: [
                         Text(
-                          widget.item['time'],
+                          widget.topic.lastReplyTime,
                           style: const TextStyle(
                             fontSize: 10.0,
                             height: 1.3,
                           ),
                         ),
                         const SizedBox(width: 7),
-                        const Text(
-                          '评论 200',
-                          style: TextStyle(
+                        Text(
+                          '评论 ${widget.topic.replyCount}',
+                          style: const TextStyle(
                             fontSize: 10.0,
                             height: 1.3,
                           ),
@@ -118,7 +110,7 @@ class _ListItemState extends State<ListItem> {
                       // const Icon(Icons.workspaces_outlined, size: 14),
                       // const SizedBox(width: 2.5),
                       Text(
-                        widget.item['node'],
+                        widget.topic.nodeName,
                         style: const TextStyle(
                           fontSize: 11.0,
                           textBaseline: TextBaseline.ideographic,
@@ -136,7 +128,7 @@ class _ListItemState extends State<ListItem> {
           alignment: Alignment.centerLeft,
           margin: const EdgeInsets.only(top: 10, bottom: 3),
           child: Text(
-            Characters(widget.item['title']).join('\u{200B}'),
+            Characters(widget.topic.topicContent).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             style: const TextStyle(
