@@ -44,6 +44,12 @@ dependencies:
     cookie_jar: ^3.0.1
     flutter_html: ^2.2.1
     xpath: ^0.1.0
+    path_pro:
+        path: ./lib/package/xpath
+    # xpath:
+    #     git:
+    #         url: git@github.com:guozhigq/xpath.git
+    #         path: ./
     cached_network_image: ^3.2.3
 
 dev_dependencies:

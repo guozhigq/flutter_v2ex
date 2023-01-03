@@ -408,6 +408,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.1"
+  path_pro:
+    dependency: "direct main"
+    description:
+      path: "lib/package/xpath"
+      relative: true
+    source: path
+    version: "0.1.0"
   path_provider:
     dependency: "direct main"
     description:

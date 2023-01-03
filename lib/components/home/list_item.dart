@@ -52,8 +52,21 @@ class _ListItemState extends State<ListItem> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                CAvatar(url: widget.topic.avatar, size: 33),
-                const SizedBox(width: 10),
+                // CAvatar(url: widget.topic.avatar, size: 33),
+                // const SizedBox(width: 10),
+                // Container(
+                //   decoration: BoxDecoration(
+                //     color: Colors.green[100],
+                //     borderRadius: BorderRadius.circular(50),
+                //   ),
+                //   clipBehavior: Clip.antiAlias,
+                //   child: Image.network(
+                //     widget.topic.avatar,
+                //     fit: BoxFit.cover,
+                //     width: 33,
+                //     height: 33,
+                //   ),
+                // ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[

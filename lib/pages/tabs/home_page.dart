@@ -111,24 +111,22 @@ class _HomePageState extends State<HomePage> {
   ];
   List<Map<dynamic, dynamic>> tabs = [
     {'name': '全部', 'id': 'all'},
-    // {'name': '最热', 'id': 'all'},
-    // {'name': '技术', 'id': 'all'},
-    // {'name': '创意', 'id': 'all'},
-    // {'name': '好玩', 'id': 'all'},
-    // {'name': 'APPLE', 'id': 'all'},
-    // {'name': '酷工作', 'id': 'all'},
-    // {'name': '交易', 'id': 'all'},
-    // {'name': '城市', 'id': 'all'},
-    // {'name': '问与答', 'id': 'all'},
-    // {'name': 'R2', 'id': 'all'},
+    {'name': '最热', 'id': 'all'},
+    {'name': '技术', 'id': 'all'},
+    {'name': '创意', 'id': 'all'},
+    {'name': '好玩', 'id': 'all'},
+    {'name': 'APPLE', 'id': 'all'},
+    {'name': '酷工作', 'id': 'all'},
+    {'name': '交易', 'id': 'all'},
+    {'name': '城市', 'id': 'all'},
+    {'name': '问与答', 'id': 'all'},
+    {'name': 'R2', 'id': 'all'},
   ];
   late Future<List<TabTopicItem>> topicListFuture;
   @override
   void initState() {
     super.initState();
     topicListFuture = getTopics();
-    print('topicListFuture');
-    print(topicListFuture);
   }
 
   Future<List<TabTopicItem>> getTopics() async {
@@ -165,6 +163,9 @@ class _HomePageState extends State<HomePage> {
                 return FutureBuilder<List<TabTopicItem>>(
                     future: topicListFuture,
                     builder: (context, snapshot) {
+                      if (snapshot.data == null) {
+                        return const Center(child: Text('内容为空'));
+                      }
                       return ListView.builder(
                           padding: const EdgeInsets.only(top: 1, bottom: 8),
                           physics: const ClampingScrollPhysics(), //重要
