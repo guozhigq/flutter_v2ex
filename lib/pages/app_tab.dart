@@ -16,15 +16,16 @@ class _AppTabState extends State<AppTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: screenIndex,
-        children: [
-          // createScreenFor(screenIndex),
-          HomePage(),
-          FavPage(),
-          MinePage()
-        ],
-      ),
+      // body: IndexedStack(
+      //   index: screenIndex,
+      //   children: const [
+      //     // createScreenFor(screenIndex),
+      //     HomePage(),
+      //     FavPage(),
+      //     MinePage()
+      //   ],
+      // ),
+      body: createScreenFor(screenIndex),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: handleScreenChanged,
         selectedIndex: screenIndex,

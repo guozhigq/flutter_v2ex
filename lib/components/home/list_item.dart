@@ -17,14 +17,13 @@ class _ListItemState extends State<ListItem> {
   @override
   void initState() {
     super.initState();
-    print(widget.topic.avatar);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
+        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),
@@ -54,19 +53,26 @@ class _ListItemState extends State<ListItem> {
               children: <Widget>[
                 // CAvatar(url: widget.topic.avatar, size: 33),
                 // const SizedBox(width: 10),
-                // Container(
-                //   decoration: BoxDecoration(
-                //     color: Colors.green[100],
-                //     borderRadius: BorderRadius.circular(50),
-                //   ),
-                //   clipBehavior: Clip.antiAlias,
-                //   child: Image.network(
-                //     widget.topic.avatar,
-                //     fit: BoxFit.cover,
-                //     width: 33,
-                //     height: 33,
-                //   ),
-                // ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  margin: const EdgeInsets.only(right: 10),
+                  // child: Image.network(
+                  //   // widget.topic.avatar,
+                  //   'https://cdn.v2ex.com/avatar/7265/601c/290989_normal.png?m=1672712228',
+                  //   fit: BoxFit.cover,
+                  //   width: 33,
+                  //   height: 33,
+                  // ),
+                  width: 33,
+                  height: 33,
+                  child: Center(
+                    child: Text(widget.topic.memberId.substring(0, 1)),
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -86,21 +92,25 @@ class _ListItemState extends State<ListItem> {
                     ),
                     Row(
                       children: [
-                        Text(
-                          widget.topic.lastReplyTime,
-                          style: const TextStyle(
-                            fontSize: 10.0,
-                            height: 1.3,
+                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
+                          Text(
+                            widget.topic.lastReplyTime,
+                            style: const TextStyle(
+                              fontSize: 10.0,
+                              height: 1.3,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 7),
-                        Text(
-                          '评论 ${widget.topic.replyCount}',
-                          style: const TextStyle(
-                            fontSize: 10.0,
-                            height: 1.3,
+                          const SizedBox(width: 7),
+                        ],
+                        if (widget.topic.replyCount.isNotEmpty) ...[
+                          Text(
+                            '${widget.topic.replyCount} 评论',
+                            style: const TextStyle(
+                              fontSize: 10.0,
+                              height: 1.3,
+                            ),
                           ),
-                        ),
+                        ]
                       ],
                     )
                   ],
@@ -109,7 +119,8 @@ class _ListItemState extends State<ListItem> {
             ),
             Material(
               borderRadius: BorderRadius.circular(50),
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color:
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
               child: InkWell(
                 onTap: () {},
                 borderRadius: BorderRadius.circular(50),
@@ -143,7 +154,7 @@ class _ListItemState extends State<ListItem> {
           child: Text(
             Characters(widget.topic.topicContent).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
-            maxLines: 2,
+            maxLines: 1,
             style: const TextStyle(
               fontSize: 14.0,
             ),

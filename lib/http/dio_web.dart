@@ -57,10 +57,11 @@ class DioRequestWeb {
   }
 
   // 获取主页分类内容
-  static Future<List<TabTopicItem>> getTopicsByTabKey() async {
+  static Future<List<TabTopicItem>> getTopicsByTabKey(
+      String tabKey, int p) async {
     var topics = <TabTopicItem>[];
     Response response;
-    response = await dio.get('/?tab=all');
+    response = await dio.get('/?tab=$tabKey');
     var tree = ETree.fromString(response.data);
     // ignore: avoid_print
     var aRootNode = tree.xpath("//*[@class='cell item']");

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
+
+import 'package:flutter_v2ex/components/home/search_bar.dart';
+import 'package:flutter_v2ex/components/home/sticky_bar.dart';
+import 'package:flutter_v2ex/components/home/tabbar_list.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 class MinePage extends StatefulWidget {
   const MinePage({super.key});
@@ -7,110 +13,58 @@ class MinePage extends StatefulWidget {
   State<MinePage> createState() => _MinePageState();
 }
 
-class _MinePageState extends State<MinePage>
-    with SingleTickerProviderStateMixin {
-  late TabController _controller;
+class _MinePageState extends State<MinePage> {
+  // 自定义、 缓存 、 api获取
+  List<Map<dynamic, dynamic>> tabs = [
+    {'name': '全部', 'id': 'all'},
+    {'name': '最热', 'id': 'hot'},
+    {'name': '技术', 'id': 'tech'},
+    {'name': '创意', 'id': 'creative'},
+    {'name': '好玩', 'id': 'play'},
+    {'name': 'APPLE', 'id': 'apple'},
+    {'name': '酷工作', 'id': 'jobs'},
+    {'name': '交易', 'id': 'deals'},
+    {'name': '城市', 'id': 'city'},
+    {'name': '问与答', 'id': 'qna'},
+    {'name': 'R2', 'id': 'r2'},
+  ];
+  late Future<List<TabTopicItem>> topicListFuture;
 
   @override
   void initState() {
     super.initState();
-    _controller = TabController(vsync: this, length: 3);
+    topicListFuture = getTopics();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
+  Future<List<TabTopicItem>> getTopics() async {
+    return await DioRequestWeb.getTopicsByTabKey('all', 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        scrollDirection: Axis.vertical, // 默认 Axis.vertical 还有 Axis.horizontal
-        slivers: <Widget>[
-          // 给 CustomScrollView 增加 SliverAppBar
-          SliverAppBar(
-            // leading 接收一个widget
-            leading: const IconButton(
-                icon: Icon(
-                  Icons.list,
-                  color: Colors.white,
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        body: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          child: NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                const SliverToBoxAdapter(
+                  child: HomeSearchBar(),
                 ),
-                onPressed: null),
-            title: Text("九点下班"),
-            elevation: 0,
-            actions: const [
-              IconButton(icon: Icon(Icons.add), onPressed: null),
-              IconButton(icon: Icon(Icons.map), onPressed: null),
-              IconButton(icon: Icon(Icons.more_vert), onPressed: null),
-            ],
-            bottom: TabBar(
-              controller: _controller,
-              tabs: const [
-                Tab(
-                  child: Text(
-                    "最新",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    "推荐",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    "关注",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            //是否钉住
-            pinned: true,
-            // 是否马上可见
-            floating: true,
-            //用的比较少只有floating时生效
-//          snap: true,
-            // SliverAppBar 完全可见的高度
-            expandedHeight: 250,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                "http://hiphotos.baidu.com/1066811738/pic/item/d90a475f1aad6ed1800a1896.jpg",
-                fit: BoxFit.cover,
-              ),
-//            title: Text("title"),
+                HomeStickyBar(tabs: tabs),
+              ];
+            },
+            body: TabBarView(
+              children: tabs.map((e) {
+                return TabBarList(e);
+              }).toList(),
             ),
           ),
-
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _controller,
-              children: [
-                Container(
-                  color: Colors.greenAccent,
-                ),
-                Container(
-                  color: Colors.yellow,
-                ),
-                Container(
-                  color: Colors.red,
-                ),
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
