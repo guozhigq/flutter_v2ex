@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_v2ex/http/init.dart';
 import 'package:html/dom.dart'
@@ -11,12 +13,12 @@ import 'package:html/dom_parsing.dart';
 import 'package:html/html_escape.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
+import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
-import '/utils/string.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -70,10 +72,10 @@ class DioRequestWeb {
 
       item.memberId =
           aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
-      item.avatar = aNode
+      item.avatar = Uri.encodeFull(aNode
           .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
           ?.first
-          .attributes["src"];
+          .attributes["src"]);
       String topicUrl = aNode
           .xpath("/table/tr/td[3]/span[2]/a")
           ?.first
@@ -102,5 +104,257 @@ class DioRequestWeb {
       topics.add(item);
     }
     return topics;
+  }
+
+  // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
+  static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
+    // print('在请求第$p页面数据');
+    TopicDetailModel detailModel = TopicDetailModel();
+    List<TopicSubtleItem> subtleList = []; // 附言
+    List<ReplyItem> replies = [];
+    // List<ProfileRecentReplyItem> replies = <ProfileRecentReplyItem>[];
+
+    var response = await dio.get("/t/$topicId?p=$p",
+        options:
+            buildCacheOptions(const Duration(days: 4), forceRefresh: true));
+    // Use html parser and query selector
+    var document = parse(response.data);
+    // pc mob不同UA判断
+    // String rootId = document.body!.children[0].id;
+    // String layout = rootId == 'site-header' ? 'default' : 'columns';
+    detailModel.topicId = topicId;
+
+    if (response.redirects.isNotEmpty ||
+        document.querySelector('#Main > div.box > div.message') != null) {
+      print('需要登录');
+      // Fluttertoast.showToast(
+      //     msg: '查看本主题需要先登录 😞',
+      //     gravity: ToastGravity.CENTER,
+      //     timeInSecForIosWeb: 2);
+      // Routes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      //     Routes.toHomePage, ModalRoute.withName("/"));
+      detailModel.replyList = replies;
+      detailModel.isAuth = true;
+      return detailModel;
+    }
+
+    /// 头部内容
+    /// 查询头部内容公共头
+
+    const String wrapperQuery = '#Wrapper';
+
+    /// main box 正文
+    const String mainBoxQuery = '$wrapperQuery > div > div:nth-child(1)';
+    const String headerQuery = '$mainBoxQuery > div.header';
+    const String innerQuery = '$mainBoxQuery > div.inner';
+
+    // header
+    // print(document
+    //     .querySelector('$headerQuery > div.fr > a > img')!
+    //     .attributes["src"]!);
+    detailModel.avatar = document
+        .querySelector('$headerQuery > div.fr > a > img')!
+        .attributes["src"]!;
+
+    detailModel.createdId =
+        document.querySelector('$headerQuery > small > a')!.text;
+
+    detailModel.nodeId = document
+        .querySelector('$headerQuery > a:nth-child(6)')!
+        .attributes["href"]!
+        .replaceAll('/go/', '');
+
+    detailModel.nodeName =
+        document.querySelector('$headerQuery > a:nth-child(6)')!.text;
+    //  at 9 小时 26 分钟前，1608 次点击
+    var pureStr = document
+        .querySelector('$headerQuery > small')!
+        .text
+        .split(' at')[1]
+        .replaceAll(RegExp(r"\s+"), "");
+    detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
+    detailModel.visitorCount =
+        pureStr.split('·')[1].replaceAll(RegExp(r'[^0-9]'), '');
+
+    // detailModel.smallGray = document
+    //     .querySelector('$headerQuery > small')!
+    //     .text
+    //     .split(' at')[1]
+    //     .replaceFirst(' +08:00', ''); // 时间 去除+ 08:00;
+
+    detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
+
+    // [email_protected] 转码回到正确的邮件字符串
+    // List<dom.Element> aRootNode =
+    //     document.querySelectorAll("a[class='__cf_email__']");
+    // for (var aNode in aRootNode) {
+    //   String encodedCf = aNode.attributes["data-cfemail"].toString();
+    //   aNode.replaceWith(Text(Utils.cfDecodeEmail(encodedCf)));
+    // }
+
+    // 判断是否有正文
+    if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
+      detailModel.content =
+          document.querySelector('$mainBoxQuery > div.cell > div')!.text;
+      detailModel.contentRendered =
+          document.querySelector('$mainBoxQuery > div.cell > div')!.innerHtml;
+    }
+
+    // 附言
+    List<dom.Element> appendNodes =
+        document.querySelectorAll("$mainBoxQuery > div[class='subtle']");
+    if (appendNodes.isNotEmpty) {
+      for (var node in appendNodes) {
+        TopicSubtleItem subtleItem = TopicSubtleItem();
+        subtleItem.fade = node
+            .querySelector('span.fade')!
+            .text
+            .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
+        subtleItem.content = node.querySelector('div.topic_content')!.innerHtml;
+        subtleList.add(subtleItem);
+      }
+    }
+    detailModel.subtleList = subtleList;
+
+    // token 是否收藏
+    // <a href="/unfavorite/topic/541492?t=lqstjafahqohhptitvcrplmjbllwqsxc" class="op">取消收藏</a>
+    // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(2)
+    if (document.querySelector("$innerQuery > div > a[class='op']") != null) {
+      String collect = document
+          .querySelector("$innerQuery > div > a[class='op']")!
+          .attributes["href"]!;
+      detailModel.token = collect.split('?t=')[1];
+      detailModel.isFavorite = collect.startsWith('/unfavorite');
+    }
+
+    if (document.querySelector("$innerQuery > div > span") != null) {
+      String count = document.querySelector("$innerQuery > div > span")!.text;
+      if (count.contains('人收藏')) {
+        detailModel.favoriteCount = int.parse(count.trim().split('人收藏')[0]);
+      }
+    }
+
+    // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？')) { location.href = '/ignore/topic/583319?once=62479'; }"
+    //    class="op" style="user-select: auto;">忽略主题</a>
+    // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(5)
+
+    // 是否感谢 document.querySelector('#topic_thank > span')
+    detailModel.isThank = document.querySelector('#topic_thank > span') != null;
+    // print(detailModel.isFavorite == true ? 'yes' : 'no');
+    // print(detailModel.isThank == true ? 'yes' : 'no');
+
+    // 判断是否有评论
+    if (document.querySelector('#no-comments-yet') == null) {
+      // 表示有评论
+      // tag 标签
+      // var tagBoxDom =
+      //     document.querySelector('$wrapperQuery > div')!.children[2];
+
+      // 回复数 发布时间 评论
+      dom.Element replyBoxDom;
+
+      // tag标签判断
+      var isHasTag = document
+              .querySelector('$wrapperQuery > div')!
+              .children[2]
+              .querySelector('a.tag') !=
+          null;
+      if (isHasTag) {
+        replyBoxDom =
+            document.querySelector('$wrapperQuery > div')!.children[4];
+      } else {
+        replyBoxDom =
+            document.querySelector('$wrapperQuery > div')!.children[2];
+      }
+
+      print(replyBoxDom.querySelector('div')!.children[0].className);
+
+      detailModel.replyCount = replyBoxDom
+          .querySelector('div.cell span')!
+          .text
+          .replaceAll(RegExp(r"\s+"), "")
+          .split('条回复')[0];
+      if (p == 1) {
+        // 只有第一页这样的解析才对
+        if (document.querySelector(
+                '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child') !=
+            null) {
+          detailModel.maxPage = int.parse(document
+              .querySelector(
+                  '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
+              .text);
+        }
+      }
+
+      /// 回复楼层
+      /// first td user avatar
+      /// third td main content
+      List<dom.Element> rootNode = document
+          .querySelectorAll("#Wrapper > div > div[class='box'] > div[id]");
+      var replyTrQuery = 'table > tbody > tr';
+      for (var aNode in rootNode) {
+        ReplyItem replyItem = ReplyItem();
+        replyItem.avatar = Uri.encodeFull(aNode
+            .querySelector('$replyTrQuery > td:nth-child(1) > img')!
+            .attributes["src"]!);
+        replyItem.userName = aNode
+            .querySelector('$replyTrQuery > td:nth-child(5) > strong > a')!
+            .text;
+        if (aNode.querySelector(
+                '$replyTrQuery > td:nth-child(5) > div.badges > div.badge') !=
+            null) {
+          replyItem.isOwner = true;
+        }
+        replyItem.lastReplyTime = aNode
+            .querySelector('$replyTrQuery > td:nth-child(5) > span')!
+            .text
+            .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
+        if (replyItem.lastReplyTime.contains('via')) {
+          var platform = replyItem.lastReplyTime
+              .split('via')[1]
+              .replaceAll(RegExp(r"\s+"), "");
+          replyItem.lastReplyTime = replyItem.lastReplyTime.split('via')[0];
+          replyItem.platform = platform;
+        }
+
+        /// @user
+        if (aNode.querySelector(
+                "$replyTrQuery > td:nth-child(5) > span[class='small fade']") !=
+            null) {
+          replyItem.favorites = aNode
+              .querySelector(
+                  "$replyTrQuery > td:nth-child(5) > span[class='small fade']")!
+              .text
+              .split(" ")[1];
+          // 感谢状态
+          if (aNode.querySelector(
+                  "$replyTrQuery > td:nth-child(5) > div.fr > div.thanked") !=
+              null) {
+            replyItem.favoritesStatus = true;
+          }
+        }
+        // replyItem.number = aNode
+        //     .querySelector(
+        //         '$replyTrQuery > td:nth-child(5) > div.fr > span')!
+        //     .text;
+        replyItem.floorNumber = aNode
+            .querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!
+            .text;
+        replyItem.contentRendered = aNode
+            .querySelector(
+                '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+            .innerHtml;
+        // print("wml20191112:${replyItem.contentRendered}");
+        replyItem.content = aNode
+            .querySelector(
+                '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+            .text;
+        replyItem.replyId = aNode.attributes["id"]!.substring(2);
+        replies.add(replyItem);
+      }
+    }
+    detailModel.replyList = replies;
+    // print(detailModel.replyList);
+    return detailModel;
   }
 }

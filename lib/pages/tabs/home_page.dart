@@ -5,6 +5,8 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 // import 'package:flutter_v2ex/components/home/search_bar.dart';
 import 'package:flutter_v2ex/components/home/sticky_bar.dart';
 import 'package:flutter_v2ex/components/home/tabbar_list.dart';
+import 'package:flutter_v2ex/components/home/left_drawer.dart';
+
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 // plugin fix https://github.com/flutter/flutter/issues/36419
@@ -75,7 +77,8 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        // backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        drawer: const HomeLeftDrawer(),
         body: Column(
           children: <Widget>[
             Container(

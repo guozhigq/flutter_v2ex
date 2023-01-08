@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/pages/list_detail.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -22,13 +23,23 @@ class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Container(
+      child: Card(
+        elevation: 0,
         margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              // Navigator.pushNamed(context, "/listdetail");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ListDetail(topicId: widget.topic.topicId),
+                ),
+              );
+            },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: const EdgeInsets.all(15),
@@ -61,16 +72,19 @@ class _ListItemState extends State<ListItem> {
                   clipBehavior: Clip.antiAlias,
                   margin: const EdgeInsets.only(right: 10),
                   // child: Image.network(
-                  //   // widget.topic.avatar,
-                  //   'https://cdn.v2ex.com/avatar/7265/601c/290989_normal.png?m=1672712228',
+                  //   widget.topic.avatar,
+                  //   // 'https://cdn.v2ex.com/avatar/7265/601c/290989_normal.png?m=1672712228',
                   //   fit: BoxFit.cover,
                   //   width: 33,
                   //   height: 33,
                   // ),
-                  width: 33,
-                  height: 33,
+                  width: 35,
+                  height: 35,
                   child: Center(
-                    child: Text(widget.topic.memberId.substring(0, 1)),
+                    child: Text(
+                      widget.topic.memberId.substring(0, 1),
+                      style: const TextStyle(fontSize: 15),
+                    ),
                   ),
                 ),
                 Column(
@@ -83,11 +97,12 @@ class _ListItemState extends State<ListItem> {
                         widget.topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: const TextStyle(
-                          fontSize: 13.0,
-                          height: 1.5,
-                          letterSpacing: 0.5,
-                        ),
+                        // style: const TextStyle(
+                        //   fontSize: 15,
+                        //   height: 1.5,
+                        //   letterSpacing: 0.5,
+                        // ),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ),
                     Row(
@@ -95,20 +110,20 @@ class _ListItemState extends State<ListItem> {
                         if (widget.topic.lastReplyTime.isNotEmpty) ...[
                           Text(
                             widget.topic.lastReplyTime,
-                            style: const TextStyle(
-                              fontSize: 10.0,
-                              height: 1.3,
-                            ),
+                            style: TextStyle(
+                                fontSize: 10.0,
+                                height: 1.3,
+                                color: Theme.of(context).colorScheme.outline),
                           ),
-                          const SizedBox(width: 7),
+                          const SizedBox(width: 10),
                         ],
                         if (widget.topic.replyCount.isNotEmpty) ...[
                           Text(
-                            '${widget.topic.replyCount} 评论',
-                            style: const TextStyle(
-                              fontSize: 10.0,
-                              height: 1.3,
-                            ),
+                            '${widget.topic.replyCount}评论',
+                            style: TextStyle(
+                                fontSize: 10.0,
+                                height: 1.3,
+                                color: Theme.of(context).colorScheme.outline),
                           ),
                         ]
                       ],
@@ -150,14 +165,15 @@ class _ListItemState extends State<ListItem> {
         // title
         Container(
           alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 10, bottom: 3),
+          margin: const EdgeInsets.only(top: 12, bottom: 3),
           child: Text(
             Characters(widget.topic.topicContent).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: const TextStyle(
-              fontSize: 14.0,
-            ),
+            // style: const TextStyle(
+            //   fontSize: 14,
+            // ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
       ],

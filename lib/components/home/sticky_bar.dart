@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/home/search_bar.dart';
+// import 'package:flutter_v2ex/components/home/search_bar.dart';
 
 class HomeStickyBar extends StatelessWidget {
   const HomeStickyBar({super.key, required this.tabs});
   final List<Map<dynamic, dynamic>> tabs;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 45,
-      // decoration: BoxDecoration(
-      //   color: Theme.of(context).colorScheme.surfaceVariant,
-      //   border: Border(
-      //     bottom: BorderSide(
-      //       width: 0.5,
-      //       color: Theme.of(context).colorScheme.onInverseSurface,
-      //     ),
-      //   ),
-      // ),
-      padding: const EdgeInsets.only(top: 5),
+      height: 42,
       child: Row(
         children: [
           Expanded(
@@ -35,6 +25,7 @@ class HomeStickyBar extends StatelessWidget {
               unselectedLabelColor:
                   Theme.of(context).colorScheme.inverseSurface,
               enableFeedback: true,
+              padding: const EdgeInsets.only(bottom: 3),
               tabs: tabs.map((item) {
                 return Tab(text: item['name']);
               }).toList(),
@@ -42,16 +33,6 @@ class HomeStickyBar extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Container(
-            // decoration: BoxDecoration(
-            //   color: Theme.of(context).colorScheme.surfaceVariant,
-            //   border: Border(
-            //     left: BorderSide(
-            //       width: 0.5,
-            //       color:
-            //           Theme.of(context).colorScheme.onInverseSurface,
-            //     ),
-            //   ),
-            // ),
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: const Icon(
               Icons.segment,

@@ -4,18 +4,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+// import 'package:cookie_jar/cookie_jar.dart';
+// import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
+// import 'package:dio_http_cache/dio_http_cache.dart';
 
-import 'utils/utils.dart';
+// import 'utils/utils.dart';
 import 'utils/string.dart';
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
+// import 'package:flutter_v2ex/http/dio_web.dart';
 
 import 'package:flutter_v2ex/pages/app_tab.dart';
+import 'package:flutter_v2ex/pages/list_detail.dart';
+import 'package:flutter_v2ex/pages/webview_page.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -30,15 +32,15 @@ void main() async {
 
   // 配置 dio
   // add interceptors
-  var cookiePath = await Utils.getCookiePath();
-  var cookieJar = PersistCookieJar(
-    ignoreExpires: true,
-    storage: FileStorage(cookiePath),
-  ); // 持久化 cookie
-  dio.interceptors
-    ..add(CookieManager(cookieJar))
-    ..add(LogInterceptor())
-    ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor);
+  // var cookiePath = await Utils.getCookiePath();
+  // var cookieJar = PersistCookieJar(
+  //   ignoreExpires: true,
+  //   storage: FileStorage(cookiePath),
+  // ); // 持久化 cookie
+  // dio.interceptors
+  //   ..add(CookieManager(cookieJar))
+  //   ..add(LogInterceptor())
+  //   ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor);
 
   (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
   dio.options.connectTimeout = 12000;
@@ -73,7 +75,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-Color brandColor = const Color.fromARGB(255, 25, 201, 193);
+Color brandColor = const Color.fromARGB(41, 64, 118, 193);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -120,10 +122,12 @@ class _MyAppState extends State<MyApp> {
           colorScheme: darkColorScheme,
         ),
         home: const AppTab(),
-        // initialRoute: '/',
-        // routes: {
-        //   '/listdetail': (context) => const ListDetail(),
-        // },
+        // initialRoute: '/listdetail',
+        initialRoute: '/',
+        routes: {
+          '/listdetail': (context) => const ListDetail(),
+          '/webview': (context) => const WebView(),
+        },
       );
     });
   }

@@ -26,34 +26,34 @@ class _AppTabState extends State<AppTab> {
       //   ],
       // ),
       body: createScreenFor(screenIndex),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: handleScreenChanged,
-        selectedIndex: screenIndex,
-        animationDuration: const Duration(milliseconds: 300),
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(
-              Icons.lens_outlined,
-              size: 19,
-            ),
-            label: "首页",
-          ),
-          NavigationDestination(
-            icon: Icon(
-              Icons.favorite_border,
-              size: 19,
-            ),
-            label: "收藏",
-          ),
-          NavigationDestination(
-            icon: Icon(
-              Icons.check_box_outline_blank,
-              size: 19,
-            ),
-            label: "我的",
-          ),
-        ],
-      ),
+      // bottomNavigationBar: NavigationBar(
+      //   onDestinationSelected: handleScreenChanged,
+      //   selectedIndex: screenIndex,
+      //   animationDuration: const Duration(milliseconds: 300),
+      //   destinations: const <Widget>[
+      //     NavigationDestination(
+      //       icon: Icon(
+      //         Icons.lens_outlined,
+      //         size: 19,
+      //       ),
+      //       label: "首页",
+      //     ),
+      //     NavigationDestination(
+      //       icon: Icon(
+      //         Icons.favorite_border,
+      //         size: 19,
+      //       ),
+      //       label: "收藏",
+      //     ),
+      //     NavigationDestination(
+      //       icon: Icon(
+      //         Icons.check_box_outline_blank,
+      //         size: 19,
+      //       ),
+      //       label: "我的",
+      //     ),
+      //   ],
+      // ),
     );
   }
 
