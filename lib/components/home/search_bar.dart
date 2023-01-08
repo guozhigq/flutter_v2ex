@@ -10,7 +10,6 @@ class HomeSearchBar extends StatelessWidget {
       width: double.infinity,
       height: 65,
       padding: const EdgeInsets.only(top: 10, right: 13, left: 13, bottom: 10),
-      color: Theme.of(context).colorScheme.surfaceVariant,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: Container(
@@ -21,9 +20,6 @@ class HomeSearchBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Row(children: [
-              // const Icon(Icons.menu_outlined),
-              // const SizedBox(width: 12),
               IconButton(
                   // onPressed: (() => {Scaffold.of(context).openDrawer()}),
                   onPressed: () => {
@@ -53,7 +49,6 @@ class HomeSearchBar extends StatelessWidget {
                   ),
                 ],
               ),
-
               Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceVariant,
@@ -69,19 +64,6 @@ class HomeSearchBar extends StatelessWidget {
                   ),
                 ),
               ),
-              // ]),
-              // Container(
-              //   decoration: BoxDecoration(
-              //     color: Theme.of(context).colorScheme.surfaceVariant,
-              //     borderRadius: BorderRadius.circular(50),
-              //   ),
-              //   clipBehavior: Clip.antiAlias,
-              //   width: 33,
-              //   height: 33,
-              //   child: const Center(
-              //     child: Text('V'),
-              //   ),
-              // ),
             ],
           ),
         ),

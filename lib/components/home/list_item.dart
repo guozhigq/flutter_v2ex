@@ -31,7 +31,6 @@ class _ListItemState extends State<ListItem> {
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
-              // Navigator.pushNamed(context, "/listdetail");
               Navigator.push(
                 context,
                 MaterialPageRoute(

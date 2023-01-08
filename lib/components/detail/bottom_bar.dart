@@ -14,7 +14,6 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
       child: Container(
         height: 80,
         width: double.infinity,
-        // color: Theme.of(context).primaryColorLight,
         padding: const EdgeInsets.only(top: 12, right: 16, bottom: 16, left: 4),
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.onInverseSurface,
