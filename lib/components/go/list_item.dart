@@ -1,9 +1,6 @@
-import 'package:flare_flutter/base/animation/property_types.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -16,27 +13,7 @@ class ListItem extends StatefulWidget {
   State<ListItem> createState() => _ListItemState();
 }
 
-class _ListItemState extends State<ListItem>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> opacityAnim;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _ctrl =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    opacityAnim = Tween<double>(begin: 0, end: 1.0).animate(_ctrl);
-    _ctrl.forward();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
+class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -53,20 +30,6 @@ class _ListItemState extends State<ListItem>
                 MaterialPageRoute(
                   builder: (context) => ListDetail(topic: widget.topic),
                 ),
-                // PageRouteBuilder(
-                //   transitionDuration:
-                //       const Duration(milliseconds: 300), //动画时间为500毫秒
-                //   pageBuilder: (BuildContext context, Animation animation,
-                //       Animation secondaryAnimation) {
-                //     return FadeTransition(
-                //       //使用渐隐渐入过渡,
-                //       opacity: opacityAnim,
-                //       child: ListDetail(
-                //         topic: widget.topic,
-                //       ), //路由B
-                //     );
-                //   },
-                // ),
               );
             },
             borderRadius: BorderRadius.circular(10),
@@ -128,7 +91,7 @@ class _ListItemState extends State<ListItem>
                         ],
                         if (widget.topic.replyCount.isNotEmpty) ...[
                           Text(
-                            '${widget.topic.replyCount}评论',
+                            '${widget.topic.clickCount}次点击',
                             style: TextStyle(
                                 fontSize: 10.0,
                                 height: 1.3,
@@ -145,15 +108,7 @@ class _ListItemState extends State<ListItem>
               borderRadius: BorderRadius.circular(50),
               color: Theme.of(context).colorScheme.surfaceVariant,
               child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          GoPage(nodeKey: widget.topic.nodeId),
-                    ),
-                  );
-                },
+                onTap: () {},
                 borderRadius: BorderRadius.circular(50),
                 child: Container(
                   padding:
@@ -163,7 +118,7 @@ class _ListItemState extends State<ListItem>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        widget.topic.nodeName,
+                        widget.topic.replyCount,
                         style: const TextStyle(
                           fontSize: 11.0,
                           textBaseline: TextBaseline.ideographic,

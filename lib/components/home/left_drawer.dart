@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_v2ex/components/home/list_item.dart';
 
 class HomeLeftDrawer extends StatefulWidget {
   const HomeLeftDrawer({super.key});
@@ -10,10 +11,27 @@ class HomeLeftDrawer extends StatefulWidget {
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   @override
   Widget build(BuildContext context) {
-    return const Material(
+    return Material(
       child: Drawer(
         backgroundColor: Colors.white,
-        width: 200,
+        width: 300,
+        child: ListView(
+          children: const [
+            DrawerHeader(child: Text('123')),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('124'),
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('124'),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('设置'),
+            )
+          ],
+        ),
       ),
     );
   }

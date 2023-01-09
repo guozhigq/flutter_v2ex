@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_v2ex/http/init.dart';
+// import 'package:flutter_v2ex/http/init.dart';
+import 'package:flutter_v2ex/http/init3.dart';
 import 'package:html/dom.dart'
     as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/dom.dart';
@@ -16,6 +18,8 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
+import 'package:flutter_v2ex/models/web/model_node_list.dart';
+import 'package:flutter_v2ex/models/web/item_node_list.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
@@ -53,23 +57,21 @@ class DioRequestWeb {
     }
   }
 
-  static Future verifyLoginStatus() async {
-    final response = await dio.get("/new");
-    print(response);
-  }
-
   // 获取主页分类内容
   static Future<List<TabTopicItem>> getTopicsByTabKey(
       String tabKey, int p) async {
     var topics = <TabTopicItem>[];
     Response response;
-    response = await dio.get('/?tab=$tabKey');
+    response = await Request().get(
+      '/',
+      data: {'tab': tabKey},
+      extra: {'ua': 'mob', 'channel': 'web'},
+    );
     var tree = ETree.fromString(response.data);
     // ignore: avoid_print
     var aRootNode = tree.xpath("//*[@class='cell item']");
     for (var aNode in aRootNode!) {
       var item = TabTopicItem();
-
       item.memberId =
           aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
       item.avatar = Uri.encodeFull(aNode
@@ -92,7 +94,7 @@ class DioRequestWeb {
               aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
         }
       }
-      item.topicContent = aNode
+      item.topicTitle = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
           .name!
           .replaceAll('&quot;', '')
@@ -101,22 +103,127 @@ class DioRequestWeb {
           .replaceAll('&gt;', '>');
 
       item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+      item.nodeId = aNode
+          .xpath("/table/tr/td[3]/span[1]/a")
+          ?.first
+          .attributes["href"]
+          .split('/')[2];
       topics.add(item);
     }
     return topics;
   }
 
+  static Future<NodeListModel> getTopicsByNodeKey(String nodeKey, int p) async {
+    NodeListModel detailModel = NodeListModel();
+    List<TabTopicItem> topics = [];
+    Response response;
+    // 请求PC端页面 lastReplyTime totalPage
+    // Request().dio.options.headers = {};
+    response = await Request().get('/go/$nodeKey', extra: {'ua': 'pc'});
+    var document = parse(response.data);
+    var mainBox = document.querySelector('#Main');
+    var mainHeader = mainBox!.querySelector('div.node-header');
+    // 主题总数
+    detailModel.topicCount = mainHeader!.querySelector('strong')!.text;
+    // 节点描述
+    detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
+    // 节点收藏状态
+    if (mainHeader.querySelector('div.cell_ops') != null) {
+      detailModel.favorite =
+          !mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
+    }
+    // 总页数
+    // 主题
+    var topicEle =
+        document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
+    print(topicEle.length);
+
+    // var boxChildren = document.querySelector('#Main > div > div:nth-child(3)');
+    // var cellBoxChildren = boxChildren!.querySelectorAll('div.cell');
+
+    // if (cellBoxChildren[0].className == 'cell tab-alt-container') {
+    //   cellBoxChildren.removeAt(0);
+    // }
+
+    for (var aNode in topicEle) {
+      var item = TabTopicItem();
+
+      //  头像 昵称
+      if (aNode.querySelector('td > a > img') != null) {
+        item.avatar = aNode.querySelector('td > a > img')!.attributes['src']!;
+        item.memberId = aNode.querySelector('td > a > img')!.attributes['alt']!;
+      }
+
+      if (aNode.querySelector('tr > td:nth-child(5)') != null) {
+        item.topicTitle = aNode
+            .querySelector('td:nth-child(5) > span.item_title')!
+            .text
+            .replaceAll('&quot;', '')
+            .replaceAll('&amp;', '&')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>');
+        // var topicSub = aNode
+        //     .querySelector('td:nth-child(5) > span.small')!
+        //     .text
+        //     .replaceAll('&nbsp;', "");
+        // item.memberId = topicSub.split('•')[0].trim();
+        // item.clickCount =
+        //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
+      }
+      if (aNode.querySelector('tr > td:last-child > a') != null) {
+        String? topicUrl = aNode
+            .querySelector('tr > td:last-child > a')!
+            .attributes['href']; // 得到是 /t/522540#reply17
+        item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
+        item.replyCount = topicUrl
+            .replaceAll("/t/", "")
+            .split("#")[1]
+            .replaceAll(RegExp(r'[^0-9]'), '');
+      }
+      // if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
+      //   item.replyCount = aNode.xpath("/table/tr/td[4]/a/text()")![0].name!;
+      //   item.lastReplyTime = aNode
+      //       .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
+      //       .name!
+      //       .split(' &nbsp;')[0];
+      //   if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
+      //     item.lastReplyMId =
+      //         aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
+      //   }
+      // }
+      // item.topicTitle = aNode
+      //     .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
+      //     .name!
+      //     .replaceAll('&quot;', '')
+      //     .replaceAll('&amp;', '&')
+      //     .replaceAll('&lt;', '<')
+      //     .replaceAll('&gt;', '>');
+
+      // item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+      topics.add(item);
+    }
+    detailModel.topicList = topics;
+    return detailModel;
+  }
+
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
-    // print('在请求第$p页面数据');
+    print('在请求第$p页面数据');
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
     // List<ProfileRecentReplyItem> replies = <ProfileRecentReplyItem>[];
-
-    var response = await dio.get("/t/$topicId?p=$p",
-        options:
-            buildCacheOptions(const Duration(days: 4), forceRefresh: true));
+    // Request.dio.options.headers = {
+    //   'user-agent': Platform.isIOS
+    //       ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    //       : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
+    // };
+    var response = await Request().get(
+      "/t/$topicId",
+      data: {'p': p},
+      options: buildCacheOptions(const Duration(days: 4), forceRefresh: true),
+      extra: {'ua': 'mob'},
+    );
     // Use html parser and query selector
     var document = parse(response.data);
     // pc mob不同UA判断
@@ -267,8 +374,6 @@ class DioRequestWeb {
             document.querySelector('$wrapperQuery > div')!.children[2];
       }
 
-      print(replyBoxDom.querySelector('div')!.children[0].className);
-
       detailModel.replyCount = replyBoxDom
           .querySelector('div.cell span')!
           .text
@@ -279,10 +384,14 @@ class DioRequestWeb {
         if (document.querySelector(
                 '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child') !=
             null) {
-          detailModel.maxPage = int.parse(document
+          print(document
               .querySelector(
                   '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
               .text);
+          // detailModel.totalPage = int.parse(document
+          //     .querySelector(
+          //         '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
+          //     .text);
         }
       }
 
@@ -344,7 +453,6 @@ class DioRequestWeb {
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
             .innerHtml;
-        // print("wml20191112:${replyItem.contentRendered}");
         replyItem.content = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!

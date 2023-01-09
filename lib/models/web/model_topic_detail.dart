@@ -28,7 +28,7 @@ class TopicDetailModel {
   int favoriteCount = 0; // 收藏的人数
   bool isThank = false; // 是否已感谢
 
-  int maxPage = 1; // 共有多少页数评论
+  int totalPage = 1; // 共有多少页数评论
 
   late List<ReplyItem> replyList;
 }

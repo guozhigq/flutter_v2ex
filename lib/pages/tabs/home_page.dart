@@ -34,17 +34,17 @@ class _HomePageState extends State<HomePage> {
     {'name': '问与答', 'id': 'qna'},
     {'name': 'R2', 'id': 'r2'},
   ];
-  late Future<List<TabTopicItem>> topicListFuture;
+  // late Future<List<TabTopicItem>> topicListFuture;
 
   @override
   void initState() {
     super.initState();
-    topicListFuture = getTopics();
+    // topicListFuture = getTopics();
   }
 
-  Future<List<TabTopicItem>> getTopics() async {
-    return await DioRequestWeb.getTopicsByTabKey('all', 0);
-  }
+  // Future<List<TabTopicItem>> getTopics() async {
+  //   return await DioRequestWeb.getTopicsByTabKey('all', 0);
+  // }
 
   @override
 //   Widget build(BuildContext context) {

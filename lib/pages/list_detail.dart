@@ -6,11 +6,13 @@ import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 
 class ListDetail extends StatefulWidget {
-  const ListDetail({this.topicId = '1', super.key});
-  final String topicId;
+  const ListDetail({this.topic, super.key});
+  final TabTopicItem? topic;
 
   @override
   State<ListDetail> createState() => _ListDetailState();
@@ -25,6 +27,8 @@ class _ListDetailState extends State<ListDetail> {
 
   // late Future<TopicDetailModel>? _detailModel;
   TopicDetailModel? _detailModel;
+  final List<ReplyItem> _replyList = [];
+  int _totalPage = 0;
   final _MIProperties _headerProperties = _MIProperties(
     name: 'Header',
   );
@@ -50,10 +54,12 @@ class _ListDetailState extends State<ListDetail> {
   //   return await DioRequestWeb.getTopicDetail(widget.topicId, 0);
   // }
   Future getDetail() async {
-    TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(widget.topicId, 0);
+    TopicDetailModel topicDetailModel = await DioRequestWeb.getTopicDetail(
+        widget.topic!.topicId, _totalPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
+      _replyList.addAll(topicDetailModel.replyList);
+      _totalPage = topicDetailModel.totalPage;
     });
   }
 
@@ -68,7 +74,6 @@ class _ListDetailState extends State<ListDetail> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
-        // title: const Text('详情', style: TextStyle(fontSize: 15)),
         actions: [
           IconButton(
             onPressed: (() => {}),
@@ -86,93 +91,70 @@ class _ListDetailState extends State<ListDetail> {
         // shadowColor: Theme.of(context).colorScheme.shadow.withAlpha(100),
         backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
-      body: _detailModel != null
-          ? Stack(
-              children: [
-                EasyRefresh(
-                  // clipBehavior: Clip.none,
-                  // controller: _controller,
-                  header: MaterialHeader(
-                    backgroundColor: ThemeData().canvasColor,
-                    clamping: _headerProperties.clamping,
-                    showBezierBackground: _headerProperties.background,
-                    bezierBackgroundAnimation: _headerProperties.animation,
-                    bezierBackgroundBounce: _headerProperties.bounce,
-                    infiniteOffset: _headerProperties.infinite ? 100 : null,
-                    springRebound: _headerProperties.listSpring,
-                  ),
-                  footer: ClassicFooter(
-                    clamping: _footerProperties.clamping,
-                    backgroundColor: _footerProperties.background
-                        ? Theme.of(context).colorScheme.surfaceVariant
-                        : null,
-                    mainAxisAlignment: _footerProperties.alignment,
-                    showMessage: _footerProperties.message,
-                    showText: _footerProperties.text,
-                    infiniteOffset: _footerProperties.infinite ? 70 : null,
-                    triggerWhenReach: _footerProperties.immediately,
-                    hapticFeedback: true,
-                    dragText: 'Pull to load',
-                    armedText: 'Release ready',
-                    readyText: 'Loading...',
-                    processingText: '加载中...',
-                    succeededIcon: const Icon(Icons.auto_awesome),
-                    processedText: '加载成功',
-                    textStyle: const TextStyle(fontSize: 14),
-                    noMoreText: '没有更多了',
-                    noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
-                    failedText: '加载失败',
-                    messageText: '上次更新 %T',
-                  ),
-                  // 下拉
-                  onRefresh: () async {
-                    await Future.delayed(const Duration(seconds: 5));
-                    if (!mounted) {
-                      return;
-                    }
-
-                    _controller.finishRefresh();
-                    _controller.resetFooter();
-                  },
-                  // 上拉
-                  // onLoad: () async {
-                  //   await Future.delayed(const Duration(seconds: 2), () {});
-                  //   _controller.finishLoad();
-                  //   _controller.resetFooter();
-                  //   return IndicatorResult.noMore;
-                  // },
-                  onLoad: null,
-                  // child: FutureBuilder<TopicDetailModel>(
-                  //   future: _detailModel,
-                  //   builder: (context, snapshot) {
-                  //     Widget widget;
-                  //     if (snapshot.connectionState == ConnectionState.done) {
-                  //       if (snapshot.hasError) {
-                  //         widget = const Text('topic detail Request Error');
-                  //       } else {
-                  //         widget = showRes(snapshot);
-                  //       }
-                  //     } else {
-                  //       widget = showLoading();
-                  //     }
-                  //     return widget;
-                  //   },
-                  // ),
-                  child: showRes(_detailModel),
-                ),
-                const Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: DetailBottomBar(),
-                ),
-              ],
-            )
-          : showLoading(),
+      body: Stack(
+        children: [
+          EasyRefresh(
+            header: MaterialHeader(
+              backgroundColor: ThemeData().canvasColor,
+              clamping: _headerProperties.clamping,
+              showBezierBackground: _headerProperties.background,
+              bezierBackgroundAnimation: _headerProperties.animation,
+              bezierBackgroundBounce: _headerProperties.bounce,
+              infiniteOffset: _headerProperties.infinite ? 100 : null,
+              springRebound: _headerProperties.listSpring,
+            ),
+            footer: ClassicFooter(
+              clamping: _footerProperties.clamping,
+              backgroundColor: _footerProperties.background
+                  ? Theme.of(context).colorScheme.surfaceVariant
+                  : null,
+              mainAxisAlignment: _footerProperties.alignment,
+              showMessage: _footerProperties.message,
+              showText: _footerProperties.text,
+              infiniteOffset: _footerProperties.infinite ? 70 : null,
+              triggerWhenReach: _footerProperties.immediately,
+              hapticFeedback: true,
+              dragText: 'Pull to load',
+              armedText: 'Release ready',
+              readyText: 'Loading...',
+              processingText: '加载中...',
+              succeededIcon: const Icon(Icons.auto_awesome),
+              processedText: '加载成功',
+              textStyle: const TextStyle(fontSize: 14),
+              noMoreText: '没有更多了',
+              noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
+              failedText: '加载失败',
+              messageText: '上次更新 %T',
+            ),
+            // 下拉
+            onRefresh: () async {
+              await getDetail();
+              _controller.finishRefresh();
+              _controller.resetFooter();
+            },
+            // 上拉
+            onLoad: () async {
+              // await Future.delayed(const Duration(seconds: 2), () {});
+              await getDetail();
+              _controller.finishLoad();
+              _controller.resetFooter();
+              return IndicatorResult.noMore;
+            },
+            // onLoad: null,
+            child: showRes(),
+          ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: DetailBottomBar(),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget showRes(snapshot) {
+  Widget showRes() {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -186,10 +168,9 @@ class _ListDetailState extends State<ListDetail> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Row(
-                      children: [
+                      children: <Widget>[
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(50),
                           ),
                           clipBehavior: Clip.antiAlias,
@@ -203,28 +184,25 @@ class _ListDetailState extends State<ListDetail> {
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              color: null,
-                              child: Text(
-                                snapshot.createdId,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                // style: const TextStyle(
-                                //   fontSize: 14.0,
-                                //   height: 1.5,
-                                //   letterSpacing: 0.5,
-                                // ),
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
+                          children: <Widget>[
                             Text(
-                              snapshot.createdTime,
-                              style: const TextStyle(
-                                fontSize: 10.0,
-                                height: 1.3,
-                              ),
+                              widget.topic!.memberId,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
+                            SizedBox(
+                              height: 15,
+                              child: _detailModel != null
+                                  ? Text(
+                                      _detailModel!.createdTime,
+                                      style: const TextStyle(
+                                        fontSize: 10.0,
+                                        height: 1.3,
+                                      ),
+                                    )
+                                  : null,
+                            )
                           ],
                         ),
                       ],
@@ -242,10 +220,8 @@ class _ListDetailState extends State<ListDetail> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // const Icon(Icons.workspaces_outlined, size: 14),
-                              // const SizedBox(width: 2.5),
                               Text(
-                                snapshot.nodeName,
+                                widget.topic!.nodeName,
                                 style: const TextStyle(
                                   fontSize: 11.0,
                                   textBaseline: TextBaseline.ideographic,
@@ -260,68 +236,47 @@ class _ListDetailState extends State<ListDetail> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.only(
-                    top: 0, right: 18, bottom: 0, left: 18),
-                child: Row(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.visibility_outlined,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(snapshot.visitorCount)
-                      ],
-                    ),
-                    const SizedBox(width: 14),
-                    Row(
-                      children: [
-                        const Icon(Icons.sms_outlined, size: 18),
-                        const SizedBox(width: 4),
-                        Text(snapshot.replyCount),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              Container(
                 width: double.infinity,
-                // decoration: BoxDecoration(border: Border.all()),
                 padding: const EdgeInsets.only(
-                    top: 12, right: 18, bottom: 4, left: 18),
+                    top: 0, right: 18, bottom: 4, left: 18),
                 child: Text(
-                  snapshot.topicTitle,
-                  // style: const TextStyle(fontSize: 15.5, height: 1.5),
-                  style: Theme.of(context).textTheme.bodyText2,
+                  widget.topic!.topicTitle,
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
               ),
               const Divider(
                 endIndent: 15,
                 indent: 15,
               ),
-              Html(
-                data: snapshot.contentRendered,
-                style: {
-                  "html": Style(
-                    fontSize: FontSize(14),
-                    textAlign: TextAlign.justify,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  ),
-                  "a": Style(
-                    color: Theme.of(context).colorScheme.primary,
-                    textDecoration: TextDecoration.underline,
-                  ),
-                  "li > p": Style(
-                    display: Display.inline,
-                  ),
-                  "li": Style(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    textAlign: TextAlign.justify,
-                  ),
-                },
-              ),
+              if (_detailModel != null) ...[
+                Html(
+                  data: _detailModel!.contentRendered,
+                  style: {
+                    "html": Style(
+                      fontSize: FontSize(14),
+                      textAlign: TextAlign.justify,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 0, horizontal: 10),
+                    ),
+                    "a": Style(
+                      color: Theme.of(context).colorScheme.primary,
+                      textDecoration: TextDecoration.underline,
+                    ),
+                    "li > p": Style(
+                      display: Display.inline,
+                    ),
+                    "li": Style(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      textAlign: TextAlign.justify,
+                    ),
+                  },
+                ),
+                const Divider(
+                  endIndent: 15,
+                  indent: 15,
+                ),
+              ] else
+                showLoading(),
               // Container(
               //   padding: const EdgeInsets.only(
               //       top: 20, right: 25, bottom: 9, left: 10),
@@ -351,118 +306,91 @@ class _ListDetailState extends State<ListDetail> {
               //     ],
               //   ),
               // ),
-              const Divider(
-                endIndent: 15,
-                indent: 15,
-              ),
             ],
           ),
         ),
-        SliverToBoxAdapter(
-          child: Container(
-              padding: const EdgeInsets.only(
-                  top: 15, left: 15, bottom: 20, right: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${snapshot.replyList.length}条评论',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(width: 6),
-                  Row(
-                    children: [
-                      RawChip(
-                        labelPadding: const EdgeInsets.only(left: 1, right: 4),
-                        label: Text(
-                          '只看楼主',
-                          style: Theme.of(context).textTheme.labelMedium,
+        if (_detailModel != null) ...[
+          SliverToBoxAdapter(
+            child: Container(
+                padding: const EdgeInsets.only(
+                    top: 15, left: 15, bottom: 20, right: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${_detailModel!.replyList.length}条评论',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(width: 6),
+                    Row(
+                      children: [
+                        // RawChip(
+                        //   labelPadding:
+                        //       const EdgeInsets.only(left: 1, right: 4),
+                        //   label: Text(
+                        //     '只看楼主',
+                        //     style: Theme.of(context).textTheme.labelMedium,
+                        //   ),
+                        //   avatar: const Icon(
+                        //     Icons.person,
+                        //     size: 17,
+                        //   ),
+                        //   onPressed: () => setState(() {
+                        //     onlyOP = !onlyOP;
+                        //   }),
+                        //   shape: StadiumBorder(
+                        //       side: BorderSide(
+                        //           color: Theme.of(context)
+                        //               .colorScheme
+                        //               .surfaceVariant)),
+                        //   backgroundColor:
+                        //       Theme.of(context).colorScheme.surfaceVariant,
+                        //   selectedColor:
+                        //       Theme.of(context).colorScheme.onInverseSurface,
+                        //   // shape: ShapeBorder.lerp(a, b, t),
+                        //   selected: onlyOP,
+                        //   pressElevation: 2,
+                        //   showCheckmark: false,
+                        // ),
+                        // const SizedBox(width: 4),
+                        RawChip(
+                          labelPadding:
+                              const EdgeInsets.only(left: 1, right: 4),
+                          label: Text(
+                            '倒序查看',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          avatar: const Icon(
+                            Icons.swap_vert,
+                            size: 19,
+                          ),
+                          onPressed: () => setState(() {
+                            reverseSort = !reverseSort;
+                          }),
+                          shape: StadiumBorder(
+                              side: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceVariant)),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surfaceVariant,
+                          selectedColor:
+                              Theme.of(context).colorScheme.onInverseSurface,
+                          selected: reverseSort,
+                          showCheckmark: false,
                         ),
-                        avatar: const Icon(
-                          Icons.person,
-                          size: 17,
-                        ),
-                        onPressed: () => setState(() {
-                          onlyOP = !onlyOP;
-                        }),
-                        shape: StadiumBorder(
-                            side: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceVariant)),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.surfaceVariant,
-                        selectedColor:
-                            Theme.of(context).colorScheme.onInverseSurface,
-                        // shape: ShapeBorder.lerp(a, b, t),
-                        selected: onlyOP,
-                        pressElevation: 2,
-                        showCheckmark: false,
-                      ),
-                      const SizedBox(width: 4),
-                      RawChip(
-                        labelPadding: const EdgeInsets.only(left: 1, right: 4),
-                        label: Text(
-                          '倒序查看',
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                        avatar: const Icon(
-                          Icons.swap_vert,
-                          size: 18,
-                        ),
-                        onPressed: () => setState(() {
-                          reverseSort = !reverseSort;
-                        }),
-                        shape: StadiumBorder(
-                            side: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceVariant)),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.surfaceVariant,
-                        selectedColor:
-                            Theme.of(context).colorScheme.onInverseSurface,
-                        selected: reverseSort,
-                        showCheckmark: false,
-                      ),
-                    ],
-                  )
-                ],
-              )),
-        ),
-        // SliverPersistentHeader(
-        //     pinned: false, //是否固定在顶部
-        //     floating: false,
-        //     delegate: _SliverAppBarDelegate(
-        //       minHeight: 55, //收起的高度
-        //       maxHeight: 55,
-        //       child: Container(
-        //         decoration: BoxDecoration(
-        //           color: Theme.of(context).colorScheme.surfaceVariant,
-        //         ),
-        //         padding: const EdgeInsets.only(left: 15, right: 15),
-        //         child: Row(
-        //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //           crossAxisAlignment: CrossAxisAlignment.center,
-        //           children: [
-        //             Text(
-        //               '${snapshot.replyList.length}条评论',
-        //               style: Theme.of(context).textTheme.titleMedium,
-        //             ),
-        //             const Chip(
-        //               label: Text('只看楼主'),
-        //               avatar: Icon(Icons.abc),
-        //             )
-        //           ],
-        //         ),
-        //       ),
-        //     ),),
+                      ],
+                    )
+                  ],
+                )),
+          ),
+        ],
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return ReplyListItem(reply: snapshot.replyList![index]);
+              return ReplyListItem(reply: _replyList![index]);
             },
-            childCount: snapshot.replyList.length,
+            childCount: _replyList!.length,
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 100))
