@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:flutter_v2ex/pages/webview_page.dart';
+import 'package:flutter_v2ex/pages/list_detail.dart';
 
 class ReplyListItem extends StatefulWidget {
   const ReplyListItem({required this.reply, super.key});
@@ -59,33 +62,37 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   Widget lfAvtar() {
     return GestureDetector(
-      // onLongPress: () => {print('长按')},
-      onTap: () => showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('提示'),
-          content: const Text('确认花费10个铜板💰向该用户表示感谢'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('手误了'),
+        // onLongPress: () => {print('长按')},
+        onTap: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('提示'),
+                content: const Text('确认花费10个铜板💰向该用户表示感谢'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'Cancel'),
+                    child: const Text('手误了'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'OK'),
+                    child: const Text('确定'),
+                  ),
+                ],
+              ),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'OK'),
-              child: const Text('确定'),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: 5),
+              child: const CAvatar(
+                url:
+                    'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F13%2F20210613235426_7a793.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1675688930&t=f9850700bd7de894a7e1652cb26e5566',
+                size: 36,
+              ),
             ),
+            // IconButton(onPressed: () => {}, icon: const Icon(Icons.celebration))
           ],
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.only(top: 5),
-        child: const CAvatar(
-          url:
-              'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F13%2F20210613235426_7a793.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1675688930&t=f9850700bd7de894a7e1652cb26e5566',
-          size: 36,
-        ),
-      ),
-    );
+        ));
   }
 
   Widget content(context) {
@@ -140,6 +147,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
           margin: const EdgeInsets.only(top: 5, bottom: 5),
           child: Html(
             data: widget.reply.contentRendered,
+            onLinkTap: (url, buildContext, attributes, element) =>
+                {openHrefByWebview(url!)},
+            onImageTap: (String? url, RenderContext context,
+                Map<String, String> attributes, element) {
+              openImageDialog(url);
+              //open image in webview, or launch image in browser, or any other logic here
+            },
             style: {
               "html": Style(
                 fontSize: FontSize(14),
@@ -177,15 +191,26 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
                         title: const Text('提示'),
-                        content: const Text('确认花费10个铜板💰向该用户表示感谢'),
+                        content: SizedBox(
+                          height: 50,
+                          child: Column(
+                            children: [
+                              Text(
+                                '确定向该用户表示感谢?',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const Text('该操作将消耗10个铜币💰'),
+                            ],
+                          ),
+                        ),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () => Navigator.pop(context, 'Cancel'),
-                            child: const Text('手误了'),
+                            child: const Text('手滑了'),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, 'OK'),
-                            child: const Text('确定'),
+                            child: const Text('确定👌'),
                           ),
                         ],
                       ),
@@ -200,6 +225,17 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     padding: const EdgeInsets.all(2.0),
                     // color: themeData.primaryColor,
                     icon: const Icon(Icons.chat_bubble_outline, size: 18.0),
+                    onPressed: () {},
+                  ),
+                ),
+                const SizedBox(width: 2),
+                SizedBox(
+                  height: 28.0,
+                  width: 28.0,
+                  child: IconButton(
+                    padding: const EdgeInsets.all(2.0),
+                    // color: themeData.primaryColor,
+                    icon: const Icon(Icons.copy_rounded, size: 18.0),
                     onPressed: () {},
                   ),
                 ),
@@ -241,6 +277,62 @@ class _ReplyListItemState extends State<ReplyListItem> {
           ],
         )
       ],
+    );
+  }
+
+  // a标签webview跳转
+  void openHrefByWebview(String? aUrl) async {
+    print(aUrl);
+    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    bool isValidator = exp.hasMatch(aUrl!);
+    if (isValidator) {
+      if (aUrl.contains('www.v2ex.com/t/')) {
+        List arr = aUrl.split('/');
+        String topicId = arr[arr.length - 1];
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ListDetail(topicId: topicId),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WebView(aUrl: aUrl),
+          ),
+        );
+      }
+    } else {
+      print('无效网址');
+    }
+  }
+
+  // 打开大图预览
+  void openImageDialog(String? imgUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.deferToChild,
+          onVerticalDragUpdate: (details) => {Navigator.pop(context)},
+          child: PhotoView(
+            tightMode: true,
+            imageProvider: NetworkImage(imgUrl!),
+            heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
+            gestureDetectorBehavior: HitTestBehavior.translucent,
+            loadingBuilder: (context, event) => Center(
+              child: SizedBox(
+                width: 30.0,
+                height: 30.0,
+                child: CircularProgressIndicator(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

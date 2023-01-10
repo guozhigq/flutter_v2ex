@@ -20,6 +20,7 @@ import 'package:flutter_v2ex/pages/app_tab.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
+import 'package:flutter_v2ex/pages/fav_page.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -79,7 +80,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-Color brandColor = const Color.fromARGB(41, 64, 118, 193);
+Color brandColor = const Color.fromRGBO(139, 196, 74, 100);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -129,9 +130,10 @@ class _MyAppState extends State<MyApp> {
         // initialRoute: '/listdetail',
         initialRoute: '/',
         routes: {
-          '/listdetail': (context) => const ListDetail(),
-          '/webview': (context) => const WebView(),
+          '/listdetail': (context) => const ListDetail(topicId: '1'),
+          '/webview': (context) => WebView(aUrl: ''),
           '/go': (context) => GoPage(nodeKey: ''),
+          '/fav': (context) => const FavPage(),
         },
       );
     });

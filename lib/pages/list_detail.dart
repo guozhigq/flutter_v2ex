@@ -1,18 +1,23 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
+// import 'package:flutter_v2ex/components/common/avatar.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:flutter_v2ex/pages/webview_page.dart';
+// import 'package:flutter_v2ex/pages/list_detail.dart';
 
 class ListDetail extends StatefulWidget {
-  const ListDetail({this.topic, super.key});
+  const ListDetail({this.topic, required this.topicId, super.key});
   final TabTopicItem? topic;
+  final String topicId;
 
   @override
   State<ListDetail> createState() => _ListDetailState();
@@ -46,16 +51,12 @@ class _ListDetailState extends State<ListDetail> {
       controlFinishLoad: true,
     );
 
-    // _detailModel = getDetail();
     getDetail();
   }
 
-  // Future<TopicDetailModel> getDetail() async {
-  //   return await DioRequestWeb.getTopicDetail(widget.topicId, 0);
-  // }
   Future getDetail() async {
-    TopicDetailModel topicDetailModel = await DioRequestWeb.getTopicDetail(
-        widget.topic!.topicId, _totalPage + 1);
+    TopicDetailModel topicDetailModel =
+        await DioRequestWeb.getTopicDetail(widget.topicId, _totalPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       _replyList.addAll(topicDetailModel.replyList);
@@ -91,66 +92,69 @@ class _ListDetailState extends State<ListDetail> {
         // shadowColor: Theme.of(context).colorScheme.shadow.withAlpha(100),
         backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
-      body: Stack(
-        children: [
-          EasyRefresh(
-            header: MaterialHeader(
-              backgroundColor: ThemeData().canvasColor,
-              clamping: _headerProperties.clamping,
-              showBezierBackground: _headerProperties.background,
-              bezierBackgroundAnimation: _headerProperties.animation,
-              bezierBackgroundBounce: _headerProperties.bounce,
-              infiniteOffset: _headerProperties.infinite ? 100 : null,
-              springRebound: _headerProperties.listSpring,
-            ),
-            footer: ClassicFooter(
-              clamping: _footerProperties.clamping,
-              backgroundColor: _footerProperties.background
-                  ? Theme.of(context).colorScheme.surfaceVariant
-                  : null,
-              mainAxisAlignment: _footerProperties.alignment,
-              showMessage: _footerProperties.message,
-              showText: _footerProperties.text,
-              infiniteOffset: _footerProperties.infinite ? 70 : null,
-              triggerWhenReach: _footerProperties.immediately,
-              hapticFeedback: true,
-              dragText: 'Pull to load',
-              armedText: 'Release ready',
-              readyText: 'Loading...',
-              processingText: '加载中...',
-              succeededIcon: const Icon(Icons.auto_awesome),
-              processedText: '加载成功',
-              textStyle: const TextStyle(fontSize: 14),
-              noMoreText: '没有更多了',
-              noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
-              failedText: '加载失败',
-              messageText: '上次更新 %T',
-            ),
-            // 下拉
-            onRefresh: () async {
-              await getDetail();
-              _controller.finishRefresh();
-              _controller.resetFooter();
-            },
-            // 上拉
-            onLoad: () async {
-              // await Future.delayed(const Duration(seconds: 2), () {});
-              await getDetail();
-              _controller.finishLoad();
-              _controller.resetFooter();
-              return IndicatorResult.noMore;
-            },
-            // onLoad: null,
-            child: showRes(),
-          ),
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: DetailBottomBar(),
-          ),
-        ],
-      ),
+      body: _detailModel != null
+          ? Stack(
+              children: [
+                EasyRefresh(
+                  header: MaterialHeader(
+                    backgroundColor: ThemeData().canvasColor,
+                    clamping: _headerProperties.clamping,
+                    showBezierBackground: _headerProperties.background,
+                    bezierBackgroundAnimation: _headerProperties.animation,
+                    bezierBackgroundBounce: _headerProperties.bounce,
+                    infiniteOffset: _headerProperties.infinite ? 100 : null,
+                    springRebound: _headerProperties.listSpring,
+                  ),
+                  footer: ClassicFooter(
+                    clamping: _footerProperties.clamping,
+                    backgroundColor: _footerProperties.background
+                        ? Theme.of(context).colorScheme.surfaceVariant
+                        : null,
+                    mainAxisAlignment: _footerProperties.alignment,
+                    showMessage: _footerProperties.message,
+                    showText: _footerProperties.text,
+                    infiniteOffset: _footerProperties.infinite ? 70 : null,
+                    triggerWhenReach: _footerProperties.immediately,
+                    hapticFeedback: true,
+                    dragText: 'Pull to load',
+                    armedText: 'Release ready',
+                    readyText: 'Loading...',
+                    processingText: '加载中...',
+                    succeededIcon: const Icon(Icons.auto_awesome),
+                    processedText: '加载成功',
+                    textStyle: const TextStyle(fontSize: 14),
+                    noMoreText: '没有更多了',
+                    noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
+                    failedText: '加载失败',
+                    messageText: '上次更新 %T',
+                  ),
+                  // 下拉
+                  // onRefresh: () async {
+                  //   await getDetail();
+                  //   _controller.finishRefresh();
+                  //   _controller.resetFooter();
+                  // },
+                  // 上拉
+                  // onLoad: () async {
+                  //   // await Future.delayed(const Duration(seconds: 2), () {});
+                  //   await getDetail();
+                  //   _controller.finishLoad();
+                  //   _controller.resetFooter();
+                  //   return IndicatorResult.noMore;
+                  // },
+                  onRefresh: null,
+                  onLoad: null,
+                  child: showRes(),
+                ),
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: DetailBottomBar(),
+                ),
+              ],
+            )
+          : showLoading(),
     );
   }
 
@@ -186,7 +190,7 @@ class _ListDetailState extends State<ListDetail> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              widget.topic!.memberId,
+                              _detailModel!.createdId,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: Theme.of(context).textTheme.titleSmall,
@@ -221,7 +225,7 @@ class _ListDetailState extends State<ListDetail> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                widget.topic!.nodeName,
+                                _detailModel!.nodeName,
                                 style: const TextStyle(
                                   fontSize: 11.0,
                                   textBaseline: TextBaseline.ideographic,
@@ -235,48 +239,90 @@ class _ListDetailState extends State<ListDetail> {
                   ],
                 ),
               ),
+
+              /// 主题标题
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
-                    top: 0, right: 18, bottom: 4, left: 18),
+                    top: 0, right: 18, bottom: 7, left: 18),
                 child: Text(
-                  widget.topic!.topicTitle,
+                  _detailModel!.topicTitle,
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
               ),
+
+              /// action操作
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '${_detailModel!.visitorCount}点击',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    '${_detailModel!.replyCount}回复',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  const SizedBox(width: 16)
+                ],
+              ),
+
               const Divider(
                 endIndent: 15,
                 indent: 15,
               ),
-              if (_detailModel != null) ...[
-                Html(
-                  data: _detailModel!.contentRendered,
-                  style: {
-                    "html": Style(
-                      fontSize: FontSize(14),
-                      textAlign: TextAlign.justify,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 10),
-                    ),
-                    "a": Style(
-                      color: Theme.of(context).colorScheme.primary,
-                      textDecoration: TextDecoration.underline,
-                    ),
-                    "li > p": Style(
-                      display: Display.inline,
-                    ),
-                    "li": Style(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      textAlign: TextAlign.justify,
-                    ),
-                  },
-                ),
+
+              Html(
+                data: _detailModel!.contentRendered,
+                // tagsList: const ['span'],
+                onLinkTap: (url, buildContext, attributes, element) =>
+                    {openHrefByWebview(url!)},
+                onImageTap: (String? url, RenderContext context,
+                    Map<String, String> attributes, element) {
+                  openImageDialog(url);
+                  //open image in webview, or launch image in browser, or any other logic here
+                },
+                style: {
+                  "html": Style(
+                    fontSize: FontSize(14.5),
+                    textAlign: TextAlign.justify,
+                    lineHeight: const LineHeight(1.6),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  ),
+                  "a": Style(
+                    color: Theme.of(context).colorScheme.primary,
+                    textDecoration: TextDecoration.underline,
+                  ),
+                  "li > p": Style(
+                    display: Display.inline,
+                  ),
+                  "li": Style(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    textAlign: TextAlign.justify,
+                  ),
+                  "image": Style(margin: Margins.only(top: 4, bottom: 4)),
+                  "p > img": Style(margin: Margins.only(top: 4, bottom: 4)),
+                  "pre": Style(
+                    margin: Margins.only(top: 0),
+                    padding: const EdgeInsets.all(2),
+                    border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.5)),
+                  ),
+                  "code > span": Style(textAlign: TextAlign.start)
+                },
+              ),
+              // ignore: unnecessary_null_comparison
+              if (_detailModel!.contentRendered != null) ...[
                 const Divider(
                   endIndent: 15,
                   indent: 15,
                 ),
-              ] else
-                showLoading(),
+              ]
               // Container(
               //   padding: const EdgeInsets.only(
               //       top: 20, right: 25, bottom: 9, left: 10),
@@ -309,7 +355,7 @@ class _ListDetailState extends State<ListDetail> {
             ],
           ),
         ),
-        if (_detailModel != null) ...[
+        if (_replyList.isNotEmpty) ...[
           SliverToBoxAdapter(
             child: Container(
                 padding: const EdgeInsets.only(
@@ -318,69 +364,42 @@ class _ListDetailState extends State<ListDetail> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${_detailModel!.replyList.length}条评论',
+                      '${_detailModel!.replyList.length}条回复',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(width: 6),
-                    Row(
-                      children: [
-                        // RawChip(
-                        //   labelPadding:
-                        //       const EdgeInsets.only(left: 1, right: 4),
-                        //   label: Text(
-                        //     '只看楼主',
-                        //     style: Theme.of(context).textTheme.labelMedium,
-                        //   ),
-                        //   avatar: const Icon(
-                        //     Icons.person,
-                        //     size: 17,
-                        //   ),
-                        //   onPressed: () => setState(() {
-                        //     onlyOP = !onlyOP;
-                        //   }),
-                        //   shape: StadiumBorder(
-                        //       side: BorderSide(
-                        //           color: Theme.of(context)
-                        //               .colorScheme
-                        //               .surfaceVariant)),
-                        //   backgroundColor:
-                        //       Theme.of(context).colorScheme.surfaceVariant,
-                        //   selectedColor:
-                        //       Theme.of(context).colorScheme.onInverseSurface,
-                        //   // shape: ShapeBorder.lerp(a, b, t),
-                        //   selected: onlyOP,
-                        //   pressElevation: 2,
-                        //   showCheckmark: false,
-                        // ),
-                        // const SizedBox(width: 4),
-                        RawChip(
-                          labelPadding:
-                              const EdgeInsets.only(left: 1, right: 4),
-                          label: Text(
-                            '倒序查看',
-                            style: Theme.of(context).textTheme.labelLarge,
+                    if (_replyList.length > 2) ...[
+                      Row(
+                        children: [
+                          RawChip(
+                            labelPadding:
+                                const EdgeInsets.only(left: 1, right: 4),
+                            label: Text(
+                              '倒序查看',
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            avatar: const Icon(
+                              Icons.swap_vert,
+                              size: 19,
+                            ),
+                            onPressed: () => setState(() {
+                              reverseSort = !reverseSort;
+                            }),
+                            shape: StadiumBorder(
+                                side: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant)),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surfaceVariant,
+                            selectedColor:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            selected: reverseSort,
+                            showCheckmark: false,
                           ),
-                          avatar: const Icon(
-                            Icons.swap_vert,
-                            size: 19,
-                          ),
-                          onPressed: () => setState(() {
-                            reverseSort = !reverseSort;
-                          }),
-                          shape: StadiumBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceVariant)),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surfaceVariant,
-                          selectedColor:
-                              Theme.of(context).colorScheme.onInverseSurface,
-                          selected: reverseSort,
-                          showCheckmark: false,
-                        ),
-                      ],
-                    )
+                        ],
+                      )
+                    ]
                   ],
                 )),
           ),
@@ -388,9 +407,9 @@ class _ListDetailState extends State<ListDetail> {
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return ReplyListItem(reply: _replyList![index]);
+              return ReplyListItem(reply: _replyList[index]);
             },
-            childCount: _replyList!.length,
+            childCount: _replyList.length,
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 100))
@@ -409,6 +428,62 @@ class _ListDetailState extends State<ListDetail> {
           SizedBox(height: 10),
         ],
       ),
+    );
+  }
+
+  // a标签webview跳转
+  void openHrefByWebview(String? aUrl) async {
+    print(aUrl);
+    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    bool isValidator = exp.hasMatch(aUrl!);
+    if (isValidator) {
+      if (aUrl.contains('www.v2ex.com/t/')) {
+        List arr = aUrl.split('/');
+        String topicId = arr[arr.length - 1];
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ListDetail(topicId: topicId),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WebView(aUrl: aUrl),
+          ),
+        );
+      }
+    } else {
+      print('无效网址');
+    }
+  }
+
+  // 打开大图预览
+  void openImageDialog(String? imgUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.deferToChild,
+          onVerticalDragUpdate: (details) => {Navigator.pop(context)},
+          child: PhotoView(
+            tightMode: true,
+            imageProvider: NetworkImage(imgUrl!),
+            heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
+            gestureDetectorBehavior: HitTestBehavior.translucent,
+            loadingBuilder: (context, event) => Center(
+              child: SizedBox(
+                width: 30.0,
+                height: 30.0,
+                child: CircularProgressIndicator(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

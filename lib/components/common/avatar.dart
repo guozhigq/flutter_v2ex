@@ -17,10 +17,15 @@ class CAvatar extends StatelessWidget {
         height: size,
         width: size,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Image.asset(
-          'assets/images/avatar.png',
+        placeholder: (context, url) => SizedBox(
           width: size,
           height: size,
+          child: Center(
+            child: Icon(
+              Icons.person,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ),
           // color: Colors.grey,
         ),
       ),

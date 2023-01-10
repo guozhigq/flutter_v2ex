@@ -73,7 +73,7 @@ class Utils {
 
   // https://usamaejaz.com/cloudflare-email-decoding/
   // cloudflare email 转码
-  String cfDecodeEmail(String encodedString) {
+  static String cfDecodeEmail(String encodedString) {
     var email = "",
         r = int.parse(encodedString.substring(0, 2), radix: 16),
         n,

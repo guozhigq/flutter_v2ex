@@ -53,7 +53,7 @@ class Request {
       receiveTimeout: 5000,
       //Http请求头.
       headers: {
-        'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
+        // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
             : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
@@ -80,7 +80,7 @@ class Request {
       };
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
-      return null;
+      // return null;
       // you can also create a HttpClient to dio
       // return HttpClient();
     };
@@ -127,14 +127,14 @@ class Request {
     // String channel = extra['channel'] ?? 'web';
     if (ua == 'mob') {
       options = Options(headers: {
-        'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
+        // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
             : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
       });
     } else {
       options = Options(headers: {
-        'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
+        // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': ''
       });
     }

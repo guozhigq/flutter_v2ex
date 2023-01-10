@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -51,7 +52,8 @@ class _ListItemState extends State<ListItem>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ListDetail(topic: widget.topic),
+                  builder: (context) =>
+                      ListDetail(topicId: widget.topic.topicId),
                 ),
                 // PageRouteBuilder(
                 //   transitionDuration:
@@ -92,19 +94,17 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Image.network(
-                    'https://desk-fd.zol-img.com.cn/t_s960x600c5/g6/M00/03/0E/ChMkKWDZLXSICljFAC1U9uUHfekAARQfgG_oL0ALVUO515.jpg',
-                    fit: BoxFit.cover,
-                    width: 33,
-                    height: 33,
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.only(right: 10),
+                    child: const CAvatar(
+                        // url: widget.topic.avatar,
+                        url:
+                            'https://desk-fd.zol-img.com.cn/t_s960x600c5/g6/M00/03/0E/ChMkKWDZLXSICljFAC1U9uUHfekAARQfgG_oL0ALVUO515.jpg',
+                        size: 33)),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -114,6 +114,7 @@ class _ListItemState extends State<ListItem>
                       maxLines: 1,
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
+                    const SizedBox(height: 1.5),
                     Row(
                       children: [
                         if (widget.topic.lastReplyTime.isNotEmpty) ...[
@@ -128,7 +129,7 @@ class _ListItemState extends State<ListItem>
                         ],
                         if (widget.topic.replyCount.isNotEmpty) ...[
                           Text(
-                            '${widget.topic.replyCount}评论',
+                            '${widget.topic.replyCount} 回复',
                             style: TextStyle(
                                 fontSize: 10.0,
                                 height: 1.3,

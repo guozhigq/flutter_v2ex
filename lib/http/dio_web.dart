@@ -7,19 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/init3.dart';
 import 'package:html/dom.dart'
     as dom; // Contains DOM related classes for extracting data from elements
-import 'package:html/dom.dart';
+// import 'package:html/dom.dart';
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 // import 'package:xpath/xpath.dart';
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
-import 'package:html/dom_parsing.dart';
-import 'package:html/html_escape.dart';
+// import 'package:html/dom_parsing.dart';
+// import 'package:html/html_escape.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
-import 'package:flutter_v2ex/models/web/item_node_list.dart';
+// import 'package:flutter_v2ex/models/web/item_node_list.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
@@ -113,6 +113,7 @@ class DioRequestWeb {
     return topics;
   }
 
+  // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeKey(String nodeKey, int p) async {
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
@@ -206,6 +207,22 @@ class DioRequestWeb {
     return detailModel;
   }
 
+  // 获取收藏的主题
+  static Future<List<TabTopicItem>> getFavTopics(int p) async {
+    var topics = <TabTopicItem>[];
+    Response response;
+    response = await Request().get(
+      '/my/topics',
+      extra: {'ua': 'pc', 'channel': 'web'},
+    );
+    var document = parse(response.data);
+    var mainBox = document.querySelector('#Main > div > div:nth-child(5)');
+    print(mainBox!.text);
+    var cellBox = mainBox!.querySelectorAll('div.cell');
+    print(cellBox.length);
+    return topics;
+  }
+
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
     print('在请求第$p页面数据');
@@ -213,11 +230,6 @@ class DioRequestWeb {
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
     // List<ProfileRecentReplyItem> replies = <ProfileRecentReplyItem>[];
-    // Request.dio.options.headers = {
-    //   'user-agent': Platform.isIOS
-    //       ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
-    //       : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
-    // };
     var response = await Request().get(
       "/t/$topicId",
       data: {'p': p},
@@ -226,9 +238,6 @@ class DioRequestWeb {
     );
     // Use html parser and query selector
     var document = parse(response.data);
-    // pc mob不同UA判断
-    // String rootId = document.body!.children[0].id;
-    // String layout = rootId == 'site-header' ? 'default' : 'columns';
     detailModel.topicId = topicId;
 
     if (response.redirects.isNotEmpty ||
@@ -255,10 +264,6 @@ class DioRequestWeb {
     const String headerQuery = '$mainBoxQuery > div.header';
     const String innerQuery = '$mainBoxQuery > div.inner';
 
-    // header
-    // print(document
-    //     .querySelector('$headerQuery > div.fr > a > img')!
-    //     .attributes["src"]!);
     detailModel.avatar = document
         .querySelector('$headerQuery > div.fr > a > img')!
         .attributes["src"]!;
@@ -292,12 +297,16 @@ class DioRequestWeb {
     detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
 
     // [email_protected] 转码回到正确的邮件字符串
-    // List<dom.Element> aRootNode =
-    //     document.querySelectorAll("a[class='__cf_email__']");
-    // for (var aNode in aRootNode) {
-    //   String encodedCf = aNode.attributes["data-cfemail"].toString();
-    //   aNode.replaceWith(Text(Utils.cfDecodeEmail(encodedCf)));
-    // }
+    List<dom.Element> aRootNode =
+        document.querySelectorAll("a[class='__cf_email__']");
+    for (var aNode in aRootNode) {
+      String encodedCf = aNode.attributes["data-cfemail"].toString();
+      var newEl = document.createElement('SPAN');
+      newEl.innerHtml = Utils.cfDecodeEmail(encodedCf);
+      aNode.replaceWith(newEl);
+
+      // aNode.replaceWith(Text(Utils.cfDecodeEmail(encodedCf)));
+    }
 
     // 判断是否有正文
     if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {

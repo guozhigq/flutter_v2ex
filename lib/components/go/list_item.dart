@@ -28,7 +28,8 @@ class _ListItemState extends State<ListItem> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ListDetail(topic: widget.topic),
+                  builder: (context) =>
+                      ListDetail(topicId: widget.topic.topicId),
                 ),
               );
             },

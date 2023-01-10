@@ -16,11 +16,12 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         backgroundColor: Colors.white,
         width: 300,
         child: ListView(
+          padding: const EdgeInsets.only(left: 20, right: 20),
           children: const [
             DrawerHeader(child: Text('123')),
             ListTile(
-              leading: Icon(Icons.message),
-              title: Text('124'),
+              leading: Icon(Icons.star),
+              title: Text('我的收藏'),
             ),
             ListTile(
               leading: Icon(Icons.message),
