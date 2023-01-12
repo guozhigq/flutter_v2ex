@@ -1,6 +1,6 @@
 // import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:io';
+import 'dart:async';
 // import 'dart:ui';
 
 // import 'package:device_info/device_info.dart';
@@ -83,5 +83,28 @@ class Utils {
       email += String.fromCharCode(i);
     }
     return email;
+  }
+
+  // debounce.dart
+
+  /// 函数防抖
+  ///
+  /// [func]: 要执行的方法
+  /// [delay]: 要迟延的时长
+  static Function debounce(
+    Function func, [
+    Duration delay = const Duration(milliseconds: 2000),
+  ]) {
+    Timer? timer;
+    target() {
+      if (timer!.isActive) {
+        timer!.cancel();
+      }
+      timer = Timer(delay, () {
+        func.call();
+      });
+    }
+
+    return target;
   }
 }

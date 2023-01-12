@@ -145,8 +145,8 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      print('get success---------${response.statusCode}');
-      print('get success---------${response.data}');
+      // print('get success---------${response.statusCode}');
+      // print('get success---------${response.data}');
 
 //      response.data; 响应体
 //      response.headers; 响应头
@@ -171,7 +171,7 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      print('post success---------${response.data}');
+      // print('post success---------${response.data}');
       return response;
     } on DioError catch (e) {
       print('post error---------$e');
@@ -188,9 +188,9 @@ class Request {
       response = await dio.download(urlPath, savePath,
           onReceiveProgress: (int count, int total) {
         //进度
-        print("$count $total");
+        // print("$count $total");
       });
-      print('downloadFile success---------${response.data}');
+      // print('downloadFile success---------${response.data}');
 
       return response.data;
     } on DioError catch (e) {

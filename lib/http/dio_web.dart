@@ -217,15 +217,15 @@ class DioRequestWeb {
     );
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main > div > div:nth-child(5)');
-    print(mainBox!.text);
+    // print('line 220:' + mainBox!.text);
     var cellBox = mainBox!.querySelectorAll('div.cell');
-    print(cellBox.length);
+    print('line 222:${cellBox.length}');
     return topics;
   }
 
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
-    print('在请求第$p页面数据');
+    print('line 228: 在请求第$p页面数据');
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
@@ -343,6 +343,7 @@ class DioRequestWeb {
       detailModel.isFavorite = collect.startsWith('/unfavorite');
     }
 
+    // 登录
     if (document.querySelector("$innerQuery > div > span") != null) {
       String count = document.querySelector("$innerQuery > div > span")!.text;
       if (count.contains('人收藏')) {
@@ -354,7 +355,7 @@ class DioRequestWeb {
     //    class="op" style="user-select: auto;">忽略主题</a>
     // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(5)
 
-    // 是否感谢 document.querySelector('#topic_thank > span')
+    // 登录 是否感谢 document.querySelector('#topic_thank > span')
     detailModel.isThank = document.querySelector('#topic_thank > span') != null;
     // print(detailModel.isFavorite == true ? 'yes' : 'no');
     // print(detailModel.isThank == true ? 'yes' : 'no');
@@ -368,6 +369,7 @@ class DioRequestWeb {
 
       // 回复数 发布时间 评论
       dom.Element replyBoxDom;
+      dom.Element? totalPageDom;
 
       // tag标签判断
       var isHasTag = document
@@ -378,9 +380,14 @@ class DioRequestWeb {
       if (isHasTag) {
         replyBoxDom =
             document.querySelector('$wrapperQuery > div')!.children[4];
+        totalPageDom = replyBoxDom.querySelector('div.cell > a');
       } else {
         replyBoxDom =
             document.querySelector('$wrapperQuery > div')!.children[2];
+        totalPageDom = replyBoxDom.querySelector('div.cell > a');
+      }
+      if (p == 1 && totalPageDom != null) {
+        detailModel.totalPage = int.parse(totalPageDom!.text);
       }
 
       detailModel.replyCount = replyBoxDom
@@ -388,21 +395,17 @@ class DioRequestWeb {
           .text
           .replaceAll(RegExp(r"\s+"), "")
           .split('条回复')[0];
-      if (p == 1) {
-        // 只有第一页这样的解析才对
-        if (document.querySelector(
-                '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child') !=
-            null) {
-          print(document
-              .querySelector(
-                  '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
-              .text);
-          // detailModel.totalPage = int.parse(document
-          //     .querySelector(
-          //         '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
-          //     .text);
-        }
-      }
+      // if (p == 1) {
+      //   // 只有第一页这样的解析才对
+      //   if (document.querySelector(
+      //           '#Wrapper > div > div:nth-child(7) > div:last-child > a:last-child') !=
+      //       null) {
+      //     detailModel.totalPage = int.parse(document
+      //         .querySelector(
+      //             '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
+      //         .text);
+      //   }
+      // }
 
       /// 回复楼层
       /// first td user avatar
@@ -471,7 +474,6 @@ class DioRequestWeb {
       }
     }
     detailModel.replyList = replies;
-    // print(detailModel.replyList);
     return detailModel;
   }
 }

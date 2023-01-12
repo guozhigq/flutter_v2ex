@@ -1,10 +1,11 @@
-import 'package:flare_flutter/base/animation/property_types.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:flare_flutter/base/animation/property_types.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_html/style.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+// import 'package:flutter_v2ex/pages/profile_page.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -41,8 +42,9 @@ class _ListItemState extends State<ListItem>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Card(
-        elevation: 0,
+      child: Container(
+        height: 108,
+        // elevation: 0,
         margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
@@ -54,6 +56,7 @@ class _ListItemState extends State<ListItem>
                 MaterialPageRoute(
                   builder: (context) =>
                       ListDetail(topicId: widget.topic.topicId),
+                  // ScaleAnimationRoute(topicId: widget.topic.topicId),
                 ),
                 // PageRouteBuilder(
                 //   transitionDuration:
@@ -94,17 +97,17 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.only(right: 10),
-                    child: const CAvatar(
-                        // url: widget.topic.avatar,
-                        url:
-                            'https://desk-fd.zol-img.com.cn/t_s960x600c5/g6/M00/03/0E/ChMkKWDZLXSICljFAC1U9uUHfekAARQfgG_oL0ALVUO515.jpg',
-                        size: 33)),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  margin: const EdgeInsets.only(right: 10),
+                  child: CAvatar(
+                    url: widget.topic.avatar,
+                    size: 33,
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -117,24 +120,34 @@ class _ListItemState extends State<ListItem>
                     const SizedBox(height: 1.5),
                     Row(
                       children: [
-                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
-                          Text(
-                            widget.topic.lastReplyTime,
-                            style: TextStyle(
-                                fontSize: 10.0,
-                                height: 1.3,
-                                color: Theme.of(context).colorScheme.outline),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
+                        Text(
+                          widget.topic.lastReplyTime,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall!
+                              .copyWith(
+                                  color: Theme.of(context).colorScheme.outline),
+                        ),
+                        const SizedBox(width: 10),
                         if (widget.topic.replyCount.isNotEmpty) ...[
                           Text(
                             '${widget.topic.replyCount} 回复',
-                            style: TextStyle(
-                                fontSize: 10.0,
-                                height: 1.3,
-                                color: Theme.of(context).colorScheme.outline),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
                           ),
+                        ] else ...[
+                          Text('0 回复',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline)),
                         ]
                       ],
                     )

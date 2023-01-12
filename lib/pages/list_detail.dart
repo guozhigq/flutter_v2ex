@@ -1,18 +1,16 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
-// import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:flutter_v2ex/pages/webview_page.dart';
-// import 'package:flutter_v2ex/pages/list_detail.dart';
+import 'package:flutter_v2ex/components/detail/html_render.dart';
+
+enum SampleItem { itemOne, itemTwo, itemThree }
 
 class ListDetail extends StatefulWidget {
   const ListDetail({this.topic, required this.topicId, super.key});
@@ -23,25 +21,38 @@ class ListDetail extends StatefulWidget {
   State<ListDetail> createState() => _ListDetailState();
 }
 
-class _ListDetailState extends State<ListDetail> {
+class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   late EasyRefreshController _controller;
+  // 监听页面滚动
+  final ScrollController _scrollController = ScrollController();
+  // 动画
+  late AnimationController _aniController;
+  late Animation<double> btmAnimation;
+  late Animation<double> fabAnimation;
 
   // action
   bool onlyOP = false; // 只看楼主
   bool reverseSort = false; // 倒序
+  bool showToTopBtn = false; // 返回顶部
+  bool showFabBtn = false; // 返回顶部
+  late double lastOffset = 0;
+  late double pbOffset = 30;
 
   // late Future<TopicDetailModel>? _detailModel;
+  // init
   TopicDetailModel? _detailModel;
-  final List<ReplyItem> _replyList = [];
+  // 回复列表
+  late List<ReplyItem> _replyList = [];
+  // 总页数
   int _totalPage = 0;
-  final _MIProperties _headerProperties = _MIProperties(
-    name: 'Header',
-  );
+  // easy Refresh config
+  final _MIProperties _headerProperties = _MIProperties(name: 'Header');
   final _CIProperties _footerProperties = _CIProperties(
-      name: 'Footer',
-      disable: true,
-      alignment: MainAxisAlignment.start,
-      infinite: true);
+    name: 'Footer',
+    disable: true,
+    alignment: MainAxisAlignment.start,
+    infinite: true,
+  );
 
   @override
   void initState() {
@@ -51,6 +62,62 @@ class _ListDetailState extends State<ListDetail> {
       controlFinishLoad: true,
     );
 
+    _aniController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    //使用弹性曲线
+    btmAnimation =
+        CurvedAnimation(parent: _aniController, curve: Curves.bounceInOut);
+    btmAnimation =
+        Tween(begin: -80.0 - pbOffset, end: 0.0).animate(_aniController)
+          ..addListener(() {
+            setState(() => {});
+          })
+          ..addStatusListener(
+            (status) => {
+              if (status == AnimationStatus.completed)
+                {
+                  setState(() => {showToTopBtn = true})
+                },
+              if (status == AnimationStatus.dismissed)
+                {
+                  setState(() => {showToTopBtn = false})
+                }
+            },
+          );
+    fabAnimation =
+        CurvedAnimation(parent: _aniController, curve: Curves.bounceInOut);
+    fabAnimation = Tween(begin: 10.0, end: 16.0).animate(_aniController)
+      ..addListener(() {
+        setState(() => {});
+      })
+      ..addStatusListener(
+        (status) => {
+          if (status == AnimationStatus.completed)
+            {
+              setState(() => {showFabBtn = true})
+            },
+          if (status == AnimationStatus.dismissed)
+            {
+              setState(() => {showFabBtn = false})
+            }
+        },
+      );
+
+    //监听滚动事件，打印滚动位置
+    // _scrollController.addListener(() {
+    //   var offset = _scrollController.offset;
+    //   if (offset > lastOffset && showToTopBtn) {
+    //     _aniController.reverse();
+    //   }
+    //   if (offset < lastOffset && !showToTopBtn) {
+    //     _aniController.forward();
+    //   }
+    //   setState(() {
+    //     lastOffset = offset;
+    //   });
+    // });
     getDetail();
   }
 
@@ -59,19 +126,35 @@ class _ListDetailState extends State<ListDetail> {
         await DioRequestWeb.getTopicDetail(widget.topicId, _totalPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
-      _replyList.addAll(topicDetailModel.replyList);
+      if (_totalPage == 0) {
+        _replyList = topicDetailModel.replyList;
+      } else {
+        _replyList.addAll(topicDetailModel.replyList);
+      }
       _totalPage = topicDetailModel.totalPage;
     });
   }
 
+  void animationStart() {
+    if (!showToTopBtn) {
+      _aniController.forward();
+    } else {
+      _aniController.reverse();
+    }
+  }
+
   @override
   void dispose() {
+    _aniController.dispose();
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    SampleItem? selectedMenu;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
@@ -84,18 +167,50 @@ class _ListDetailState extends State<ListDetail> {
             onPressed: (() => {}),
             icon: const Icon(Icons.star_border),
           ),
-          IconButton(
-            onPressed: (() => {}),
-            icon: const Icon(Icons.more_vert),
+          // IconButton(
+          //   onPressed: (() => {}),
+          //   icon: const Icon(Icons.more_vert),
+          // ),
+          PopupMenuButton<SampleItem>(
+            tooltip: 'action',
+            initialValue: selectedMenu,
+            color: Theme.of(context).colorScheme.background,
+            // Callback that sets the selected popup menu item.
+            onSelected: (SampleItem item) {
+              setState(() {
+                selectedMenu = item;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+              const PopupMenuItem<SampleItem>(
+                value: SampleItem.itemThree,
+                child: Text('分享'),
+              ),
+              PopupMenuItem<SampleItem>(
+                value: SampleItem.itemThree,
+                child: Text(
+                  '举报',
+                  style: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.error.withAlpha(200)),
+                ),
+              ),
+              const PopupMenuDivider(height: 2),
+              const PopupMenuItem<SampleItem>(
+                value: SampleItem.itemThree,
+                child: Text('在浏览器中打开'),
+              ),
+            ],
           ),
         ],
-        // shadowColor: Theme.of(context).colorScheme.shadow.withAlpha(100),
         backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
       body: _detailModel != null
           ? Stack(
               children: [
                 EasyRefresh(
+                  clipBehavior: Clip.none,
+                  controller: _controller,
                   header: MaterialHeader(
                     backgroundColor: ThemeData().canvasColor,
                     clamping: _headerProperties.clamping,
@@ -127,30 +242,48 @@ class _ListDetailState extends State<ListDetail> {
                     noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
                     failedText: '加载失败',
                     messageText: '上次更新 %T',
+                    triggerOffset: 100,
                   ),
                   // 下拉
-                  // onRefresh: () async {
-                  //   await getDetail();
-                  //   _controller.finishRefresh();
-                  //   _controller.resetFooter();
-                  // },
+                  onRefresh: () async {
+                    setState(() {
+                      _totalPage = 0;
+                    });
+                    await getDetail();
+                    _controller.finishRefresh();
+                    _controller.resetFooter();
+                  },
                   // 上拉
-                  // onLoad: () async {
-                  //   // await Future.delayed(const Duration(seconds: 2), () {});
-                  //   await getDetail();
-                  //   _controller.finishLoad();
-                  //   _controller.resetFooter();
-                  //   return IndicatorResult.noMore;
-                  // },
-                  onRefresh: null,
-                  onLoad: null,
+                  onLoad: _detailModel!.totalPage > 1
+                      ? () async {
+                          // await Future.delayed(const Duration(seconds: 2), () {});
+                          await getDetail();
+                          _controller.finishLoad();
+                          _controller.resetFooter();
+                          return IndicatorResult.noMore;
+                        }
+                      : null,
+                  // onRefresh: null,
+                  // onLoad: null,
                   child: showRes(),
                 ),
-                const Positioned(
+                Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 0,
-                  child: DetailBottomBar(),
+                  bottom: btmAnimation.value,
+                  child: DetailBottomBar(
+                    onRefresh: onRefreshBtm,
+                    onLoad: () => _controller.callLoad(),
+                  ),
+                ),
+                Positioned(
+                  right: 16,
+                  bottom: MediaQuery.of(context).padding.bottom +
+                      fabAnimation.value,
+                  child: FloatingActionButton(
+                    onPressed: animationStart,
+                    child: const Icon(Icons.edit),
+                  ),
                 ),
               ],
             )
@@ -160,6 +293,7 @@ class _ListDetailState extends State<ListDetail> {
 
   Widget showRes() {
     return CustomScrollView(
+      controller: _scrollController,
       slivers: [
         SliverToBoxAdapter(
           child: Column(
@@ -179,11 +313,9 @@ class _ListDetailState extends State<ListDetail> {
                           ),
                           clipBehavior: Clip.antiAlias,
                           margin: const EdgeInsets.only(right: 10),
-                          child: Image.network(
-                            "https://desk-fd.zol-img.com.cn/t_s960x600c5/g6/M00/03/0E/ChMkKWDZLXSICljFAC1U9uUHfekAARQfgG_oL0ALVUO515.jpg",
-                            fit: BoxFit.cover,
-                            width: 42,
-                            height: 42,
+                          child: CAvatar(
+                            url: _detailModel!.avatar,
+                            size: 42,
                           ),
                         ),
                         Column(
@@ -255,6 +387,13 @@ class _ListDetailState extends State<ListDetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  if (_detailModel!.favoriteCount > 0) ...[
+                    Text(
+                      '${_detailModel!.favoriteCount}人收藏',
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(width: 16),
+                  ],
                   Text(
                     '${_detailModel!.visitorCount}点击',
                     style: Theme.of(context).textTheme.labelMedium,
@@ -267,91 +406,21 @@ class _ListDetailState extends State<ListDetail> {
                   const SizedBox(width: 16)
                 ],
               ),
-
               const Divider(
                 endIndent: 15,
                 indent: 15,
               ),
-
-              Html(
-                data: _detailModel!.contentRendered,
-                // tagsList: const ['span'],
-                onLinkTap: (url, buildContext, attributes, element) =>
-                    {openHrefByWebview(url!)},
-                onImageTap: (String? url, RenderContext context,
-                    Map<String, String> attributes, element) {
-                  openImageDialog(url);
-                  //open image in webview, or launch image in browser, or any other logic here
-                },
-                style: {
-                  "html": Style(
-                    fontSize: FontSize(14.5),
-                    textAlign: TextAlign.justify,
-                    lineHeight: const LineHeight(1.6),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  ),
-                  "a": Style(
-                    color: Theme.of(context).colorScheme.primary,
-                    textDecoration: TextDecoration.underline,
-                  ),
-                  "li > p": Style(
-                    display: Display.inline,
-                  ),
-                  "li": Style(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    textAlign: TextAlign.justify,
-                  ),
-                  "image": Style(margin: Margins.only(top: 4, bottom: 4)),
-                  "p > img": Style(margin: Margins.only(top: 4, bottom: 4)),
-                  "pre": Style(
-                    margin: Margins.only(top: 0),
-                    padding: const EdgeInsets.all(2),
-                    border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5)),
-                  ),
-                  "code > span": Style(textAlign: TextAlign.start)
-                },
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                child: HtmlRender(htmlContent: _detailModel!.contentRendered),
               ),
-              // ignore: unnecessary_null_comparison
-              if (_detailModel!.contentRendered != null) ...[
+              if (_detailModel!.content.isNotEmpty) ...[
                 const Divider(
                   endIndent: 15,
                   indent: 15,
                 ),
               ]
-              // Container(
-              //   padding: const EdgeInsets.only(
-              //       top: 20, right: 25, bottom: 9, left: 10),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.end,
-              //     children: [
-              //       OutlinedButton(
-              //         onPressed: () {},
-              //         child: Row(
-              //           children: const [
-              //             Icon(Icons.thumb_up_outlined),
-              //             SizedBox(width: 4),
-              //             Text('赞 999')
-              //           ],
-              //         ),
-              //       ),
-              //       const SizedBox(width: 14),
-              //       OutlinedButton(
-              //           onPressed: () {},
-              //           child: Row(
-              //             children: const [
-              //               Icon(Icons.star_border),
-              //               SizedBox(width: 4),
-              //               Text('收藏')
-              //             ],
-              //           )),
-              //     ],
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -359,12 +428,12 @@ class _ListDetailState extends State<ListDetail> {
           SliverToBoxAdapter(
             child: Container(
                 padding: const EdgeInsets.only(
-                    top: 15, left: 15, bottom: 20, right: 15),
+                    top: 0, left: 15, bottom: 20, right: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${_detailModel!.replyList.length}条回复',
+                      '${_detailModel!.replyCount}条回复',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(width: 6),
@@ -412,7 +481,7 @@ class _ListDetailState extends State<ListDetail> {
             childCount: _replyList.length,
           ),
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 100))
+        // const SliverToBoxAdapter(child: SizedBox(height: 100))
       ],
     );
   }
@@ -431,60 +500,11 @@ class _ListDetailState extends State<ListDetail> {
     );
   }
 
-  // a标签webview跳转
-  void openHrefByWebview(String? aUrl) async {
-    print(aUrl);
-    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
-    bool isValidator = exp.hasMatch(aUrl!);
-    if (isValidator) {
-      if (aUrl.contains('www.v2ex.com/t/')) {
-        List arr = aUrl.split('/');
-        String topicId = arr[arr.length - 1];
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ListDetail(topicId: topicId),
-          ),
-        );
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WebView(aUrl: aUrl),
-          ),
-        );
-      }
-    } else {
-      print('无效网址');
-    }
-  }
-
-  // 打开大图预览
-  void openImageDialog(String? imgUrl) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return GestureDetector(
-          behavior: HitTestBehavior.deferToChild,
-          onVerticalDragUpdate: (details) => {Navigator.pop(context)},
-          child: PhotoView(
-            tightMode: true,
-            imageProvider: NetworkImage(imgUrl!),
-            heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
-            gestureDetectorBehavior: HitTestBehavior.translucent,
-            loadingBuilder: (context, event) => Center(
-              child: SizedBox(
-                width: 30.0,
-                height: 30.0,
-                child: CircularProgressIndicator(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  Future onRefreshBtm() async {
+    await _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 1000),
+        curve: Curves.easeOutBack);
+    return _controller.callRefresh();
   }
 }
 

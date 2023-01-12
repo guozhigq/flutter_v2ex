@@ -21,18 +21,20 @@ class HomeSearchBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                  // onPressed: (() => {Scaffold.of(context).openDrawer()}),
-                  onPressed: () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                // pre代码解析为邮箱 bug
-                                const ListDetail(topicId: '907966'),
-                            // const ListDetail(topicId: '907145'),
-                          ),
-                        )
-                      },
+                  onPressed: (() => {Scaffold.of(context).openDrawer()}),
+                  // onPressed: () => {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //           builder: (context) =>
+                  //               // pre代码解析为邮箱 bug fixed
+                  //               // const ListDetail(topicId: '907966'),
+                  //               // 分页
+                  //               const ListDetail(topicId: '907843'),
+                  //           // const ListDetail(topicId: '907145'),
+                  //         ),
+                  //       )
+                  //     },
                   icon: const Icon(
                     Icons.menu_outlined,
                     size: 22,

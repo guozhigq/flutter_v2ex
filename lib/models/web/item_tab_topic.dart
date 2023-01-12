@@ -7,7 +7,7 @@ class TabTopicItem {
   String topicId = ''; // 话题id
   String avatar = ''; // 头像
   String topicTitle = ''; // 话题标题
-  String replyCount = ''; // 回复数
+  String replyCount = '0'; // 回复数
   String clickCount = ''; // 点击数
   String nodeId = ''; // 节点id
   String nodeName = ''; // 节点名称

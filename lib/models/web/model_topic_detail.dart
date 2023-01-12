@@ -12,8 +12,8 @@ class TopicDetailModel {
   String avatar = '';
   String replyCount = '0';
   // String smallGray = ''; // 6 小时 21 分钟前 · 3366 次点击
-  String createdTime = '';
-  String visitorCount = '';
+  String createdTime = ''; // 创建时间
+  String visitorCount = ''; // 点击数
 
   String content = ''; // 纯文本内容
   String contentRendered = ''; // 带html标签内容
