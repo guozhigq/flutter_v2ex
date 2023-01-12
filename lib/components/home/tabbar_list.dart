@@ -3,7 +3,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
-import 'package:flutter_v2ex/components/common/shimmer.dart';
+import 'package:flutter_v2ex/components/common/skeleton.dart';
 
 class TabBarList extends StatefulWidget {
   const TabBarList(this.tabItem, {super.key});
@@ -128,18 +128,17 @@ class _TabBarListState extends State<TabBarList>
 
   Widget buildSkeleton() {
     List<Widget> list = [];
-    int count = (MediaQuery.of(context).size.height / 110).toInt();
+    int count = MediaQuery.of(context).size.height ~/ 110;
     var arr = List.filled(count, 1, growable: false);
 
     Widget content;
     for (int i in arr) {
-      print(i);
       list.add(skeletonItem());
     }
-    // content = Column(children: list);
     content = ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: arr.length,
-      physics: null,
+      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return skeletonItem();
       },
