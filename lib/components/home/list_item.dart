@@ -44,10 +44,9 @@ class _ListItemState extends State<ListItem>
     return GestureDetector(
       child: Container(
         height: 108,
-        // elevation: 0,
         margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
         child: Material(
-          color: Theme.of(context).colorScheme.onInverseSurface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
@@ -120,16 +119,19 @@ class _ListItemState extends State<ListItem>
                     const SizedBox(height: 1.5),
                     Row(
                       children: [
-                        Text(
-                          widget.topic.lastReplyTime,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall!
-                              .copyWith(
-                                  color: Theme.of(context).colorScheme.outline),
-                        ),
-                        const SizedBox(width: 10),
+                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
+                          Text(
+                            widget.topic.lastReplyTime,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
+                          ),
+                        ],
                         if (widget.topic.replyCount.isNotEmpty) ...[
+                          const SizedBox(width: 10),
                           Text(
                             '${widget.topic.replyCount} 回复',
                             style: Theme.of(context)
@@ -155,39 +157,41 @@ class _ListItemState extends State<ListItem>
                 )
               ],
             ),
-            Material(
-              borderRadius: BorderRadius.circular(50),
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          GoPage(nodeKey: widget.topic.nodeId),
-                    ),
-                  );
-                },
+            if (widget.topic.nodeName.isNotEmpty) ...[
+              Material(
                 borderRadius: BorderRadius.circular(50),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 3.5, horizontal: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.topic.nodeName,
-                        style: const TextStyle(
-                          fontSize: 11.0,
-                          textBaseline: TextBaseline.ideographic,
-                        ),
-                      )
-                    ],
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            GoPage(nodeKey: widget.topic.nodeId),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(50),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 3.5, horizontal: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.topic.nodeName,
+                          style: const TextStyle(
+                            fontSize: 11.0,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+            ]
           ],
         ),
         // title

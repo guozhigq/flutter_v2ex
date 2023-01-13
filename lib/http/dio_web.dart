@@ -59,16 +59,47 @@ class DioRequestWeb {
 
   // 获取主页分类内容
   static Future<List<TabTopicItem>> getTopicsByTabKey(
-      String tabKey, int p) async {
+    String type,
+    String id,
+    int p,
+  ) async {
     var topics = <TabTopicItem>[];
     Response response;
-    response = await Request().get(
-      '/',
-      data: {'tab': tabKey},
-      extra: {'ua': 'mob', 'channel': 'web'},
-    );
+    // type
+    // all 默认节点 一页   /?tab=xxx
+    // recent 最新主题 翻页 /recent?p=1
+    // go 子节点 翻页 /go/xxx
+    switch (type) {
+      case 'tab':
+        response = await Request().get(
+          '/',
+          data: {'tab': id},
+          extra: {'ua': 'mob', 'channel': 'web'},
+        );
+        break;
+      case 'recent':
+        response = await Request().get(
+          '/recent',
+          data: {'p': p},
+          extra: {'ua': 'mob', 'channel': 'web'},
+        );
+        break;
+      case 'go':
+        // response = await Request().get(
+        //   '/go/$id',
+        //   extra: {'ua': 'mob', 'channel': 'web'},
+        // );
+        return await getTopicsByNodeKey(id, p).then((value) => value.topicList);
+      // break;
+      default:
+        response = await Request().get(
+          '/',
+          data: {'tab': 'all'},
+          extra: {'ua': 'mob', 'channel': 'web'},
+        );
+        break;
+    }
     var tree = ETree.fromString(response.data);
-    // ignore: avoid_print
     var aRootNode = tree.xpath("//*[@class='cell item']");
     for (var aNode in aRootNode!) {
       var item = TabTopicItem();
@@ -88,7 +119,8 @@ class DioRequestWeb {
         item.lastReplyTime = aNode
             .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
             .name!
-            .split(' &nbsp;')[0];
+            .split(' &nbsp;')[0]
+            .replaceAll("/t/", "");
         if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
           item.lastReplyMId =
               aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
@@ -115,12 +147,17 @@ class DioRequestWeb {
 
   // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeKey(String nodeKey, int p) async {
+    print('getTopicsByNodeKey');
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
     Response response;
     // 请求PC端页面 lastReplyTime totalPage
     // Request().dio.options.headers = {};
-    response = await Request().get('/go/$nodeKey', extra: {'ua': 'pc'});
+    response = await Request().get(
+      '/go/$nodeKey',
+      data: {'p': p},
+      extra: {'ua': 'pc'},
+    );
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main');
     var mainHeader = mainBox!.querySelector('div.node-header');
@@ -137,8 +174,6 @@ class DioRequestWeb {
     // 主题
     var topicEle =
         document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
-    print(topicEle.length);
-
     // var boxChildren = document.querySelector('#Main > div > div:nth-child(3)');
     // var cellBoxChildren = boxChildren!.querySelectorAll('div.cell');
 
@@ -181,25 +216,13 @@ class DioRequestWeb {
             .split("#")[1]
             .replaceAll(RegExp(r'[^0-9]'), '');
       }
-      // if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
-      //   item.replyCount = aNode.xpath("/table/tr/td[4]/a/text()")![0].name!;
-      //   item.lastReplyTime = aNode
-      //       .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
-      //       .name!
-      //       .split(' &nbsp;')[0];
-      //   if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
-      //     item.lastReplyMId =
-      //         aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
-      //   }
-      // }
-      // item.topicTitle = aNode
-      //     .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
-      //     .name!
-      //     .replaceAll('&quot;', '')
-      //     .replaceAll('&amp;', '&')
-      //     .replaceAll('&lt;', '<')
-      //     .replaceAll('&gt;', '>');
-
+      if (aNode.querySelector('tr') != null) {
+        var topicTd = aNode.querySelector('tr')!.children[2];
+        item.lastReplyTime = topicTd
+            .querySelector('span.topic_info > span')!
+            .text
+            .replaceAll("/t/", "");
+      }
       // item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
       topics.add(item);
     }
@@ -225,6 +248,7 @@ class DioRequestWeb {
 
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
+    // ignore: avoid_print
     print('line 228: 在请求第$p页面数据');
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
@@ -242,6 +266,7 @@ class DioRequestWeb {
 
     if (response.redirects.isNotEmpty ||
         document.querySelector('#Main > div.box > div.message') != null) {
+      // ignore: avoid_print
       print('需要登录');
       // Fluttertoast.showToast(
       //     msg: '查看本主题需要先登录 😞',
@@ -380,14 +405,17 @@ class DioRequestWeb {
       if (isHasTag) {
         replyBoxDom =
             document.querySelector('$wrapperQuery > div')!.children[4];
-        totalPageDom = replyBoxDom.querySelector('div.cell > a');
       } else {
         replyBoxDom =
             document.querySelector('$wrapperQuery > div')!.children[2];
-        totalPageDom = replyBoxDom.querySelector('div.cell > a');
       }
-      if (p == 1 && totalPageDom != null) {
-        detailModel.totalPage = int.parse(totalPageDom!.text);
+      if (replyBoxDom.querySelectorAll('div.cell > a.page_normal').isNotEmpty) {
+        totalPageDom =
+            replyBoxDom.querySelectorAll('div.cell > a.page_normal').last;
+      }
+      if (p == 1) {
+        detailModel.totalPage =
+            totalPageDom != null ? int.parse(totalPageDom.text) : 1;
       }
 
       detailModel.replyCount = replyBoxDom
@@ -434,7 +462,8 @@ class DioRequestWeb {
           var platform = replyItem.lastReplyTime
               .split('via')[1]
               .replaceAll(RegExp(r"\s+"), "");
-          replyItem.lastReplyTime = replyItem.lastReplyTime.split('via')[0];
+          replyItem.lastReplyTime =
+              replyItem.lastReplyTime.split('via')[0].replaceAll("/t/", "");
           replyItem.platform = platform;
         }
 

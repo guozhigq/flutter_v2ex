@@ -31,15 +31,18 @@ class HomeStickyBar extends StatelessWidget {
               }).toList(),
             ),
           ),
-          const SizedBox(width: 5),
-          Container(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: const Icon(
-              Icons.segment,
-              color: Colors.black54,
-              size: 20,
+          // const SizedBox(width: 5),
+          SizedBox(
+            width: 50,
+            height: 50,
+            child: Center(
+              child: IconButton(
+                onPressed: () => {},
+                icon: const Icon(Icons.segment),
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -5,13 +5,17 @@ class PullRefresh extends StatefulWidget {
   // final EasyRefreshController? ctr; // 控制器
   final Widget? child;
   final onChildRefresh;
-  final VoidCallback? onChildLoad;
+  final onChildLoad;
+  int? currentPage;
+  int? totalPage;
 
-  const PullRefresh({
+  PullRefresh({
     // this.ctr,
     this.child,
     this.onChildRefresh,
     this.onChildLoad,
+    this.currentPage,
+    this.totalPage,
     super.key,
   });
 
@@ -83,19 +87,25 @@ class _PullRefreshState extends State<PullRefresh> {
         failedText: '加载失败',
         messageText: '上次更新 %T',
         triggerOffset: 100,
+        // position: IndicatorPosition.locator,
       ),
       onRefresh: () async {
         await widget.onChildRefresh();
-        print('345');
+        print('onRefresh Finish');
         _controller.finishRefresh();
         _controller.resetFooter();
       }, // 下拉
-      onLoad: () async {
-        widget.onChildLoad;
-        _controller.finishLoad();
-        _controller.resetFooter();
-        return IndicatorResult.noMore;
-      },
+      onLoad: widget.onChildLoad != null
+          ? () async {
+              await widget.onChildLoad!();
+              print('onLoad Finish');
+              // _controller.finishLoad();
+              // _controller.resetFooter();
+              // if (widget.currentPage == widget.totalPage! - 1) {
+              //   return IndicatorResult.noMore;
+              // }
+            }
+          : null,
       child: widget.child,
     );
   }

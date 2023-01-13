@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree }
 
@@ -37,22 +39,18 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   bool showFabBtn = false; // 返回顶部
   late double lastOffset = 0;
   late double pbOffset = 30;
+  double fabElevation = 4; // fab阴影
+  bool isLoading = false; // 请求状态 正序/倒序
 
-  // late Future<TopicDetailModel>? _detailModel;
   // init
   TopicDetailModel? _detailModel;
   // 回复列表
   late List<ReplyItem> _replyList = [];
   // 总页数
-  int _totalPage = 0;
-  // easy Refresh config
-  final _MIProperties _headerProperties = _MIProperties(name: 'Header');
-  final _CIProperties _footerProperties = _CIProperties(
-    name: 'Footer',
-    disable: true,
-    alignment: MainAxisAlignment.start,
-    infinite: true,
-  );
+  int _totalPage = 1;
+  int _currentPage = 0;
+
+  SampleItem? selectedMenu;
 
   @override
   void initState() {
@@ -118,28 +116,68 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     //     lastOffset = offset;
     //   });
     // });
-    getDetail();
+    getDetailInit();
   }
 
-  Future getDetail() async {
+  Future getDetailInit() async {
+    getDetail(type: 'init');
+  }
+
+  Future getDetail({type}) async {
+    if (type == 'init') {
+      setState(() {
+        _currentPage = 0;
+      });
+    }
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(widget.topicId, _totalPage + 1);
+        await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
-      if (_totalPage == 0) {
+      if (_currentPage == 0) {
         _replyList = topicDetailModel.replyList;
+        _totalPage = topicDetailModel.totalPage;
       } else {
         _replyList.addAll(topicDetailModel.replyList);
       }
-      _totalPage = topicDetailModel.totalPage;
+      _currentPage += 1;
+    });
+  }
+
+  // todo 下拉刷新逻辑优化  正倒序排列数据复用
+  Future getDetailReverst({type}) async {
+    if (type == 'init') {
+      setState(() {
+        _currentPage = _totalPage;
+      });
+    }
+    if (!reverseSort || _currentPage == 0) {
+      return;
+    }
+    print('line 155: $_currentPage');
+    TopicDetailModel topicDetailModel =
+        await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage);
+    setState(() {
+      if (_currentPage == _totalPage) {
+        _replyList = topicDetailModel.replyList.reversed.toList();
+        _totalPage = topicDetailModel.totalPage;
+      } else {
+        _replyList.addAll(topicDetailModel.replyList.reversed);
+      }
+      _currentPage -= 1;
     });
   }
 
   void animationStart() {
     if (!showToTopBtn) {
       _aniController.forward();
+      setState(() {
+        fabElevation = 0;
+      });
     } else {
       _aniController.reverse();
+      setState(() {
+        fabElevation = 4;
+      });
     }
   }
 
@@ -153,118 +191,25 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    SampleItem? selectedMenu;
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: (() => {}),
-            icon: const Icon(Icons.refresh_sharp),
-          ),
-          IconButton(
-            onPressed: (() => {}),
-            icon: const Icon(Icons.star_border),
-          ),
-          // IconButton(
-          //   onPressed: (() => {}),
-          //   icon: const Icon(Icons.more_vert),
-          // ),
-          PopupMenuButton<SampleItem>(
-            tooltip: 'action',
-            initialValue: selectedMenu,
-            color: Theme.of(context).colorScheme.background,
-            // Callback that sets the selected popup menu item.
-            onSelected: (SampleItem item) {
-              setState(() {
-                selectedMenu = item;
-              });
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-              const PopupMenuItem<SampleItem>(
-                value: SampleItem.itemThree,
-                child: Text('分享'),
-              ),
-              PopupMenuItem<SampleItem>(
-                value: SampleItem.itemThree,
-                child: Text(
-                  '举报',
-                  style: TextStyle(
-                      color:
-                          Theme.of(context).colorScheme.error.withAlpha(200)),
-                ),
-              ),
-              const PopupMenuDivider(height: 2),
-              const PopupMenuItem<SampleItem>(
-                value: SampleItem.itemThree,
-                child: Text('在浏览器中打开'),
-              ),
-            ],
-          ),
-        ],
+        actions: appBarAction(),
         backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
       body: _detailModel != null
           ? Stack(
               children: [
-                EasyRefresh(
-                  clipBehavior: Clip.none,
-                  controller: _controller,
-                  header: MaterialHeader(
-                    backgroundColor: ThemeData().canvasColor,
-                    clamping: _headerProperties.clamping,
-                    showBezierBackground: _headerProperties.background,
-                    bezierBackgroundAnimation: _headerProperties.animation,
-                    bezierBackgroundBounce: _headerProperties.bounce,
-                    infiniteOffset: _headerProperties.infinite ? 100 : null,
-                    springRebound: _headerProperties.listSpring,
-                  ),
-                  footer: ClassicFooter(
-                    clamping: _footerProperties.clamping,
-                    backgroundColor: _footerProperties.background
-                        ? Theme.of(context).colorScheme.surfaceVariant
-                        : null,
-                    mainAxisAlignment: _footerProperties.alignment,
-                    showMessage: _footerProperties.message,
-                    showText: _footerProperties.text,
-                    infiniteOffset: _footerProperties.infinite ? 70 : null,
-                    triggerWhenReach: _footerProperties.immediately,
-                    hapticFeedback: true,
-                    dragText: 'Pull to load',
-                    armedText: 'Release ready',
-                    readyText: 'Loading...',
-                    processingText: '加载中...',
-                    succeededIcon: const Icon(Icons.auto_awesome),
-                    processedText: '加载成功',
-                    textStyle: const TextStyle(fontSize: 14),
-                    noMoreText: '没有更多了',
-                    noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
-                    failedText: '加载失败',
-                    messageText: '上次更新 %T',
-                    triggerOffset: 100,
-                  ),
-                  // 下拉
-                  onRefresh: () async {
-                    setState(() {
-                      _totalPage = 0;
-                    });
-                    await getDetail();
-                    _controller.finishRefresh();
-                    _controller.resetFooter();
-                  },
+                PullRefresh(
+                  onChildRefresh: getDetailInit,
                   // 上拉
-                  onLoad: _detailModel!.totalPage > 1
-                      ? () async {
-                          // await Future.delayed(const Duration(seconds: 2), () {});
-                          await getDetail();
-                          _controller.finishLoad();
-                          _controller.resetFooter();
-                          return IndicatorResult.noMore;
-                        }
-                      : null,
-                  // onRefresh: null,
-                  // onLoad: null,
+                  onChildLoad: !reverseSort
+                      ? (_totalPage > 1 && _currentPage < _totalPage
+                          ? getDetail
+                          : null)
+                      : (_currentPage > 1 ? getDetailReverst : null),
+                  currentPage: _currentPage,
+                  totalPage: _totalPage,
                   child: showRes(),
                 ),
                 Positioned(
@@ -281,6 +226,8 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   bottom: MediaQuery.of(context).padding.bottom +
                       fabAnimation.value,
                   child: FloatingActionButton(
+                    enableFeedback: true,
+                    elevation: fabElevation,
                     onPressed: animationStart,
                     child: const Icon(Icons.edit),
                   ),
@@ -289,6 +236,64 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
             )
           : showLoading(),
     );
+  }
+
+  List<Widget> appBarAction() {
+    List<Widget>? list = [];
+    // list.add(
+    //   IconButton(
+    //     onPressed: (() => {}),
+    //     tooltip: '刷新主题',
+    //     icon: const Icon(Icons.refresh_sharp),
+    //   ),
+    // );
+    list.add(
+      IconButton(
+        onPressed: (() => {}),
+        tooltip: '收藏主题',
+        icon: const Icon(Icons.star_border),
+      ),
+    );
+    list.add(
+      IconButton(
+        onPressed: (() => {}),
+        tooltip: '使用浏览器打开',
+        icon: const Icon(Icons.language_outlined),
+      ),
+    );
+    list.add(
+      PopupMenuButton<SampleItem>(
+        tooltip: 'action',
+        initialValue: selectedMenu,
+        color: Theme.of(context).colorScheme.background,
+        // Callback that sets the selected popup menu item.
+        onSelected: (SampleItem item) {
+          setState(() {
+            selectedMenu = item;
+          });
+        },
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+          const PopupMenuItem<SampleItem>(
+            value: SampleItem.itemThree,
+            child: Text('分享'),
+          ),
+          PopupMenuItem<SampleItem>(
+            value: SampleItem.itemThree,
+            child: Text(
+              '举报',
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.error.withAlpha(200)),
+            ),
+          ),
+          const PopupMenuDivider(height: 2),
+          const PopupMenuItem<SampleItem>(
+            value: SampleItem.itemThree,
+            child: Text('在浏览器中打开'),
+          ),
+        ],
+      ),
+    );
+    return list;
   }
 
   Widget showRes() {
@@ -379,7 +384,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                     top: 0, right: 18, bottom: 7, left: 18),
                 child: Text(
                   _detailModel!.topicTitle,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
 
@@ -453,6 +458,11 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                             ),
                             onPressed: () => setState(() {
                               reverseSort = !reverseSort;
+                              if (reverseSort) {
+                                getDetailReverst(type: 'init');
+                              } else {
+                                getDetail(type: 'init');
+                              }
                             }),
                             shape: StadiumBorder(
                                 side: BorderSide(
@@ -481,8 +491,36 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
             childCount: _replyList.length,
           ),
         ),
-        // const SliverToBoxAdapter(child: SizedBox(height: 100))
+        SliverToBoxAdapter(
+          child: Offstage(
+            // when true hidden
+            offstage: _detailModel!.replyCount != '0',
+            child: moreTopic(type: 'null'),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Offstage(
+            // when true hidden
+            offstage: _detailModel!.replyCount == '0' ||
+                (!reverseSort && (_totalPage - 1 == _currentPage)) ||
+                (reverseSort && (_currentPage > 1)),
+            child: moreTopic(),
+          ),
+        )
       ],
+    );
+  }
+
+  Widget moreTopic({type = 'noMore'}) {
+    return Container(
+      width: double.infinity,
+      height: 80 + MediaQuery.of(context).padding.bottom,
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 5),
+      child: Center(
+        // child: TextField(),
+        child: Text(type == 'noMore' ? '没有更多回复了' : '还没有人回复'),
+      ),
     );
   }
 
@@ -506,68 +544,4 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         curve: Curves.easeOutBack);
     return _controller.callRefresh();
   }
-}
-
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => maxHeight > minHeight ? maxHeight : minHeight;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
-  }
-}
-
-class _MIProperties {
-  final String name;
-  bool clamping = true;
-  bool background = false;
-  bool animation = false;
-  bool bounce = false;
-  bool infinite = false;
-  bool listSpring = false;
-
-  _MIProperties({
-    required this.name,
-  });
-}
-
-class _CIProperties {
-  final String name;
-  bool disable = false;
-  bool clamping = false;
-  bool background = false;
-  MainAxisAlignment alignment;
-  bool message = true;
-  bool text = true;
-  bool infinite;
-  bool immediately = false;
-
-  _CIProperties({
-    required this.name,
-    required this.alignment,
-    required this.infinite,
-    required disable,
-  });
 }

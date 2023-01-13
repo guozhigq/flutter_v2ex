@@ -49,14 +49,15 @@ class _MyAppState extends State<MyApp> {
         // dynamic取色成功
         lightColorScheme = lightDynamic.harmonized();
         darkColorScheme = darkDynamic.harmonized();
-      } else {
-        // dynamic取色失败，采用品牌色
-        lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
-        darkColorScheme = ColorScheme.fromSeed(
-          seedColor: brandColor,
-          brightness: Brightness.dark,
-        );
       }
+      // else {
+      //   // dynamic取色失败，采用品牌色
+      //   lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
+      //   darkColorScheme = ColorScheme.fromSeed(
+      //     seedColor: brandColor,
+      //     brightness: Brightness.dark,
+      //   );
+      // }
 
       return MaterialApp(
         title: 'vvex',
@@ -77,7 +78,7 @@ class _MyAppState extends State<MyApp> {
           '/webview': (context) => WebView(aUrl: ''),
           '/go': (context) => GoPage(nodeKey: ''),
           '/fav': (context) => const FavPage(),
-          '/profile': (context) => ScaleAnimationRoute()
+          '/profile': (context) => const PhysicsCardDragDemo()
         },
       );
     });

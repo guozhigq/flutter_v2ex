@@ -19,13 +19,15 @@ class _SkeletonState extends State<Skeleton> {
   Widget build(BuildContext context) {
     var shimmerGradient = LinearGradient(
       colors: [
-        Theme.of(context).colorScheme.onSurface.withAlpha(0),
-        Theme.of(context).colorScheme.background,
-        Theme.of(context).colorScheme.onSurface.withAlpha(0),
+        Colors.transparent,
+        Theme.of(context).colorScheme.background.withAlpha(30),
+        Theme.of(context).colorScheme.background.withAlpha(30),
+        Colors.transparent,
       ],
       stops: const [
         0.1,
-        0.6,
+        0.3,
+        0.5,
         0.7,
       ],
       begin: const Alignment(-1.0, -0.3),

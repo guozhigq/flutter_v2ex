@@ -48,9 +48,9 @@ class Request {
       //请求基地址,可以包含子路径
       baseUrl: Strings.v2exHost,
       //连接服务器超时时间，单位是毫秒.
-      connectTimeout: 10000,
+      connectTimeout: 12000,
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
-      receiveTimeout: 5000,
+      receiveTimeout: 12000,
       //Http请求头.
       headers: {
         // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
@@ -71,9 +71,9 @@ class Request {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
-        // return 'PROXY 192.168.1.60: 7890';
+        return 'PROXY 192.168.1.60: 7890';
         // return 'PROXY 172.16.32.186:7890';
-        return 'PROXY localhost:7890';
+        // return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:9090';
         // 不设置代理 TODO 打包前关闭代理
         // return 'DIRECT';

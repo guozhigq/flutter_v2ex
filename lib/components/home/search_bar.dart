@@ -22,19 +22,6 @@ class HomeSearchBar extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: (() => {Scaffold.of(context).openDrawer()}),
-                  // onPressed: () => {
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) =>
-                  //               // pre代码解析为邮箱 bug fixed
-                  //               // const ListDetail(topicId: '907966'),
-                  //               // 分页
-                  //               const ListDetail(topicId: '907843'),
-                  //           // const ListDetail(topicId: '907145'),
-                  //         ),
-                  //       )
-                  //     },
                   icon: const Icon(
                     Icons.menu_outlined,
                     size: 22,
@@ -53,18 +40,33 @@ class HomeSearchBar extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                clipBehavior: Clip.antiAlias,
-                width: 37,
-                height: 37,
-                child: const Center(
-                  child: Icon(
-                    Icons.notifications_none,
-                    size: 18,
+              GestureDetector(
+                onTap: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          // pre代码解析为邮箱 bug fixed
+                          // const ListDetail(topicId: '907966'),
+                          // 分页
+                          const ListDetail(topicId: '908405'),
+                      // const ListDetail(topicId: '907145'),
+                    ),
+                  )
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  width: 37,
+                  height: 37,
+                  child: const Center(
+                    child: Icon(
+                      Icons.notifications_none,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
