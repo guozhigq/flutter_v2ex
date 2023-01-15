@@ -24,8 +24,8 @@ class HtmlRender extends StatelessWidget {
         "html": Style(
           // fontSize: FontSize(
           //     Theme.of(context).textTheme.bodyLarge!.fontSize!),
-          textAlign: TextAlign.justify,
-          lineHeight: const LineHeight(1.6),
+          fontSize: FontSize.medium,
+          lineHeight: LineHeight.percent(130),
         ),
         "a": Style(
           color: Theme.of(context).colorScheme.primary,
@@ -61,7 +61,8 @@ class HtmlRender extends StatelessWidget {
     RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
     bool isValidator = exp.hasMatch(aUrl!);
     if (isValidator) {
-      if (aUrl.contains('www.v2ex.com/t/')) {
+      if (aUrl.contains('www.v2ex.com/t/') ||
+          aUrl.contains('https://v2ex.com/t')) {
         List arr = aUrl.split('/');
         String topicId = arr[arr.length - 1];
         Navigator.push(

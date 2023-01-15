@@ -147,7 +147,7 @@ class DioRequestWeb {
 
   // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeKey(String nodeKey, int p) async {
-    print('getTopicsByNodeKey');
+    // print('getTopicsByNodeKey');
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
     Response response;
@@ -504,5 +504,35 @@ class DioRequestWeb {
     }
     detailModel.replyList = replies;
     return detailModel;
+  }
+
+  // 获取所有节点
+  static Future getNodes() async {
+    List<Map<dynamic, dynamic>> nodesList = [];
+    Response response;
+    response = await Request().get(
+      '/',
+      extra: {'ua': 'pc'},
+    );
+    var document = parse(response.data);
+    var nodesBox = document.querySelector('#Main')!.children.last;
+    nodesBox.children.removeAt(0);
+    var nodeTd = nodesBox.children;
+    for (var i in nodeTd) {
+      Map nodeItem = {};
+      String fName = i.querySelector('span')!.text;
+      nodeItem['name'] = fName;
+      List<Map<String, String>> childs = [];
+      var cEl = i.querySelectorAll('a');
+      for (var j in cEl) {
+        Map<String, String> item = {};
+        item['id'] = j.attributes['href']!.split('/').last;
+        item['name'] = j.text;
+        childs.add(item);
+      }
+      nodeItem['childs'] = childs;
+      nodesList.add(nodeItem);
+    }
+    return nodesList;
   }
 }

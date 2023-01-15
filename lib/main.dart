@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
 import 'package:flutter_v2ex/pages/app_tab.dart';
+import 'package:flutter_v2ex/pages/help_page.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
+import 'package:flutter_v2ex/pages/nodes_page.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/pages/fav_page.dart';
@@ -49,15 +51,14 @@ class _MyAppState extends State<MyApp> {
         // dynamic取色成功
         lightColorScheme = lightDynamic.harmonized();
         darkColorScheme = darkDynamic.harmonized();
+      } else {
+        // dynamic取色失败，采用品牌色
+        lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
+        darkColorScheme = ColorScheme.fromSeed(
+          seedColor: brandColor,
+          brightness: Brightness.dark,
+        );
       }
-      // else {
-      //   // dynamic取色失败，采用品牌色
-      //   lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
-      //   darkColorScheme = ColorScheme.fromSeed(
-      //     seedColor: brandColor,
-      //     brightness: Brightness.dark,
-      //   );
-      // }
 
       return MaterialApp(
         title: 'vvex',
@@ -78,7 +79,9 @@ class _MyAppState extends State<MyApp> {
           '/webview': (context) => WebView(aUrl: ''),
           '/go': (context) => GoPage(nodeKey: ''),
           '/fav': (context) => const FavPage(),
-          '/profile': (context) => const PhysicsCardDragDemo()
+          '/profile': (context) => const PhysicsCardDragDemo(),
+          '/nodes': (context) => const NodesPage(),
+          '/help': (context) => const HelpPage()
         },
       );
     });

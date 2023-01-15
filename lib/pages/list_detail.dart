@@ -11,6 +11,7 @@ import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
+import 'package:flutter_v2ex/components/detail/reply_new.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree }
 
@@ -191,6 +192,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    var statusHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
@@ -225,11 +227,27 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   right: 16,
                   bottom: MediaQuery.of(context).padding.bottom +
                       fabAnimation.value,
-                  child: FloatingActionButton(
+                  // child: FloatingActionButton(
+                  //   enableFeedback: true,
+                  //   elevation: fabElevation,
+                  //   onPressed: animationStart,
+                  //   child: const Icon(Icons.edit),
+                  // ),
+                  child: FloatingActionButton.extended(
+                    onPressed: () {
+                      showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (BuildContext context) {
+                          return ReplyNew(statusHeight: statusHeight);
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('回复'),
                     enableFeedback: true,
                     elevation: fabElevation,
-                    onPressed: animationStart,
-                    child: const Icon(Icons.edit),
+                    isExtended: false,
                   ),
                 ),
               ],
@@ -265,7 +283,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
         initialValue: selectedMenu,
-        color: Theme.of(context).colorScheme.background,
         // Callback that sets the selected popup menu item.
         onSelected: (SampleItem item) {
           setState(() {
@@ -320,7 +337,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                           margin: const EdgeInsets.only(right: 10),
                           child: CAvatar(
                             url: _detailModel!.avatar,
-                            size: 42,
+                            size: 45,
                           ),
                         ),
                         Column(
@@ -335,13 +352,14 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                             SizedBox(
                               height: 15,
                               child: _detailModel != null
-                                  ? Text(
-                                      _detailModel!.createdTime,
-                                      style: const TextStyle(
-                                        fontSize: 10.0,
-                                        height: 1.3,
-                                      ),
-                                    )
+                                  ? Text(_detailModel!.createdTime,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall!
+                                          .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .outline))
                                   : null,
                             )
                           ],
@@ -408,22 +426,25 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                     '${_detailModel!.replyCount}回复',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
-                  const SizedBox(width: 16)
+                  const SizedBox(width: 20)
                 ],
               ),
-              const Divider(
+              const SizedBox(height: 10),
+              Divider(
                 endIndent: 15,
                 indent: 15,
+                color: Theme.of(context).dividerColor.withOpacity(0.15),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                padding: const EdgeInsets.only(
+                    top: 5, right: 10, bottom: 0, left: 10),
                 child: HtmlRender(htmlContent: _detailModel!.contentRendered),
               ),
               if (_detailModel!.content.isNotEmpty) ...[
-                const Divider(
+                Divider(
                   endIndent: 15,
                   indent: 15,
+                  color: Theme.of(context).dividerColor.withOpacity(0.15),
                 ),
               ]
             ],
@@ -433,7 +454,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           SliverToBoxAdapter(
             child: Container(
                 padding: const EdgeInsets.only(
-                    top: 0, left: 15, bottom: 20, right: 15),
+                    top: 20, left: 15, bottom: 14, right: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

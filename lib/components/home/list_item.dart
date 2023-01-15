@@ -44,9 +44,9 @@ class _ListItemState extends State<ListItem>
     return GestureDetector(
       child: Container(
         height: 108,
-        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
+        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
         child: Material(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
@@ -95,26 +95,32 @@ class _ListItemState extends State<ListItem>
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: CAvatar(
-                    url: widget.topic.avatar,
-                    size: 33,
+                GestureDetector(
+                  onTap: () => {Navigator.pushNamed(context, '/profile')},
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.only(right: 10),
+                    child: CAvatar(
+                      url: widget.topic.avatar,
+                      size: 33,
+                    ),
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      widget.topic.memberId,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.labelMedium,
+                    SizedBox(
+                      width: 150,
+                      child: Text(
+                        widget.topic.memberId,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
                     ),
                     const SizedBox(height: 1.5),
                     Row(

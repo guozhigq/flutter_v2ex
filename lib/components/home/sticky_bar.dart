@@ -16,6 +16,7 @@ class HomeStickyBar extends StatelessWidget {
               // controller: _tabController,
               onTap: (index) {},
               isScrollable: true,
+              enableFeedback: true,
               indicatorSize: TabBarIndicatorSize.label,
               indicatorColor: Theme.of(context).colorScheme.primary,
               labelStyle: Theme.of(context).textTheme.titleSmall,
@@ -24,8 +25,13 @@ class HomeStickyBar extends StatelessWidget {
               // label 默认颜色
               unselectedLabelColor:
                   Theme.of(context).colorScheme.inverseSurface,
-              enableFeedback: true,
               padding: const EdgeInsets.only(bottom: 3),
+              splashBorderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+                topRight: Radius.circular(14),
+                bottomLeft: Radius.circular(14),
+                bottomRight: Radius.circular(14),
+              ),
               tabs: tabs.map((item) {
                 return Tab(text: item['name']);
               }).toList(),
@@ -33,13 +39,11 @@ class HomeStickyBar extends StatelessWidget {
           ),
           // const SizedBox(width: 5),
           SizedBox(
-            width: 50,
             height: 50,
             child: Center(
               child: IconButton(
-                onPressed: () => {},
+                onPressed: () => {Navigator.pushNamed(context, '/nodes')},
                 icon: const Icon(Icons.segment),
-                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),

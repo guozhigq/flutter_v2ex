@@ -134,10 +134,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
           ),
         ),
         // title
-        const Divider(
+        Divider(
           indent: 8,
           endIndent: 2,
           height: 1,
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
         ),
         Container(
           // alignment: Alignment.centerLeft,

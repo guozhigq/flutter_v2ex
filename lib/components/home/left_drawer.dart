@@ -12,7 +12,7 @@ class HomeLeftDrawer extends StatefulWidget {
 }
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
-  String selectedId = '';
+  String selectedId = '1';
   List<Map<dynamic, dynamic>> listTitleMap = [
     {
       'id': '1',
@@ -52,12 +52,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   ];
 
   List<Map<dynamic, dynamic>> listTitleMap_2 = [
-    // {
-    //   'id': '5',
-    //   'leading': const Icon(Icons.computer),
-    //   'title': 'Github',
-    //   'route': ''
-    // },
     {
       'id': '6',
       'leading': const Icon(Icons.settings),
@@ -77,9 +71,16 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      clipBehavior: Clip.hardEdge,
+      elevation: 1,
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(0),
+        topRight: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+        bottomLeft: Radius.circular(0),
+      ),
+      color: Theme.of(context).colorScheme.surface,
       child: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-        // width: 280,
         width: MediaQuery.of(context).size.width * 0.75,
         child: ListView(
           children: [
@@ -119,6 +120,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   Widget header() {
     return DrawerHeader(
+      curve: Curves.bounceInOut,
       child: Stack(
         children: [
           Column(

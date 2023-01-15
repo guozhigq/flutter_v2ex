@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   // 自定义、 缓存 、 api获取
   List<Map<dynamic, dynamic>> tabs = [
     {'name': '全部', 'id': 'all', 'type': 'tab'},
-    {'name': '微信', 'id': 'wechat', 'type': 'go'},
+    {'name': '职场话题', 'id': 'career', 'type': 'go'},
     {'name': '最近', 'id': 'recent', 'type': 'recent'},
     {'name': '最热', 'id': 'hot', 'type': 'tab'},
     {'name': '技术', 'id': 'tech', 'type': 'tab'},
