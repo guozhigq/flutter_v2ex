@@ -60,6 +60,7 @@ dependencies:
     # fluttertoast: ^8.1.2
     flutter_inappwebview: ^5.7.2+3
     animations: ^2.0.7
+    flutter_highlight: ^0.7.0
 
 dev_dependencies:
     flutter_test:

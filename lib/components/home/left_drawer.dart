@@ -110,7 +110,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               showCheckmark: false,
             ),
             buildActionOne(),
-            const Divider(),
+            Divider(
+              indent: 20,
+              endIndent: 20,
+              color: Theme.of(context).dividerColor.withOpacity(0.3),
+            ),
             buildActionTwo(),
           ],
         ),

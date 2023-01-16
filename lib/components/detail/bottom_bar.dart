@@ -28,6 +28,11 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
           children: <Widget>[
             IconButton(
               tooltip: 'Open navigation menu',
+              icon: const Icon(Icons.arrow_upward),
+              onPressed: widget.onRefresh,
+            ),
+            IconButton(
+              tooltip: 'Favorite',
               icon: const Icon(Icons.thumb_up_outlined),
               onPressed: () {},
             ),
@@ -35,11 +40,6 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
               tooltip: 'Search',
               icon: const Icon(Icons.mood),
               onPressed: () {},
-            ),
-            IconButton(
-              tooltip: 'Favorite',
-              icon: const Icon(Icons.refresh),
-              onPressed: widget.onRefresh,
             ),
             IconButton(
               tooltip: 'Favorite',

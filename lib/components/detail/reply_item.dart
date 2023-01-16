@@ -142,7 +142,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         Container(
           // alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 5, bottom: 5),
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 4, right: 4),
           child: HtmlRender(htmlContent: widget.reply.contentRendered),
         ),
         Row(

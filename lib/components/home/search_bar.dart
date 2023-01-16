@@ -9,17 +9,17 @@ class HomeSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 65,
-      padding: const EdgeInsets.only(top: 10, right: 0, left: 8, bottom: 10),
+      height: 50,
+      // decoration: BoxDecoration(border: Border.all()),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: Container(
           width: double.infinity,
-          height: 45,
           // color: Theme.of(context).colorScheme.onInverseSurface,
-          padding: const EdgeInsets.only(right: 8, left: 0),
+          padding: const EdgeInsets.only(right: 8, left: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               IconButton(
                 onPressed: (() => {Scaffold.of(context).openDrawer()}),
@@ -76,7 +76,7 @@ class HomeSearchBar extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.w500, color: Colors.black),
+                    .copyWith(fontWeight: FontWeight.w500),
               ),
               // const CAvatar(
               //     url:
@@ -84,7 +84,19 @@ class HomeSearchBar extends StatelessWidget {
               //     size: 34)
               IconButton(
                 icon: const Icon(Icons.search),
-                onPressed: () => {},
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          // pre代码解析为邮箱 bug fixed
+                          // const ListDetail(topicId: '907966'),
+                          // 分页
+                          const ListDetail(topicId: '908380'),
+                      // const ListDetail(topicId: '907145'),
+                    ),
+                  )
+                },
               )
             ],
           ),

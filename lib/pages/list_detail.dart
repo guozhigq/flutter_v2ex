@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
@@ -107,10 +108,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     });
   }
 
-  // 返回顶部并刷新
+  // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
     await _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeOutBack);
+        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     return _controller.callRefresh();
   }
 
@@ -206,9 +207,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     );
     list.add(
       IconButton(
-        onPressed: (() => {}),
+        onPressed: (() =>
+            Clipboard.setData(ClipboardData(text: _detailModel!.topicId))),
         tooltip: '使用浏览器打开',
-        icon: const Icon(Icons.language_outlined),
+        icon: const Icon(Icons.copy_rounded),
       ),
     );
     list.add(
@@ -372,11 +374,28 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                     top: 5, right: 10, bottom: 0, left: 10),
                 child: HtmlRender(htmlContent: _detailModel!.contentRendered),
               ),
+
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: _detailModel!.subtleList.length,
+                itemBuilder: (context, index) => Column(
+                  children: [
+                    Divider(
+                      endIndent: 15,
+                      indent: 15,
+                      color: Theme.of(context).dividerColor.withOpacity(0.15),
+                    ),
+                    HtmlRender(
+                        htmlContent: _detailModel!.subtleList[index].content)
+                  ],
+                ),
+              ),
               if (_detailModel!.content.isNotEmpty) ...[
                 Divider(
                   endIndent: 15,
                   indent: 15,
-                  color: Theme.of(context).dividerColor.withOpacity(0.15),
+                  height: 25,
+                  color: Theme.of(context).dividerColor,
                 ),
               ]
             ],
@@ -436,6 +455,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                 )),
           ),
         ],
+        // 回复列表
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -444,6 +464,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
             childCount: _replyList.length,
           ),
         ),
+        // 没有更多
         SliverToBoxAdapter(
           child: Offstage(
             // when true hidden
@@ -451,6 +472,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
             child: moreTopic(type: 'null'),
           ),
         ),
+        // 加载更多
         SliverToBoxAdapter(
           child: Offstage(
             // when true hidden
