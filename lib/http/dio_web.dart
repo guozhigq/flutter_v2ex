@@ -161,8 +161,9 @@ class DioRequestWeb {
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main');
     var mainHeader = mainBox!.querySelector('div.node-header');
+    detailModel.nodeCover = mainHeader!.querySelector('a')!.attributes['href']!;
     // 主题总数
-    detailModel.topicCount = mainHeader!.querySelector('strong')!.text;
+    detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
     detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
     // 节点收藏状态

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ReplyNew extends StatefulWidget {
   var statusHeight;
@@ -57,11 +58,6 @@ class _ReplyNewState extends State<ReplyNew> {
                   runSpacing: -1,
                   children: [
                     const Text(' 回复：'),
-                    // InputChip(label: Text('回复')),
-                    TextButton(
-                      onPressed: () => {},
-                      child: const Text('guozhigq'),
-                    ),
                     TextButton(
                       onPressed: () => {},
                       child: const Text('guozhigq'),

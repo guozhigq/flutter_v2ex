@@ -19,7 +19,7 @@ class _ListItemState extends State<ListItem> {
     return GestureDetector(
       child: Card(
         elevation: 0,
-        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 8, left: 0),
+        margin: const EdgeInsets.only(top: 0, right: 12, bottom: 8, left: 12),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),

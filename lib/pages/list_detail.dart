@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
@@ -28,30 +29,24 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   late EasyRefreshController _controller;
   // 监听页面滚动
   final ScrollController _scrollController = ScrollController();
-  // 动画
-  late AnimationController _aniController;
-  late Animation<double> btmAnimation;
-  late Animation<double> fabAnimation;
+
+  TopicDetailModel? _detailModel;
+  late List<ReplyItem> _replyList = []; // 回复列表
+  int _totalPage = 1; // 总页数
+  int _currentPage = 0; // 当前页数
 
   // action
-  bool onlyOP = false; // 只看楼主
   bool reverseSort = false; // 倒序
-  bool showToTopBtn = false; // 返回顶部
-  bool showFabBtn = false; // 返回顶部
-  late double lastOffset = 0;
-  late double pbOffset = 30;
-  double fabElevation = 4; // fab阴影
   bool isLoading = false; // 请求状态 正序/倒序
 
-  // init
-  TopicDetailModel? _detailModel;
-  // 回复列表
-  late List<ReplyItem> _replyList = [];
-  // 总页数
-  int _totalPage = 1;
-  int _currentPage = 0;
+  // bool _showFab = true;
+  // bool _isElevated = true;
+  bool _isVisible = true;
 
   SampleItem? selectedMenu;
+  FloatingActionButtonLocation get _fabLocation => _isVisible
+      ? FloatingActionButtonLocation.endContained
+      : FloatingActionButtonLocation.endFloat;
 
   @override
   void initState() {
@@ -60,63 +55,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       controlFinishRefresh: true,
       controlFinishLoad: true,
     );
-
-    _aniController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-    //使用弹性曲线
-    btmAnimation =
-        CurvedAnimation(parent: _aniController, curve: Curves.bounceInOut);
-    btmAnimation =
-        Tween(begin: -80.0 - pbOffset, end: 0.0).animate(_aniController)
-          ..addListener(() {
-            setState(() => {});
-          })
-          ..addStatusListener(
-            (status) => {
-              if (status == AnimationStatus.completed)
-                {
-                  setState(() => {showToTopBtn = true})
-                },
-              if (status == AnimationStatus.dismissed)
-                {
-                  setState(() => {showToTopBtn = false})
-                }
-            },
-          );
-    fabAnimation =
-        CurvedAnimation(parent: _aniController, curve: Curves.bounceInOut);
-    fabAnimation = Tween(begin: 10.0, end: 16.0).animate(_aniController)
-      ..addListener(() {
-        setState(() => {});
-      })
-      ..addStatusListener(
-        (status) => {
-          if (status == AnimationStatus.completed)
-            {
-              setState(() => {showFabBtn = true})
-            },
-          if (status == AnimationStatus.dismissed)
-            {
-              setState(() => {showFabBtn = false})
-            }
-        },
-      );
-
-    //监听滚动事件，打印滚动位置
-    // _scrollController.addListener(() {
-    //   var offset = _scrollController.offset;
-    //   if (offset > lastOffset && showToTopBtn) {
-    //     _aniController.reverse();
-    //   }
-    //   if (offset < lastOffset && !showToTopBtn) {
-    //     _aniController.forward();
-    //   }
-    //   setState(() {
-    //     lastOffset = offset;
-    //   });
-    // });
+    _scrollController.addListener(_listen);
     getDetailInit();
   }
 
@@ -168,24 +107,39 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     });
   }
 
-  void animationStart() {
-    if (!showToTopBtn) {
-      _aniController.forward();
-      setState(() {
-        fabElevation = 0;
-      });
-    } else {
-      _aniController.reverse();
-      setState(() {
-        fabElevation = 4;
-      });
+  // 返回顶部并刷新
+  Future onRefreshBtm() async {
+    await _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeOutBack);
+    return _controller.callRefresh();
+  }
+
+  void _listen() {
+    final ScrollDirection direction =
+        _scrollController.position.userScrollDirection;
+    if (direction == ScrollDirection.forward) {
+      _show();
+    } else if (direction == ScrollDirection.reverse) {
+      _hide();
+    }
+  }
+
+  void _show() {
+    if (!_isVisible) {
+      setState(() => _isVisible = true);
+    }
+  }
+
+  void _hide() {
+    if (_isVisible) {
+      setState(() => _isVisible = false);
     }
   }
 
   @override
   void dispose() {
-    _aniController.dispose();
     _controller.dispose();
+    _scrollController.removeListener(_listen);
     _scrollController.dispose();
     super.dispose();
   }
@@ -200,62 +154,40 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       ),
       body: _detailModel != null
-          ? Stack(
-              children: [
-                PullRefresh(
-                  onChildRefresh: getDetailInit,
-                  // 上拉
-                  onChildLoad: !reverseSort
-                      ? (_totalPage > 1 && _currentPage < _totalPage
-                          ? getDetail
-                          : null)
-                      : (_currentPage > 1 ? getDetailReverst : null),
-                  currentPage: _currentPage,
-                  totalPage: _totalPage,
-                  child: showRes(),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: btmAnimation.value,
-                  child: DetailBottomBar(
-                    onRefresh: onRefreshBtm,
-                    onLoad: () => _controller.callLoad(),
-                  ),
-                ),
-                Positioned(
-                  right: 16,
-                  bottom: MediaQuery.of(context).padding.bottom +
-                      fabAnimation.value,
-                  // child: FloatingActionButton(
-                  //   enableFeedback: true,
-                  //   elevation: fabElevation,
-                  //   onPressed: animationStart,
-                  //   child: const Icon(Icons.edit),
-                  // ),
-                  child: FloatingActionButton.extended(
-                    onPressed: () {
-                      showModalBottomSheet<void>(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (BuildContext context) {
-                          return ReplyNew(statusHeight: statusHeight);
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.edit),
-                    label: const Text('回复'),
-                    enableFeedback: true,
-                    elevation: fabElevation,
-                    isExtended: false,
-                  ),
-                ),
-              ],
+          ? PullRefresh(
+              onChildRefresh: getDetailInit,
+              // 上拉
+              onChildLoad: !reverseSort
+                  ? (_totalPage > 1 && _currentPage < _totalPage
+                      ? getDetail
+                      : null)
+                  : (_currentPage > 1 ? getDetailReverst : null),
+              currentPage: _currentPage,
+              totalPage: _totalPage,
+              child: showRes(),
             )
           : showLoading(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return ReplyNew(statusHeight: statusHeight);
+            },
+          );
+        },
+        tooltip: '回复',
+        child: const Icon(Icons.edit),
+      ),
+      // floatingActionButtonAnimator: _favAnimation,
+      floatingActionButtonLocation: _fabLocation,
+      bottomNavigationBar:
+          DetailBottomBar(onRefresh: onRefreshBtm, isVisible: _isVisible),
     );
   }
 
+  // 顶部操作栏
   List<Widget> appBarAction() {
     List<Widget>? list = [];
     // list.add(
@@ -532,6 +464,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     );
   }
 
+  // 底部 没有更多
   Widget moreTopic({type = 'noMore'}) {
     return Container(
       width: double.infinity,
@@ -557,12 +490,5 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         ],
       ),
     );
-  }
-
-  Future onRefreshBtm() async {
-    await _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.easeOutBack);
-    return _controller.callRefresh();
   }
 }
