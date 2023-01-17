@@ -12,6 +12,7 @@ class HomeStickyBar extends StatelessWidget {
         children: [
           Expanded(
             child: TabBar(
+              dividerColor: Colors.transparent,
               onTap: (index) {},
               isScrollable: true,
               enableFeedback: true,

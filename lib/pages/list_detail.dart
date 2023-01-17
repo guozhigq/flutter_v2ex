@@ -14,8 +14,9 @@ import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
+import 'package:flutter_v2ex/components/common/node_tag.dart';
 
-enum SampleItem { itemOne, itemTwo, itemThree }
+enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
 class ListDetail extends StatefulWidget {
   const ListDetail({this.topic, required this.topicId, super.key});
@@ -149,10 +150,8 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     var statusHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
-        actions: appBarAction(),
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        actions: _detailModel != null ? appBarAction() : [],
       ),
       body: _detailModel != null
           ? PullRefresh(
@@ -183,8 +182,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       ),
       // floatingActionButtonAnimator: _favAnimation,
       floatingActionButtonLocation: _fabLocation,
-      bottomNavigationBar:
-          DetailBottomBar(onRefresh: onRefreshBtm, isVisible: _isVisible),
+      bottomNavigationBar: DetailBottomBar(
+          onRefresh: onRefreshBtm,
+          isVisible: _isVisible,
+          detailModel: _detailModel),
     );
   }
 
@@ -200,9 +201,30 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     // );
     list.add(
       IconButton(
-        onPressed: (() => {}),
+        onPressed: (() async {
+          var res = await DioRequestWeb.favoriteTopic(
+              _detailModel!.isFavorite, _detailModel!.topicId);
+          if (res) {
+            setState(() {
+              _detailModel!.isFavorite = !_detailModel!.isFavorite;
+            });
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_detailModel!.isFavorite ? '已添加到收藏' : '已取消收藏'),
+                duration: const Duration(milliseconds: 500),
+                showCloseIcon: true,
+              ),
+            );
+          }
+        }),
         tooltip: '收藏主题',
         icon: const Icon(Icons.star_border),
+        selectedIcon: Icon(
+          Icons.star,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        isSelected: _detailModel!.isFavorite,
       ),
     );
     list.add(
@@ -224,6 +246,49 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           });
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+          PopupMenuItem<SampleItem>(
+            value: SampleItem.itemThree,
+            onTap: () => {print('忽略主题')},
+            // onTap: () => showDialog<String>(
+            //   context: context,
+            //   builder: (BuildContext context) => AlertDialog(
+            //     title: const Text('提示'),
+            //     content: const Text('确定不想再看到这个主题？'),
+            //     actions: <Widget>[
+            //       TextButton(
+            //         onPressed: () => Navigator.pop(context, 'Cancel'),
+            //         child: const Text('手误了'),
+            //       ),
+            //       TextButton(
+            //         // onPressed: () => Navigator.pop(context, 'OK'),
+            //         onPressed: (() async {
+            //           var res = await DioRequestWeb.ignoreTopic(
+            //               _detailModel!.topicId);
+            //           if (res) {
+            //             // ignore: use_build_context_synchronously
+            //             Navigator.pop(context, 'OK');
+            //             setState(() {
+            //               _detailModel!.isThank = true;
+            //             });
+            //             // ignore: use_build_context_synchronously
+            //             ScaffoldMessenger.of(context).showSnackBar(
+            //               SnackBar(
+            //                 content:
+            //                     Text('已完成对 ${_detailModel!.topicId} 号主题的忽略'),
+            //                 duration: const Duration(milliseconds: 500),
+            //                 showCloseIcon: true,
+            //               ),
+            //             );
+            //             // ignore: use_build_context_synchronously
+            //           }
+            //         }),
+            //         child: const Text('确定'),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            child: const Text('忽略主题'),
+          ),
           const PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
             child: Text('分享'),
@@ -236,7 +301,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   color: Theme.of(context).colorScheme.error.withAlpha(200)),
             ),
           ),
-          const PopupMenuDivider(height: 2),
+          const PopupMenuDivider(),
           const PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
             child: Text('在浏览器中打开'),
@@ -257,7 +322,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
             children: [
               Container(
                 padding: const EdgeInsets.only(
-                    top: 20, right: 20, bottom: 12, left: 20),
+                    top: 20, right: 20, bottom: 22, left: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -300,31 +365,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                    Material(
-                      borderRadius: BorderRadius.circular(50),
-                      color: Theme.of(context).appBarTheme.surfaceTintColor,
-                      child: InkWell(
-                        onTap: () {},
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 3.5, horizontal: 10),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                _detailModel!.nodeName,
-                                style: const TextStyle(
-                                  fontSize: 11.0,
-                                  textBaseline: TextBaseline.ideographic,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    NodeTag(
+                        nodeId: _detailModel!.nodeId,
+                        nodeName: _detailModel!.nodeName,
+                        route: 'detail')
                   ],
                 ),
               ),
@@ -333,10 +377,13 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
-                    top: 0, right: 18, bottom: 7, left: 18),
+                    top: 0, right: 18, bottom: 12, left: 18),
                 child: Text(
                   _detailModel!.topicTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -371,31 +418,19 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
               ),
               Container(
                 padding: const EdgeInsets.only(
-                    top: 5, right: 10, bottom: 0, left: 10),
+                    top: 5, right: 18, bottom: 10, left: 18),
                 child: HtmlRender(htmlContent: _detailModel!.contentRendered),
               ),
+              if (_detailModel!.subtleList.isNotEmpty) ...[
+                ...subList(_detailModel!.subtleList)
+              ],
 
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: _detailModel!.subtleList.length,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    Divider(
-                      endIndent: 15,
-                      indent: 15,
-                      color: Theme.of(context).dividerColor.withOpacity(0.15),
-                    ),
-                    HtmlRender(
-                        htmlContent: _detailModel!.subtleList[index].content)
-                  ],
-                ),
-              ),
               if (_detailModel!.content.isNotEmpty) ...[
                 Divider(
                   endIndent: 15,
                   indent: 15,
-                  height: 25,
-                  color: Theme.of(context).dividerColor,
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withOpacity(0.15),
                 ),
               ]
             ],
@@ -405,19 +440,19 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           SliverToBoxAdapter(
             child: Container(
                 padding: const EdgeInsets.only(
-                    top: 20, left: 15, bottom: 14, right: 15),
+                    top: 20, left: 15, bottom: 18, right: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '${_detailModel!.replyCount}条回复',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    const SizedBox(width: 6),
                     if (_replyList.length > 2) ...[
                       Row(
                         children: [
                           RawChip(
+                            side: BorderSide.none,
                             labelPadding:
                                 const EdgeInsets.only(left: 1, right: 4),
                             label: Text(
@@ -441,12 +476,12 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                                     color: Theme.of(context)
                                         .colorScheme
                                         .surfaceVariant)),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surfaceVariant,
+                            // backgroundColor:
+                            //     Theme.of(context).colorScheme.surfaceVariant,
                             selectedColor:
                                 Theme.of(context).colorScheme.onInverseSurface,
                             selected: reverseSort,
-                            showCheckmark: false,
+                            showCheckmark: true,
                           ),
                         ],
                       )
@@ -484,6 +519,42 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         )
       ],
     );
+  }
+
+  List<Widget> subList(data) {
+    List<Widget>? list = [];
+    for (var i in data) {
+      list.add(
+        Container(
+          padding:
+              const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
+          color: Theme.of(context).colorScheme.onInverseSurface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Divider(
+                height: 1,
+                color: Theme.of(context).dividerColor.withOpacity(0.15),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              Text(
+                i.fade,
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    backgroundColor: Theme.of(context).colorScheme.secondary),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              HtmlRender(htmlContent: i.content)
+            ],
+          ),
+        ),
+      );
+    }
+    return list;
   }
 
   // 底部 没有更多

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/models/web/model_topic_fav.dart';
+
 import 'package:flutter_v2ex/components/home/list_item.dart';
 
 class FavPage extends StatefulWidget {
@@ -12,7 +14,7 @@ class FavPage extends StatefulWidget {
 }
 
 class _FavPageState extends State<FavPage> with AutomaticKeepAliveClientMixin {
-  late Future<List<TabTopicItem>> topicListFuture;
+  late Future<FavTopicModel> topicListFuture;
 
   // 页面缓存
   @override
@@ -24,8 +26,8 @@ class _FavPageState extends State<FavPage> with AutomaticKeepAliveClientMixin {
     topicListFuture = getTopics();
   }
 
-  Future<List<TabTopicItem>> getTopics() async {
-    return await DioRequestWeb.getFavTopics(0);
+  Future<FavTopicModel> getTopics() async {
+    return await DioRequestWeb.getFavTopics(1);
   }
 
   @override
@@ -35,7 +37,7 @@ class _FavPageState extends State<FavPage> with AutomaticKeepAliveClientMixin {
       appBar: AppBar(
         title: const Text('收藏'),
       ),
-      body: FutureBuilder<List<TabTopicItem>>(
+      body: FutureBuilder<FavTopicModel>(
         future: topicListFuture,
         builder: (context, snapshot) {
           Widget widget;
@@ -77,9 +79,9 @@ class _FavPageState extends State<FavPage> with AutomaticKeepAliveClientMixin {
         child: ListView.builder(
           padding: const EdgeInsets.only(top: 1, bottom: 0),
           physics: const ClampingScrollPhysics(), //重要
-          itemCount: snapshot.data?.length,
+          itemCount: snapshot.data.topicList.length,
           itemBuilder: (BuildContext context, int index) {
-            return ListItem(topic: snapshot.data![index]);
+            return ListItem(topic: snapshot.data!.topicList[index]);
           },
         ),
       ),

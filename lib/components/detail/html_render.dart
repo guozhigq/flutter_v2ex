@@ -27,6 +27,7 @@ class HtmlRender extends StatelessWidget {
             if (!imgUrl!.contains('https') && !imgUrl.contains('http')) {
               imgUrl = 'https:$imgUrl';
             }
+            print('imgUrl:$imgUrl');
             // todo 多张图片轮播
             return SelectionContainer.disabled(
               child: GestureDetector(
@@ -69,7 +70,7 @@ class HtmlRender extends StatelessWidget {
             // fontSize: FontSize(
             //     Theme.of(context).textTheme.bodyLarge!.fontSize!),
             fontSize: FontSize.medium,
-            lineHeight: LineHeight.percent(130),
+            lineHeight: LineHeight.percent(140),
           ),
           "body": Style(margin: Margins.zero, padding: EdgeInsets.zero),
           "a": Style(
@@ -130,27 +131,16 @@ class HtmlRender extends StatelessWidget {
       print('无效网址');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
+          showCloseIcon: true,
           content: Row(
             children: [
               Icon(
                 Icons.error,
-                color: Theme.of(context).colorScheme.errorContainer,
+                color: Theme.of(context).colorScheme.error.withOpacity(0.5),
               ),
               const SizedBox(width: 6),
               const Text('无效网址')
             ],
-          ),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-          action: SnackBarAction(
-            label: '复制',
-            textColor: Theme.of(context).colorScheme.onInverseSurface,
-            onPressed: () {
-              // Some code to undo the change.
-            },
           ),
         ),
       );

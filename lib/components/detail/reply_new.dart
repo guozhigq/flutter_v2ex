@@ -15,9 +15,8 @@ class _ReplyNewState extends State<ReplyNew> {
     return Container(
       height: MediaQuery.of(context).size.height - widget.statusHeight,
       padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
-        borderRadius: const BorderRadius.only(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),

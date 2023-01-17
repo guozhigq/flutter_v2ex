@@ -10,6 +10,9 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 
+String reqCookie =
+    '_ga=GA1.2.612053446.1661838358; cf_clearance=w5gszBpOjxFGAsofiFwJxqxfmRkE27GOtrMm4x_OQp4-1672997746-0-150; V2EXTP="2|1:0|10:1673193021|6:V2EXTP|280:eyI4Nzg2MDMiOiAyLCAiOTAwNDU4IjogMiwgIjg5ODcxOCI6IDIsICI4ODMxNzMiOiAyLCAiODk5MDQ1IjogMiwgIjg3NjY2OCI6IDIsICI5MDY4MzQiOiAyLCAiOTA2OTI5IjogMiwgIjg3NzYxNCI6IDIsICI4NzI3ODciOiA1LCAiODk0MzMwIjogMiwgIjcxMTcwMSI6IDQsICIzMzkzNzEiOiAyLCAiODEyOTE0IjogMiwgIjg3NjM5MiI6IDIsICI5MDQyMjYiOiAyfQ==|43cdf44cc15322220d1b5ea1cef5369941072c0120e1a40e711d309130878310"; V2EX_LANG=zhcn; PB3_SESSION="2|1:0|10:1673795902|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NTI4MzU1NTk=|6d752b99437703c93e53b4209363dabb45109797e644e081167c82e74d1cf910"; V2EX_REFERRER="2|1:0|10:1673855615|13:V2EX_REFERRER|16:bW90ZWNzaGluZQ==|e3433970eb6c7803cee94b64a9368bd6377a057c06a767c43a863c50e2924edd"; A2="2|1:0|10:1673882557|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|190fc2899cde15502eabd6b2a1d203df0b4f9ccb5b3accc5b34572762de89089"; V2EX_TAB="2|1:0|10:1673922445|8:V2EX_TAB|12:Y3JlYXRpdmU=|36e8c0360b1d9b4ad30859053e6ba8ef1562416593543ce46f1d2a98e494e25a"';
+
 class Request {
   static final Request _instance = Request._internal();
   factory Request() => _instance;
@@ -20,16 +23,6 @@ class Request {
   //   _instance ??= Request();
   //   return _instance;
   // }
-
-  // var cookiePath = Utils.getCookiePath().then(
-  //   (res) =>{
-  //     print(res)
-  //   }
-  // );
-  // var cookieJar = PersistCookieJar(
-  //   ignoreExpires: true,
-  //   storage: FileStorage(cookiePath),
-  // );
 
   dynamic _parseAndDecode(String response) {
     return jsonDecode(response);
@@ -53,6 +46,7 @@ class Request {
       receiveTimeout: 12000,
       //Http请求头.
       headers: {
+        'cookie': reqCookie,
         // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
@@ -65,8 +59,20 @@ class Request {
     );
 
     dio = Dio(options);
-    var cookieJar = CookieJar();
-    dio.interceptors.add(CookieManager(cookieJar));
+    // var cookiePath = Utils.getCookiePath();
+    // print('line 66: $cookiePath');
+
+    // var cookieJar = PersistCookieJar(
+    //   ignoreExpires: true,
+    //   storage: FileStorage(cookiePath),
+    // ); // 持久化 cookie
+    // dio.interceptors
+    //   ..add(CookieManager(cookieJar))
+    //   ..add(LogInterceptor())
+    //   ..add(
+    //       DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor);
+
+    (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         (HttpClient client) {
       // config the http client
@@ -128,13 +134,18 @@ class Request {
     // String channel = extra['channel'] ?? 'web';
     if (ua == 'mob') {
       options = Options(headers: {
+        'cookie':
+            '_ga=GA1.2.612053446.1661838358; cf_clearance=w5gszBpOjxFGAsofiFwJxqxfmRkE27GOtrMm4x_OQp4-1672997746-0-150; V2EXTP="2|1:0|10:1673193021|6:V2EXTP|280:eyI4Nzg2MDMiOiAyLCAiOTAwNDU4IjogMiwgIjg5ODcxOCI6IDIsICI4ODMxNzMiOiAyLCAiODk5MDQ1IjogMiwgIjg3NjY2OCI6IDIsICI5MDY4MzQiOiAyLCAiOTA2OTI5IjogMiwgIjg3NzYxNCI6IDIsICI4NzI3ODciOiA1LCAiODk0MzMwIjogMiwgIjcxMTcwMSI6IDQsICIzMzkzNzEiOiAyLCAiODEyOTE0IjogMiwgIjg3NjM5MiI6IDIsICI5MDQyMjYiOiAyfQ==|43cdf44cc15322220d1b5ea1cef5369941072c0120e1a40e711d309130878310"; V2EX_LANG=zhcn; PB3_SESSION="2|1:0|10:1673795902|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NTI4MzU1NTk=|6d752b99437703c93e53b4209363dabb45109797e644e081167c82e74d1cf910"; V2EX_REFERRER="2|1:0|10:1673855615|13:V2EX_REFERRER|16:bW90ZWNzaGluZQ==|e3433970eb6c7803cee94b64a9368bd6377a057c06a767c43a863c50e2924edd"; A2="2|1:0|10:1673882557|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|190fc2899cde15502eabd6b2a1d203df0b4f9ccb5b3accc5b34572762de89089"; V2EX_TAB="2|1:0|10:1673922445|8:V2EX_TAB|12:Y3JlYXRpdmU=|36e8c0360b1d9b4ad30859053e6ba8ef1562416593543ce46f1d2a98e494e25a"',
         // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
             : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
       });
     } else {
+      print('else');
       options = Options(headers: {
+        'cookie':
+            '_ga=GA1.2.612053446.1661838358; cf_clearance=w5gszBpOjxFGAsofiFwJxqxfmRkE27GOtrMm4x_OQp4-1672997746-0-150; V2EXTP="2|1:0|10:1673193021|6:V2EXTP|280:eyI4Nzg2MDMiOiAyLCAiOTAwNDU4IjogMiwgIjg5ODcxOCI6IDIsICI4ODMxNzMiOiAyLCAiODk5MDQ1IjogMiwgIjg3NjY2OCI6IDIsICI5MDY4MzQiOiAyLCAiOTA2OTI5IjogMiwgIjg3NzYxNCI6IDIsICI4NzI3ODciOiA1LCAiODk0MzMwIjogMiwgIjcxMTcwMSI6IDQsICIzMzkzNzEiOiAyLCAiODEyOTE0IjogMiwgIjg3NjM5MiI6IDIsICI5MDQyMjYiOiAyfQ==|43cdf44cc15322220d1b5ea1cef5369941072c0120e1a40e711d309130878310"; V2EX_LANG=zhcn; PB3_SESSION="2|1:0|10:1673795902|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NTI4MzU1NTk=|6d752b99437703c93e53b4209363dabb45109797e644e081167c82e74d1cf910"; V2EX_REFERRER="2|1:0|10:1673855615|13:V2EX_REFERRER|16:bW90ZWNzaGluZQ==|e3433970eb6c7803cee94b64a9368bd6377a057c06a767c43a863c50e2924edd"; A2="2|1:0|10:1673882557|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|190fc2899cde15502eabd6b2a1d203df0b4f9ccb5b3accc5b34572762de89089"; V2EX_TAB="2|1:0|10:1673922445|8:V2EX_TAB|12:Y3JlYXRpdmU=|36e8c0360b1d9b4ad30859053e6ba8ef1562416593543ce46f1d2a98e494e25a"',
         // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': ''
       });

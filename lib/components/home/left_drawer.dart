@@ -25,7 +25,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       'id': '2',
       'leading': const Icon(Icons.star_border_rounded, size: 27),
       'title': '我的收藏',
-      'route': '',
+      'route': '/fav',
       'trailing': null
     },
     {
@@ -79,7 +79,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         bottomRight: Radius.circular(16),
         bottomLeft: Radius.circular(0),
       ),
-      color: Theme.of(context).colorScheme.surface,
+      // color: Theme.of(context).colorScheme.surface,
       child: Drawer(
         width: MediaQuery.of(context).size.width * 0.75,
         child: ListView(
@@ -105,7 +105,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               shape: StadiumBorder(
                   side: BorderSide(
                       color: Theme.of(context).colorScheme.surfaceVariant)),
-              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+              // backgroundColor: Theme.of(context).colorScheme.susrfaceVariant,
               selectedColor: Theme.of(context).colorScheme.onInverseSurface,
               showCheckmark: false,
             ),
@@ -113,7 +113,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
             Divider(
               indent: 20,
               endIndent: 20,
-              color: Theme.of(context).dividerColor.withOpacity(0.3),
+              color: Theme.of(context).dividerColor.withOpacity(0.15),
             ),
             buildActionTwo(),
           ],
@@ -134,7 +134,8 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               const SizedBox(height: 10),
               const CAvatar(
                 size: 65,
-                url: '',
+                url:
+                    'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
               ),
               const SizedBox(height: 10),
               Row(
@@ -200,10 +201,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
             setState(
               () => {
                 selectedId = item['id'],
-                Timer(
-                  const Duration(milliseconds: 150),
-                  (() => {Scaffold.of(context).closeDrawer()}),
-                ),
+                Navigator.pushNamed(context, item['route'])
+                // Timer(
+                //   const Duration(milliseconds: 150),
+                //   (() => {Scaffold.of(context).closeDrawer()}),
+                // ),
               },
             ),
           },

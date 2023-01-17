@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     {'name': '全部', 'id': 'all', 'type': 'tab'},
     {'name': '职场话题', 'id': 'career', 'type': 'go'},
     {'name': '最近', 'id': 'recent', 'type': 'recent'},
-    {'name': '最热', 'id': 'hot', 'type': 'tab'},
+    {'name': '🔥最热', 'id': 'hot', 'type': 'tab'},
     {'name': '技术', 'id': 'tech', 'type': 'tab'},
     {'name': '创意', 'id': 'creative', 'type': 'tab'},
     {'name': '好玩', 'id': 'play', 'type': 'tab'},
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        // backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
         drawer: const HomeLeftDrawer(),
         body: Column(
           children: <Widget>[

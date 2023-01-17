@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/components/common/node_tag.dart';
 // import 'package:flutter_v2ex/pages/profile_page.dart';
 
 // ignore: must_be_immutable
@@ -43,10 +44,10 @@ class _ListItemState extends State<ListItem>
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        height: 108,
         margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
+          // color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
@@ -164,39 +165,10 @@ class _ListItemState extends State<ListItem>
               ],
             ),
             if (widget.topic.nodeName.isNotEmpty) ...[
-              Material(
-                borderRadius: BorderRadius.circular(50),
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            GoPage(nodeKey: widget.topic.nodeId),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(50),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 3.5, horizontal: 10),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.topic.nodeName,
-                          style: const TextStyle(
-                            fontSize: 11.0,
-                            textBaseline: TextBaseline.ideographic,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              NodeTag(
+                  nodeId: widget.topic.nodeId,
+                  nodeName: widget.topic.nodeName,
+                  route: 'home')
             ]
           ],
         ),

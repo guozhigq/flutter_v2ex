@@ -26,7 +26,7 @@ class Utils {
 
   static Future<String> getCookiePath() async {
     Directory tempDir = await getApplicationDocumentsDirectory();
-    String tempPath = "${tempDir.path}/.v2lf_cookie";
+    String tempPath = "${tempDir.path}/.vvex_cookie";
     Directory dir = Directory(tempPath);
     bool b = await dir.exists();
     if (!b) {

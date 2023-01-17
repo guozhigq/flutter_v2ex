@@ -1,7 +1,4 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 
 // import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/http/init.dart';
@@ -20,6 +17,7 @@ import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 // import 'package:flutter_v2ex/models/web/item_node_list.dart';
+import 'package:flutter_v2ex/models/web/model_topic_fav.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
@@ -100,6 +98,12 @@ class DioRequestWeb {
         break;
     }
     var tree = ETree.fromString(response.data);
+    // 用户信息解析
+    // var rootDom = parse(response.data);
+    // var userWrap = rootDom.querySelector('div#site-header-menu');
+    // print(userWrap!.querySelectorAll('div.cell').length);
+    // var isLogin = userWrap!.querySelectorAll('div.cell').length > 6
+
     var aRootNode = tree.xpath("//*[@class='cell item']");
     for (var aNode in aRootNode!) {
       var item = TabTopicItem();
@@ -161,9 +165,12 @@ class DioRequestWeb {
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main');
     var mainHeader = mainBox!.querySelector('div.node-header');
-    detailModel.nodeCover = mainHeader!.querySelector('a')!.attributes['href']!;
+    if (mainHeader != null) {
+      detailModel.nodeCover =
+          mainHeader.querySelector('a')!.attributes['href']!;
+    }
     // 主题总数
-    detailModel.topicCount = mainHeader.querySelector('strong')!.text;
+    detailModel.topicCount = mainHeader!.querySelector('strong')!.text;
     // 节点描述
     detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
     // 节点收藏状态
@@ -232,19 +239,70 @@ class DioRequestWeb {
   }
 
   // 获取收藏的主题
-  static Future<List<TabTopicItem>> getFavTopics(int p) async {
-    var topics = <TabTopicItem>[];
+  static Future<FavTopicModel> getFavTopics(int p) async {
+    FavTopicModel favTopicDetail = FavTopicModel();
+    List<TabTopicItem> topicList = [];
+
     Response response;
     response = await Request().get(
       '/my/topics',
-      extra: {'ua': 'pc', 'channel': 'web'},
+      extra: {
+        'ua': 'pc',
+        'channel': 'web',
+      },
     );
     var document = parse(response.data);
-    var mainBox = document.querySelector('#Main > div > div:nth-child(5)');
-    // print('line 220:' + mainBox!.text);
-    var cellBox = mainBox!.querySelectorAll('div.cell');
-    print('line 222:${cellBox.length}');
-    return topics;
+    var mainBox = document.querySelector('#Main > div.box:not(.box-title)');
+    var cellBox = mainBox!.querySelectorAll('div.cell.item');
+    for (var aNode in cellBox) {
+      TabTopicItem item = TabTopicItem();
+      if (aNode.querySelector('img.avatar') != null) {
+        item.avatar = aNode.querySelector('img.avatar')!.attributes['src']!;
+        item.memberId = aNode.querySelector('img.avatar')!.attributes['alt']!;
+      }
+      if (aNode.querySelector('tr > td:nth-child(5)') != null) {
+        item.topicTitle = aNode
+            .querySelector('td:nth-child(5) > span.item_title')!
+            .text
+            .replaceAll('&quot;', '')
+            .replaceAll('&amp;', '&')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>');
+        // var topicSub = aNode
+        //     .querySelector('td:nth-child(5) > span.small')!
+        //     .text
+        //     .replaceAll('&nbsp;', "");
+        // item.memberId = topicSub.split('•')[0].trim();
+        // item.clickCount =
+        //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
+      }
+      if (aNode.querySelector('tr > td:last-child > a') != null) {
+        String? topicUrl = aNode
+            .querySelector('tr > td:last-child > a')!
+            .attributes['href']; // 得到是 /t/522540#reply17
+        item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
+        item.replyCount = topicUrl
+            .replaceAll("/t/", "")
+            .split("#")[1]
+            .replaceAll(RegExp(r'[^0-9]'), '');
+      }
+      if (aNode.querySelector('tr') != null) {
+        var topicTd = aNode.querySelector('tr')!.children[2];
+        item.lastReplyTime = topicTd
+            .querySelector('span.topic_info > span')!
+            .text
+            .replaceAll("/t/", "");
+      }
+      if (aNode.querySelector(' a.node') != null) {
+        item.nodeId =
+            aNode.querySelector('a.node')!.attributes['href']!.split('/').last;
+        item.nodeName = aNode.querySelector('a.node')!.innerHtml;
+      }
+      print(item.nodeId);
+      topicList.add(item);
+    }
+    favTopicDetail.topicList = topicList;
+    return favTopicDetail;
   }
 
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
@@ -365,8 +423,9 @@ class DioRequestWeb {
       String collect = document
           .querySelector("$innerQuery > div > a[class='op']")!
           .attributes["href"]!;
-      detailModel.token = collect.split('?t=')[1];
+      // detailModel.token = collect.split('?t=')[1];
       detailModel.isFavorite = collect.startsWith('/unfavorite');
+      print('detailModel.isFavorite: ${detailModel.isFavorite}');
     }
 
     // 登录
@@ -535,5 +594,57 @@ class DioRequestWeb {
       nodesList.add(nodeItem);
     }
     return nodesList;
+  }
+
+  /// action
+  // 收藏 / 取消收藏
+  static Future<bool> favoriteTopic(bool isFavorite, String topicId,
+      {String token = '26547'}) async {
+    String url = isFavorite
+        ? ("/unfavorite/topic/$topicId?once=$token")
+        : ("/favorite/topic/$topicId?once=$token");
+    var response = await Request().get(url, extra: {});
+    if (response.statusCode == 200 || response.statusCode == 302) {
+      // 操作成功
+      return true;
+    }
+    return false;
+  }
+
+  // 感谢
+  static Future<bool> thankTopic(String topicId) async {
+    // String once = await getOnce();
+    // print("thankTopic：" + once);
+    // if (once == null || once.isEmpty) {
+    //   return false;
+    // }
+    var response = await Request().post("/thank/topic/$topicId?once=28900");
+    if (response.statusCode == 200 || response.statusCode == 302) {
+      // 操作成功
+      return true;
+    }
+    return false;
+  }
+
+  // 忽略主题
+  // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？'))
+  // { location.href = '/ignore/topic/556280?once=35630'; }" class="tb" style="user-select: auto;">忽略主题</a>
+  static Future<bool> ignoreTopic(String topicId) async {
+    // String once = await getOnce();
+    // print("ignoreTopic：" + once);
+    // if (once == null || once.isEmpty) {
+    //   return false;
+    // }
+    var response = await Request().get("/ignore/topic/$topicId?once=28900");
+    if (response.statusCode == 200 || response.statusCode == 302) {
+      // 操作成功
+      return true;
+    }
+    return false;
+  }
+
+  void getUserInfo(element, ua) {
+    if (ua == 'mob') {
+    } else if (ua == 'pc') {}
   }
 }

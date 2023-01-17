@@ -44,7 +44,7 @@ class _NodesPageState extends State<NodesPage> {
                 ),
                 centerTitle: false,
                 titlePadding:
-                    const EdgeInsetsDirectional.only(start: 36, bottom: 16),
+                    const EdgeInsetsDirectional.only(start: 42, bottom: 16),
                 expandedTitleScale: 1.5),
           ),
           SliverList(

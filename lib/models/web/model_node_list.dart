@@ -1,4 +1,5 @@
 // import 'package:flutter_v2ex/models/web/item_node_list.dart';
+// 某节点下的主题列表
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 class NodeListModel {

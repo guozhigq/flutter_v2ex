@@ -7,7 +7,9 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_v2ex/pages/app_tab.dart';
 import 'package:flutter_v2ex/pages/help_page.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
+import 'package:flutter_v2ex/pages/login_page.dart';
 import 'package:flutter_v2ex/pages/nodes_page.dart';
+import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/pages/fav_page.dart';
@@ -25,7 +27,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-Color brandColor = const Color.fromRGBO(139, 196, 74, 100);
+Color brandColor = const Color.fromRGBO(41, 64, 118, 100);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -81,7 +83,9 @@ class _MyAppState extends State<MyApp> {
           '/fav': (context) => const FavPage(),
           '/profile': (context) => const PhysicsCardDragDemo(),
           '/nodes': (context) => const NodesPage(),
-          '/help': (context) => const HelpPage()
+          '/help': (context) => const HelpPage(),
+          '/mine': (context) => const MinePage(),
+          '/login': (context) => const LoginPage(),
         },
       );
     });

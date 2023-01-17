@@ -76,7 +76,7 @@ class _TabBarListState extends State<TabBarList>
           padding: const EdgeInsets.only(top: 1, bottom: 0),
           physics: const AlwaysScrollableScrollPhysics(), //重要
           itemCount: snapshot.length + 1,
-          itemExtent: 110,
+          prototypeItem: ListItem(topic: snapshot[0]),
           itemBuilder: (BuildContext context, int index) {
             if (index == snapshot.length) {
               return moreTopic();
@@ -92,15 +92,15 @@ class _TabBarListState extends State<TabBarList>
   Widget moreTopic() {
     return Container(
       width: double.infinity,
-      height: 80 + MediaQuery.of(context).padding.bottom,
+      height: 30 + MediaQuery.of(context).padding.bottom,
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 5),
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () => {},
-          child: const Text('更多相关主题'),
-        ),
-      ),
+      child: const Center(
+          // child: ElevatedButton(
+          //   onPressed: () => {},
+          //   child: const Text('更多相关主题'),
+          // ),
+          child: Text('全部加载完成')),
     );
   }
 
@@ -128,7 +128,7 @@ class _TabBarListState extends State<TabBarList>
     var commonColor = Theme.of(context).colorScheme.surfaceVariant;
 
     return Container(
-      height: 108,
+      // height: 108,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).colorScheme.onInverseSurface,
