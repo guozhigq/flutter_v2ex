@@ -76,7 +76,7 @@ class HomeSearchBar extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.w500),
+                    .copyWith(fontWeight: FontWeight.bold),
               ),
               // const CAvatar(
               //     url:

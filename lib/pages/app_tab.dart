@@ -43,6 +43,10 @@ class _AppTabState extends State<AppTab> {
       //         Icons.favorite_border,
       //         size: 19,
       //       ),
+      //       selectedIcon: Icon(
+      //         Icons.favorite,
+      //         size: 19,
+      //       ),
       //       label: "收藏",
       //     ),
       //     NavigationDestination(
@@ -50,7 +54,7 @@ class _AppTabState extends State<AppTab> {
       //         Icons.check_box_outline_blank,
       //         size: 19,
       //       ),
-      //       label: "我的",
+      //       label: "设置",
       //     ),
       //   ],
       // ),

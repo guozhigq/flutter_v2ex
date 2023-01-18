@@ -11,19 +11,22 @@ import 'package:flutter_v2ex/package/xpath/xpath.dart';
 // import 'package:html/dom_parsing.dart';
 // import 'package:html/html_escape.dart';
 
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
-import 'package:flutter_v2ex/models/web/model_node_list.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
+import 'package:flutter_v2ex/models/web/model_topic_detail.dart'; // 主题详情
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart'; // 主题回复
+import 'package:flutter_v2ex/models/web/item_topic_subtle.dart'; // 主题附言
+import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
 // import 'package:flutter_v2ex/models/web/item_node_list.dart';
-import 'package:flutter_v2ex/models/web/model_topic_fav.dart';
+import 'package:flutter_v2ex/models/web/model_topic_fav.dart'; // 收藏的主题
+import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登录字段
+import 'package:flutter_v2ex/models/web/model_node_fav.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_v2ex/utils/string.dart';
 
 class DioRequestWeb {
   static dynamic _parseAndDecode(String response) {
@@ -163,12 +166,12 @@ class DioRequestWeb {
       extra: {'ua': 'pc'},
     );
     var document = parse(response.data);
-    var mainBox = document.querySelector('#Main');
-    var mainHeader = mainBox!.querySelector('div.node-header');
-    if (mainHeader != null) {
-      detailModel.nodeCover =
-          mainHeader.querySelector('a')!.attributes['href']!;
-    }
+    var mainBox = document.body!.children[1].querySelector('#Main');
+    print(mainBox);
+    var mainHeader = document.querySelector('div.box.box-title.node-header');
+    detailModel.nodeCover =
+        mainHeader!.querySelector('img')!.attributes['src']!;
+
     // 主题总数
     detailModel.topicCount = mainHeader!.querySelector('strong')!.text;
     // 节点描述
@@ -178,62 +181,60 @@ class DioRequestWeb {
       detailModel.favorite =
           !mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
     }
-    // 总页数
-    // 主题
-    var topicEle =
-        document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
-    // var boxChildren = document.querySelector('#Main > div > div:nth-child(3)');
-    // var cellBoxChildren = boxChildren!.querySelectorAll('div.cell');
+    print(document.querySelector('#TopicsNode'));
+    if (document.querySelector('#TopicsNode') != null) {
+      // 总页数
+      // 主题
+      var topicEle =
+          document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
+      for (var aNode in topicEle) {
+        var item = TabTopicItem();
 
-    // if (cellBoxChildren[0].className == 'cell tab-alt-container') {
-    //   cellBoxChildren.removeAt(0);
-    // }
+        //  头像 昵称
+        if (aNode.querySelector('td > a > img') != null) {
+          item.avatar = aNode.querySelector('td > a > img')!.attributes['src']!;
+          item.memberId =
+              aNode.querySelector('td > a > img')!.attributes['alt']!;
+        }
 
-    for (var aNode in topicEle) {
-      var item = TabTopicItem();
-
-      //  头像 昵称
-      if (aNode.querySelector('td > a > img') != null) {
-        item.avatar = aNode.querySelector('td > a > img')!.attributes['src']!;
-        item.memberId = aNode.querySelector('td > a > img')!.attributes['alt']!;
+        if (aNode.querySelector('tr > td:nth-child(5)') != null) {
+          item.topicTitle = aNode
+              .querySelector('td:nth-child(5) > span.item_title')!
+              .text
+              .replaceAll('&quot;', '')
+              .replaceAll('&amp;', '&')
+              .replaceAll('&lt;', '<')
+              .replaceAll('&gt;', '>');
+          // var topicSub = aNode
+          //     .querySelector('td:nth-child(5) > span.small')!
+          //     .text
+          //     .replaceAll('&nbsp;', "");
+          // item.memberId = topicSub.split('•')[0].trim();
+          // item.clickCount =
+          //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
+        }
+        if (aNode.querySelector('tr > td:last-child > a') != null) {
+          String? topicUrl = aNode
+              .querySelector('tr > td:last-child > a')!
+              .attributes['href']; // 得到是 /t/522540#reply17
+          item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
+          item.replyCount = topicUrl
+              .replaceAll("/t/", "")
+              .split("#")[1]
+              .replaceAll(RegExp(r'[^0-9]'), '');
+        }
+        if (aNode.querySelector('tr') != null) {
+          var topicTd = aNode.querySelector('tr')!.children[2];
+          item.lastReplyTime = topicTd
+              .querySelector('span.topic_info > span')!
+              .text
+              .replaceAll("/t/", "");
+        }
+        // item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+        topics.add(item);
       }
-
-      if (aNode.querySelector('tr > td:nth-child(5)') != null) {
-        item.topicTitle = aNode
-            .querySelector('td:nth-child(5) > span.item_title')!
-            .text
-            .replaceAll('&quot;', '')
-            .replaceAll('&amp;', '&')
-            .replaceAll('&lt;', '<')
-            .replaceAll('&gt;', '>');
-        // var topicSub = aNode
-        //     .querySelector('td:nth-child(5) > span.small')!
-        //     .text
-        //     .replaceAll('&nbsp;', "");
-        // item.memberId = topicSub.split('•')[0].trim();
-        // item.clickCount =
-        //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
-      }
-      if (aNode.querySelector('tr > td:last-child > a') != null) {
-        String? topicUrl = aNode
-            .querySelector('tr > td:last-child > a')!
-            .attributes['href']; // 得到是 /t/522540#reply17
-        item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
-        item.replyCount = topicUrl
-            .replaceAll("/t/", "")
-            .split("#")[1]
-            .replaceAll(RegExp(r'[^0-9]'), '');
-      }
-      if (aNode.querySelector('tr') != null) {
-        var topicTd = aNode.querySelector('tr')!.children[2];
-        item.lastReplyTime = topicTd
-            .querySelector('span.topic_info > span')!
-            .text
-            .replaceAll("/t/", "");
-      }
-      // item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
-      topics.add(item);
     }
+
     detailModel.topicList = topics;
     return detailModel;
   }
@@ -268,13 +269,6 @@ class DioRequestWeb {
             .replaceAll('&amp;', '&')
             .replaceAll('&lt;', '<')
             .replaceAll('&gt;', '>');
-        // var topicSub = aNode
-        //     .querySelector('td:nth-child(5) > span.small')!
-        //     .text
-        //     .replaceAll('&nbsp;', "");
-        // item.memberId = topicSub.split('•')[0].trim();
-        // item.clickCount =
-        //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
       }
       if (aNode.querySelector('tr > td:last-child > a') != null) {
         String? topicUrl = aNode
@@ -298,11 +292,47 @@ class DioRequestWeb {
             aNode.querySelector('a.node')!.attributes['href']!.split('/').last;
         item.nodeName = aNode.querySelector('a.node')!.innerHtml;
       }
-      print(item.nodeId);
       topicList.add(item);
     }
     favTopicDetail.topicList = topicList;
     return favTopicDetail;
+  }
+
+  // 获取收藏的节点
+  static Future<List<NodeFavModel>> getFavNodes() async {
+    List<NodeFavModel> favNodeList = [];
+    Response response;
+    response = await Request().get('/my/nodes', extra: {'ua': 'mob'});
+    var tree = ETree.fromString(response.data);
+    var aRootNode = tree.xpath("//*[@class='fav-node']");
+    for (var aNode in aRootNode!) {
+      NodeFavModel item = NodeFavModel();
+      item.nodeCover = aNode.xpath("/img")?.first.attributes["src"];
+      item.nodeId = aNode.xpath("/img")?.first.attributes["alt"];
+      item.nodeName =
+          aNode.xpath("/span[@class='fav-node-name']/text()")![0].name!;
+      item.topicCount =
+          aNode.xpath("/span[@class='f12 fade']/text()")![0].name!;
+      favNodeList.add(item);
+    }
+    // var bodyDom = parse(response.data).body;
+    // var nodeListWrap =
+    //     bodyDom!.querySelector('div.cell(not.tab-alt-container)');
+    // List<dom.Element> nodeListDom = [];
+    // if (nodeListWrap != null) {
+    //   nodeListDom = nodeListWrap.querySelectorAll('a');
+    // }
+    // for (var i in nodeListDom) {
+    //   NodeFavModel item = NodeFavModel();
+    //   if (i.querySelector('img') != null) {
+    //     item.nodeCover = i.querySelector('img')!.attributes['src']!;
+    //     item.nodeId = i.querySelector('img')!.attributes['alt']!;
+    //   }
+    //   item.nodeName = i.querySelector('span.fav-node-name')!.text;
+    //   item.topicCount = i.querySelector('span.f12.fade')!.text;
+    //   print(item.nodeCover);
+    // }
+    return favNodeList;
   }
 
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
@@ -596,6 +626,72 @@ class DioRequestWeb {
     return nodesList;
   }
 
+  // 获取登录字段
+  static Future<LoginDetailModel> getLoginKey() async {
+    LoginDetailModel loginKeyMap = LoginDetailModel();
+    Response response;
+    response = await Request().get(
+      '/signin',
+      extra: {'ua': 'mob'},
+    );
+    var document = parse(response.data);
+    var tableDom = document.querySelector('table');
+    if (document.body!.querySelector('div.dock_area') != null) {
+      // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
+      // 重定向至
+
+      return loginKeyMap;
+    }
+    var trsDom = tableDom!.querySelectorAll('tr');
+    for (var aNode in trsDom) {
+      String keyName = aNode.querySelector('td')!.text;
+      if (keyName.isNotEmpty) {
+        if (keyName == '用户名') {
+          loginKeyMap.userNameHash =
+              aNode.querySelector('input')!.attributes['name']!;
+        }
+        if (keyName == '密码') {
+          loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
+          loginKeyMap.passwordHash =
+              aNode.querySelector('input.sl')!.attributes['name']!;
+        }
+        if (keyName.contains('机器')) {
+          loginKeyMap.codeHash =
+              aNode.querySelector('input')!.attributes['name']!;
+        }
+      }
+      if (aNode.querySelector('img') != null) {
+        loginKeyMap.captchaImg =
+            '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?now=${DateTime.now().millisecondsSinceEpoch}';
+      }
+    }
+    return loginKeyMap;
+  }
+
+  // 登录
+  static Future onLogin(LoginDetailModel args) async {
+    Response response;
+    Options options = Options();
+    options.headers = {
+      'refer': '${Strings.v2exHost}/signin',
+      'origin': Strings.v2exHost
+    };
+    options.contentType = Headers.formUrlEncodedContentType;
+    FormData formData = FormData.fromMap({
+      args.userNameHash: args.userNameValue,
+      args.passwordHash: args.passwordValue,
+      args.codeHash: args.codeValue,
+      'once': args.once,
+      'next': args.next
+    });
+    response =
+        await Request().post('/signin', data: formData, options: options);
+    options.contentType = Headers.jsonContentType; // 还原
+    print('response:$response');
+    print('responseData:${response.data}');
+    print('response.statusCode${response.statusCode}');
+  }
+
   /// action
   // 收藏 / 取消收藏
   static Future<bool> favoriteTopic(bool isFavorite, String topicId,
@@ -618,7 +714,7 @@ class DioRequestWeb {
     // if (once == null || once.isEmpty) {
     //   return false;
     // }
-    var response = await Request().post("/thank/topic/$topicId?once=28900");
+    var response = await Request().get("/thank/topic/$topicId?once=28900");
     if (response.statusCode == 200 || response.statusCode == 302) {
       // 操作成功
       return true;
@@ -627,8 +723,6 @@ class DioRequestWeb {
   }
 
   // 忽略主题
-  // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？'))
-  // { location.href = '/ignore/topic/556280?once=35630'; }" class="tb" style="user-select: auto;">忽略主题</a>
   static Future<bool> ignoreTopic(String topicId) async {
     // String once = await getOnce();
     // print("ignoreTopic：" + once);

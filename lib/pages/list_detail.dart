@@ -383,7 +383,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
-                      .copyWith(fontWeight: FontWeight.bold),
+                      .copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
 
@@ -528,7 +528,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         Container(
           padding:
               const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
-          color: Theme.of(context).colorScheme.onInverseSurface,
+          // color: Theme.of(context).colorScheme.onInverseSurface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -563,7 +563,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       width: double.infinity,
       height: 80 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 5),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
       child: Center(
         // child: TextField(),
         child: Text(type == 'noMore' ? '没有更多回复了' : '还没有人回复'),

@@ -33,13 +33,19 @@ class CAvatar extends StatelessWidget {
         placeholder: (context, url) => SizedBox(
           width: size,
           height: size,
-          child: Center(
-            child: Icon(
-              Icons.person,
-              color: Theme.of(context).colorScheme.onBackground,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+            ),
+            clipBehavior: Clip.antiAlias,
+            // margin: const EdgeInsets.only(right: 10),
+            child: Center(
+              child: Icon(
+                Icons.person,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
           ),
-          // color: Colors.grey,
         ),
       ),
     );

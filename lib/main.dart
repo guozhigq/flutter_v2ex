@@ -75,7 +75,7 @@ class _MyAppState extends State<MyApp> {
         ),
         home: const AppTab(),
         // initialRoute: '/listdetail',
-        initialRoute: '/',
+        initialRoute: '/fav',
         routes: {
           '/listdetail': (context) => const ListDetail(topicId: '1'),
           '/webview': (context) => WebView(aUrl: ''),

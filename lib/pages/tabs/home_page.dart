@@ -19,7 +19,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   // 自定义、 缓存 、 api获取
   List<Map<dynamic, dynamic>> tabs = [
     {'name': '全部', 'id': 'all', 'type': 'tab'},
@@ -36,6 +37,10 @@ class _HomePageState extends State<HomePage> {
     {'name': '问与答', 'id': 'qna', 'type': 'tab'},
     {'name': 'R2', 'id': 'r2', 'type': 'tab'},
   ];
+
+  // 页面缓存
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {

@@ -98,19 +98,24 @@ class _ListItemState extends State<ListItem>
               children: <Widget>[
                 GestureDetector(
                   onTap: () => {Navigator.pushNamed(context, '/profile')},
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.only(right: 10),
-                    child: CAvatar(
-                      url: widget.topic.avatar,
-                      size: 33,
-                    ),
+                  // child: Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Theme.of(context).colorScheme.surfaceVariant,
+                  //     borderRadius: BorderRadius.circular(50),
+                  //   ),
+                  //   clipBehavior: Clip.antiAlias,
+                  //   margin: const EdgeInsets.only(right: 10),
+                  //   child: CAvatar(
+                  //     url: widget.topic.avatar,
+                  //     size: 33,
+                  //   ),
+                  // ),
+                  child: CAvatar(
+                    url: widget.topic.avatar,
+                    size: 33,
                   ),
                 ),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -120,7 +125,10 @@ class _ListItemState extends State<ListItem>
                         widget.topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: Theme.of(context).textTheme.labelMedium,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium!
+                            .copyWith(fontWeight: FontWeight.w500),
                       ),
                     ),
                     const SizedBox(height: 1.5),
@@ -175,12 +183,15 @@ class _ListItemState extends State<ListItem>
         // title
         Container(
           alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 12, bottom: 3),
+          margin: const EdgeInsets.only(top: 12, bottom: 0),
           child: Text(
             Characters(widget.topic.topicTitle).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 2,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(height: 1.6, fontWeight: FontWeight.w400),
           ),
         ),
       ],
