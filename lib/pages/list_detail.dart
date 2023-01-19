@@ -15,6 +15,7 @@ import 'package:flutter_v2ex/components/detail/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -71,6 +72,9 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         _currentPage = 0;
       });
     }
+    if (reverseSort) {
+      SmartDialog.showLoading(msg: '请稍等...');
+    }
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage + 1);
     setState(() {
@@ -82,7 +86,12 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         _replyList.addAll(topicDetailModel.replyList);
       }
       _currentPage += 1;
+      print('line 89---_totalPage---:$_totalPage');
+      print(reverseSort);
+      print(_totalPage);
+      print(_currentPage);
     });
+    SmartDialog.dismiss();
   }
 
   // todo 下拉刷新逻辑优化  正倒序排列数据复用
@@ -95,6 +104,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     if (!reverseSort || _currentPage == 0) {
       return;
     }
+    SmartDialog.showLoading(msg: '请稍等...');
     print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage);
@@ -106,7 +116,9 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         _replyList.addAll(topicDetailModel.replyList.reversed);
       }
       _currentPage -= 1;
+      print('---_totalPage---:$_totalPage');
     });
+    SmartDialog.dismiss();
   }
 
   // 返回顶部并 todo 刷新
@@ -481,7 +493,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                             selectedColor:
                                 Theme.of(context).colorScheme.onInverseSurface,
                             selected: reverseSort,
-                            showCheckmark: true,
                           ),
                         ],
                       )
@@ -511,8 +522,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         SliverToBoxAdapter(
           child: Offstage(
             // when true hidden
+            // no reply hidden
+            //
             offstage: _detailModel!.replyCount == '0' ||
-                (!reverseSort && (_totalPage - 1 == _currentPage)) ||
+                (!reverseSort && (_currentPage < _totalPage)) ||
                 (reverseSort && (_currentPage > 1)),
             child: moreTopic(),
           ),

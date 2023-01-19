@@ -6,9 +6,9 @@ class DetailBottomBar extends StatefulWidget {
   final VoidCallback? onRefresh;
   final VoidCallback? onLoad;
   final bool? isVisible;
-  TopicDetailModel? detailModel;
+  final TopicDetailModel? detailModel;
 
-  DetailBottomBar({
+  const DetailBottomBar({
     this.onRefresh,
     this.onLoad,
     this.isVisible,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 // import 'package:flutter_v2ex/components/home/list_item.dart';
 
 class HomeLeftDrawer extends StatefulWidget {
@@ -13,6 +14,20 @@ class HomeLeftDrawer extends StatefulWidget {
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   String selectedId = '1';
+  Map<dynamic, dynamic>? signDetail;
+  @override
+  void initState() {
+    super.initState();
+    queryDaily();
+  }
+
+  Future queryDaily() async {
+    var res = await DioRequestWeb.queryDaily();
+    setState(() {
+      signDetail = res;
+    });
+  }
+
   List<Map<dynamic, dynamic>> listTitleMap = [
     {
       'id': '1',
@@ -31,8 +46,8 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     {
       'id': '3',
       'leading': const Icon(Icons.messenger_outline),
-      'title': '未读消息',
-      'route': '',
+      'title': '消息提醒',
+      'route': '/message',
       'trailing': const Icon(Icons.notifications_none)
     },
     {
@@ -128,16 +143,19 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       child: Stack(
         children: [
           Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
-              const CAvatar(
-                size: 65,
-                url:
-                    'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => {Navigator.of(context).pushNamed('/login')},
+                child: const CAvatar(
+                  size: 65,
+                  url:
+                      'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
+                ),
               ),
-              const SizedBox(height: 10),
+              // const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -146,27 +164,78 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                     'guozhigq',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.auto_fix_high,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.primary,
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.auto_fix_high,
+                  //       size: 18,
+                  //       color: Theme.of(context).colorScheme.primary,
+                  //     ),
+                  //     const SizedBox(width: 5),
+                  //     Text(
+                  //       '领取登陆奖励',
+                  //       style: Theme.of(context)
+                  //           .textTheme
+                  //           .labelMedium!
+                  //           .copyWith(
+                  //               color: Theme.of(context).colorScheme.primary),
+                  //     ),
+                  //   ],
+                  // )
+                  if (signDetail != null) ...[
+                    TextButton(
+                      onPressed: () => {},
+                      child: Row(
+                        children: [
+                          Icon(
+                            !signDetail!['signStatus']
+                                ? Icons.auto_fix_high
+                                : Icons.done_all,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            !signDetail!['signStatus']
+                                ? '领取登陆奖励'
+                                : signDetail!['signDays'],
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        '累计签到999天',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium!
-                            .copyWith(
-                                color: Theme.of(context).colorScheme.primary),
+                    )
+                  ] else ...[
+                    TextButton(
+                      onPressed: () => {},
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.cached_sharp,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '稍等',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
                       ),
-                    ],
-                  )
+                    )
+                  ]
                 ],
               ),
-              const SizedBox(height: 8),
+              // const SizedBox(height: 8),
             ],
           ),
           Positioned(

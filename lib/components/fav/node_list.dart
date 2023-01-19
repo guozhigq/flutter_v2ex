@@ -39,6 +39,7 @@ class _FavNodeListState extends State<FavNodeList>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return !_isLoading
         ? nodeList.isNotEmpty
             ? Container(

@@ -1,4 +1,7 @@
+import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 // import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/http/init.dart';
@@ -173,7 +176,7 @@ class DioRequestWeb {
         mainHeader!.querySelector('img')!.attributes['src']!;
 
     // 主题总数
-    detailModel.topicCount = mainHeader!.querySelector('strong')!.text;
+    detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
     detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
     // 节点收藏状态
@@ -363,6 +366,26 @@ class DioRequestWeb {
       //     timeInSecForIosWeb: 2);
       // Routes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
       //     Routes.toHomePage, ModalRoute.withName("/"));
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('权限不足'),
+            content: const Text('登录后查看主题内容'),
+            actions: [
+              TextButton(
+                  onPressed: (() =>
+                      {SmartDialog.dismiss(), Navigator.pop(context)}),
+                  child: const Text('返回上一页')),
+              TextButton(
+                  onPressed: (() =>
+                      {Navigator.of(context).pushNamed('/login')}),
+                  child: const Text('去登录'))
+            ],
+          );
+        },
+      );
       detailModel.replyList = replies;
       detailModel.isAuth = true;
       return detailModel;
@@ -630,19 +653,54 @@ class DioRequestWeb {
   static Future<LoginDetailModel> getLoginKey() async {
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
+    SmartDialog.showLoading();
     response = await Request().get(
       '/signin',
       extra: {'ua': 'mob'},
     );
+    SmartDialog.dismiss();
     var document = parse(response.data);
     var tableDom = document.querySelector('table');
     if (document.body!.querySelector('div.dock_area') != null) {
       // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
-      // 重定向至
-
+      String tipsContent = document.body!
+          .querySelector('#Main > div.box > div.cell > div > p')!
+          .innerHtml;
+      String tipsIp = document.body!
+          .querySelector('#Main > div.box > div.dock_area > div.cell')!
+          .text;
+      SmartDialog.show(
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  tipsIp,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 4),
+                Text(tipsContent),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: (() => {SmartDialog.dismiss()}),
+                  child: const Text('知道了'))
+            ],
+          );
+        },
+      );
       return loginKeyMap;
     }
     var trsDom = tableDom!.querySelectorAll('tr');
+
     for (var aNode in trsDom) {
       String keyName = aNode.querySelector('td')!.text;
       if (keyName.isNotEmpty) {
@@ -673,33 +731,88 @@ class DioRequestWeb {
     Response response;
     Options options = Options();
     options.headers = {
+      'content-type': 'application/x-www-form-urlencoded',
       'refer': '${Strings.v2exHost}/signin',
       'origin': Strings.v2exHost
     };
-    options.contentType = Headers.formUrlEncodedContentType;
-    FormData formData = FormData.fromMap({
-      args.userNameHash: args.userNameValue,
-      args.passwordHash: args.passwordValue,
-      args.codeHash: args.codeValue,
-      'once': args.once,
-      'next': args.next
-    });
-    response =
-        await Request().post('/signin', data: formData, options: options);
+    // options.contentType = Headers.formUrlEncodedContentType;
+
+    // FormData formData = FormData.fromMap({
+    //   args.userNameHash: args.userNameValue,
+    //   args.passwordHash: args.passwordValue,
+    //   args.codeHash: args.codeValue,
+    //   'once': args.once,
+    //   'next': args.next
+    // });
+    var data =
+        '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
+    print('data😊:$data');
+    response = await Request().post('/signin2', data: data, options: options);
     options.contentType = Headers.jsonContentType; // 还原
-    print('response:$response');
-    print('responseData:${response.data}');
-    print('response.statusCode${response.statusCode}');
+    // print('response:$response');
+    // print('responseData:${response.data}');
+    // print('response.statusCode${response.statusCode}');
+    if (response.statusCode == 302) {
+      print('-------------------------------');
+      print('onLogin response.headers:${response.headers['set-cookie']}');
+      if (parse(response.data).body!.querySelector('div') != null) {
+        print(parse(response.data).body!.querySelector('div')!.innerHtml);
+      }
+      print('-------------------------------');
+
+      return await getUserInfo();
+    }
+  }
+
+  // 获取当前用户信息
+  static Future<String> getUserInfo() async {
+    var response = await Request().get('/', extra: {'ua': 'mob'});
+    print('response.headers:${response.headers['set-cookie']}');
+    if (response.redirects.isNotEmpty) {
+      print("wml:" + response.redirects[0].location.path);
+      // 需要两步验证
+      if (response.redirects[0].location.path == "/2fa") {
+        response = await Request().get('/2fa');
+      }
+    }
+    var tree = ETree.fromString(response.data);
+    var elementOfAvatarImg = tree.xpath("//*[@id='menu-entry']/img")?.first;
+    if (elementOfAvatarImg != null) {
+      // 获取用户头像
+      String avatar = elementOfAvatarImg.attributes["src"];
+      String username = elementOfAvatarImg.attributes["alt"]; // "w4mxl"
+      print(avatar);
+      print(username);
+
+      // todo 判断用户是否开启了两步验证
+
+      // 需要两步验证
+      if (response.requestOptions.path == "/2fa") {
+        var tree = ETree.fromString(response.data);
+        // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
+        String once = tree
+            .xpath(
+                "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
+            .first
+            .attributes["value"];
+        print('两步验证前保存once:$once');
+        return "2fa";
+      }
+      return "true";
+    }
+    return "false";
   }
 
   /// action
   // 收藏 / 取消收藏
   static Future<bool> favoriteTopic(bool isFavorite, String topicId,
-      {String token = '26547'}) async {
+      {String token = '11896'}) async {
+    SmartDialog.showLoading(msg: '请稍等...');
     String url = isFavorite
         ? ("/unfavorite/topic/$topicId?once=$token")
         : ("/favorite/topic/$topicId?once=$token");
     var response = await Request().get(url, extra: {});
+    SmartDialog.dismiss();
     if (response.statusCode == 200 || response.statusCode == 302) {
       // 操作成功
       return true;
@@ -737,8 +850,25 @@ class DioRequestWeb {
     return false;
   }
 
-  void getUserInfo(element, ua) {
-    if (ua == 'mob') {
-    } else if (ua == 'pc') {}
+  // 查看每日奖励
+  static Future<Map<dynamic, dynamic>> queryDaily() async {
+    Map<dynamic, dynamic> map = {'signStatus': false, 'signDays': 0};
+    Response response;
+    response = await Request().get('/mission/daily', extra: {'ua': 'pc'});
+    var bodyDom = parse(response.data).body;
+    var mainBox = bodyDom!.querySelector('#Main');
+    if (mainBox != null) {
+      // 领取 X 铜币 表示未签到
+      var signStatus = mainBox.querySelector('input')!.attributes['value'];
+      print(signStatus);
+      var boxDom = mainBox.querySelector('div.box');
+      // 签到天数
+      var cellDom = boxDom!.querySelectorAll('div.cell').last.text;
+      print(cellDom);
+      map['signStatus'] = signStatus == '领取 X 铜币' ? false : true;
+      var day = cellDom.replaceAll(RegExp(r'[^0-9]'), '');
+      map['signDays'] = '已领取$day天';
+    }
+    return map;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 
@@ -6,8 +8,8 @@ import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton.dart';
 
 class TabBarList extends StatefulWidget {
-  const TabBarList(this.tabItem, {super.key});
   final Map<dynamic, dynamic> tabItem;
+  const TabBarList(this.tabItem, {super.key});
 
   @override
   State<TabBarList> createState() => _TabBarListState();
@@ -15,9 +17,12 @@ class TabBarList extends StatefulWidget {
 
 class _TabBarListState extends State<TabBarList>
     with AutomaticKeepAliveClientMixin {
-  late final ScrollController _controller;
-  List<TabTopicItem>? topicList;
-  bool isLoading = true; // 请求状态
+  late final ScrollController _controller = ScrollController();
+  List<TabTopicItem> topicList = [];
+  List<TabTopicItem> tempTopicList = []; // 临时话题列表
+  bool _isLoading = true; // 请求状态
+  bool _isLoadingMore = false; // 请求状态
+  int _currentPage = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -25,8 +30,21 @@ class _TabBarListState extends State<TabBarList>
   @override
   void initState() {
     super.initState();
-    _controller = ScrollController();
+    // _controller = ScrollController();
     getTopics();
+    if (widget.tabItem['id'] == 'recent') {
+      _controller.addListener(() {
+        if (_controller.position.pixels >=
+            _controller.position.maxScrollExtent) {
+          if (!_isLoadingMore) {
+            setState(() {
+              _isLoadingMore = true;
+            });
+            getTopics();
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -38,22 +56,55 @@ class _TabBarListState extends State<TabBarList>
   Future getTopics() async {
     var id = widget.tabItem['id'] ?? 'all';
     var type = widget.tabItem['type'] ?? 'all';
-    var res = await DioRequestWeb.getTopicsByTabKey(type, id, 1);
+    var res = await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
     setState(() {
-      topicList = res;
-      isLoading = false;
+      if (_currentPage == 0) {
+        topicList = res;
+        tempTopicList = res;
+      } else {
+        // 去除重复数据
+        List<TabTopicItem> result = List.from(res);
+        for (var i in tempTopicList) {
+          for (var j in res) {
+            if (j.topicId == i.topicId) {
+              result.removeAt(res.indexOf(j));
+            }
+          }
+        }
+        print(result[0]);
+        topicList.addAll(result);
+        tempTopicList = result;
+      }
+      _isLoading = false;
+      Timer(const Duration(milliseconds: 500), () {
+        _isLoadingMore = false;
+      });
+      _currentPage += 1;
     });
+  }
+
+  Future<List<TabTopicItem>> dateFormat(
+      List<TabTopicItem> last, List<TabTopicItem> current) async {
+    List<TabTopicItem> res = [];
+    for (var i in last) {
+      for (var j in current) {
+        if (j.topicId != i.topicId) {
+          res.add(j);
+        }
+      }
+    }
+    return res;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return isLoading
+    return _isLoading
         ? Skeleton(
             isLoading: true,
             child: buildSkeleton(),
           )
-        : topicList != null && topicList!.isNotEmpty
+        : topicList.isNotEmpty
             ? showRes(topicList)
             : emptyData();
   }
@@ -70,16 +121,24 @@ class _TabBarListState extends State<TabBarList>
       ),
       child: RefreshIndicator(
         onRefresh: () {
+          setState(() {
+            _currentPage = 0;
+          });
           return getTopics();
         },
         child: ListView.builder(
           padding: const EdgeInsets.only(top: 1, bottom: 0),
           physics: const AlwaysScrollableScrollPhysics(), //重要
           itemCount: snapshot.length + 1,
+          controller: _controller,
           // prototypeItem: ListItem(topic: snapshot[0]),
           itemBuilder: (BuildContext context, int index) {
             if (index == snapshot.length) {
-              return moreTopic();
+              if (widget.tabItem['id'] == 'recent') {
+                return moreTopic('正在加载更多...');
+              } else {
+                return moreTopic('全部加载完成');
+              }
             } else {
               return ListItem(topic: snapshot[index]);
             }
@@ -89,18 +148,18 @@ class _TabBarListState extends State<TabBarList>
     );
   }
 
-  Widget moreTopic() {
+  Widget moreTopic(text) {
     return Container(
       width: double.infinity,
       height: 80 + MediaQuery.of(context).padding.bottom,
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 10),
-      child: const Center(
+      child: Center(
           // child: ElevatedButton(
           //   onPressed: () => {},
           //   child: const Text('更多相关主题'),
           // ),
-          child: Text('全部加载完成')),
+          child: Text(text)),
     );
   }
 
@@ -110,6 +169,7 @@ class _TabBarListState extends State<TabBarList>
     var arr = List.filled(count, 1, growable: false);
 
     Widget content;
+    // ignore: unused_local_variable
     for (int i in arr) {
       list.add(skeletonItem());
     }

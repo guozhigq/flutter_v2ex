@@ -23,9 +23,9 @@ class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
   // 自定义、 缓存 、 api获取
   List<Map<dynamic, dynamic>> tabs = [
-    {'name': '全部', 'id': 'all', 'type': 'tab'},
-    {'name': '职场话题', 'id': 'career', 'type': 'go'},
     {'name': '最近', 'id': 'recent', 'type': 'recent'},
+    {'name': '全部', 'id': 'all', 'type': 'tab'},
+    // {'name': '职场话题', 'id': 'career', 'type': 'go'},
     {'name': '🔥最热', 'id': 'hot', 'type': 'tab'},
     {'name': '技术', 'id': 'tech', 'type': 'tab'},
     {'name': '创意', 'id': 'creative', 'type': 'tab'},
@@ -43,12 +43,8 @@ class _HomePageState extends State<HomePage>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(

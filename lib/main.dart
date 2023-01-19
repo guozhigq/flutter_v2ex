@@ -3,17 +3,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_v2ex/pages/app_tab.dart';
 import 'package:flutter_v2ex/pages/help_page.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
+import 'package:flutter_v2ex/pages/message_page.dart';
 import 'package:flutter_v2ex/pages/nodes_page.dart';
 import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/pages/fav_page.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/components/common/custom_loading.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -27,7 +30,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-Color brandColor = const Color.fromRGBO(41, 64, 118, 100);
+Color brandColor = const Color.fromRGBO(13, 201, 124, 100);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -75,7 +78,7 @@ class _MyAppState extends State<MyApp> {
         ),
         home: const AppTab(),
         // initialRoute: '/listdetail',
-        initialRoute: '/fav',
+        initialRoute: '/message',
         routes: {
           '/listdetail': (context) => const ListDetail(topicId: '1'),
           '/webview': (context) => WebView(aUrl: ''),
@@ -86,7 +89,15 @@ class _MyAppState extends State<MyApp> {
           '/help': (context) => const HelpPage(),
           '/mine': (context) => const MinePage(),
           '/login': (context) => const LoginPage(),
+          '/message': (context) => const MessagePage(),
         },
+        // here
+        navigatorObservers: [FlutterSmartDialog.observer],
+        // here
+        builder: FlutterSmartDialog.init(
+          //default loading widget
+          loadingBuilder: (String msg) => SmartLoading(msg: msg),
+        ),
       );
     });
   }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ReplyNew extends StatefulWidget {
-  var statusHeight;
-  ReplyNew({this.statusHeight, super.key});
+  final statusHeight;
+  const ReplyNew({this.statusHeight, super.key});
 
   @override
   State<ReplyNew> createState() => _ReplyNewState();

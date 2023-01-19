@@ -17,7 +17,7 @@ class TopicDetailModel {
 
   String content = ''; // 纯文本内容
   String contentRendered = ''; // 带html标签内容
-  late List<TopicSubtleItem> subtleList; // 附言
+  late List<TopicSubtleItem> subtleList = []; // 附言
   bool isAuth = false; // 是否需要登录  默认不需要
 
   String token = ''; // 用于操作：对主题收藏

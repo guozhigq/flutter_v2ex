@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+// import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/go/list_item.dart';
 
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
-import 'package:flutter_v2ex/models/web/item_node_list.dart';
+// import 'package:flutter_v2ex/models/web/item_node_list.dart';
 
 class GoList extends StatefulWidget {
-  GoList({required this.nodeKey, super.key});
-  String nodeKey;
+  const GoList({required this.nodeKey, super.key});
+  final String nodeKey;
 
   @override
   State<GoList> createState() => _GoListState();

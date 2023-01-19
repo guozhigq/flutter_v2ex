@@ -4,8 +4,8 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_highlight/flutter_highlight.dart';
-import 'package:flutter_highlight/themes/github.dart';
+// import 'package:flutter_highlight/flutter_highlight.dart';
+// import 'package:flutter_highlight/themes/github.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -128,27 +128,17 @@ class HtmlRender extends StatelessWidget {
         );
       }
     } else {
+      // ignore: avoid_print
       print('无效网址');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          content: Row(
-            children: [
-              Icon(
-                Icons.error,
-                color: Theme.of(context).colorScheme.error.withOpacity(0.5),
-              ),
-              const SizedBox(width: 6),
-              const Text('无效网址')
-            ],
-          ),
-        ),
+        const SnackBar(showCloseIcon: true, content: Text('无效网址')),
       );
     }
   }
 
   // 打开大图预览
   void openImageDialog(String? imgUrl, BuildContext context, htmlContext) {
+    // ignore: avoid_print
     print('htmlContext:${htmlContext.tree}');
     showDialog(
       context: context,

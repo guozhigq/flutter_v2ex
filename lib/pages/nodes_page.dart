@@ -109,6 +109,4 @@ class _NodesPageState extends State<NodesPage> {
     }
     return list;
   }
-
-  void go() {}
 }

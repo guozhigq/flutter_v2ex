@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
 
 class NodeTag extends StatelessWidget {
-  String? nodeId;
-  String? nodeName;
-  String? route;
+  final String? nodeId;
+  final String? nodeName;
+  final String? route;
 
-  NodeTag({
+  const NodeTag({
     this.nodeId,
     this.nodeName,
     this.route,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_html/style.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
+// import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 // import 'package:flutter_v2ex/pages/profile_page.dart';

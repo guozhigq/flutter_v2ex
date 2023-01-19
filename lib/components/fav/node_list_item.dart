@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/model_node_fav.dart';
 
 class NodeListItem extends StatefulWidget {
-  NodeFavModel? nodeItem;
-  NodeListItem({this.nodeItem, super.key});
+  final NodeFavModel? nodeItem;
+  const NodeListItem({this.nodeItem, super.key});
 
   @override
   State<NodeListItem> createState() => _NodeListItemState();

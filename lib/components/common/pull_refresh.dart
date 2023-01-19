@@ -6,10 +6,10 @@ class PullRefresh extends StatefulWidget {
   final Widget? child;
   final onChildRefresh;
   final onChildLoad;
-  int? currentPage;
-  int? totalPage;
+  final int? currentPage;
+  final int? totalPage;
 
-  PullRefresh({
+  const PullRefresh({
     // this.ctr,
     this.child,
     this.onChildRefresh,
@@ -91,6 +91,7 @@ class _PullRefreshState extends State<PullRefresh> {
       ),
       onRefresh: () async {
         await widget.onChildRefresh();
+        // ignore: avoid_print
         print('onRefresh Finish');
         _controller.finishRefresh();
         _controller.resetFooter();
@@ -98,9 +99,10 @@ class _PullRefreshState extends State<PullRefresh> {
       onLoad: widget.onChildLoad != null
           ? () async {
               await widget.onChildLoad!();
+              // ignore: avoid_print
               print('onLoad Finish');
-              // _controller.finishLoad();
-              // _controller.resetFooter();
+              _controller.finishLoad();
+              _controller.resetFooter();
               // if (widget.currentPage == widget.totalPage! - 1) {
               //   return IndicatorResult.noMore;
               // }

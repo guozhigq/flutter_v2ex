@@ -60,6 +60,7 @@ dependencies:
     flutter_inappwebview: ^5.7.2+3
     animations: ^2.0.7
     flutter_highlight: ^0.7.0
+    flutter_smart_dialog: ^4.8.1
 
 dev_dependencies:
     flutter_test:

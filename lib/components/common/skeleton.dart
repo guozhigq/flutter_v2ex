@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Skeleton extends StatefulWidget {
   bool isLoading = false;
-  Widget child;
+  final Widget child;
 
   Skeleton({
     required this.isLoading,

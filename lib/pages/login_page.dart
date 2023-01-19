@@ -29,16 +29,6 @@ class _LoginPageState extends State<LoginPage> {
     getSignKey();
   }
 
-  Future getCodeImg() async {
-    var res = await Request().get(
-        '/_captcha?now=${DateTime.now().millisecondsSinceEpoch}',
-        extra: {});
-    setState(() {
-      codeImg = res;
-      print(codeImg);
-    });
-  }
-
   Future<LoginDetailModel> getSignKey() async {
     var res = await DioRequestWeb.getLoginKey();
     setState(() {
@@ -190,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                           loginKey.passwordValue = _password!;
                           loginKey.codeValue = _code!;
 
-                          DioRequestWeb.onLogin(loginKey);
+                          // DioRequestWeb.onLogin(loginKey);
                         }
                       },
                     ),

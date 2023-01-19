@@ -47,7 +47,7 @@ class WebUri implements Uri {
   WebUri(String source, {this.forceToStringRawValue = false}) {
     _rawValue = source;
     try {
-      _uri = Uri.parse(this._rawValue);
+      _uri = Uri.parse(_rawValue);
       _isValidUri = true;
     } catch (e, stacktrace) {
       print(e);
