@@ -14,13 +14,25 @@ class HomeLeftDrawer extends StatefulWidget {
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   String selectedId = '1';
+  int selectedIndex = 99;
   Map<dynamic, dynamic>? signDetail;
+
+  void onDestinationSelected(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+    if (selectedIndex == 1) {
+      Navigator.pushNamed(context, '/fav');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     queryDaily();
   }
 
+  // 查询签到状态
   Future queryDaily() async {
     var res = await DioRequestWeb.queryDaily();
     setState(() {
@@ -85,55 +97,104 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      elevation: 1,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(0),
-        topRight: Radius.circular(16),
-        bottomRight: Radius.circular(16),
-        bottomLeft: Radius.circular(0),
-      ),
-      // color: Theme.of(context).colorScheme.surface,
-      child: Drawer(
-        width: MediaQuery.of(context).size.width * 0.75,
-        child: ListView(
-          children: [
-            header(),
-            const SizedBox(height: 5),
-            RawChip(
-              labelPadding: const EdgeInsets.only(left: 1, right: 10),
-              padding: const EdgeInsets.only(left: 3),
-              label: Text(
-                '有新回复',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.primary),
-              ),
-              avatar: Icon(
-                Icons.notifications_none,
-                color: Theme.of(context).colorScheme.primary,
-                size: 19,
-              ),
-              onPressed: () => setState(() {}),
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color: Theme.of(context).colorScheme.surfaceVariant)),
-              // backgroundColor: Theme.of(context).colorScheme.susrfaceVariant,
-              selectedColor: Theme.of(context).colorScheme.onInverseSurface,
-              showCheckmark: false,
-            ),
-            buildActionOne(),
-            Divider(
-              indent: 20,
-              endIndent: 20,
-              color: Theme.of(context).dividerColor.withOpacity(0.15),
-            ),
-            buildActionTwo(),
-          ],
+    // return Material(
+    //   clipBehavior: Clip.hardEdge,
+    //   elevation: 1,
+    //   borderRadius: const BorderRadius.only(
+    //     topLeft: Radius.circular(0),
+    //     topRight: Radius.circular(16),
+    //     bottomRight: Radius.circular(16),
+    //     bottomLeft: Radius.circular(0),
+    //   ),
+    //   // color: Theme.of(context).colorScheme.surface,
+    //   child: Drawer(
+    //     width: MediaQuery.of(context).size.width * 0.75,
+    //     child: ListView(
+    //       children: [
+    //         header(),
+    //         const SizedBox(height: 5),
+    //         RawChip(
+    //           labelPadding: const EdgeInsets.only(left: 1, right: 10),
+    //           padding: const EdgeInsets.only(left: 3),
+    //           label: Text(
+    //             '有新回复',
+    //             style: Theme.of(context)
+    //                 .textTheme
+    //                 .titleSmall!
+    //                 .copyWith(color: Theme.of(context).colorScheme.primary),
+    //           ),
+    //           avatar: Icon(
+    //             Icons.notifications_none,
+    //             color: Theme.of(context).colorScheme.primary,
+    //             size: 19,
+    //           ),
+    //           onPressed: () => setState(() {}),
+    //           shape: StadiumBorder(
+    //               side: BorderSide(
+    //                   color: Theme.of(context).colorScheme.surfaceVariant)),
+    //           selectedColor: Theme.of(context).colorScheme.onInverseSurface,
+    //           showCheckmark: false,
+    //         ),
+    //         buildActionOne(),
+    //         Divider(
+    //           indent: 20,
+    //           endIndent: 20,
+    //           color: Theme.of(context).dividerColor.withOpacity(0.15),
+    //         ),
+    //         buildActionTwo(),
+    //       ],
+    //     ),
+    //   ),
+    // );
+    return NavigationDrawer(
+      onDestinationSelected: onDestinationSelected,
+      selectedIndex: selectedIndex,
+      children: [
+        // SizedBox(height: MediaQuery.of(context).padding.top + 20),
+        Container(
+          padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 25,
+              bottom: 20),
+          child: Text(
+            'VVex',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
         ),
-      ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.favorite_border),
+          label: Text('我的关注'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.star_border_rounded),
+          label: Text('我的收藏'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.messenger_outline),
+          label: Text('消息提醒'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.edit_note_outlined),
+          label: Text('发布主题'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.history_outlined),
+          label: Text('最近浏览'),
+        ),
+        Divider(),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.brightness_medium_rounded),
+          label: Text('选择主题'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.edit_note_outlined),
+          label: Text('设置'),
+        ),
+        const NavigationDrawerDestination(
+          icon: Icon(Icons.help_outline_outlined),
+          label: Text('帮助'),
+        ),
+      ],
     );
   }
 
@@ -184,7 +245,13 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                   // )
                   if (signDetail != null) ...[
                     TextButton(
-                      onPressed: () => {},
+                      onPressed: () => {
+                        if (!signDetail!['signStatus'])
+                          {
+                            // 签到
+                            DioRequestWeb.dailyMission()
+                          }
+                      },
                       child: Row(
                         children: [
                           Icon(

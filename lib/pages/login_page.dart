@@ -66,7 +66,6 @@ class _LoginPageState extends State<LoginPage> {
                     // height: 70,
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
                     child: TextFormField(
-                      autofocus: true,
                       controller: _userNameController,
                       decoration: InputDecoration(
                         labelText: '用户名',

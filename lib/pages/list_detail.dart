@@ -86,10 +86,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         _replyList.addAll(topicDetailModel.replyList);
       }
       _currentPage += 1;
-      print('line 89---_totalPage---:$_totalPage');
-      print(reverseSort);
-      print(_totalPage);
-      print(_currentPage);
+      // print('line 89---_totalPage---:$_totalPage');
+      // print(reverseSort);
+      // print(_totalPage);
+      // print(_currentPage);
     });
     SmartDialog.dismiss();
   }
@@ -105,7 +105,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       return;
     }
     SmartDialog.showLoading(msg: '请稍等...');
-    print('line 155: $_currentPage');
+    // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage);
     setState(() {
@@ -116,7 +116,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         _replyList.addAll(topicDetailModel.replyList.reversed);
       }
       _currentPage -= 1;
-      print('---_totalPage---:$_totalPage');
+      // print('---_totalPage---:$_totalPage');
     });
     SmartDialog.dismiss();
   }

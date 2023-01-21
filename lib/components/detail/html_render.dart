@@ -4,8 +4,8 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flutter_highlight/flutter_highlight.dart';
-// import 'package:flutter_highlight/themes/github.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/idea.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -20,50 +20,53 @@ class HtmlRender extends StatelessWidget {
         onLinkTap: (url, buildContext, attributes, element) =>
             {openHrefByWebview(url!, context)},
         customRenders: {
-          tagMatcher("img"):
-              CustomRender.widget(widget: (htmlContext, buildChildren) {
-            // print(htmlContext.tree.element!.attributes['src']);
-            String? imgUrl = htmlContext.tree.element!.attributes['src'];
-            if (!imgUrl!.contains('https') && !imgUrl.contains('http')) {
-              imgUrl = 'https:$imgUrl';
-            }
-            print('imgUrl:$imgUrl');
-            // todo 多张图片轮播
-            return SelectionContainer.disabled(
-              child: GestureDetector(
-                onTap: () {
-                  openImageDialog(imgUrl, context, htmlContext);
-                },
-                child: Container(
-                  clipBehavior: Clip.hardEdge,
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(6)),
-                  child: CachedNetworkImage(
-                    imageUrl: imgUrl,
-                    width: double.infinity,
-                    fit: BoxFit.fitHeight,
-                    fadeOutDuration: const Duration(milliseconds: 500),
-                    placeholder: (htmlContext, url) {
-                      return const SizedBox(
-                        height: 30,
-                        child: Center(
-                          child: Text('图片加载中...'),
-                        ),
-                      );
-                    },
-                    // progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    //     SizedBox(
-                    //   child: LinearProgressIndicator(
-                    //     value: downloadProgress.progress,
-                    //     semanticsLabel: 'Linear progress indicator',
-                    //   ),
-                    // ),
+          tagMatcher("img"): CustomRender.widget(
+            widget: (htmlContext, buildChildren) {
+              // print(htmlContext.tree.element!.attributes['src']);
+              String? imgUrl = htmlContext.tree.element!.attributes['src'];
+              if (!imgUrl!.contains('https') && !imgUrl.contains('http')) {
+                imgUrl = 'https:$imgUrl';
+              }
+              print('imgUrl:$imgUrl');
+              // todo 多张图片轮播
+              return SelectionContainer.disabled(
+                child: GestureDetector(
+                  onTap: () {
+                    openImageDialog(imgUrl, context, htmlContext);
+                  },
+                  child: Container(
+                    clipBehavior: Clip.hardEdge,
+                    margin: const EdgeInsets.only(top: 4, bottom: 4),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                    child: CachedNetworkImage(
+                      imageUrl: imgUrl,
+                      width: double.infinity,
+                      fit: BoxFit.fitHeight,
+                      fadeOutDuration: const Duration(milliseconds: 500),
+                      placeholder: (htmlContext, url) {
+                        return const SizedBox(
+                          height: 30,
+                          child: Center(
+                            child: Text('图片加载中...'),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
+          // tagMatcher("pre"):
+          //     CustomRender.widget(widget: (htmlContext, buildChildren) {
+          //   var code = htmlContext.tree.element!.children[0].innerHtml;
+          //   return HighlightView(
+          //     code,
+          //     language: 'clojure',
+          //     theme: ideaTheme,
+          //   );
+          // }),
         },
         style: {
           "html": Style(

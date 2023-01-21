@@ -82,19 +82,9 @@ class DioRequestWeb {
         );
         break;
       case 'recent':
-        response = await Request().get(
-          '/recent',
-          data: {'p': p},
-          extra: {'ua': 'mob', 'channel': 'web'},
-        );
-        break;
+        return await getTopicsRecent(p).then((value) => value);
       case 'go':
-        // response = await Request().get(
-        //   '/go/$id',
-        //   extra: {'ua': 'mob', 'channel': 'web'},
-        // );
         return await getTopicsByNodeKey(id, p).then((value) => value.topicList);
-      // break;
       default:
         response = await Request().get(
           '/',
@@ -147,6 +137,58 @@ class DioRequestWeb {
       item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
       item.nodeId = aNode
           .xpath("/table/tr/td[3]/span[1]/a")
+          ?.first
+          .attributes["href"]
+          .split('/')[2];
+      topics.add(item);
+    }
+    return topics;
+  }
+
+  // 获取最新的主题
+  static Future<List<TabTopicItem>> getTopicsRecent(int p) async {
+    var topics = <TabTopicItem>[];
+    Response response;
+    response = await Request().get(
+      '/recent',
+      data: {'p': p},
+      extra: {'ua': 'pc', 'channel': 'web'},
+    );
+    var tree = ETree.fromString(response.data);
+    var aRootNode = tree.xpath("//*[@class='cell item']");
+    for (var aNode in aRootNode!) {
+      var item = TabTopicItem();
+      item.memberId =
+          aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
+      item.avatar = Uri.encodeFull(aNode
+          .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
+          ?.first
+          .attributes["src"]);
+      String topicUrl = aNode
+          .xpath("/table/tr/td[3]/span[1]/a")
+          ?.first
+          .attributes["href"]; // 得到是 /t/522540#reply17
+      item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
+      if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
+        item.replyCount = aNode.xpath("/table/tr/td[4]/a/text()")![0].name!;
+        item.lastReplyTime = aNode
+            .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
+            .name!
+            .split(' &nbsp;')[0]
+            .replaceAll("/t/", "");
+      }
+      item.nodeName = aNode
+          .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
+          .name!
+          .replaceAll('&quot;', '')
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>');
+
+      item.topicTitle =
+          aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+      item.nodeId = aNode
+          .xpath("/table/tr/td[3]/span[2]/a")
           ?.first
           .attributes["href"]
           .split('/')[2];
@@ -870,5 +912,26 @@ class DioRequestWeb {
       map['signDays'] = '已领取$day天';
     }
     return map;
+  }
+
+  // 签到
+  static Future dailyMission() async {
+    try {
+      var once = 27561;
+      var missionResponse = await Request()
+          .get("/mission/daily/redeem?once=$once", extra: {'ua': 'mob'});
+      print('领取每日奖励:' "/mission/daily/redeem?once=$once");
+      if (missionResponse.data.contains('每日登录奖励已领取')) {
+        print('每日奖励已自动领取');
+      } else {
+        print(missionResponse.data);
+      }
+    } on DioError catch (e) {
+      log(e.message);
+      // Fluttertoast.showToast(
+      //     msg: '领取每日奖励失败：${e.message}',
+      //     timeInSecForIosWeb: 2,
+      //     gravity: ToastGravity.CENTER);
+    }
   }
 }
