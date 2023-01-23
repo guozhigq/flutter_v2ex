@@ -135,7 +135,13 @@ class _TabBarListState extends State<TabBarList>
           itemBuilder: (BuildContext context, int index) {
             if (index == snapshot.length) {
               if (widget.tabItem['id'] == 'recent') {
-                return moreTopic('正在加载更多...');
+                // return moreTopic('正在加载更多...');
+                return Container(
+                  padding: const EdgeInsets.all(30),
+                  child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2.0),
+                  ),
+                );
               } else {
                 return moreTopic('全部加载完成');
               }

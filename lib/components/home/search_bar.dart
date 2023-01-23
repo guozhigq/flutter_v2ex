@@ -9,7 +9,7 @@ class HomeSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 65,
+      height: 70,
       padding: const EdgeInsets.only(top: 10, right: 8, left: 8, bottom: 10),
       // decoration: BoxDecoration(border: Border.all()),
       child: ClipRRect(

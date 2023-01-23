@@ -161,43 +161,59 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     var statusHeight = MediaQuery.of(context).padding.top;
-    return Scaffold(
-      appBar: AppBar(
-        actions: _detailModel != null ? appBarAction() : [],
-      ),
-      body: _detailModel != null
-          ? PullRefresh(
-              onChildRefresh: getDetailInit,
-              // 上拉
-              onChildLoad: !reverseSort
-                  ? (_totalPage > 1 && _currentPage < _totalPage
-                      ? getDetail
-                      : null)
-                  : (_currentPage > 1 ? getDetailReverst : null),
-              currentPage: _currentPage,
-              totalPage: _totalPage,
-              child: showRes(),
-            )
-          : showLoading(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return ReplyNew(statusHeight: statusHeight);
+    return Stack(
+      children: [
+        Scaffold(
+          body: _detailModel != null
+              ? PullRefresh(
+                  onChildRefresh: getDetailInit,
+                  // 上拉
+                  onChildLoad: !reverseSort
+                      ? (_totalPage > 1 && _currentPage < _totalPage
+                          ? getDetail
+                          : null)
+                      : (_currentPage > 1 ? getDetailReverst : null),
+                  currentPage: _currentPage,
+                  totalPage: _totalPage,
+                  child: showRes(),
+                )
+              : showLoading(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              showModalBottomSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return ReplyNew(statusHeight: statusHeight);
+                },
+              );
             },
-          );
-        },
-        tooltip: '回复',
-        child: const Icon(Icons.edit),
-      ),
-      // floatingActionButtonAnimator: _favAnimation,
-      floatingActionButtonLocation: _fabLocation,
-      bottomNavigationBar: DetailBottomBar(
-          onRefresh: onRefreshBtm,
-          isVisible: _isVisible,
-          detailModel: _detailModel),
+            tooltip: '回复',
+            child: const Icon(Icons.edit),
+          ),
+          floatingActionButtonLocation: _fabLocation,
+          bottomNavigationBar: DetailBottomBar(
+              onRefresh: onRefreshBtm,
+              isVisible: _isVisible,
+              detailModel: _detailModel),
+        ),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.bounceIn,
+          child: Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              width: double.infinity,
+              height: MediaQuery.of(context).padding.top,
+              color: _isVisible
+                  ? Theme.of(context).appBarTheme.foregroundColor
+                  : Theme.of(context).colorScheme.background,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -239,14 +255,14 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         isSelected: _detailModel!.isFavorite,
       ),
     );
-    list.add(
-      IconButton(
-        onPressed: (() =>
-            Clipboard.setData(ClipboardData(text: _detailModel!.topicId))),
-        tooltip: '使用浏览器打开',
-        icon: const Icon(Icons.copy_rounded),
-      ),
-    );
+    // list.add(
+    //   IconButton(
+    //     onPressed: (() =>
+    //         Clipboard.setData(ClipboardData(text: _detailModel!.topicId))),
+    //     tooltip: '使用浏览器打开',
+    //     icon: const Icon(Icons.copy_rounded),
+    //   ),
+    // );
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
@@ -328,6 +344,13 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     return CustomScrollView(
       controller: _scrollController,
       slivers: [
+        SliverAppBar(
+          pinned: false,
+          floating: true,
+          title: Text(_detailModel!.topicTitle),
+          titleTextStyle: Theme.of(context).textTheme.titleMedium,
+          actions: appBarAction(),
+        ),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

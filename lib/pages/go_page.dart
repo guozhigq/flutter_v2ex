@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/go/go_list.dart';
+// import 'package:flutter_v2ex/components/go/go_list.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
@@ -17,7 +17,9 @@ class GoPage extends StatefulWidget {
 
 class _GoPageState extends State<GoPage> {
   NodeListModel? topicListDetail;
-  int page = 1;
+  List topicList = [];
+  int _currentPage = 0;
+  int _totalPage = 1;
 
   @override
   void initState() {
@@ -26,8 +28,16 @@ class _GoPageState extends State<GoPage> {
   }
 
   void getTopics() async {
-    var res = await DioRequestWeb.getTopicsByNodeKey(widget.nodeKey, page);
+    var res = await DioRequestWeb.getTopicsByNodeKey(
+        widget.nodeKey, _currentPage + 1);
     setState(() {
+      if (_currentPage == 0) {
+        topicList = res.topicList;
+        _totalPage = res.totalPage;
+      } else {
+        topicList.addAll(res.topicList);
+      }
+      _currentPage += 1;
       topicListDetail = res;
     });
   }
@@ -35,12 +45,32 @@ class _GoPageState extends State<GoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: topicListDetail != null
+          ? AppBar(
+              centerTitle: false,
+              title: Text(topicListDetail!.nodeName),
+              titleSpacing: 0,
+              actions: [
+                IconButton(
+                  onPressed: () => {},
+                  icon: const Icon(Icons.star_outline),
+                  selectedIcon: Icon(
+                    Icons.star,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  isSelected: topicListDetail!.isFavorite,
+                ),
+                const SizedBox(width: 12)
+              ],
+            )
+          : null,
       body: PullRefresh(
         onChildRefresh: () {},
         // 上拉
-        onChildLoad: () {},
-        currentPage: 0,
-        totalPage: 0,
+        onChildLoad:
+            _totalPage > 1 && _currentPage < _totalPage ? getTopics : null,
+        currentPage: _currentPage,
+        totalPage: _totalPage,
         child: topicListDetail != null ? content() : showLoading(),
       ),
     );
@@ -49,51 +79,20 @@ class _GoPageState extends State<GoPage> {
   Widget content() {
     return CustomScrollView(
       slivers: [
-        // SliverAppBar(
-        //   expandedHeight: 120,
-        //   actions: [
-        //     IconButton(
-        //         onPressed: () => {}, icon: const Icon(Icons.star_outline)),
-        //     const SizedBox(width: 12)
-        //   ],
-        //   pinned: true,
-        //   flexibleSpace: FlexibleSpaceBar(
-        //       title: Text(
-        //         '全部节点',
-        //         style: Theme.of(context).textTheme.titleMedium,
-        //       ),
-        //       centerTitle: false,
-        //       titlePadding:
-        //           const EdgeInsetsDirectional.only(start: 36, bottom: 16),
-        //       expandedTitleScale: 1.5),
-        // ),
+        SliverToBoxAdapter(
+          child: topicListDetail!.nodeIntro.isNotEmpty
+              ? Container(
+                  padding: const EdgeInsets.only(
+                      top: 20, right: 20, bottom: 30, left: 20),
+                  child: Text(topicListDetail!.nodeIntro),
+                )
+              : null,
+        ),
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            return ListItem(topic: topicListDetail!.topicList[index]);
-          }, childCount: topicListDetail!.topicList.length),
+            return ListItem(topic: topicList[index]);
+          }, childCount: topicList.length),
         ),
-
-        // SliverToBoxAdapter(
-        //   child: Container(
-        //     clipBehavior: Clip.antiAlias,
-        //     margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
-        //     decoration: const BoxDecoration(
-        //       borderRadius: BorderRadius.only(
-        //         topLeft: Radius.circular(10),
-        //         topRight: Radius.circular(10),
-        //       ),
-        //     ),
-        //     child: ListView.builder(
-        //       shrinkWrap: true,
-        //       padding: const EdgeInsets.only(top: 1, bottom: 0),
-        //       // physics: const ClampingScrollPhysics(), //重要
-        //       itemCount: topicListDetail!.topicList.length,
-        //       itemBuilder: (BuildContext context, int index) {
-        //         return ListItem(topic: topicListDetail!.topicList[index]);
-        //       },
-        //     ),
-        //   ),
-        // )
       ],
     );
   }

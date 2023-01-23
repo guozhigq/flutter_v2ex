@@ -29,7 +29,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   @override
   void initState() {
     super.initState();
-    queryDaily();
+    // queryDaily();
   }
 
   // 查询签到状态
@@ -162,7 +162,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           ),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.favorite_border),
+          icon: Icon(Icons.favorite_border_outlined),
           label: Text('我的关注'),
         ),
         const NavigationDrawerDestination(
@@ -170,7 +170,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           label: Text('我的收藏'),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.messenger_outline),
+          icon: Icon(Icons.notifications_none),
           label: Text('消息提醒'),
         ),
         const NavigationDrawerDestination(
@@ -181,13 +181,13 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           icon: Icon(Icons.history_outlined),
           label: Text('最近浏览'),
         ),
-        Divider(),
+        const Divider(),
         const NavigationDrawerDestination(
           icon: Icon(Icons.brightness_medium_rounded),
           label: Text('选择主题'),
         ),
         const NavigationDrawerDestination(
-          icon: Icon(Icons.edit_note_outlined),
+          icon: Icon(Icons.tune_outlined),
           label: Text('设置'),
         ),
         const NavigationDrawerDestination(

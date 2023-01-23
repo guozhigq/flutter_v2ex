@@ -212,23 +212,29 @@ class DioRequestWeb {
     );
     var document = parse(response.data);
     var mainBox = document.body!.children[1].querySelector('#Main');
-    print(mainBox);
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover =
         mainHeader!.querySelector('img')!.attributes['src']!;
-
+    // 节点名称
+    detailModel.nodeName =
+        mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
     detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
-    detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
+    if (mainHeader.querySelector('div.intro') != null) {
+      detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
+    }
     // 节点收藏状态
     if (mainHeader.querySelector('div.cell_ops') != null) {
-      detailModel.favorite =
-          !mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
+      detailModel.isFavorite =
+          mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
     }
-    print(document.querySelector('#TopicsNode'));
+    detailModel.totalPage = int.parse(mainBox!
+        .querySelector('div.box:not(.box-title)>div.cell')!
+        .querySelectorAll('a.page_normal')
+        .last
+        .text);
     if (document.querySelector('#TopicsNode') != null) {
-      // 总页数
       // 主题
       var topicEle =
           document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
@@ -279,7 +285,6 @@ class DioRequestWeb {
         topics.add(item);
       }
     }
-
     detailModel.topicList = topics;
     return detailModel;
   }

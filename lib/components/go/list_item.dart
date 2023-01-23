@@ -7,7 +7,6 @@ class ListItem extends StatefulWidget {
   final TabTopicItem topic;
 
   const ListItem({required this.topic, super.key});
-  // List<TabTopicItem> item;
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -90,15 +89,15 @@ class _ListItemState extends State<ListItem> {
                           ),
                           const SizedBox(width: 10),
                         ],
-                        if (widget.topic.replyCount.isNotEmpty) ...[
-                          Text(
-                            '${widget.topic.clickCount}次点击',
-                            style: TextStyle(
-                                fontSize: 10.0,
-                                height: 1.3,
-                                color: Theme.of(context).colorScheme.outline),
-                          ),
-                        ]
+                        // if (widget.topic.replyCount.isNotEmpty) ...[
+                        //   Text(
+                        //     '${widget.topic.clickCount}次点击',
+                        //     style: TextStyle(
+                        //         fontSize: 10.0,
+                        //         height: 1.3,
+                        //         color: Theme.of(context).colorScheme.outline),
+                        //   ),
+                        // ]
                       ],
                     )
                   ],
@@ -139,7 +138,7 @@ class _ListItemState extends State<ListItem> {
           child: Text(
             Characters(widget.topic.topicTitle).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+            maxLines: 2,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
