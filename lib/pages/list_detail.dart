@@ -16,6 +16,7 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -369,9 +370,16 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                           ),
                           clipBehavior: Clip.antiAlias,
                           margin: const EdgeInsets.only(right: 10),
-                          child: CAvatar(
-                            url: _detailModel!.avatar,
-                            size: 45,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                                MinePage(memberId: _detailModel!.createdId),
+                              ));
+                            },
+                            child: CAvatar(
+                              url: _detailModel!.avatar,
+                              size: 45,
+                            ),
                           ),
                         ),
                         Column(
@@ -481,7 +489,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   children: [
                     Text(
                       '${_detailModel!.replyCount}条回复',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (_replyList.length > 2) ...[
                       Row(
@@ -602,7 +610,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
       child: Center(
         // child: TextField(),
-        child: Text(type == 'noMore' ? '没有更多回复了' : '还没有人回复'),
+        child: Text(
+          type == 'noMore' ? '没有更多回复了' : '还没有人回复',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       ),
     );
   }

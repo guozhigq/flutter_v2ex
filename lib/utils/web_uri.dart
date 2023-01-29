@@ -51,7 +51,6 @@ class WebUri implements Uri {
       _isValidUri = true;
     } catch (e, stacktrace) {
       print(e);
-      print(stacktrace);
     }
   }
 

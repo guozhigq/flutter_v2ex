@@ -74,7 +74,7 @@ class _AppTabState extends State<AppTab> {
       case 1:
         return const FavPage();
       case 2:
-        return const MinePage();
+        return MinePage(memberId: '');
       default:
         return const HomePage();
     }

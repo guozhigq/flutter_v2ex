@@ -98,14 +98,16 @@ class _PullRefreshState extends State<PullRefresh> {
       }, // 下拉
       onLoad: widget.onChildLoad != null
           ? () async {
+              if (widget.currentPage == widget.totalPage!) {
+                _controller.finishLoad();
+                _controller.resetFooter();
+                return IndicatorResult.noMore;
+              }
               await widget.onChildLoad!();
               // ignore: avoid_print
               print('onLoad Finish');
               _controller.finishLoad();
               _controller.resetFooter();
-              // if (widget.currentPage == widget.totalPage! - 1) {
-              //   return IndicatorResult.noMore;
-              // }
             }
           : null,
       child: widget.child,

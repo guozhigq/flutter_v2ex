@@ -11,6 +11,7 @@ import 'package:html/dom.dart'
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 // import 'package:xpath/xpath.dart';
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
+
 // import 'package:html/dom_parsing.dart';
 // import 'package:html/html_escape.dart';
 
@@ -23,6 +24,12 @@ import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
 import 'package:flutter_v2ex/models/web/model_topic_fav.dart'; // 收藏的主题
 import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登录字段
 import 'package:flutter_v2ex/models/web/model_node_fav.dart';
+import 'package:flutter_v2ex/models/web/model_member_reply.dart';
+import 'package:flutter_v2ex/models/web/item_member_reply.dart';
+import 'package:flutter_v2ex/models/web/model_member_topic.dart';
+import 'package:flutter_v2ex/models/web/item_member_topic.dart';
+import 'package:flutter_v2ex/models/web/item_member_social.dart';
+import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
 import '/utils/utils.dart';
@@ -938,5 +945,181 @@ class DioRequestWeb {
       //     timeInSecForIosWeb: 2,
       //     gravity: ToastGravity.CENTER);
     }
+  }
+
+  // 获取用户信息
+  static Future queryMemberProfile(String memberId) async {
+    ModelMemberProfile memberProfile = ModelMemberProfile();
+    List<MemberTopicItem> topicList = [];
+    List<MemberReplyItem> replyList = [];
+    List<MemberSocialItem> socialList = [];
+    Response response;
+    response = await Request().get('/member/$memberId', extra: {'ua': 'pc'});
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelectorAll('#Main > div.box');
+    var profileNode = contentDom[0];
+    var topicsNode = contentDom[1];
+    var replysNode = contentDom[2];
+
+    // 头像、昵称、在线状态、加入时间、关注状态
+    var profileCellNode = profileNode.querySelector('div.cell > table');
+    memberProfile.mbAvatar = profileCellNode!.querySelector('img')!.attributes['src']!;
+    memberProfile.memberId = memberId;
+    memberProfile.isOnline = false;
+    var buttonDom = profileNode.querySelectorAll('input[type=button]');
+    var followBtn = buttonDom[0];
+    memberProfile.isFollow = followBtn.attributes['value'] == '取消特别关注' ? true : false;
+    var mbCreatedTimeDom = profileCellNode!.querySelector('span.gray')!.text!;
+    memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0];
+    // 社交
+    if(profileNode.querySelector('div.widgets') != null){
+      print(profileNode.querySelector('div.widgets'));
+      var socialNodes = profileNode.querySelector('div.widgets')!.querySelectorAll('a');
+      for(var aNode in socialNodes){
+        MemberSocialItem item = MemberSocialItem();
+        item.name = aNode.text;
+        item.href = aNode!.attributes['href']!;
+        item.icon = Strings.v2exHost + aNode.querySelector('img')!.attributes['src']!;
+        item.type = aNode.querySelector('img')!.attributes['alt']!;
+        if(item.type == 'GitHub'){
+          item.type = 'Github';
+        }
+        socialList.add(item);
+      }
+    }
+
+    // 简介
+    memberProfile.mbSign = profileNode.querySelectorAll('div.cell').last.text;
+
+    // 主题列表
+    var topicNodesBlank = topicsNode.querySelector('div.cell:not(.item)');
+    if(topicNodesBlank != null){
+        memberProfile.isShow = false;
+    }else{
+      var topicNodes = topicsNode.querySelectorAll('div.cell.item');
+      for(int i = 0; i < 3; i++){
+        MemberTopicItem item = MemberTopicItem();
+        var itemNode = topicNodes[i].querySelector('table');
+        String topicHref = itemNode!
+            .querySelector('span.item_title > a.topic-link')!
+            .attributes['href']!;
+        item.topicId = topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
+        item.replyCount =
+            topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
+        item.topicTitle =
+            itemNode!.querySelector('span.item_title > a.topic-link')!.text;
+        item.time = itemNode!.querySelector('span.topic_info > span')!.text;
+        item.nodeName = itemNode!.querySelector('span.topic_info > a.node')!.text;
+        item.nodeId = itemNode!
+            .querySelector('span.topic_info > a.node')!
+            .attributes['href']!.split('/')[2];
+        topicList.add(item);
+      }
+    }
+
+
+    // 回复列表
+    var dockAreaDom = replysNode!.querySelectorAll('div.dock_area');
+    var innerDom = replysNode!.querySelectorAll('div.reply_content');
+    for(int i = 0; i < 3; i++) {
+      MemberReplyItem item = MemberReplyItem();
+      item.time = dockAreaDom[i].querySelector('span.fade')!.text;
+      item.memberId = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
+      item.nodeName = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
+      item.topicTitle =
+          dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
+      item.topicId = dockAreaDom[i]
+          .querySelectorAll('span.gray > a')[2]
+          .attributes['href']!
+          .split('#')[0]
+          .replaceAll(RegExp(r'[^0-9]'), '');
+
+      if (i < innerDom.length) {
+        item.replyContent = innerDom[i].innerHtml;
+      }
+      replyList.add(item);
+    }
+
+    memberProfile.topicList = topicList;
+    memberProfile.replyList = replyList;
+    memberProfile.socialList = socialList;
+    return memberProfile;
+  }
+
+  // 个人中心 获取用户的回复
+  static Future<ModelMemberReply> queryMemberReply(String memberId, int p) async {
+    ModelMemberReply memberReply = ModelMemberReply();
+    Response response;
+    response = await Request().get('/member/$memberId/replies',
+        data: {'p': p ?? 1}, extra: {'ua': 'pc'});
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelector('#Main > div.box');
+    memberReply.totalPage = contentDom!
+        .querySelector('div.cell > table')!
+        .querySelectorAll('a')
+        .last
+        .text;
+    var dockAreaDom = contentDom!.querySelectorAll('div.dock_area');
+    var innerDom = contentDom!.querySelectorAll('div.reply_content');
+    for (int i = 0; i < dockAreaDom.length; i++) {
+      MemberReplyItem item = MemberReplyItem();
+      item.time = dockAreaDom[i].querySelector('span.fade')!.text;
+      item.memberId = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
+      item.nodeName = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
+      item.topicTitle =
+          dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
+      item.topicId = dockAreaDom[i]
+          .querySelectorAll('span.gray > a')[2]
+          .attributes['href']!
+          .split('#')[0]
+          .replaceAll(RegExp(r'[^0-9]'), '');
+
+      if (i < innerDom.length) {
+        item.replyContent = innerDom[i].innerHtml;
+      }
+      memberReply.replyList.add(item);
+    }
+    return memberReply;
+  }
+
+  // 个人中心 获取用户发布的主题
+  static Future<ModelMemberTopic> queryMemberTopic(String memberId, int p) async {
+    ModelMemberTopic memberTopic = ModelMemberTopic();
+    List<MemberTopicItem> topicList = [];
+    Response response;
+    response = await Request().get('/member/$memberId/topics',
+        data: {'p': p ?? 1}, extra: {'ua': 'pc'});
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelector('#Main');
+    // 获取总页数
+    if (contentDom!.querySelector('div.box > div.cell:not(.item)') != null) {
+      if(contentDom!.querySelector('div.box > div.cell:not(.item)')!.text.contains('主题列表被隐藏')){
+        memberTopic.isShow = false;
+        return memberTopic;
+      }
+      memberTopic.totalPage = contentDom!.querySelectorAll('a').last!.text!;
+    }
+    var cellNode = contentDom!.querySelectorAll('div.cell.item');
+    for (var aNode in cellNode) {
+      MemberTopicItem item = MemberTopicItem();
+      var itemNode = aNode.querySelector('table');
+      String topicHref = itemNode!
+          .querySelector('span.item_title > a.topic-link')!
+          .attributes['href']!;
+
+      item.topicId = topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
+      item.replyCount =
+          topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
+      item.topicTitle =
+          itemNode!.querySelector('span.item_title > a.topic-link')!.text;
+      item.time = itemNode!.querySelector('span.topic_info > span')!.text;
+      item.nodeName = itemNode!.querySelector('span.topic_info > a.node')!.text;
+      item.nodeId = itemNode!
+          .querySelector('span.topic_info > a.node')!
+          .attributes['href']!.split('/')[2];
+      topicList.add(item);
+    }
+    memberTopic.topicList = topicList;
+    return memberTopic;
   }
 }

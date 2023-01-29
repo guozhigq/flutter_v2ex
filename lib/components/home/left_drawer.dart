@@ -18,10 +18,10 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   Map<dynamic, dynamic>? signDetail;
 
   void onDestinationSelected(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-    if (selectedIndex == 1) {
+    // setState(() {
+    //   selectedIndex = index;
+    // });
+    if (index == 1) {
       Navigator.pushNamed(context, '/fav');
     }
   }
@@ -181,7 +181,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           icon: Icon(Icons.history_outlined),
           label: Text('最近浏览'),
         ),
-        const Divider(),
+        Divider(
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          indent: 20,
+          endIndent: 12,
+        ),
         const NavigationDrawerDestination(
           icon: Icon(Icons.brightness_medium_rounded),
           label: Text('选择主题'),

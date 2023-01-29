@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
 
 class ReplyListItem extends StatefulWidget {
   const ReplyListItem({required this.reply, super.key});
+
   final ReplyItem reply;
+
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
 }
@@ -47,23 +50,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
   Widget lfAvtar() {
     return GestureDetector(
       // onLongPress: () => {print('长按')},
-      onTap: () => showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('提示'),
-          content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('手误了'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'OK'),
-              child: const Text('确定'),
-            ),
-          ],
-        ),
-      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MinePage(memberId: widget.reply.userName),
+          ),
+        );
+      },
       child: Column(
         children: [
           Container(

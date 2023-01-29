@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/idea.dart';
+import 'package:flutter_v2ex/pages/profile_page.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -22,11 +23,16 @@ class HtmlRender extends StatelessWidget {
         customRenders: {
           tagMatcher("img"): CustomRender.widget(
             widget: (htmlContext, buildChildren) {
-              // print(htmlContext.tree.element!.attributes['src']);
+              print(htmlContext.tree.element!.attributes['src']);
               String? imgUrl = htmlContext.tree.element!.attributes['src'];
-              if (!imgUrl!.contains('https') && !imgUrl.contains('http')) {
-                imgUrl = 'https:$imgUrl';
+              if (!imgUrl!.contains('https') || !imgUrl.contains('http')) {
+                if(imgUrl.contains('//')) {
+                  imgUrl = 'https:$imgUrl';
+                }else{
+                  imgUrl = 'https://www.v2ex.com$imgUrl';
+                }
               }
+
               print('imgUrl:$imgUrl');
               // todo 多张图片轮播
               return SelectionContainer.disabled(
@@ -38,7 +44,7 @@ class HtmlRender extends StatelessWidget {
                     clipBehavior: Clip.hardEdge,
                     margin: const EdgeInsets.only(top: 4, bottom: 4),
                     decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                        BoxDecoration(borderRadius: BorderRadius.circular(4)),
                     child: CachedNetworkImage(
                       imageUrl: imgUrl,
                       width: double.infinity,
@@ -130,6 +136,17 @@ class HtmlRender extends StatelessWidget {
           ),
         );
       }
+    } else if (aUrl.contains('/member/')) {
+      String memberId = aUrl.split('/')[2];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfilePage(memberId: memberId),
+        ),
+      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(showCloseIcon: true, content: Text('个人中心')),
+      // );
     } else {
       // ignore: avoid_print
       print('无效网址');
