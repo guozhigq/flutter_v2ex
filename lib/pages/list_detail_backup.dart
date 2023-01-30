@@ -10,6 +10,7 @@ import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 
 class ListDetail extends StatefulWidget {
   const ListDetail({this.topicId = '1', super.key});
+
   final String topicId;
 
   @override
@@ -18,6 +19,7 @@ class ListDetail extends StatefulWidget {
 
 class _ListDetailState extends State<ListDetail> {
   late EasyRefreshController _controller;
+
   // late Future<TopicDetailModel>? _detailModel;
   TopicDetailModel? _detailModel;
   final _MIProperties _headerProperties = _MIProperties(
@@ -314,7 +316,10 @@ class _ListDetailState extends State<ListDetail> {
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return ReplyListItem(reply: snapshot.replyList![index]);
+              return ReplyListItem(
+                reply: snapshot.replyList![index],
+                topicId: _detailModel!.topicId,
+              );
             },
             childCount: snapshot.replyList.length,
           ),

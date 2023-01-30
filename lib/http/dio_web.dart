@@ -963,25 +963,36 @@ class DioRequestWeb {
 
     // 头像、昵称、在线状态、加入时间、关注状态
     var profileCellNode = profileNode.querySelector('div.cell > table');
-    memberProfile.mbAvatar = profileCellNode!.querySelector('img')!.attributes['src']!;
+    memberProfile.mbAvatar =
+        profileCellNode!.querySelector('img')!.attributes['src']!;
     memberProfile.memberId = memberId;
     memberProfile.isOnline = false;
-    var buttonDom = profileNode.querySelectorAll('input[type=button]');
-    var followBtn = buttonDom[0];
-    memberProfile.isFollow = followBtn.attributes['value'] == '取消特别关注' ? true : false;
+    if (profileNode.querySelectorAll('input[type=button]').isNotEmpty) {
+      var buttonDom = profileNode.querySelectorAll('input[type=button]');
+      var followBtn = buttonDom[0];
+      memberProfile.isFollow =
+          followBtn.attributes['value'] == '取消特别关注' ? true : false;
+    }else{
+      memberProfile.isOwner = true;
+    }
+
+    // 加入时间
     var mbCreatedTimeDom = profileCellNode!.querySelector('span.gray')!.text!;
-    memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0];
+    memberProfile.mbSort = mbCreatedTimeDom.split('+')[0].split('，')[0];
+    memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0].split('，')[1];
     // 社交
-    if(profileNode.querySelector('div.widgets') != null){
+    if (profileNode.querySelector('div.widgets') != null) {
       print(profileNode.querySelector('div.widgets'));
-      var socialNodes = profileNode.querySelector('div.widgets')!.querySelectorAll('a');
-      for(var aNode in socialNodes){
+      var socialNodes =
+          profileNode.querySelector('div.widgets')!.querySelectorAll('a');
+      for (var aNode in socialNodes) {
         MemberSocialItem item = MemberSocialItem();
         item.name = aNode.text;
         item.href = aNode!.attributes['href']!;
-        item.icon = Strings.v2exHost + aNode.querySelector('img')!.attributes['src']!;
+        item.icon =
+            Strings.v2exHost + aNode.querySelector('img')!.attributes['src']!;
         item.type = aNode.querySelector('img')!.attributes['alt']!;
-        if(item.type == 'GitHub'){
+        if (item.type == 'GitHub') {
           item.type = 'Github';
         }
         socialList.add(item);
@@ -989,39 +1000,48 @@ class DioRequestWeb {
     }
 
     // 简介
-    memberProfile.mbSign = profileNode.querySelectorAll('div.cell').last.text;
+    if (profileNode.querySelectorAll('div.cell').length > 1) {
+      memberProfile.mbSign =
+          profileNode.querySelectorAll('div.cell').last.outerHtml;
+    }
 
     // 主题列表
     var topicNodesBlank = topicsNode.querySelector('div.cell:not(.item)');
-    if(topicNodesBlank != null){
-        memberProfile.isShow = false;
-    }else{
+    if (topicNodesBlank != null) {
+      memberProfile.isShow = false;
+    } else {
       var topicNodes = topicsNode.querySelectorAll('div.cell.item');
-      for(int i = 0; i < 3; i++){
+      for (int i = 0;
+          i < (topicNodes.length > 3 ? 3 : topicNodes.length);
+          i++) {
         MemberTopicItem item = MemberTopicItem();
         var itemNode = topicNodes[i].querySelector('table');
         String topicHref = itemNode!
             .querySelector('span.item_title > a.topic-link')!
             .attributes['href']!;
-        item.topicId = topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
+        item.topicId =
+            topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
         item.replyCount =
             topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
         item.topicTitle =
             itemNode!.querySelector('span.item_title > a.topic-link')!.text;
         item.time = itemNode!.querySelector('span.topic_info > span')!.text;
-        item.nodeName = itemNode!.querySelector('span.topic_info > a.node')!.text;
+        item.nodeName =
+            itemNode!.querySelector('span.topic_info > a.node')!.text;
         item.nodeId = itemNode!
             .querySelector('span.topic_info > a.node')!
-            .attributes['href']!.split('/')[2];
+            .attributes['href']!
+            .split('/')[2];
         topicList.add(item);
       }
     }
 
-
     // 回复列表
     var dockAreaDom = replysNode!.querySelectorAll('div.dock_area');
     var innerDom = replysNode!.querySelectorAll('div.reply_content');
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0;
+        i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
+        i++) {
       MemberReplyItem item = MemberReplyItem();
       item.time = dockAreaDom[i].querySelector('span.fade')!.text;
       item.memberId = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
@@ -1047,18 +1067,22 @@ class DioRequestWeb {
   }
 
   // 个人中心 获取用户的回复
-  static Future<ModelMemberReply> queryMemberReply(String memberId, int p) async {
+  static Future<ModelMemberReply> queryMemberReply(
+      String memberId, int p) async {
     ModelMemberReply memberReply = ModelMemberReply();
     Response response;
     response = await Request().get('/member/$memberId/replies',
         data: {'p': p ?? 1}, extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main > div.box');
-    memberReply.totalPage = contentDom!
-        .querySelector('div.cell > table')!
-        .querySelectorAll('a')
-        .last
-        .text;
+    if (contentDom!.querySelector('div.cell > table') != null) {
+      memberReply.totalPage = contentDom!
+          .querySelector('div.cell > table')!
+          .querySelectorAll('a')
+          .last
+          .text;
+    }
+
     var dockAreaDom = contentDom!.querySelectorAll('div.dock_area');
     var innerDom = contentDom!.querySelectorAll('div.reply_content');
     for (int i = 0; i < dockAreaDom.length; i++) {
@@ -1083,7 +1107,8 @@ class DioRequestWeb {
   }
 
   // 个人中心 获取用户发布的主题
-  static Future<ModelMemberTopic> queryMemberTopic(String memberId, int p) async {
+  static Future<ModelMemberTopic> queryMemberTopic(
+      String memberId, int p) async {
     ModelMemberTopic memberTopic = ModelMemberTopic();
     List<MemberTopicItem> topicList = [];
     Response response;
@@ -1093,7 +1118,10 @@ class DioRequestWeb {
     var contentDom = bodyDom!.querySelector('#Main');
     // 获取总页数
     if (contentDom!.querySelector('div.box > div.cell:not(.item)') != null) {
-      if(contentDom!.querySelector('div.box > div.cell:not(.item)')!.text.contains('主题列表被隐藏')){
+      if (contentDom!
+          .querySelector('div.box > div.cell:not(.item)')!
+          .text
+          .contains('主题列表被隐藏')) {
         memberTopic.isShow = false;
         return memberTopic;
       }
@@ -1116,10 +1144,64 @@ class DioRequestWeb {
       item.nodeName = itemNode!.querySelector('span.topic_info > a.node')!.text;
       item.nodeId = itemNode!
           .querySelector('span.topic_info > a.node')!
-          .attributes['href']!.split('/')[2];
+          .attributes['href']!
+          .split('/')[2];
       topicList.add(item);
     }
     memberTopic.topicList = topicList;
     return memberTopic;
+  }
+
+  // 回复主题
+  static Future<dynamic> onSubmitReplyTopic(String topicId, String once, String replyContent) async {
+    print('replyContent :$replyContent');
+    SmartDialog.showLoading(msg: '回复中...');
+    Options options = Options();
+    options.headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      'refer': '${Strings.v2exHost}/t/$topicId',
+      'origin': Strings.v2exHost
+    };
+    Response response;
+    response = await Request().post(
+      '/t/$topicId',
+      data: {
+        'once': '51524',
+        'content': replyContent,
+    },
+      extra: {
+        'ua': 'mob'
+      },
+        options: options
+    );
+    SmartDialog.dismiss();
+    var bodyDom = parse(response.data).body;
+    if(response.statusCode == 302) {
+      SmartDialog.showToast('回复成功');
+    }else{
+      var contentDom = bodyDom!.querySelector('#Wrapper');
+      if(contentDom!.querySelector('div.content > div.box > div.problem') != null) {
+        String responseText = contentDom!.querySelector('div.content > div.box > div.problem')!.text;
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('系统提示'),
+              content: Text(responseText),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('重新输入'))
+              ],
+            );
+          },
+        );
+      }
+      SmartDialog.showToast('回复失败了');
+    }
+    return bodyDom;
   }
 }

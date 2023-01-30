@@ -23,7 +23,7 @@ class HtmlRender extends StatelessWidget {
         customRenders: {
           tagMatcher("img"): CustomRender.widget(
             widget: (htmlContext, buildChildren) {
-              print(htmlContext.tree.element!.attributes['src']);
+              // print(htmlContext.tree.element!.attributes['src']);
               String? imgUrl = htmlContext.tree.element!.attributes['src'];
               if (!imgUrl!.contains('https') || !imgUrl.contains('http')) {
                 if(imgUrl.contains('//')) {
@@ -32,8 +32,12 @@ class HtmlRender extends StatelessWidget {
                   imgUrl = 'https://www.v2ex.com$imgUrl';
                 }
               }
-
-              print('imgUrl:$imgUrl');
+              var suffix = '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
+              RegExp exp = RegExp(r'.*\.'+ suffix);
+             if(!exp.hasMatch(imgUrl)){
+               imgUrl = '$imgUrl.png';
+             }
+              // print('imgUrl:$imgUrl');
               // todo 多张图片轮播
               return SelectionContainer.disabled(
                 child: GestureDetector(

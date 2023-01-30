@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 
 import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
 import 'package:flutter_v2ex/components/detail/reply_item.dart';
@@ -16,12 +15,13 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
+import 'package:flutter_v2ex/pages/profile_page.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
 class ListDetail extends StatefulWidget {
   const ListDetail({this.topic, required this.topicId, super.key});
+
   final TabTopicItem? topic;
   final String topicId;
 
@@ -31,6 +31,10 @@ class ListDetail extends StatefulWidget {
 
 class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   late EasyRefreshController _controller;
+
+  // 待回复用户
+  List replyMemberList = [];
+
   // 监听页面滚动
   final ScrollController _scrollController = ScrollController();
 
@@ -48,6 +52,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   bool _isVisible = true;
 
   SampleItem? selectedMenu;
+
   FloatingActionButtonLocation get _fabLocation => _isVisible
       ? FloatingActionButtonLocation.endContained
       : FloatingActionButtonLocation.endFloat;
@@ -151,6 +156,21 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     }
   }
 
+  void showReplySheet() {
+    var statusHeight = MediaQuery.of(context).padding.top;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ReplyNew(
+          statusHeight: statusHeight,
+          replyMemberList: replyMemberList,
+          topicId: _detailModel!.topicId,
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -161,7 +181,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    var statusHeight = MediaQuery.of(context).padding.top;
     return Stack(
       children: [
         Scaffold(
@@ -179,18 +198,16 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   child: showRes(),
                 )
               : showLoading(),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                builder: (BuildContext context) {
-                  return ReplyNew(statusHeight: statusHeight);
-                },
-              );
-            },
-            tooltip: '回复',
-            child: const Icon(Icons.edit),
+          floatingActionButton: Badge(
+            // smallSize: 12,
+            isLabelVisible: false,
+            alignment: AlignmentDirectional.topStart,
+            label: const Text('1'),
+            child: FloatingActionButton(
+              onPressed: showReplySheet,
+              tooltip: '回复',
+              child: const Icon(Icons.edit),
+            ),
           ),
           floatingActionButtonLocation: _fabLocation,
           bottomNavigationBar: DetailBottomBar(
@@ -221,13 +238,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   // 顶部操作栏
   List<Widget> appBarAction() {
     List<Widget>? list = [];
-    // list.add(
-    //   IconButton(
-    //     onPressed: (() => {}),
-    //     tooltip: '刷新主题',
-    //     icon: const Icon(Icons.refresh_sharp),
-    //   ),
-    // );
     list.add(
       IconButton(
         onPressed: (() async {
@@ -278,44 +288,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
             onTap: () => {print('忽略主题')},
-            // onTap: () => showDialog<String>(
-            //   context: context,
-            //   builder: (BuildContext context) => AlertDialog(
-            //     title: const Text('提示'),
-            //     content: const Text('确定不想再看到这个主题？'),
-            //     actions: <Widget>[
-            //       TextButton(
-            //         onPressed: () => Navigator.pop(context, 'Cancel'),
-            //         child: const Text('手误了'),
-            //       ),
-            //       TextButton(
-            //         // onPressed: () => Navigator.pop(context, 'OK'),
-            //         onPressed: (() async {
-            //           var res = await DioRequestWeb.ignoreTopic(
-            //               _detailModel!.topicId);
-            //           if (res) {
-            //             // ignore: use_build_context_synchronously
-            //             Navigator.pop(context, 'OK');
-            //             setState(() {
-            //               _detailModel!.isThank = true;
-            //             });
-            //             // ignore: use_build_context_synchronously
-            //             ScaffoldMessenger.of(context).showSnackBar(
-            //               SnackBar(
-            //                 content:
-            //                     Text('已完成对 ${_detailModel!.topicId} 号主题的忽略'),
-            //                 duration: const Duration(milliseconds: 500),
-            //                 showCloseIcon: true,
-            //               ),
-            //             );
-            //             // ignore: use_build_context_synchronously
-            //           }
-            //         }),
-            //         child: const Text('确定'),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             child: const Text('忽略主题'),
           ),
           const PopupMenuItem<SampleItem>(
@@ -365,21 +337,23 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                     Row(
                       children: <Widget>[
                         Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          clipBehavior: Clip.antiAlias,
                           margin: const EdgeInsets.only(right: 10),
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                                MinePage(memberId: _detailModel!.createdId),
-                              ));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfilePage(
+                                        memberId: _detailModel!.createdId),
+                                  ));
                             },
-                            child: CAvatar(
-                              url: _detailModel!.avatar,
-                              size: 45,
-                            ),
+                            child: Hero(
+                              tag: _detailModel!.createdId,
+                              child: CAvatar(
+                                url: _detailModel!.avatar,
+                                size: 45,
+                              ),
+                            )
                           ),
                         ),
                         Column(
@@ -536,7 +510,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return ReplyListItem(reply: _replyList[index]);
+              return ReplyListItem(
+                reply: _replyList[index],
+                topicId: _detailModel!.topicId,
+              );
             },
             childCount: _replyList.length,
           ),

@@ -8,11 +8,12 @@ class ModelMemberProfile {
   List<MemberSocialItem> socialList = []; // 社交
   String memberId = '';
   String mbAvatar = '';
+  String mbSort = '';
   String mbCreatedTime = '';
   String mbSign = ''; // 简介
   bool isOnline = false; // 是否在线
   bool isFollow = false; // 是否关注
   bool isShow = true; // 隐私设置
   bool isEmpty = false; // 主题列表为空
-  String socialEle = ''; // 社交
+  bool isOwner = false; // 是否 本人
 }

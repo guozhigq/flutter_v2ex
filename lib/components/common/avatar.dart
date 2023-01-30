@@ -29,7 +29,24 @@ class CAvatar extends StatelessWidget {
         //   value: downloadProgress.progress,
         //   strokeWidth: 3,
         // ),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
+        errorWidget: (context, url, error) => SizedBox(
+          width: size,
+          height: size,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+            ),
+            clipBehavior: Clip.antiAlias,
+            // margin: const EdgeInsets.only(right: 10),
+            child: Center(
+              child: Icon(
+                Icons.error,
+                size: 18,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+          ),
+        ),
         placeholder: (context, url) => SizedBox(
           width: size,
           height: size,
@@ -42,7 +59,7 @@ class CAvatar extends StatelessWidget {
             child: Center(
               child: Icon(
                 Icons.person,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),

@@ -110,9 +110,12 @@ class _ListItemState extends State<ListItem>
                       ),
                     );
                   },
-                  child: CAvatar(
-                    url: widget.topic.avatar,
-                    size: 33,
+                  child: Hero(
+                    tag: widget.topic.memberId,
+                    child: CAvatar(
+                      url: widget.topic.avatar,
+                      size: 33,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),

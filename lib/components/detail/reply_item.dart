@@ -3,18 +3,159 @@ import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
-import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
+import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/detail/reply_new.dart';
 
 class ReplyListItem extends StatefulWidget {
-  const ReplyListItem({required this.reply, super.key});
+  const ReplyListItem({
+    required this.reply,
+    required this.topicId,
+    super.key,
+  });
 
   final ReplyItem reply;
+  final String topicId;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
 }
 
 class _ReplyListItemState extends State<ReplyListItem> {
+  bool isChoose = false;
+  List<Map<dynamic, dynamic>> sheetMenu = [
+    {
+      'title': '添加回复',
+      'leading': const Icon(
+        Icons.reply,
+        size: 21,
+      ),
+    },
+    {
+      'title': '复制内容',
+      'leading': const Icon(
+        Icons.copy_rounded,
+        size: 21,
+      ),
+    },
+    {
+      'title': '忽略回复',
+      'leading': const Icon(
+        Icons.not_interested_rounded,
+        size: 21,
+      ),
+    },
+    {
+      'title': '查看主页',
+      'leading': const Icon(Icons.person, size: 21),
+    }
+  ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    var isOwner = widget.reply.isOwner;
+    if (isOwner) {
+      setState(() {
+        sheetMenu.removeAt(2);
+      });
+    }
+  }
+
+  void menuAction(index) {
+    switch (index) {
+      case 0:
+        replyComment();
+        break;
+      case 1:
+        copyComment();
+        break;
+      case 2:
+        ignoreComment();
+        break;
+      case 3:
+        viewProfile();
+        break;
+    }
+  }
+
+  // 回复评论
+  void replyComment() {
+    var statusHeight = MediaQuery.of(context).padding.top;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ReplyNew(
+          statusHeight: statusHeight,
+          replyMemberList: [widget.reply],
+          topicId: widget.topicId,
+        );
+      },
+    );
+  }
+
+  // 复制评论
+  void copyComment() {
+    Clipboard.setData(ClipboardData(text: widget.reply.content));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.done, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 4),
+            const Text('复制成功')
+          ],
+        ),
+        showCloseIcon: true,
+      ),
+    );
+  }
+
+  // 忽略回复
+  void ignoreComment() {
+    SmartDialog.show(
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('忽略回复'),
+          // content: Text(
+          //   '确定不再显示@${widget.reply.userName}来自的这条回复？',
+          // ),
+          content: Row(
+            children: [
+              const Text('确定不再显示来自 '),
+              Text(
+                '@${widget.reply.userName}',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const Text(' 的这条回复？'),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: (() => {SmartDialog.dismiss()}),
+                child: const Text('取消')),
+            TextButton(
+                onPressed: (() => {SmartDialog.dismiss()}),
+                child: const Text('确定'))
+          ],
+        );
+      },
+    );
+  }
+
+  // 查看主页
+  void viewProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(memberId: widget.reply.userName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -49,22 +190,55 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   Widget lfAvtar() {
     return GestureDetector(
-      // onLongPress: () => {print('长按')},
+      // onLongPress: () {
+      //   setState(() {
+      //     isChoose = !isChoose;
+      //   });
+      // },
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MinePage(memberId: widget.reply.userName),
+            builder: (context) => ProfilePage(memberId: widget.reply.userName),
           ),
         );
       },
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(top: 5),
-            child: CAvatar(
-              url: widget.reply.avatar,
-              size: 36,
+            margin: const EdgeInsets.only(top: 5),
+            clipBehavior: Clip.hardEdge,
+            decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(18))),
+            child: Stack(
+              children: [
+                Hero(
+                  tag: widget.reply.userName,
+                  child: CAvatar(
+                    url: widget.reply.avatar,
+                    size: 36,
+                  ),
+                ),
+                // if (isChoose)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: AnimatedOpacity(
+                    opacity: isChoose ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.8),
+                      width: 36,
+                      height: 36,
+                      child: Icon(Icons.done,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           // IconButton(onPressed: () => {}, icon: const Icon(Icons.celebration))
@@ -110,7 +284,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   ]
                 ],
               ),
-              Text('#${widget.reply.floorNumber}')
+              Text('#${widget.reply.floorNumber}'),
             ],
           ),
         ),
@@ -180,24 +354,24 @@ class _ReplyListItemState extends State<ReplyListItem> {
               ),
             ),
             const SizedBox(width: 2),
-            SizedBox(
-              height: 28.0,
-              width: 28.0,
-              child: IconButton(
-                padding: const EdgeInsets.all(2.0),
-                // color: themeData.primaryColor,
-                icon: const Icon(Icons.copy_rounded, size: 18.0),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: widget.reply.content));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('复制成功'),
-                      showCloseIcon: true,
-                    ),
-                  );
-                },
-              ),
-            ),
+            // SizedBox(
+            //   height: 28.0,
+            //   width: 28.0,
+            //   child: IconButton(
+            //     padding: const EdgeInsets.all(2.0),
+            //     // color: themeData.primaryColor,
+            //     icon: const Icon(Icons.copy_rounded, size: 18.0),
+            //     onPressed: () {
+            //       Clipboard.setData(ClipboardData(text: widget.reply.content));
+            //       ScaffoldMessenger.of(context).showSnackBar(
+            //         const SnackBar(
+            //           content: Text('复制成功'),
+            //           showCloseIcon: true,
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
             const SizedBox(width: 1),
             SizedBox(
               height: 28.0,
@@ -206,7 +380,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 padding: const EdgeInsets.all(2.0),
                 // color: themeData.primaryColor,
                 icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
-                onPressed: () {},
+                onPressed: showBottomSheet,
               ),
             ),
           ],
@@ -234,6 +408,36 @@ class _ReplyListItemState extends State<ReplyListItem> {
           ],
         ),
       ],
+    );
+  }
+
+  void showBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          //重要
+          itemCount: sheetMenu.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                menuAction(index);
+              },
+              minLeadingWidth: 0,
+              iconColor: Theme.of(context).colorScheme.onSurface,
+              leading: sheetMenu[index]['leading'],
+              title: Text(
+                sheetMenu[index]['title'],
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

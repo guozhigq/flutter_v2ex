@@ -49,7 +49,7 @@ class _TopicItemState extends State<TopicItem> {
       children: <Widget>[
         Container(
           alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(bottom: 2),
+          margin: const EdgeInsets.only(bottom: 8),
           child: Text(
             // Characters(widget.topic.topicTitle).join('\u{200B}'),
             widget.topicItem.topicTitle,
