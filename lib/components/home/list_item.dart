@@ -1,14 +1,11 @@
-// import 'package:flare_flutter/base/animation/property_types.dart';
 import 'package:flutter/material.dart';
 
-// import 'package:flutter_html/style.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 
-// import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -100,16 +97,7 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () {
-                    print(widget.topic.memberId);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProfilePage(memberId: widget.topic.memberId),
-                      ),
-                    );
-                  },
+                  onTap: () => Utils.routeProfile(widget.topic.memberId, widget.topic.avatar),
                   child: Hero(
                     tag: widget.topic.memberId,
                     child: CAvatar(
@@ -201,3 +189,4 @@ class _ListItemState extends State<ListItem>
     );
   }
 }
+

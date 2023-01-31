@@ -15,7 +15,7 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -339,22 +339,16 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                         Container(
                           margin: const EdgeInsets.only(right: 10),
                           child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfilePage(
-                                        memberId: _detailModel!.createdId),
-                                  ));
-                            },
-                            child: Hero(
-                              tag: _detailModel!.createdId,
-                              child: CAvatar(
-                                url: _detailModel!.avatar,
-                                size: 45,
-                              ),
-                            )
-                          ),
+                              onTap: () => Utils.routeProfile(
+                                  _detailModel!.createdId,
+                                  _detailModel!.avatar),
+                              child: Hero(
+                                tag: _detailModel!.createdId,
+                                child: CAvatar(
+                                  url: _detailModel!.avatar,
+                                  size: 45,
+                                ),
+                              )),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

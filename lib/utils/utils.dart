@@ -1,7 +1,9 @@
 // import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
-// import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 
 // import 'package:device_info/device_info.dart';
 // import 'package:ovprogresshud/progresshud.dart';
@@ -106,5 +108,17 @@ class Utils {
     }
 
     return target;
+  }
+
+  static void routeProfile(memberId, memberAvatar) {
+    Navigator.push(
+      Routes.navigatorKey.currentContext!,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          memberId: memberId,
+          memberAvatar: memberAvatar,
+        ),
+      ),
+    );
   }
 }

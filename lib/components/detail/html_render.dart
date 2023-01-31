@@ -7,10 +7,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/idea.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
   String? htmlContent;
+
   HtmlRender({this.htmlContent, super.key});
 
   @override
@@ -26,17 +28,18 @@ class HtmlRender extends StatelessWidget {
               // print(htmlContext.tree.element!.attributes['src']);
               String? imgUrl = htmlContext.tree.element!.attributes['src'];
               if (!imgUrl!.contains('https') || !imgUrl.contains('http')) {
-                if(imgUrl.contains('//')) {
+                if (imgUrl.contains('//')) {
                   imgUrl = 'https:$imgUrl';
-                }else{
+                } else {
                   imgUrl = 'https://www.v2ex.com$imgUrl';
                 }
               }
-              var suffix = '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
-              RegExp exp = RegExp(r'.*\.'+ suffix);
-             if(!exp.hasMatch(imgUrl)){
-               imgUrl = '$imgUrl.png';
-             }
+              var suffix =
+                  '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
+              RegExp exp = RegExp(r'.*\.' + suffix);
+              if (!exp.hasMatch(imgUrl)) {
+                imgUrl = '$imgUrl.png';
+              }
               // print('imgUrl:$imgUrl');
               // todo 多张图片轮播
               return SelectionContainer.disabled(
@@ -142,15 +145,7 @@ class HtmlRender extends StatelessWidget {
       }
     } else if (aUrl.contains('/member/')) {
       String memberId = aUrl.split('/')[2];
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfilePage(memberId: memberId),
-        ),
-      );
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(showCloseIcon: true, content: Text('个人中心')),
-      // );
+      Utils.routeProfile(memberId, '');
     } else {
       // ignore: avoid_print
       print('无效网址');

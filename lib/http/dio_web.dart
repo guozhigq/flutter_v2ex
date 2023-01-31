@@ -1178,8 +1178,9 @@ class DioRequestWeb {
     var bodyDom = parse(response.data).body;
     if(response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
-    }else{
+    }else if(response.statusCode == 200){
       var contentDom = bodyDom!.querySelector('#Wrapper');
+      print(contentDom!.text);
       if(contentDom!.querySelector('div.content > div.box > div.problem') != null) {
         String responseText = contentDom!.querySelector('div.content > div.box > div.problem')!.text;
         SmartDialog.show(

@@ -20,6 +20,11 @@ class ReplyNew extends StatefulWidget {
 }
 
 class _ReplyNewState extends State<ReplyNew> {
+  final TextEditingController _replyContentController = TextEditingController();
+  final GlobalKey _formKey = GlobalKey<FormState>();
+  late String _replyContent = '';
+
+
   void onCleanInput() {
     SmartDialog.show(
       animationType: SmartAnimationType.centerFade_otherSlide,
@@ -43,12 +48,13 @@ class _ReplyNewState extends State<ReplyNew> {
     );
   }
 
-  Future<dynamic> onSubmit() async{
-    var res = await DioRequestWeb.onSubmitReplyTopic(
-      widget.topicId,
-      '',
-      ''
-    );
+  Future<dynamic> onSubmit() async {
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      print(_replyContent);
+      var res = await DioRequestWeb.onSubmitReplyTopic(widget.topicId, '', _replyContent);
+    }
   }
 
   @override
@@ -138,12 +144,30 @@ class _ReplyNewState extends State<ReplyNew> {
                   bottomRight: Radius.circular(16),
                 ),
               ),
-              child: TextField(
-                minLines: 1,
-                maxLines: null,
-                decoration: const InputDecoration(
-                    hintText: "输入回复内容", border: InputBorder.none),
-                style: Theme.of(context).textTheme.bodyLarge,
+              // child: TextField(
+              //   minLines: 1,
+              //   maxLines: null,
+              //   decoration: const InputDecoration(
+              //       hintText: "输入回复内容", border: InputBorder.none),
+              //   style: Theme.of(context).textTheme.bodyLarge,
+              // ),
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: TextFormField(
+                  controller: _replyContentController,
+                  minLines: 1,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                      hintText: "输入回复内容", border: InputBorder.none),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  validator: (v) {
+                    return v!.trim().isNotEmpty ? null : "请输入回复内容";
+                  },
+                  onSaved: (val) {
+                    _replyContent = val!;
+                  },
+                ),
               ),
             ),
           ),
@@ -153,8 +177,9 @@ class _ReplyNewState extends State<ReplyNew> {
             clipBehavior: Clip.hardEdge,
             margin: const EdgeInsets.only(top: 10, bottom: 30),
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: BorderRadius.circular(30)),
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: BorderRadius.circular(30),
+            ),
             child: ElevatedButton(
               onPressed: onSubmit,
               child: Row(

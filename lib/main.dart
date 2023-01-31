@@ -17,6 +17,7 @@ import 'package:flutter_v2ex/pages/go_page.dart';
 import 'package:flutter_v2ex/pages/fav_page.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/custom_loading.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -77,6 +78,7 @@ class _MyAppState extends State<MyApp> {
           colorScheme: darkColorScheme,
         ),
         home: const AppTab(),
+        navigatorKey: Routes.navigatorKey,
         // initialRoute: '/listdetail',
         initialRoute: '/',
         routes: {

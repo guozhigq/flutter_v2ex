@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/components/detail/html_render.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 class ReplyListItem extends StatefulWidget {
   const ReplyListItem({
@@ -75,7 +76,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ignoreComment();
         break;
       case 3:
-        viewProfile();
+        Utils.routeProfile(widget.reply.userName, widget.reply.avatar);
         break;
     }
   }
@@ -120,9 +121,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('忽略回复'),
-          // content: Text(
-          //   '确定不再显示@${widget.reply.userName}来自的这条回复？',
-          // ),
           content: Row(
             children: [
               const Text('确定不再显示来自 '),
@@ -146,16 +144,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
     );
   }
 
-  // 查看主页
-  void viewProfile() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProfilePage(memberId: widget.reply.userName),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -164,6 +152,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         margin: const EdgeInsets.only(top: 0, right: 16, bottom: 8, left: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          // textDirection: widget.reply.isOwner? TextDirection.rtl : TextDirection.ltr,
           children: [
             lfAvtar(),
             const SizedBox(width: 8),
@@ -172,7 +161,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 color: Theme.of(context).colorScheme.onInverseSurface,
                 borderRadius: BorderRadius.circular(16),
                 child: InkWell(
-                  onTap: () {},
+                  onTap: replyComment,
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     padding: const EdgeInsets.only(
@@ -195,14 +184,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       //     isChoose = !isChoose;
       //   });
       // },
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfilePage(memberId: widget.reply.userName),
-          ),
-        );
-      },
+      onTap: () => Utils.routeProfile(widget.reply.userName, widget.reply.avatar),
       child: Column(
         children: [
           Container(

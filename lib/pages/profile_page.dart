@@ -9,8 +9,9 @@ import 'package:flutter_v2ex/components/common/avatar.dart';
 
 class ProfilePage extends StatefulWidget {
   String memberId = '';
+  String? memberAvatar = '';
 
-  ProfilePage({required this.memberId, Key? key}) : super(key: key);
+  ProfilePage({required this.memberId, this.memberAvatar, Key? key}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -51,14 +52,21 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(width: 12)
                         ]
                       : [
-                          TextButton(onPressed: () {}, child: const Text('关注')),
-                          TextButton(
+                          IconButton(
+                              tooltip: '关注',
                               onPressed: () {},
-                              child: Text('屏蔽',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .error))),
+                              icon: Icon(
+                                Icons.favorite_border,
+                                color: Theme.of(context).colorScheme.primary,
+                              )),
+                          IconButton(
+                              tooltip: 'Block',
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.not_interested,
+                                color: Theme.of(context).colorScheme.error,
+                              )),
+                          const SizedBox(width: 12)
                         ],
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
@@ -80,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         Hero(
                           tag: widget.memberId,
-                          child: const CAvatar(url: '', size: 80),
+                          child: CAvatar(url: widget.memberAvatar!, size: 80),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
@@ -134,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.only(left: 12, right: 10),
+                      padding: const EdgeInsets.only(left: 15, right: 15),
                       child: HtmlRender(
                         htmlContent: memberProfile.mbSign,
                       ),
@@ -265,7 +273,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Hero(
                   tag: widget.memberId,
-                  child: const CAvatar(url: '', size: 80),
+                  child: CAvatar(url: widget.memberAvatar!, size: 80),
                 ),
                 const SizedBox(width: 20),
                 Expanded(

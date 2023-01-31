@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 class HomeSearchBar extends StatelessWidget {
   const HomeSearchBar({super.key});
@@ -44,20 +45,16 @@ class HomeSearchBar extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                onTap: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            // pre代码解析为邮箱 bug fixed
-                            // const ListDetail(topicId: '907966'),
-                            // 分页
-                            // const ListDetail(topicId: '908405'),
-                            ProfilePage(memberId: 'guozhigq')
-                        // const ListDetail(topicId: '907145'),
-                        ),
-                  )
-                },
+                onTap: () => Utils.routeProfile('guozhigq', ''),
+                // onTap: () => {
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) =>
+                //             const ListDetail(topicId: '907966'),
+                //         ),
+                //   )
+                // },
                 // child: Container(
                 //   decoration: BoxDecoration(
                 //     color: Theme.of(context).colorScheme.surfaceVariant,
