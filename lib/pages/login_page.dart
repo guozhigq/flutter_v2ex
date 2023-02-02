@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 EdgeInsets.only(top: MediaQuery.of(context).padding.top + 100),
             child: Form(
               key: _formKey, //设置globalKey，用于后面获取FormState
-              autovalidateMode: AutovalidateMode.onUserInteraction,
+              autovalidateMode: AutovalidateMode.disabled,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 // mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                           loginKey.passwordValue = _password!;
                           loginKey.codeValue = _code!;
 
-                          // DioRequestWeb.onLogin(loginKey);
+                          DioRequestWeb.onLogin(loginKey);
                         }
                       },
                     ),

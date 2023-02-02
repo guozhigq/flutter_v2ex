@@ -45,16 +45,17 @@ class HomeSearchBar extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                onTap: () => Utils.routeProfile('guozhigq', ''),
-                // onTap: () => {
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) =>
-                //             const ListDetail(topicId: '907966'),
-                //         ),
-                //   )
-                // },
+                // onTap: () => Utils.routeProfile('guozhigq', ''),
+                // onTap: () => Utils.onLogin(),
+                onTap: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const ListDetail(topicId: '908405'),
+                        ),
+                  )
+                },
                 // child: Container(
                 //   decoration: BoxDecoration(
                 //     color: Theme.of(context).colorScheme.surfaceVariant,

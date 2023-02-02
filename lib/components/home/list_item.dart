@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'dart:math';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -86,6 +87,7 @@ class _ListItemState extends State<ListItem>
   }
 
   Widget content() {
+    final herotag = widget.topic.memberId + Random().nextInt(999).toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -97,9 +99,9 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Utils.routeProfile(widget.topic.memberId, widget.topic.avatar),
+                  onTap: () => Utils.routeProfile(widget.topic.memberId, widget.topic.avatar, herotag),
                   child: Hero(
-                    tag: widget.topic.memberId,
+                    tag: herotag,
                     child: CAvatar(
                       url: widget.topic.avatar,
                       size: 33,

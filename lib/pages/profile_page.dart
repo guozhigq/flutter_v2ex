@@ -10,8 +10,11 @@ import 'package:flutter_v2ex/components/common/avatar.dart';
 class ProfilePage extends StatefulWidget {
   String memberId = '';
   String? memberAvatar = '';
+  String? heroTag = '';
 
-  ProfilePage({required this.memberId, this.memberAvatar, Key? key}) : super(key: key);
+  ProfilePage(
+      {required this.memberId, this.memberAvatar, this.heroTag, Key? key})
+      : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -87,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Row(
                       children: [
                         Hero(
-                          tag: widget.memberId,
+                          tag: widget.heroTag!,
                           child: CAvatar(url: widget.memberAvatar!, size: 80),
                         ),
                         const SizedBox(width: 20),
@@ -97,7 +100,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               Text(
                                 memberProfile.memberId,
-                                style: Theme.of(context).textTheme.titleMedium,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const SizedBox(height: 4),
                               Text(memberProfile.mbSort),
@@ -150,7 +160,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
                 titleLine('最近发布'),
-                if (memberProfile.isShow) ...[
+                if (memberProfile.isEmptyTopic) ...[
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: Text(
+                        '没内容',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  )
+                ] else if (memberProfile.isShowTopic) ...[
                   SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
                     return TopicItem(topicItem: memberProfile.topicList[index]);
@@ -169,10 +190,35 @@ class _ProfilePageState extends State<ProfilePage> {
                   )
                 ],
                 titleLine('最近回复'),
-                SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                  return ReplyItem(replyItem: memberProfile.replyList[index]);
-                }, childCount: memberProfile.replyList.length)),
+                if (memberProfile.isEmptyReply) ...[
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: Text(
+                        '没内容',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  )
+                ] else if (memberProfile.isShowReply) ...[
+                  SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                    return ReplyItem(replyItem: memberProfile.replyList[index]);
+                  }, childCount: memberProfile.replyList.length)),
+                ] else ...[
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 80,
+                      // padding: const EdgeInsets.only(top: 20),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '根据 ${widget.memberId} 的设置，回复列表被隐藏',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  )
+                ],
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 100),
                 )
@@ -189,12 +235,15 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           padding: EdgeInsets.zero,
           child: FilledButton.tonal(
+            style: ButtonStyle(
+                padding: MaterialStateProperty.all(const EdgeInsets.only(
+                    top: 7, right: 12, bottom: 7, left: 8))),
             onPressed: () => {},
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset('assets/images/social/${i.type}.png',
-                    width: 20, height: 20),
+                    width: 25, height: 25),
                 const SizedBox(width: 2),
                 Text(
                   i.name,
@@ -272,7 +321,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               children: [
                 Hero(
-                  tag: widget.memberId,
+                  tag: widget.heroTag!,
                   child: CAvatar(url: widget.memberAvatar!, size: 80),
                 ),
                 const SizedBox(width: 20),

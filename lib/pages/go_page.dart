@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // import 'package:flutter_v2ex/components/go/go_list.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
@@ -10,21 +11,46 @@ import 'package:flutter_v2ex/components/go/list_item.dart';
 
 class GoPage extends StatefulWidget {
   GoPage({required this.nodeKey, super.key});
+
   String nodeKey;
+
   @override
   State<GoPage> createState() => _GoPageState();
 }
 
 class _GoPageState extends State<GoPage> {
+  late final ScrollController _controller = ScrollController();
   NodeListModel? topicListDetail;
   List topicList = [];
   int _currentPage = 0;
   int _totalPage = 1;
+  bool showBackTopBtn = false;
 
   @override
   void initState() {
     super.initState();
     getTopics();
+    print('go page');
+    _controller.addListener(
+      () {
+        var screenHeight = MediaQuery.of(context).size.height;
+        if (_controller.offset >= screenHeight && showBackTopBtn == false) {
+          setState(() {
+            showBackTopBtn = true;
+          });
+        } else if (_controller.offset < screenHeight && showBackTopBtn) {
+          setState(() {
+            showBackTopBtn = false;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void getTopics() async {
@@ -45,39 +71,66 @@ class _GoPageState extends State<GoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: topicListDetail != null
-          ? AppBar(
-              centerTitle: false,
-              title: Text(topicListDetail!.nodeName),
-              titleSpacing: 0,
-              actions: [
-                IconButton(
-                  onPressed: () => {},
-                  icon: const Icon(Icons.star_outline),
-                  selectedIcon: Icon(
-                    Icons.star,
-                    color: Theme.of(context).colorScheme.primary,
+        appBar: topicListDetail != null
+            ? AppBar(
+                centerTitle: false,
+                title: Text(topicListDetail!.nodeName),
+                titleSpacing: 0,
+                actions: [
+                  IconButton(
+                    onPressed: () => {},
+                    icon: const Icon(Icons.star_outline),
+                    selectedIcon: Icon(
+                      Icons.star,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    isSelected: topicListDetail!.isFavorite,
                   ),
-                  isSelected: topicListDetail!.isFavorite,
+                  const SizedBox(width: 12)
+                ],
+              )
+            : null,
+        body: Stack(
+          children: [
+            Scrollbar(
+              controller: _controller,
+              radius: const Radius.circular(10),
+              child: PullRefresh(
+                onChildRefresh: () {},
+                // 上拉
+                onChildLoad: _totalPage > 1 && _currentPage < _totalPage
+                    ? getTopics
+                    : null,
+                currentPage: _currentPage,
+                totalPage: _totalPage,
+                child: topicListDetail != null ? content() : showLoading(),
+              ),
+            ),
+            Positioned(
+              right: 20,
+              bottom: 20,
+              child: AnimatedScale(
+                scale: showBackTopBtn ? 1 : 0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  heroTag: null,
+                  child: const Icon(Icons.vertical_align_top_rounded),
+                  onPressed: () {
+                    _controller.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease);
+                  },
                 ),
-                const SizedBox(width: 12)
-              ],
-            )
-          : null,
-      body: PullRefresh(
-        onChildRefresh: () {},
-        // 上拉
-        onChildLoad:
-            _totalPage > 1 && _currentPage < _totalPage ? getTopics : null,
-        currentPage: _currentPage,
-        totalPage: _totalPage,
-        child: topicListDetail != null ? content() : showLoading(),
-      ),
-    );
+              ),
+            ),
+          ],
+        ));
   }
 
   Widget content() {
     return CustomScrollView(
+      controller: _controller,
       slivers: [
         SliverToBoxAdapter(
           child: topicListDetail!.nodeIntro.isNotEmpty

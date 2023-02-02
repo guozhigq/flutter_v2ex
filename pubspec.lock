@@ -217,6 +217,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.2.2+2"
+  extended_image:
+    dependency: "direct main"
+    description:
+      name: extended_image
+      sha256: "4cf7f9f3be233fb81d5c9655168ed6550e6a2649282d8b27a44c5ee4394b4870"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.0.0"
+  extended_image_library:
+    dependency: transitive
+    description:
+      name: extended_image_library
+      sha256: b1de389378589e4dffb3564d782373238f19064037458092c49b3043b2791b2b
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.4.1"
   extended_nested_scroll_view:
     dependency: "direct main"
     description:
@@ -355,6 +371,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.13.5"
+  http_client_helper:
+    dependency: transitive
+    description:
+      name: http_client_helper
+      sha256: "1f32359bd07a064ad256d1f84ae5f973f69bc972e7287223fa198abe1d969c28"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.3"
   http_parser:
     dependency: transitive
     description:
@@ -761,4 +785,4 @@ packages:
     version: "3.1.1"
 sdks:
   dart: ">=2.18.6 <3.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

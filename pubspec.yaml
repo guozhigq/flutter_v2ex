@@ -61,6 +61,7 @@ dependencies:
     animations: ^2.0.7
     flutter_highlight: ^0.7.0
     flutter_smart_dialog: ^4.8.1
+    extended_image: ^7.0.0
 
 dev_dependencies:
     flutter_test:
@@ -103,6 +104,8 @@ flutter:
         - assets/images/social/Last.fm.png
         - assets/images/social/Instagram.png
         - assets/images/social/Duolingo.png
+        - assets/images/social/BattleTag.png
+        - assets/images/social/Btc.png
 
     #   - images/a_dot_ham.jpeg
 

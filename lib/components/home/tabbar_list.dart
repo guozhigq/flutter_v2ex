@@ -9,6 +9,7 @@ import 'package:flutter_v2ex/components/common/skeleton.dart';
 
 class TabBarList extends StatefulWidget {
   final Map<dynamic, dynamic> tabItem;
+
   const TabBarList(this.tabItem, {super.key});
 
   @override
@@ -23,6 +24,7 @@ class _TabBarListState extends State<TabBarList>
   bool _isLoading = true; // 请求状态
   bool _isLoadingMore = false; // 请求状态
   int _currentPage = 0;
+  bool showBackTopBtn = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -32,19 +34,33 @@ class _TabBarListState extends State<TabBarList>
     super.initState();
     // _controller = ScrollController();
     getTopics();
-    if (widget.tabItem['id'] == 'recent') {
-      _controller.addListener(() {
-        if (_controller.position.pixels >=
-            _controller.position.maxScrollExtent) {
-          if (!_isLoadingMore) {
-            setState(() {
-              _isLoadingMore = true;
-            });
-            getTopics();
+
+    _controller.addListener(
+      () {
+        if (widget.tabItem['id'] == 'recent') {
+          if (_controller.position.pixels >=
+              _controller.position.maxScrollExtent) {
+            if (!_isLoadingMore) {
+              setState(() {
+                _isLoadingMore = true;
+              });
+              getTopics();
+            }
           }
         }
-      });
-    }
+
+        var screenHeight = MediaQuery.of(context).size.height;
+        if (_controller.offset >= screenHeight && showBackTopBtn == false) {
+          setState(() {
+            showBackTopBtn = true;
+          });
+        } else if (_controller.offset < screenHeight && showBackTopBtn) {
+          setState(() {
+            showBackTopBtn = false;
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -110,47 +126,73 @@ class _TabBarListState extends State<TabBarList>
   }
 
   Widget showRes(snapshot) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-      ),
-      child: RefreshIndicator(
-        onRefresh: () {
-          setState(() {
-            _currentPage = 0;
-          });
-          return getTopics();
-        },
-        child: ListView.builder(
-          padding: const EdgeInsets.only(top: 1, bottom: 0),
-          physics: const AlwaysScrollableScrollPhysics(), //重要
-          itemCount: snapshot.length + 1,
+    return Stack(
+      children: [
+        Scrollbar(
+          radius: const Radius.circular(10),
           controller: _controller,
-          // prototypeItem: ListItem(topic: snapshot[0]),
-          itemBuilder: (BuildContext context, int index) {
-            if (index == snapshot.length) {
-              if (widget.tabItem['id'] == 'recent') {
-                // return moreTopic('正在加载更多...');
-                return Container(
-                  padding: const EdgeInsets.all(30),
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2.0),
-                  ),
-                );
-              } else {
-                return moreTopic('全部加载完成');
-              }
-            } else {
-              return ListItem(topic: snapshot[index]);
-            }
-          },
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+            ),
+            child: RefreshIndicator(
+              onRefresh: () {
+                setState(() {
+                  _currentPage = 0;
+                });
+                return getTopics();
+              },
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 1, bottom: 0),
+                physics: const AlwaysScrollableScrollPhysics(),
+                //重要
+                itemCount: snapshot.length + 1,
+                controller: _controller,
+                // prototypeItem: ListItem(topic: snapshot[0]),
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == snapshot.length) {
+                    if (widget.tabItem['id'] == 'recent') {
+                      // return moreTopic('正在加载更多...');
+                      return Container(
+                        padding: const EdgeInsets.all(30),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2.0),
+                        ),
+                      );
+                    } else {
+                      return moreTopic('全部加载完成');
+                    }
+                  } else {
+                    return ListItem(topic: snapshot[index]);
+                  }
+                },
+              ),
+            ),
+          ),
         ),
-      ),
+        Positioned(
+          right: 20,
+          bottom: 20,
+          child: AnimatedScale(
+            scale: showBackTopBtn ? 1 : 0,
+            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 300),
+            child: FloatingActionButton(
+              child: const Icon(Icons.vertical_align_top_rounded),
+              onPressed: () {
+                _controller.animateTo(0,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.ease);
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 

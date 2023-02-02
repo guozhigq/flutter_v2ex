@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 
 class ReplyNew extends StatefulWidget {
   final statusHeight;
@@ -53,7 +54,17 @@ class _ReplyNewState extends State<ReplyNew> {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
       print(_replyContent);
-      var res = await DioRequestWeb.onSubmitReplyTopic(widget.topicId, '', _replyContent);
+
+      String replyUser = '';
+      if(widget.replyMemberList!.isNotEmpty){
+        for(var i in widget.replyMemberList as List) {
+          print(i.userName);
+          replyUser += '@${i.userName} #${i.floorNumber}  ';
+        }
+      }
+
+      print(replyUser);
+      // var res = await DioRequestWeb.onSubmitReplyTopic(widget.topicId, '', _replyContent);
     }
   }
 
@@ -107,9 +118,10 @@ class _ReplyNewState extends State<ReplyNew> {
                   Expanded(
                     child: Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      runSpacing: -1,
+                      runSpacing: 2,
+                      spacing: 10,
                       children: [
-                        const Text(' 回复：'),
+                        Text(' 回复：', style: Theme.of(context).textTheme.titleMedium,),
                         ...replyList(widget.replyMemberList)
                       ],
                     ),
@@ -201,10 +213,11 @@ class _ReplyNewState extends State<ReplyNew> {
     List<Widget> widgetList = [];
     for (var i in replyMemberList) {
       widgetList.add(
-        TextButton(
-          onPressed: () => {},
-          child: Text(i),
-        ),
+        // TextButton(
+        //   onPressed: () => {},
+        //   child: Text(i.userName),
+        // ),
+        FilledButton.tonal(onPressed: ()=>{}, child: Text(i.userName))
       );
     }
     return widgetList;

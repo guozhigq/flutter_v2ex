@@ -1,5 +1,4 @@
 // 帖子详情页下的评论item
-import 'dart:ffi';
 
 class ReplyItem {
   bool isOwner = false; // 是否op主
@@ -14,4 +13,5 @@ class ReplyItem {
   String number = ''; // 楼层
   String floorNumber = ''; // 楼层
   String platform = ''; // 平台 Android ios
+  bool isChoose = false; // 默认不选中
 }

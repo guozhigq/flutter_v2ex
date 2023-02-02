@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/pages/login_page.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 
@@ -110,14 +111,24 @@ class Utils {
     return target;
   }
 
-  static void routeProfile(memberId, memberAvatar) {
+  static void routeProfile(memberId, memberAvatar, heroTag) {
     Navigator.push(
       Routes.navigatorKey.currentContext!,
       MaterialPageRoute(
         builder: (context) => ProfilePage(
           memberId: memberId,
           memberAvatar: memberAvatar,
+          heroTag: heroTag
         ),
+      ),
+    );
+  }
+
+  static void onLogin() {
+    Navigator.push(
+      Routes.navigatorKey.currentContext!,
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
       ),
     );
   }

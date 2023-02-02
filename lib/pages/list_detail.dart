@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -16,6 +18,7 @@ import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'dart:math';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -34,14 +37,16 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   // 待回复用户
   List replyMemberList = [];
+  String heroTag = Random().nextInt(999).toString();
 
   // 监听页面滚动
   final ScrollController _scrollController = ScrollController();
-
   TopicDetailModel? _detailModel;
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
+  GlobalKey _globalKey = GlobalKey();
+  GlobalKey listGlobalKey = GlobalKey();
 
   // action
   bool reverseSort = false; // 倒序
@@ -96,6 +101,18 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       // print(reverseSort);
       // print(_totalPage);
       // print(_currentPage);
+      // Timer(const Duration(milliseconds: 0), () {
+      //   final globalHeight = _globalKey.currentContext!.size!.height;
+      //   print('globalHeight: $globalHeight');
+      //   if (listGlobalKey.currentContext != null) {
+      //     final listHeight = listGlobalKey.currentContext!
+      //         .findRenderObject()!
+      //         .semanticBounds
+      //         .height;
+      //     print('listHeight: $listHeight');
+      //   }
+      // });
+
     });
     SmartDialog.dismiss();
   }
@@ -157,6 +174,13 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   }
 
   void showReplySheet() {
+    var replyList = List.from(_replyList);
+    replyList.retainWhere((i) => i.isChoose);
+    setState(() {
+      replyMemberList = replyList;
+    });
+    print(replyMemberList);
+    print(replyMemberList.length);
     var statusHeight = MediaQuery.of(context).padding.top;
     showModalBottomSheet<void>(
       context: context,
@@ -185,17 +209,22 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       children: [
         Scaffold(
           body: _detailModel != null
-              ? PullRefresh(
-                  onChildRefresh: getDetailInit,
-                  // 上拉
-                  onChildLoad: !reverseSort
-                      ? (_totalPage > 1 && _currentPage < _totalPage
-                          ? getDetail
-                          : null)
-                      : (_currentPage > 1 ? getDetailReverst : null),
-                  currentPage: _currentPage,
-                  totalPage: _totalPage,
-                  child: showRes(),
+              ? Scrollbar(
+                  radius: const Radius.circular(10),
+                  controller: _scrollController,
+                  child: PullRefresh(
+                    key: _globalKey,
+                    onChildRefresh: getDetailInit,
+                    // 上拉
+                    onChildLoad: !reverseSort
+                        ? (_totalPage > 1 && _currentPage < _totalPage
+                            ? getDetail
+                            : null)
+                        : (_currentPage > 1 ? getDetailReverst : null),
+                    currentPage: _currentPage,
+                    totalPage: _totalPage,
+                    child: showRes(),
+                  ),
                 )
               : showLoading(),
           floatingActionButton: Badge(
@@ -215,20 +244,16 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
               isVisible: _isVisible,
               detailModel: _detailModel),
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.bounceIn,
-          child: Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              width: double.infinity,
-              height: MediaQuery.of(context).padding.top,
-              color: _isVisible
-                  ? Theme.of(context).appBarTheme.foregroundColor
-                  : Theme.of(context).colorScheme.background,
-            ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).padding.top,
+            color: _isVisible
+                ? Theme.of(context).appBarTheme.foregroundColor
+                : Theme.of(context).colorScheme.background,
           ),
         ),
       ],
@@ -316,6 +341,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   Widget showRes() {
     return CustomScrollView(
       controller: _scrollController,
+      key: listGlobalKey,
       slivers: [
         SliverAppBar(
           pinned: false,
@@ -341,9 +367,11 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                           child: GestureDetector(
                               onTap: () => Utils.routeProfile(
                                   _detailModel!.createdId,
-                                  _detailModel!.avatar),
+                                  _detailModel!.avatar,
+                                _detailModel!.createdId+heroTag
+                              ),
                               child: Hero(
-                                tag: _detailModel!.createdId,
+                                tag: _detailModel!.createdId + heroTag,
                                 child: CAvatar(
                                   url: _detailModel!.avatar,
                                   size: 45,
@@ -460,41 +488,70 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (_replyList.length > 2) ...[
-                      Row(
-                        children: [
-                          RawChip(
-                            side: BorderSide.none,
-                            labelPadding:
-                                const EdgeInsets.only(left: 1, right: 4),
-                            label: Text(
-                              '倒序查看',
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                            avatar: const Icon(
-                              Icons.swap_vert,
-                              size: 19,
-                            ),
-                            onPressed: () => setState(() {
-                              reverseSort = !reverseSort;
-                              if (reverseSort) {
-                                getDetailReverst(type: 'init');
-                              } else {
-                                getDetail(type: 'init');
-                              }
-                            }),
-                            shape: StadiumBorder(
-                                side: BorderSide(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceVariant)),
-                            // backgroundColor:
-                            //     Theme.of(context).colorScheme.surfaceVariant,
-                            selectedColor:
-                                Theme.of(context).colorScheme.onInverseSurface,
-                            selected: reverseSort,
+                      SizedBox(
+                        width: 170,
+                        height: 40,
+                        child: SegmentedButton(
+                          style: ButtonStyle(
+                            minimumSize:
+                                MaterialStateProperty.all(const Size(200, 30)),
+                            maximumSize:
+                                MaterialStateProperty.all(const Size(20, 30)),
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(10)),
                           ),
-                        ],
-                      )
+                          selected: {reverseSort},
+                          onSelectionChanged: (newSelection) {
+                            setState(() {
+                              reverseSort = newSelection.first;
+                            });
+                            if (reverseSort) {
+                              getDetailReverst(type: 'init');
+                            } else {
+                              getDetail(type: 'init');
+                            }
+                          },
+                          segments: const [
+                            ButtonSegment(
+                                value: false,
+                                label: Text('默认'),
+                                icon: Icon(Icons.menu)),
+                            ButtonSegment(
+                                value: true,
+                                label: Text('最新'),
+                                icon: Icon(Icons.lock_clock_outlined))
+                          ],
+                        ),
+                      ),
+                      // RawChip(
+                      //   side: BorderSide.none,
+                      //   showCheckmark: false,
+                      //   labelPadding: const EdgeInsets.only(left: 1, right: 4),
+                      //   label: Text(
+                      //     '倒序查看',
+                      //     style: Theme.of(context).textTheme.labelLarge,
+                      //   ),
+                      //   avatar: const Icon(
+                      //     Icons.swap_vert,
+                      //     size: 19,
+                      //   ),
+                      //   onPressed: () => setState(() {
+                      //     reverseSort = !reverseSort;
+                      //     if (reverseSort) {
+                      //       getDetailReverst(type: 'init');
+                      //     } else {
+                      //       getDetail(type: 'init');
+                      //     }
+                      //   }),
+                      //   shape: StadiumBorder(
+                      //       side: BorderSide(
+                      //           color: Theme.of(context)
+                      //               .colorScheme
+                      //               .surfaceVariant)),
+                      //   selectedColor:
+                      //       Theme.of(context).colorScheme.outlineVariant,
+                      //   selected: reverseSort,
+                      // ),
                     ]
                   ],
                 )),

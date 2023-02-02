@@ -206,7 +206,7 @@ class DioRequestWeb {
 
   // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeKey(String nodeKey, int p) async {
-    // print('getTopicsByNodeKey');
+    print('------getTopicsByNodeKey---------');
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
     Response response;
@@ -236,11 +236,14 @@ class DioRequestWeb {
       detailModel.isFavorite =
           mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
     }
-    detailModel.totalPage = int.parse(mainBox!
-        .querySelector('div.box:not(.box-title)>div.cell')!
-        .querySelectorAll('a.page_normal')
-        .last
-        .text);
+    if (mainBox!.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container)') != null) {
+      detailModel.totalPage = int.parse(mainBox!
+          .querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container)')!
+          .querySelectorAll('a.page_normal')
+          .last
+          .text);
+    }
+
     if (document.querySelector('#TopicsNode') != null) {
       // 主题
       var topicEle =
@@ -784,6 +787,13 @@ class DioRequestWeb {
   static Future onLogin(LoginDetailModel args) async {
     Response response;
     Options options = Options();
+    var data = {
+      args.userNameHash: args.userNameValue,
+      args.passwordHash: args.passwordValue,
+      args.codeHash: args.codeValue,
+      'once': args.once,
+      'next': args.next
+    };
     options.headers = {
       'content-type': 'application/x-www-form-urlencoded',
       'refer': '${Strings.v2exHost}/signin',
@@ -798,13 +808,15 @@ class DioRequestWeb {
     //   'once': args.once,
     //   'next': args.next
     // });
-    var data =
-        '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
+    // var data =
+    //     '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
     print('data😊:$data');
-    response = await Request().post('/signin2', data: data, options: options);
+    response = await Request().post('/signin', data: data, options: options);
     options.contentType = Headers.jsonContentType; // 还原
     // print('response:$response');
     // print('responseData:${response.data}');
+    var bodyDom = parse(response.data).body;
+    print(bodyDom!.text);
     // print('response.statusCode${response.statusCode}');
     if (response.statusCode == 302) {
       print('-------------------------------');
@@ -972,7 +984,7 @@ class DioRequestWeb {
       var followBtn = buttonDom[0];
       memberProfile.isFollow =
           followBtn.attributes['value'] == '取消特别关注' ? true : false;
-    }else{
+    } else {
       memberProfile.isOwner = true;
     }
 
@@ -995,6 +1007,9 @@ class DioRequestWeb {
         if (item.type == 'GitHub') {
           item.type = 'Github';
         }
+        if (item.icon.contains('btc')) {
+          item.type = 'Btc';
+        }
         socialList.add(item);
       }
     }
@@ -1008,57 +1023,67 @@ class DioRequestWeb {
     // 主题列表
     var topicNodesBlank = topicsNode.querySelector('div.cell:not(.item)');
     if (topicNodesBlank != null) {
-      memberProfile.isShow = false;
+      memberProfile.isShowTopic = false;
     } else {
       var topicNodes = topicsNode.querySelectorAll('div.cell.item');
-      for (int i = 0;
-          i < (topicNodes.length > 3 ? 3 : topicNodes.length);
-          i++) {
-        MemberTopicItem item = MemberTopicItem();
-        var itemNode = topicNodes[i].querySelector('table');
-        String topicHref = itemNode!
-            .querySelector('span.item_title > a.topic-link')!
-            .attributes['href']!;
-        item.topicId =
-            topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
-        item.replyCount =
-            topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
-        item.topicTitle =
-            itemNode!.querySelector('span.item_title > a.topic-link')!.text;
-        item.time = itemNode!.querySelector('span.topic_info > span')!.text;
-        item.nodeName =
-            itemNode!.querySelector('span.topic_info > a.node')!.text;
-        item.nodeId = itemNode!
-            .querySelector('span.topic_info > a.node')!
-            .attributes['href']!
-            .split('/')[2];
-        topicList.add(item);
+      if(topicNodes.isEmpty){
+        memberProfile.isEmptyTopic = true;
+      }else{
+        for (int i = 0;
+        i < (topicNodes.length > 3 ? 3 : topicNodes.length);
+        i++) {
+          MemberTopicItem item = MemberTopicItem();
+          var itemNode = topicNodes[i].querySelector('table');
+          String topicHref = itemNode!
+              .querySelector('span.item_title > a.topic-link')!
+              .attributes['href']!;
+          item.topicId =
+              topicHref.split('#')[0].replaceAll(RegExp(r'[^0-9]'), '');
+          item.replyCount =
+              topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
+          item.topicTitle =
+              itemNode!.querySelector('span.item_title > a.topic-link')!.text;
+          item.time = itemNode!.querySelector('span.topic_info > span')!.text;
+          item.nodeName =
+              itemNode!.querySelector('span.topic_info > a.node')!.text;
+          item.nodeId = itemNode!
+              .querySelector('span.topic_info > a.node')!
+              .attributes['href']!
+              .split('/')[2];
+          topicList.add(item);
+        }
       }
+
     }
 
     // 回复列表
     var dockAreaDom = replysNode!.querySelectorAll('div.dock_area');
-    var innerDom = replysNode!.querySelectorAll('div.reply_content');
-    for (int i = 0;
-        i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
-        i++) {
-      MemberReplyItem item = MemberReplyItem();
-      item.time = dockAreaDom[i].querySelector('span.fade')!.text;
-      item.memberId = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
-      item.nodeName = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
-      item.topicTitle =
-          dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
-      item.topicId = dockAreaDom[i]
-          .querySelectorAll('span.gray > a')[2]
-          .attributes['href']!
-          .split('#')[0]
-          .replaceAll(RegExp(r'[^0-9]'), '');
+    if(dockAreaDom.isEmpty) {
+      memberProfile.isEmptyReply = true;
+    }else{
+      var innerDom = replysNode!.querySelectorAll('div.reply_content');
+      for (int i = 0;
+      i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
+      i++) {
+        MemberReplyItem item = MemberReplyItem();
+        item.time = dockAreaDom[i].querySelector('span.fade')!.text;
+        item.memberId = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
+        item.nodeName = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
+        item.topicTitle =
+            dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
+        item.topicId = dockAreaDom[i]
+            .querySelectorAll('span.gray > a')[2]
+            .attributes['href']!
+            .split('#')[0]
+            .replaceAll(RegExp(r'[^0-9]'), '');
 
-      if (i < innerDom.length) {
-        item.replyContent = innerDom[i].innerHtml;
+        if (i < innerDom.length) {
+          item.replyContent = innerDom[i].innerHtml;
+        }
+        replyList.add(item);
       }
-      replyList.add(item);
     }
+
 
     memberProfile.topicList = topicList;
     memberProfile.replyList = replyList;
@@ -1153,7 +1178,8 @@ class DioRequestWeb {
   }
 
   // 回复主题
-  static Future<dynamic> onSubmitReplyTopic(String topicId, String once, String replyContent) async {
+  static Future<dynamic> onSubmitReplyTopic(
+      String topicId, String once, String replyContent) async {
     print('replyContent :$replyContent');
     SmartDialog.showLoading(msg: '回复中...');
     Options options = Options();
@@ -1163,26 +1189,25 @@ class DioRequestWeb {
       'origin': Strings.v2exHost
     };
     Response response;
-    response = await Request().post(
-      '/t/$topicId',
-      data: {
-        'once': '51524',
-        'content': replyContent,
-    },
-      extra: {
-        'ua': 'mob'
-      },
-        options: options
-    );
+    response = await Request().post('/t/$topicId',
+        data: {
+          'once': '51524',
+          'content': replyContent,
+        },
+        extra: {'ua': 'mob'},
+        options: options);
     SmartDialog.dismiss();
     var bodyDom = parse(response.data).body;
-    if(response.statusCode == 302) {
+    if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
-    }else if(response.statusCode == 200){
+    } else if (response.statusCode == 200) {
       var contentDom = bodyDom!.querySelector('#Wrapper');
       print(contentDom!.text);
-      if(contentDom!.querySelector('div.content > div.box > div.problem') != null) {
-        String responseText = contentDom!.querySelector('div.content > div.box > div.problem')!.text;
+      if (contentDom!.querySelector('div.content > div.box > div.problem') !=
+          null) {
+        String responseText = contentDom!
+            .querySelector('div.content > div.box > div.problem')!
+            .text;
         SmartDialog.show(
           useSystem: true,
           animationType: SmartAnimationType.centerFade_otherSlide,

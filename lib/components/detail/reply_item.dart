@@ -7,6 +7,7 @@ import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/detail/reply_new.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'dart:math';
 
 class ReplyListItem extends StatefulWidget {
   const ReplyListItem({
@@ -23,7 +24,7 @@ class ReplyListItem extends StatefulWidget {
 }
 
 class _ReplyListItemState extends State<ReplyListItem> {
-  bool isChoose = false;
+  // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
     {
       'title': '添加回复',
@@ -51,6 +52,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       'leading': const Icon(Icons.person, size: 21),
     }
   ];
+  String heroTag = Random().nextInt(999).toString();
 
   @override
   void initState() {
@@ -76,7 +78,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ignoreComment();
         break;
       case 3:
-        Utils.routeProfile(widget.reply.userName, widget.reply.avatar);
+        Utils.routeProfile(widget.reply.userName, widget.reply.avatar, widget.reply.userName + heroTag);
         break;
     }
   }
@@ -148,11 +150,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        color: Colors.transparent,
         margin: const EdgeInsets.only(top: 0, right: 16, bottom: 8, left: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          // textDirection: widget.reply.isOwner? TextDirection.rtl : TextDirection.ltr,
           children: [
             lfAvtar(),
             const SizedBox(width: 8),
@@ -179,12 +179,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   Widget lfAvtar() {
     return GestureDetector(
-      // onLongPress: () {
-      //   setState(() {
-      //     isChoose = !isChoose;
-      //   });
-      // },
-      onTap: () => Utils.routeProfile(widget.reply.userName, widget.reply.avatar),
+      onLongPress: () {
+        setState(() {
+          widget.reply.isChoose = !widget.reply.isChoose;
+        });
+      },
+      onTap: () => Utils.routeProfile(widget.reply.userName, widget.reply.avatar, widget.reply.userName+heroTag),
       child: Column(
         children: [
           Container(
@@ -195,19 +195,19 @@ class _ReplyListItemState extends State<ReplyListItem> {
             child: Stack(
               children: [
                 Hero(
-                  tag: widget.reply.userName,
+                  tag: widget.reply.userName + heroTag,
                   child: CAvatar(
                     url: widget.reply.avatar,
                     size: 36,
                   ),
                 ),
-                // if (isChoose)
+                // if (widget.reply.isChoose)
                 Positioned(
                   top: 0,
                   left: 0,
                   child: AnimatedOpacity(
-                    opacity: isChoose ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 200),
+                    opacity: widget.reply.isChoose ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 100),
                     child: Container(
                       color: Theme.of(context)
                           .colorScheme
@@ -247,7 +247,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   const SizedBox(width: 6),
                   Container(
                     constraints: const BoxConstraints(
-                      maxWidth: 100, // 最大宽度
+                      maxWidth: 200, // 最大宽度
                     ),
                     child: Text(
                       widget.reply.userName,

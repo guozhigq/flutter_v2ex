@@ -11,7 +11,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 
 String reqCookie =
-    '_ga=GA1.2.612053446.1661838358; cf_clearance=w5gszBpOjxFGAsofiFwJxqxfmRkE27GOtrMm4x_OQp4-1672997746-0-150; V2EXTP="2|1:0|10:1673193021|6:V2EXTP|280:eyI4Nzg2MDMiOiAyLCAiOTAwNDU4IjogMiwgIjg5ODcxOCI6IDIsICI4ODMxNzMiOiAyLCAiODk5MDQ1IjogMiwgIjg3NjY2OCI6IDIsICI5MDY4MzQiOiAyLCAiOTA2OTI5IjogMiwgIjg3NzYxNCI6IDIsICI4NzI3ODciOiA1LCAiODk0MzMwIjogMiwgIjcxMTcwMSI6IDQsICIzMzkzNzEiOiAyLCAiODEyOTE0IjogMiwgIjg3NjM5MiI6IDIsICI5MDQyMjYiOiAyfQ==|43cdf44cc15322220d1b5ea1cef5369941072c0120e1a40e711d309130878310"; A2="2|1:0|10:1673882557|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|190fc2899cde15502eabd6b2a1d203df0b4f9ccb5b3accc5b34572762de89089"; PB3_SESSION="2|1:0|10:1674840531|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NjgxOTkzMDg=|f57cced5ad6e29db978d0805e80bf115b359915a1aba412dac68e0474323aa33"; V2EX_REFERRER="2|1:0|10:1674840551|13:V2EX_REFERRER|12:UmljaGFyZDE0|c0941edfec5739732aee369b0d93e4efbc4fc6757e2cd70c302315eeb7eaa9e8"; V2EX_TAB="2|1:0|10:1674889491|8:V2EX_TAB|8:bm9kZXM=|f2f7e253d2612f650c2687681f0cf43445dc8184292aa9f7d55a527970933803"; V2EX_LANG=zhcn';
+    'PB3_SESSION="2|1:0|10:1675306631|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NzM2MTEzODQ=|002697d3ccd81e3a79d6812e2e9e168f8dfab6fef9e0039bbe70773bca8cf74f"; expires=Tue, 07 Feb 2023 02:57:11 GMT; httponly; Path=/';
 
 class Request {
   static final Request _instance = Request._internal();
@@ -134,11 +134,6 @@ class Request {
     String ua = extra!['ua'] ?? 'mob';
     // String channel = extra['channel'] ?? 'web';
     if (ua == 'mob') {
-      // options.headers = {
-      //   'user-agent': Platform.isIOS
-      //       ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
-      //       : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
-      // };
       options.headers = {
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
@@ -147,7 +142,7 @@ class Request {
     } else {
       print('else');
       // options.headers = {'user-agent': ''};
-      options.headers = {'user-agent': ''};
+      options.headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'};
     }
     try {
       response = await dio.get(
@@ -174,8 +169,7 @@ class Request {
    * post请求
    */
   post(url, {data, options, cancelToken, extra}) async {
-    print('post-data: ${data.toString}');
-    print('post-options: $options');
+    print('post-data: $data');
     Response response;
     try {
       response = await dio.post(

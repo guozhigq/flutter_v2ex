@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+
 
 import 'package:flutter_v2ex/pages/app_tab.dart';
 import 'package:flutter_v2ex/pages/help_page.dart';
@@ -18,6 +20,8 @@ import 'package:flutter_v2ex/pages/fav_page.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
+import 'package:flutter_v2ex/utils/string.dart';
+
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -31,7 +35,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-Color brandColor = const Color.fromRGBO(13, 201, 124, 100);
+Color brandColor = const Color.fromRGBO(39, 82, 67, 100);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -41,9 +45,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  ThemeType currentThemeValue = ThemeType.system;
+  EventBus eventBus = EventBus();
+
   @override
   void initState() {
     super.initState();
+    eventBus.on('themeChange', (arg) {
+      setState(() {
+        currentThemeValue = arg;
+      });
+    });
+
   }
 
   @override
@@ -71,11 +84,11 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           fontFamily: 'NotoSansSC',
           useMaterial3: true,
-          colorScheme: lightColorScheme,
+          colorScheme: currentThemeValue == ThemeType.dark ? darkColorScheme : lightColorScheme,
         ),
         darkTheme: ThemeData(
           useMaterial3: true,
-          colorScheme: darkColorScheme,
+          colorScheme: currentThemeValue == ThemeType.light  ? lightColorScheme : darkColorScheme,
         ),
         home: const AppTab(),
         navigatorKey: Routes.navigatorKey,

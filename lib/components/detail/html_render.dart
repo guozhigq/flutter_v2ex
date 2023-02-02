@@ -8,18 +8,26 @@ import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/idea.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:extended_image/extended_image.dart';
+import 'dart:math';
 
 // ignore: must_be_immutable
-class HtmlRender extends StatelessWidget {
+class HtmlRender extends StatefulWidget {
   String? htmlContent;
-
   HtmlRender({this.htmlContent, super.key});
+
+  @override
+  State<HtmlRender> createState() => _HtmlRenderState();
+}
+
+class _HtmlRenderState extends State<HtmlRender> {
+  List imgUrlList = [];
 
   @override
   Widget build(BuildContext context) {
     return SelectionArea(
       child: Html(
-        data: htmlContent,
+        data: widget.htmlContent,
         onLinkTap: (url, buildContext, attributes, element) =>
             {openHrefByWebview(url!, context)},
         customRenders: {
@@ -40,12 +48,21 @@ class HtmlRender extends StatelessWidget {
               if (!exp.hasMatch(imgUrl)) {
                 imgUrl = '$imgUrl.png';
               }
-              // print('imgUrl:$imgUrl');
+              print('imgUrl:$imgUrl');
+              // if(imgUrl.isNotEmpty){
+              //   if(imgUrlList.isEmpty  || (imgUrlList.isNotEmpty && imgUrl!= imgUrlList[0])){
+              //     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+              //       imgUrlList.add(imgUrl);
+              //     }));
+              //   }
+              // }
+
+              print('imgUrl:$imgUrlList');
               // todo 多张图片轮播
               return SelectionContainer.disabled(
                 child: GestureDetector(
                   onTap: () {
-                    openImageDialog(imgUrl, context, htmlContext);
+                    openImageDialog(imgUrl!, context, htmlContext);
                   },
                   child: Container(
                     clipBehavior: Clip.hardEdge,
@@ -145,7 +162,8 @@ class HtmlRender extends StatelessWidget {
       }
     } else if (aUrl.contains('/member/')) {
       String memberId = aUrl.split('/')[2];
-      Utils.routeProfile(memberId, '');
+      final heroTag = memberId + Random().nextInt(999).toString();
+      Utils.routeProfile(memberId, '', heroTag);
     } else {
       // ignore: avoid_print
       print('无效网址');
@@ -156,9 +174,9 @@ class HtmlRender extends StatelessWidget {
   }
 
   // 打开大图预览
-  void openImageDialog(String? imgUrl, BuildContext context, htmlContext) {
+  void openImageDialog(String imgUrl, BuildContext context, htmlContext) {
     // ignore: avoid_print
-    print('htmlContext:${htmlContext.tree}');
+    print('htmlContext:${imgUrlList}');
     showDialog(
       context: context,
       builder: (BuildContext context) {

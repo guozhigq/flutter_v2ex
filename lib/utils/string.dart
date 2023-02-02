@@ -1,5 +1,6 @@
 import 'dart:io';
 
+enum ThemeType { light, dark, system } // 主题切换
 // ignore: constant_identifier_names
 const String MyEventTabsChange = 'MyEventTabsChange'; // 设置中自定义了主页 tabs
 // ignore: constant_identifier_names

@@ -13,7 +13,9 @@ class ModelMemberProfile {
   String mbSign = ''; // 简介
   bool isOnline = false; // 是否在线
   bool isFollow = false; // 是否关注
-  bool isShow = true; // 隐私设置
-  bool isEmpty = false; // 主题列表为空
+  bool isShowTopic = true; // 隐私设置 主题
+  bool isShowReply = true; // 隐私设置 回复
+  bool isEmptyTopic = false; // 主题列表为空
+  bool isEmptyReply = false; // 回复列表为空
   bool isOwner = false; // 是否 本人
 }
