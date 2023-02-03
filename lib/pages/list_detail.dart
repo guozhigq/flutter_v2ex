@@ -69,6 +69,8 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       controlFinishRefresh: true,
       controlFinishLoad: true,
     );
+
+    // TODO build优化
     _scrollController.addListener(_listen);
     getDetailInit();
   }
@@ -112,7 +114,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       //     print('listHeight: $listHeight');
       //   }
       // });
-
     });
     SmartDialog.dismiss();
   }
@@ -179,8 +180,6 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     setState(() {
       replyMemberList = replyList;
     });
-    print(replyMemberList);
-    print(replyMemberList.length);
     var statusHeight = MediaQuery.of(context).padding.top;
     showModalBottomSheet<void>(
       context: context,
@@ -240,9 +239,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           ),
           floatingActionButtonLocation: _fabLocation,
           bottomNavigationBar: DetailBottomBar(
-              onRefresh: onRefreshBtm,
-              isVisible: _isVisible,
-              detailModel: _detailModel),
+            onRefresh: onRefreshBtm,
+            isVisible: _isVisible,
+            detailModel: _detailModel,
+          ),
         ),
         Positioned(
           top: 0,
@@ -368,8 +368,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                               onTap: () => Utils.routeProfile(
                                   _detailModel!.createdId,
                                   _detailModel!.avatar,
-                                _detailModel!.createdId+heroTag
-                              ),
+                                  _detailModel!.createdId + heroTag),
                               child: Hero(
                                 tag: _detailModel!.createdId + heroTag,
                                 child: CAvatar(

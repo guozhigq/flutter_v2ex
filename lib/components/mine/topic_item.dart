@@ -3,16 +3,11 @@ import 'package:flutter_v2ex/models/web/item_member_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 
-class TopicItem extends StatefulWidget {
+class TopicItem extends StatelessWidget {
   MemberTopicItem topicItem;
 
   TopicItem({required this.topicItem, Key? key}) : super(key: key);
 
-  @override
-  State<TopicItem> createState() => _TopicItemState();
-}
-
-class _TopicItemState extends State<TopicItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -28,14 +23,14 @@ class _TopicItemState extends State<TopicItem> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      ListDetail(topicId: widget.topicItem.topicId),
+                      ListDetail(topicId: topicItem.topicId),
                 ),
               );
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),
-              child: content(),
+              child: content(context),
             ),
           ),
         ),
@@ -43,7 +38,7 @@ class _TopicItemState extends State<TopicItem> {
     );
   }
 
-  Widget content() {
+  Widget content(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -52,7 +47,7 @@ class _TopicItemState extends State<TopicItem> {
           margin: const EdgeInsets.only(bottom: 8),
           child: Text(
             // Characters(widget.topic.topicTitle).join('\u{200B}'),
-            widget.topicItem.topicTitle,
+            topicItem.topicTitle,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             style: Theme.of(context)
@@ -68,7 +63,7 @@ class _TopicItemState extends State<TopicItem> {
             Row(
               children: [
                 Text(
-                  widget.topicItem.time,
+                  topicItem.time,
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium!
@@ -76,7 +71,7 @@ class _TopicItemState extends State<TopicItem> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  '${widget.topicItem.replyCount}回复',
+                  '${topicItem.replyCount}回复',
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium!
@@ -84,10 +79,10 @@ class _TopicItemState extends State<TopicItem> {
                 ),
               ],
             ),
-            if (widget.topicItem.nodeName.isNotEmpty) ...[
+            if (topicItem.nodeName.isNotEmpty) ...[
               NodeTag(
-                  nodeId: widget.topicItem.nodeId,
-                  nodeName: widget.topicItem.nodeName,
+                  nodeId: topicItem.nodeId,
+                  nodeName: topicItem.nodeName,
                   route: 'home')
             ]
           ],

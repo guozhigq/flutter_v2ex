@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
+// onChildLoad 中传入_currentPage < _totalPage，开启PullRefresh 【没有更多内容了】的提示
+//
 class PullRefresh extends StatefulWidget {
   // final EasyRefreshController? ctr; // 控制器
   final Widget? child;
@@ -80,10 +82,10 @@ class _PullRefreshState extends State<PullRefresh> {
         readyText: 'Loading...',
         processingText: '加载中...',
         succeededIcon: const Icon(Icons.auto_awesome),
-        processedText: '加载成功',
+        processedText: '加载完成',
         textStyle: const TextStyle(fontSize: 14),
-        noMoreText: '没有更多了',
-        noMoreIcon: const Icon(Icons.sentiment_dissatisfied_sharp),
+        noMoreText: '加载完成',
+        noMoreIcon: const Icon(Icons.auto_awesome),
         failedText: '加载失败',
         messageText: '上次更新 %T',
         triggerOffset: 100,
@@ -103,12 +105,14 @@ class _PullRefreshState extends State<PullRefresh> {
                 _controller.resetFooter();
                 return IndicatorResult.noMore;
               }
-              await widget.onChildLoad!();
-              // ignore: avoid_print
-              print('onLoad Finish');
-              _controller.finishLoad();
-              _controller.resetFooter();
-            }
+                await widget.onChildLoad!();
+                // ignore: avoid_print
+                print('onLoad Finish');
+                print('widget.currentPage: ${widget.currentPage}');
+                print('widget.totalPage: ${widget.totalPage}');
+                _controller.finishLoad();
+                _controller.resetFooter();
+      }
           : null,
       child: widget.child,
     );

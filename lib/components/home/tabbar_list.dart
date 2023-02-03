@@ -183,6 +183,7 @@ class _TabBarListState extends State<TabBarList>
             curve: Curves.easeInOut,
             duration: const Duration(milliseconds: 300),
             child: FloatingActionButton(
+              heroTag: null,
               child: const Icon(Icons.vertical_align_top_rounded),
               onPressed: () {
                 _controller.animateTo(0,

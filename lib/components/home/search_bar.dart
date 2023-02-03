@@ -45,14 +45,14 @@ class HomeSearchBar extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                // onTap: () => Utils.routeProfile('guozhigq', ''),
+                // onTap: () => Utils.routeProfile('guozhigq', '', 'guozhigq'),
                 // onTap: () => Utils.onLogin(),
                 onTap: () => {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            const ListDetail(topicId: '908405'),
+                            const ListDetail(topicId: '172147'),
                         ),
                   )
                 },

@@ -88,6 +88,7 @@ class _ListItemState extends State<ListItem>
 
   Widget content() {
     final herotag = widget.topic.memberId + Random().nextInt(999).toString();
+    // final herotag = UniqueKey();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

@@ -3,16 +3,11 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 
 // ignore: must_be_immutable
-class ListItem extends StatefulWidget {
+class ListItem extends StatelessWidget {
   final TabTopicItem topic;
 
   const ListItem({required this.topic, super.key});
 
-  @override
-  State<ListItem> createState() => _ListItemState();
-}
-
-class _ListItemState extends State<ListItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -27,15 +22,14 @@ class _ListItemState extends State<ListItem> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ListDetail(topicId: widget.topic.topicId),
+                  builder: (context) => ListDetail(topicId: topic.topicId),
                 ),
               );
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: const EdgeInsets.all(15),
-              child: content(),
+              child: content(context),
             ),
           ),
         ),
@@ -43,7 +37,7 @@ class _ListItemState extends State<ListItem> {
     );
   }
 
-  Widget content() {
+  Widget content(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -72,16 +66,16 @@ class _ListItemState extends State<ListItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      widget.topic.memberId,
+                      topic.memberId,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                     Row(
                       children: [
-                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
+                        if (topic.lastReplyTime.isNotEmpty) ...[
                           Text(
-                            widget.topic.lastReplyTime,
+                            topic.lastReplyTime,
                             style: TextStyle(
                                 fontSize: 10.0,
                                 height: 1.3,
@@ -118,7 +112,7 @@ class _ListItemState extends State<ListItem> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        widget.topic.replyCount,
+                        topic.replyCount,
                         style: const TextStyle(
                           fontSize: 11.0,
                           textBaseline: TextBaseline.ideographic,
@@ -136,7 +130,7 @@ class _ListItemState extends State<ListItem> {
           alignment: Alignment.centerLeft,
           margin: const EdgeInsets.only(top: 12, bottom: 3),
           child: Text(
-            Characters(widget.topic.topicTitle).join('\u{200B}'),
+            Characters(topic.topicTitle).join('\u{200B}'),
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             style: Theme.of(context).textTheme.bodyMedium,

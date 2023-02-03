@@ -14,9 +14,9 @@ import 'package:flutter_v2ex/pages/login_page.dart';
 import 'package:flutter_v2ex/pages/message_page.dart';
 import 'package:flutter_v2ex/pages/nodes_page.dart';
 import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
+import 'package:flutter_v2ex/pages/tabs/fav_page.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/go_page.dart';
-import 'package:flutter_v2ex/pages/fav_page.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
@@ -80,19 +80,19 @@ class _MyAppState extends State<MyApp> {
       }
 
       return MaterialApp(
-        title: 'vvex',
+        // title: 'vvex',
         theme: ThemeData(
           fontFamily: 'NotoSansSC',
           useMaterial3: true,
           colorScheme: currentThemeValue == ThemeType.dark ? darkColorScheme : lightColorScheme,
         ),
         darkTheme: ThemeData(
+          fontFamily: 'NotoSansSC',
           useMaterial3: true,
           colorScheme: currentThemeValue == ThemeType.light  ? lightColorScheme : darkColorScheme,
         ),
         home: const AppTab(),
         navigatorKey: Routes.navigatorKey,
-        // initialRoute: '/listdetail',
         initialRoute: '/',
         routes: {
           '/listDetail': (context) => const ListDetail(topicId: '1'),

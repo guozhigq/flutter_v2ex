@@ -62,6 +62,7 @@ dependencies:
     flutter_highlight: ^0.7.0
     flutter_smart_dialog: ^4.8.1
     extended_image: ^7.0.0
+    flutter_html_all: ^3.0.0-alpha.6
 
 dev_dependencies:
     flutter_test:

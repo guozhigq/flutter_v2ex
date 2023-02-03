@@ -10,6 +10,7 @@ const String MyEventNodeIsFav = 'MyEventNodeIsFav'; // 节点是否被收藏
 // ignore: constant_identifier_names
 const String MyEventHasNewNotification =
     'MyEventHasNewNotification'; // 检测到有新未读通知
+enum NoticeType {reply, thanks, fav}  // 消息类型
 
 class Strings {
   static String v2exHost = "https://www.v2ex.com";

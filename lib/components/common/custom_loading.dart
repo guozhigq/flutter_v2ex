@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class SmartLoading extends StatefulWidget {
+class SmartLoading extends StatelessWidget {
   String msg = '加载中';
   SmartLoading({required this.msg, super.key});
 
   @override
-  State<SmartLoading> createState() => _SmartLoadingState();
-}
-
-class _SmartLoadingState extends State<SmartLoading> {
-  @override
   Widget build(BuildContext context) {
-    // return const CircularProgressIndicator(
-    //   strokeWidth: 3,
-    // );
     return Container(
       width: 120,
       height: 120,

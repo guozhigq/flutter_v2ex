@@ -3,16 +3,11 @@ import 'package:flutter_v2ex/models/web/item_member_reply.dart';
 import 'package:flutter_v2ex/components/detail/html_render.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
 
-class ReplyItem extends StatefulWidget {
+class ReplyItem extends StatelessWidget {
   MemberReplyItem replyItem;
 
   ReplyItem({required this.replyItem, Key? key}) : super(key: key);
 
-  @override
-  State<ReplyItem> createState() => _ReplyItemState();
-}
-
-class _ReplyItemState extends State<ReplyItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -27,14 +22,14 @@ class _ReplyItemState extends State<ReplyItem> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      ListDetail(topicId: widget.replyItem.topicId),
+                      ListDetail(topicId: replyItem.topicId),
                 ),
               );
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: const EdgeInsets.fromLTRB(7, 15, 7, 0),
-              child: content(),
+              child: content(context),
             ),
           ),
         ),
@@ -42,20 +37,20 @@ class _ReplyItemState extends State<ReplyItem> {
     );
   }
 
-  Widget content() {
+  Widget content(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           margin: const EdgeInsets.only(top: 0, bottom: 4),
-          child: HtmlRender(htmlContent: widget.replyItem.replyContent),
+          child: HtmlRender(htmlContent: replyItem.replyContent),
         ),
         Container(
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 2),
             margin: const EdgeInsets.only(top: 0, bottom: 8),
-            child: Text(widget.replyItem.time,
+            child: Text(replyItem.time,
                 style: Theme.of(context)
                     .textTheme
                     .labelMedium!
@@ -74,7 +69,7 @@ class _ReplyItemState extends State<ReplyItem> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.replyItem.memberId,
+                    replyItem.memberId,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(
@@ -89,7 +84,7 @@ class _ReplyItemState extends State<ReplyItem> {
               Divider(
                 color: Theme.of(context).dividerColor.withOpacity(0.2),
               ),
-              Text(widget.replyItem.topicTitle)
+              Text(replyItem.topicTitle)
             ],
           ),
         ),

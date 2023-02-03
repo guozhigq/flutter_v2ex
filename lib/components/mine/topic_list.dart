@@ -23,12 +23,10 @@ class _TopicListState extends State<TopicList>
   bool _loading = true;
 
   @override
-  // TODO: implement wantKeepAlive
   bool wantKeepAlive = true;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     queryMemberTopic();
   }
@@ -43,22 +41,17 @@ class _TopicListState extends State<TopicList>
       });
       return res;
     }
-    if (_currentPage == 0) {
-      setState(() {
-        topicList = res.topicList;
-      });
-    } else {
-      setState(() {
-        topicList.addAll(res.topicList);
-      });
-    }
     setState(() {
+      if (_currentPage == 0) {
+        topicList = res.topicList;
+      } else {
+        topicList.addAll(res.topicList);
+      }
       _currentPage += 1;
       _loading = false;
       _totalPage = int.parse(res.totalPage);
       topicListData = res;
     });
-    print('_totalPage: $_totalPage');
     return res;
   }
 
@@ -77,7 +70,7 @@ class _TopicListState extends State<TopicList>
                   });
                   queryMemberTopic();
                 },
-                onChildLoad: _totalPage > 1 && _currentPage < _totalPage
+                onChildLoad: _totalPage > 1 && _currentPage <= _totalPage
                     ? queryMemberTopic
                     : null,
                 child: content(),
@@ -99,7 +92,7 @@ class _TopicListState extends State<TopicList>
   }
 
   Widget loading() {
-    return Center(child: Text('加载中'));
+    return const Center(child: Text('加载中'));
   }
 
   Widget noShow() {
@@ -108,15 +101,22 @@ class _TopicListState extends State<TopicList>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 130),
-          Icon(Icons.lock_outline, size: 42, color: Theme.of(context).colorScheme.primary,),
-         const  SizedBox(height: 30),
-          Text('根据 ${widget.memberId} 的设置，主题列表被隐藏', style: Theme.of(context).textTheme.titleMedium,),
+          Icon(
+            Icons.lock_outline,
+            size: 42,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 30),
+          Text(
+            '根据 ${widget.memberId} 的设置，主题列表被隐藏',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ],
       ),
     );
   }
 
   Widget noData() {
-    return Text('没有数据');
+    return const Text('没有数据');
   }
 }

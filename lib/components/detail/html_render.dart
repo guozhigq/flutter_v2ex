@@ -9,28 +9,29 @@ import 'package:flutter_highlight/themes/idea.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter_html_all/flutter_html_all.dart';
+// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'dart:math';
 
 // ignore: must_be_immutable
-class HtmlRender extends StatefulWidget {
+class HtmlRender extends StatelessWidget {
   String? htmlContent;
   HtmlRender({this.htmlContent, super.key});
 
-  @override
-  State<HtmlRender> createState() => _HtmlRenderState();
-}
-
-class _HtmlRenderState extends State<HtmlRender> {
-  List imgUrlList = [];
 
   @override
   Widget build(BuildContext context) {
     return SelectionArea(
       child: Html(
-        data: widget.htmlContent,
+        data: htmlContent,
         onLinkTap: (url, buildContext, attributes, element) =>
             {openHrefByWebview(url!, context)},
         customRenders: {
+          tagMatcher("iframe"): CustomRender.widget(
+          widget: (htmlContext, buildChildren) {
+            return Text('Youtube video Player', style: Theme.of(context).textTheme.titleMedium,);
+          }
+          ),
           tagMatcher("img"): CustomRender.widget(
             widget: (htmlContext, buildChildren) {
               // print(htmlContext.tree.element!.attributes['src']);
@@ -49,15 +50,7 @@ class _HtmlRenderState extends State<HtmlRender> {
                 imgUrl = '$imgUrl.png';
               }
               print('imgUrl:$imgUrl');
-              // if(imgUrl.isNotEmpty){
-              //   if(imgUrlList.isEmpty  || (imgUrlList.isNotEmpty && imgUrl!= imgUrlList[0])){
-              //     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
-              //       imgUrlList.add(imgUrl);
-              //     }));
-              //   }
-              // }
 
-              print('imgUrl:$imgUrlList');
               // todo 多张图片轮播
               return SelectionContainer.disabled(
                 child: GestureDetector(
@@ -108,7 +101,7 @@ class _HtmlRenderState extends State<HtmlRender> {
           "body": Style(margin: Margins.zero, padding: EdgeInsets.zero),
           "a": Style(
             color: Theme.of(context).colorScheme.primary,
-            textDecoration: TextDecoration.underline,
+            textDecoration: TextDecoration.none,
           ),
           "p": Style(
             margin: Margins.only(bottom: 0),
@@ -164,7 +157,17 @@ class _HtmlRenderState extends State<HtmlRender> {
       String memberId = aUrl.split('/')[2];
       final heroTag = memberId + Random().nextInt(999).toString();
       Utils.routeProfile(memberId, '', heroTag);
-    } else {
+    } else if (aUrl.contains('/t/')){
+      String arr = aUrl.split('/')[2];
+      String topicId = arr.split('#')[0];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ListDetail(topicId: topicId),
+        ),
+      );
+    }
+    else {
       // ignore: avoid_print
       print('无效网址');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +179,6 @@ class _HtmlRenderState extends State<HtmlRender> {
   // 打开大图预览
   void openImageDialog(String imgUrl, BuildContext context, htmlContext) {
     // ignore: avoid_print
-    print('htmlContext:${imgUrlList}');
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/model_node_fav.dart';
+import 'package:flutter_v2ex/pages/go_page.dart';
 
-class NodeListItem extends StatefulWidget {
+class NodeListItem extends StatelessWidget {
   final NodeFavModel? nodeItem;
+
   const NodeListItem({this.nodeItem, super.key});
 
   @override
-  State<NodeListItem> createState() => _NodeListItemState();
-}
-
-class _NodeListItemState extends State<NodeListItem> {
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
-        child: Material(
-          color: Theme.of(context).colorScheme.onInverseSurface,
+    return Container(
+      margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
+      child: Material(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GoPage(nodeKey: nodeItem!.nodeId),
+              ),
+            )
+          },
           borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.only(
-                  top: 10, left: 10, right: 15, bottom: 10),
-              child: content(),
-            ),
+          child: Container(
+            padding:
+                const EdgeInsets.only(top: 10, left: 10, right: 15, bottom: 10),
+            child: content(),
           ),
         ),
       ),
@@ -54,10 +56,10 @@ class _NodeListItemState extends State<NodeListItem> {
               ),
             ),
             const SizedBox(width: 10),
-            Text(widget.nodeItem!.nodeName)
+            Text(nodeItem!.nodeName)
           ],
         ),
-        Text(widget.nodeItem!.topicCount)
+        Text(nodeItem!.topicCount)
       ],
     );
   }
