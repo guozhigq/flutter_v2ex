@@ -21,13 +21,12 @@ class ReplyItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ListDetail(topicId: replyItem.topicId),
+                  builder: (context) => ListDetail(topicId: replyItem.topicId),
                 ),
               );
             },
             borderRadius: BorderRadius.circular(10),
-            child: Container(
+            child: Ink(
               padding: const EdgeInsets.fromLTRB(7, 15, 7, 0),
               child: content(context),
             ),

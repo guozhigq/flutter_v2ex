@@ -8,7 +8,6 @@ import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-
 class ProfilePage extends StatefulWidget {
   String memberId = '';
   String? memberAvatar = '';
@@ -35,7 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
     // 查询签到状态、余额
     queryDaily();
     // 手动签到
-
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
@@ -47,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return res;
   }
 
-  Future<Map<dynamic, dynamic>> queryDaily() async{
+  Future<Map<dynamic, dynamic>> queryDaily() async {
     var res = await DioRequestWeb.queryDaily();
     setState(() {
       signDetail = res;
@@ -66,12 +64,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   actions: memberProfile.isOwner
                       ? [
                           TextButton(
-                              onPressed: ()=>{
-                                if(!signDetail['signStatus']) {
-
-                                }
-                              }, child: Text(signDetail['signStatus']  ? '已领取' :  '领取奖励')
-                          ),
+                              onPressed: () =>
+                                  {if (!signDetail['signStatus']) {}},
+                              child: Text(
+                                  signDetail['signStatus'] ? '已领取' : '领取奖励')),
                           IconButton(
                               onPressed: () {
                                 SmartDialog.showToast('该功能后续开放');
@@ -119,24 +115,30 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             Hero(
                               tag: widget.heroTag!,
-                              child: CAvatar(url: widget.memberAvatar!, size: 80),
+                              child:
+                                  CAvatar(url: widget.memberAvatar!, size: 80),
                             ),
                             Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                    border: Border.all(color: Colors.white, width: 3)
-                                  ),
+                              bottom: 1,
+                              right: 1,
+                              child: Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  border: Border.all(
+                                      strokeAlign:BorderSide.strokeAlignCenter,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .background,
+                                      width: 2.5),
                                 ),
+                              ),
                             )
                           ],
                         ),
-
                         const SizedBox(width: 20),
                         Expanded(
                           child: Column(
@@ -167,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   SliverToBoxAdapter(
                     child: Container(
                       margin:
-                      const EdgeInsetsDirectional.only(top: 30, bottom: 8),
+                          const EdgeInsetsDirectional.only(top: 30, bottom: 8),
                       padding: const EdgeInsets.only(left: 15, right: 2),
                       child: Text('Balance',
                           style: Theme.of(context).textTheme.titleMedium),
@@ -175,22 +177,26 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                        padding: const EdgeInsets.only(left: 20, right: 10),
+                      padding: const EdgeInsets.only(left: 20, right: 10),
                       child: Row(
                         children: [
-                          Text(signDetail['balance'][0], style: Theme.of(context).textTheme.titleMedium),
+                          Text(signDetail['balance'][0],
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
                           const Icon(Icons.album, color: Colors.yellowAccent),
                           const SizedBox(width: 10),
-                          Text(signDetail['balance'][1], style: Theme.of(context).textTheme.titleMedium),
+                          Text(signDetail['balance'][1],
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
                           const Icon(Icons.album, color: Colors.grey),
                           const SizedBox(width: 10),
-                          Text(signDetail['balance'][2], style: Theme.of(context).textTheme.titleMedium),
+                          Text(signDetail['balance'][2],
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
                           const Icon(Icons.album, color: Colors.yellow),
                           const SizedBox(width: 20),
-                          TextButton(onPressed: ()=>{}, child: const Text(' 查看明细 '))
+                          TextButton(
+                              onPressed: () => {}, child: const Text(' 查看明细 '))
                         ],
                       ),
                     ),
@@ -355,7 +361,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               );
             },
-            child: Container(
+            child: Ink(
               padding: const EdgeInsets.only(left: 10, right: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -415,14 +421,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     // ),
                     Text(
                       widget.memberId,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(
-                        color:
-                        Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     const SizedBox(height: 6),
                     Container(

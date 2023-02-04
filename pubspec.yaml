@@ -62,7 +62,7 @@ dependencies:
     flutter_highlight: ^0.7.0
     flutter_smart_dialog: ^4.8.1
     extended_image: ^7.0.0
-    flutter_html_all: ^3.0.0-alpha.6
+#    flutter_html_all: ^3.0.0-alpha.6
 
 dev_dependencies:
     flutter_test:
@@ -74,6 +74,16 @@ dev_dependencies:
     # package. See that file for information about deactivating specific lint
     # rules and activating additional ones.
     flutter_lints: ^2.0.0
+#    flutter_launcher_icons: ^0.9.3
+
+flutter_icons:
+    android: true
+    ios: true
+    remove_alpha_ios: true
+    image_path_android: assets/images/icon/ios5.png
+    image_path_ios: assets/images/icon/ios5.png
+    adaptive_icon_background: "#607D8B"
+    adaptive_icon_foreground: assets/images/icon/ic_launcher_foreground.png
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

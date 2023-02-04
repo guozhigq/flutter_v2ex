@@ -53,7 +53,6 @@ class _HomePageState extends State<HomePage>
         body: Column(
           children: <Widget>[
             Container(
-              // color: Theme.of(context).colorScheme.surfaceVariant,
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               child: const HomeSearchBar(),
             ),

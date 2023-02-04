@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -33,9 +35,15 @@ Future parseJson(String text) {
 
 void main() async {
   runApp(const MyApp());
+
+  if (Platform.isAndroid) {
+    // 以下两行 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
+    SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  }
 }
 
-Color brandColor = const Color.fromRGBO(39, 82, 67, 100);
+Color brandColor = const Color.fromRGBO(58, 105, 154, 100);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

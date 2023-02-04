@@ -124,12 +124,10 @@ class DioRequestWeb {
           .attributes["href"]; // 得到是 /t/522540#reply17
       item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
       if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
-        item.replyCount = aNode.xpath("/table/tr/td[4]/a/text()")![0].name!;
+        item.replyCount = int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
         item.lastReplyTime = aNode
-            .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
-            .name!
-            .split(' &nbsp;')[0]
-            .replaceAll("/t/", "");
+            .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
+            .name!;
         if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
           item.lastReplyMId =
               aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
@@ -178,14 +176,12 @@ class DioRequestWeb {
           ?.first
           .attributes["href"]; // 得到是 /t/522540#reply17
       item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
-        item.replyCount = aNode.xpath("/table/tr/td[4]/a/text()")![0].name!;
-        item.lastReplyTime = aNode
-            .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
-            .name!
-            .split(' &nbsp;')[0]
-            .replaceAll("/t/", "");
+      if (aNode.xpath("/table/tr/td[4]")!.first.children.length > 0) {
+        item.replyCount = int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
       }
+      item.lastReplyTime = aNode
+          .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
+          .name!;
       item.nodeName = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
           .name!
@@ -239,17 +235,14 @@ class DioRequestWeb {
           mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
     }
     if (mainBox!.querySelector(
-            'div.box:not(.box-title)>div.cell:not(.tab-alt-container)') !=
+            'div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') !=
         null) {
-      var totalNode = mainBox!
-          .querySelector(
+      var totalpageNode = mainBox.querySelector(
           'div.box:not(.box-title)>div.cell:not(.tab-alt-container)');
-      if(totalNode!.querySelectorAll('a.page_normal').isNotEmpty) {
-        detailModel.totalPage = int.parse(totalNode!.querySelectorAll('a.page_normal')
-            .last
-            .text);
+      if (totalpageNode!.querySelectorAll('a.page_normal').isNotEmpty) {
+        detailModel.totalPage = int.parse(
+            totalpageNode.querySelectorAll('a.page_normal').last.text);
       }
-
     }
 
     if (document.querySelector('#TopicsNode') != null) {
@@ -287,10 +280,10 @@ class DioRequestWeb {
               .querySelector('tr > td:last-child > a')!
               .attributes['href']; // 得到是 /t/522540#reply17
           item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
-          item.replyCount = topicUrl
+          item.replyCount = int.parse(topicUrl
               .replaceAll("/t/", "")
               .split("#")[1]
-              .replaceAll(RegExp(r'[^0-9]'), '');
+              .replaceAll(RegExp(r'[^0-9]'), ''));
         }
         if (aNode.querySelector('tr') != null) {
           var topicTd = aNode.querySelector('tr')!.children[2];
@@ -315,18 +308,29 @@ class DioRequestWeb {
     Response response;
     response = await Request().get(
       '/my/topics',
+      data: {'p': p},
       extra: {
         'ua': 'mob',
       },
     );
     var document = parse(response.data);
-    var mainBox = document.querySelector('#Main > div.box:not(.box-title)');
+    var mainBox = document
+        .querySelector('#Wrapper > div.content > div.box:not(.box-title)');
+    var totalPageNode =
+        mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
+    if (totalPageNode != null) {
+      if (totalPageNode.querySelectorAll('a.page_normal').isNotEmpty) {
+        favTopicDetail.totalPage = int.parse(
+            totalPageNode.querySelectorAll('a.page_normal').last.text);
+        print(favTopicDetail.totalPage);
+      }
+    }
     var cellBox = mainBox!.querySelectorAll('div.cell.item');
     for (var aNode in cellBox) {
       TabTopicItem item = TabTopicItem();
       if (aNode.querySelector('img.avatar') != null) {
         item.avatar = aNode.querySelector('img.avatar')!.attributes['src']!;
-        item.memberId = aNode.querySelector('img.avatar')!.attributes['alt']!;
+        // item.memberId = aNode.querySelector('img.avatar')!.attributes['alt']!;
       }
       if (aNode.querySelector('tr > td:nth-child(5)') != null) {
         item.topicTitle = aNode
@@ -342,10 +346,10 @@ class DioRequestWeb {
             .querySelector('tr > td:last-child > a')!
             .attributes['href']; // 得到是 /t/522540#reply17
         item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
-        item.replyCount = topicUrl
+        item.replyCount = int.parse(topicUrl
             .replaceAll("/t/", "")
             .split("#")[1]
-            .replaceAll(RegExp(r'[^0-9]'), '');
+            .replaceAll(RegExp(r'[^0-9]'), ''));
       }
       if (aNode.querySelector('tr') != null) {
         var topicTd = aNode.querySelector('tr')!.children[2];
@@ -353,6 +357,8 @@ class DioRequestWeb {
             .querySelector('span.topic_info > span')!
             .text
             .replaceAll("/t/", "");
+        item.memberId =
+            topicTd.querySelectorAll('span.topic_info > strong')[0]!.text;
       }
       if (aNode.querySelector(' a.node') != null) {
         item.nodeId =
@@ -933,7 +939,8 @@ class DioRequestWeb {
     response = await Request().get('/mission/daily', extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var mainBox = bodyDom!.querySelector('#Main');
-    var noticeNode = bodyDom!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    var noticeNode =
+        bodyDom!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (mainBox != null) {
       // 领取 X 铜币 表示未签到
       var signStatus = mainBox.querySelector('input')!.attributes['value'];
@@ -945,7 +952,8 @@ class DioRequestWeb {
       signDetail['signDays'] = '已领取$day天';
     }
     // 未读消息
-    var unRead = noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'[^0-9]'), '');
+    var unRead =
+        noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'[^0-9]'), '');
     print('$unRead条未读消息');
 
     // 余额

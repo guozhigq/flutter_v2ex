@@ -78,7 +78,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ignoreComment();
         break;
       case 3:
-        Utils.routeProfile(widget.reply.userName, widget.reply.avatar, widget.reply.userName + heroTag);
+        Utils.routeProfile(widget.reply.userName, widget.reply.avatar,
+            widget.reply.userName + heroTag);
         break;
     }
   }
@@ -163,7 +164,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 child: InkWell(
                   onTap: replyComment,
                   borderRadius: BorderRadius.circular(16),
-                  child: Container(
+                  child: Ink(
                     padding: const EdgeInsets.only(
                         top: 10, right: 14, bottom: 6, left: 10),
                     child: content(context),
@@ -184,7 +185,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
           widget.reply.isChoose = !widget.reply.isChoose;
         });
       },
-      onTap: () => Utils.routeProfile(widget.reply.userName, widget.reply.avatar, widget.reply.userName+heroTag),
+      onTap: () => Utils.routeProfile(widget.reply.userName,
+          widget.reply.avatar, widget.reply.userName + heroTag),
       child: Column(
         children: [
           Container(

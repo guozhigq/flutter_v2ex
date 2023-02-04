@@ -3,6 +3,7 @@ import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/pages/login_page.dart';
 
 class HomeSearchBar extends StatelessWidget {
   const HomeSearchBar({super.key});
@@ -48,12 +49,18 @@ class HomeSearchBar extends StatelessWidget {
                 // onTap: () => Utils.routeProfile('guozhigq', '', 'guozhigq'),
                 // onTap: () => Utils.onLogin(),
                 onTap: () => {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) =>
+                  //           const ListDetail(topicId: '172147'),
+                  //       ),
+                  // )
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            const ListDetail(topicId: '172147'),
-                        ),
+                        builder: (context) => const LoginPage(),
+                        fullscreenDialog: true),
                   )
                 },
                 // child: Container(
@@ -74,7 +81,10 @@ class HomeSearchBar extends StatelessWidget {
                 // ),
                 child: const Hero(
                   tag: 'guozhigq',
-                  child: CAvatar(url: '', size: 37,),
+                  child: CAvatar(
+                    url: '',
+                    size: 37,
+                  ),
                 ),
               ),
               // Text(

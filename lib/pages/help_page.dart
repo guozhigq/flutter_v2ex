@@ -54,10 +54,10 @@ class _ReplyFabState extends State<_ReplyFab>
             key: const ValueKey('ReplyFab'),
             customBorder: circleFabBorder,
             onTap: openContainer,
-            child: const SizedBox(
+            child: Ink(
               height: _mobileFabDimension,
               width: _mobileFabDimension,
-              child: Center(
+              child: const Center(
                 // child: fabSwitcher,
                 child: Icon(Icons.percent),
               ),

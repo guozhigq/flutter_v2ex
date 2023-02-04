@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
@@ -43,43 +45,26 @@ class _ListItemState extends State<ListItem>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
-        child: Material(
-          color: Theme.of(context).colorScheme.onInverseSurface,
-          // color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: () {
+    return Container(
+      margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
+      child: Material(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: () {
+            Timer(const Duration(milliseconds: 300), () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ListDetail(topicId: widget.topic.topicId),
-                  // ScaleAnimationRoute(topicId: widget.topic.topicId),
+                  builder: (context) => ListDetail(topicId: widget.topic.topicId),
                 ),
-                // PageRouteBuilder(
-                //   transitionDuration:
-                //       const Duration(milliseconds: 300), //动画时间为500毫秒
-                //   pageBuilder: (BuildContext context, Animation animation,
-                //       Animation secondaryAnimation) {
-                //     return FadeTransition(
-                //       //使用渐隐渐入过渡,
-                //       opacity: opacityAnim,
-                //       child: ListDetail(
-                //         topic: widget.topic,
-                //       ), //路由B
-                //     );
-                //   },
-                // ),
               );
-            },
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.all(15),
-              child: content(),
-            ),
+            });
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
+            child: content(),
           ),
         ),
       ),
@@ -92,24 +77,40 @@ class _ListItemState extends State<ListItem>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        // title
+        Container(
+          alignment: Alignment.centerLeft,
+          margin: const EdgeInsets.only(top: 0, bottom: 12),
+          child: Text(
+            Characters(widget.topic.topicTitle).join('\u{200B}'),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(height: 1.6, fontWeight: FontWeight.w500),
+          ),
+        ),
         // 头像、昵称
         Row(
           // 两端对齐
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Utils.routeProfile(widget.topic.memberId, widget.topic.avatar, herotag),
+                  onTap: () => Utils.routeProfile(
+                      widget.topic.memberId, widget.topic.avatar, herotag),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
                       url: widget.topic.avatar,
-                      size: 33,
+                      size: 30,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -139,7 +140,7 @@ class _ListItemState extends State<ListItem>
                                         Theme.of(context).colorScheme.outline),
                           ),
                         ],
-                        if (widget.topic.replyCount.isNotEmpty) ...[
+                        if (widget.topic.replyCount>0) ...[
                           const SizedBox(width: 10),
                           Text(
                             '${widget.topic.replyCount} 回复',
@@ -150,15 +151,6 @@ class _ListItemState extends State<ListItem>
                                     color:
                                         Theme.of(context).colorScheme.outline),
                           ),
-                        ] else ...[
-                          Text('0 回复',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall!
-                                  .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline)),
                         ]
                       ],
                     )
@@ -174,22 +166,7 @@ class _ListItemState extends State<ListItem>
             ]
           ],
         ),
-        // title
-        Container(
-          alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 12, bottom: 0),
-          child: Text(
-            Characters(widget.topic.topicTitle).join('\u{200B}'),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall!
-                .copyWith(height: 1.6, fontWeight: FontWeight.w500),
-          ),
-        ),
       ],
     );
   }
 }
-

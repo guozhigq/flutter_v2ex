@@ -16,7 +16,8 @@ class _FavTopicListState extends State<FavTopicList>
     with AutomaticKeepAliveClientMixin {
   bool _isLoading = true;
   List<TabTopicItem> topicList = [];
-  late int _currentPage = 0;
+  int _currentPage = 0;
+  int _totalPage = 0;
 
   @override
   void initState() {
@@ -28,9 +29,14 @@ class _FavTopicListState extends State<FavTopicList>
   Future<FavTopicModel> getTopics() async {
     FavTopicModel res = await DioRequestWeb.getFavTopics(_currentPage + 1);
     setState(() {
+      if(_currentPage == 0) {
+        topicList = res.topicList;
+      }else{
+        topicList.addAll(res.topicList);
+      }
       _isLoading = false;
-      topicList = res.topicList;
       _currentPage = _currentPage + 1;
+      _totalPage = res.totalPage;
     });
     return res;
   }
@@ -58,10 +64,17 @@ class _FavTopicListState extends State<FavTopicList>
                 ),
                 // TODO： onLoad
                 child: PullRefresh(
-                  onChildRefresh: getTopicsInt,
-                  onChildLoad: () {},
-                  currentPage: 0,
-                  totalPage: 1,
+                  onChildRefresh: () {
+                    setState(() {
+                      _currentPage = 0;
+                    });
+                    getTopicsInt();
+                  },
+                  onChildLoad: _totalPage > 1 && _currentPage <= _totalPage
+                      ? getTopicsInt
+                      : null,
+                  currentPage: _currentPage,
+                  totalPage: _totalPage,
                   child: ListView.builder(
                     padding: const EdgeInsets.only(top: 1, bottom: 0),
                     physics: const ClampingScrollPhysics(), //重要

@@ -33,7 +33,7 @@ class _NoticeItemState extends State<NoticeItem> {
         child: InkWell(
           onTap: () {},
           borderRadius: BorderRadius.circular(10),
-          child: Container(
+          child: Ink(
             padding: const EdgeInsets.fromLTRB(15, 15, 5, 5),
             child: content(),
           ),

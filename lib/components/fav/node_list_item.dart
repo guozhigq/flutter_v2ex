@@ -24,7 +24,7 @@ class NodeListItem extends StatelessWidget {
             )
           },
           borderRadius: BorderRadius.circular(10),
-          child: Container(
+          child: Ink(
             padding:
                 const EdgeInsets.only(top: 10, left: 10, right: 15, bottom: 10),
             child: content(),

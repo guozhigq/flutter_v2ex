@@ -9,6 +9,12 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+
+//    android {
+//        defaultConfig {
+//            multiDexEnabled true
+//        }
+//    }
 }
 
 allprojects {
@@ -17,6 +23,8 @@ allprojects {
         mavenCentral()
     }
 }
+
+
 
 rootProject.buildDir = '../build'
 subprojects {

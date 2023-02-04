@@ -9,7 +9,7 @@ import 'package:flutter_highlight/themes/idea.dart';
 import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter_html_all/flutter_html_all.dart';
+// import 'package:flutter_html_all/flutter_html_all.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'dart:math';
 
@@ -27,11 +27,11 @@ class HtmlRender extends StatelessWidget {
         onLinkTap: (url, buildContext, attributes, element) =>
             {openHrefByWebview(url!, context)},
         customRenders: {
-          tagMatcher("iframe"): CustomRender.widget(
-          widget: (htmlContext, buildChildren) {
-            return Text('Youtube video Player', style: Theme.of(context).textTheme.titleMedium,);
-          }
-          ),
+          // tagMatcher("iframe"): CustomRender.widget(
+          // widget: (htmlContext, buildChildren) {
+          //   return Text('Youtube video Player', style: Theme.of(context).textTheme.titleMedium,);
+          // }
+          // ),
           tagMatcher("img"): CustomRender.widget(
             widget: (htmlContext, buildChildren) {
               // print(htmlContext.tree.element!.attributes['src']);

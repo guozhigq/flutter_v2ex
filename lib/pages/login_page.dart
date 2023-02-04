@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    getSignKey();
+    // getSignKey();
   }
 
   Future<LoginDetailModel> getSignKey() async {
@@ -167,9 +167,20 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size.fromHeight(50)),
-                      child: Text(
-                        '登录',
-                        style: Theme.of(context).textTheme.titleMedium,
+                      // child: Text(
+                      //   '登录',
+                      //   style: Theme.of(context).textTheme.titleMedium,
+                      // ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.person),
+                          const SizedBox(width: 10),
+                          Text(
+                            '登录',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
                       ),
                       onPressed: () {
                         if ((_formKey.currentState as FormState).validate()) {

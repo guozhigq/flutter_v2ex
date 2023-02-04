@@ -10,28 +10,25 @@ class TopicItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
-        child: Material(
-          color: Theme.of(context).colorScheme.onInverseSurface,
-          // color: Theme.of(context).cardColor,
+    return Container(
+      margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
+      child: Material(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        // color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ListDetail(topicId: topicItem.topicId),
+              ),
+            );
+          },
           borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ListDetail(topicId: topicItem.topicId),
-                ),
-              );
-            },
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),
-              child: content(context),
-            ),
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),
+            child: content(context),
           ),
         ),
       ),

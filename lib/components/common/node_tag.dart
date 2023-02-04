@@ -31,7 +31,7 @@ class NodeTag extends StatelessWidget {
           );
         },
         borderRadius: BorderRadius.circular(50),
-        child: Container(
+        child: Ink(
           padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,
