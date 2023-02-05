@@ -36,8 +36,8 @@ class HtmlRender extends StatelessWidget {
             widget: (htmlContext, buildChildren) {
               // print(htmlContext.tree.element!.attributes['src']);
               String? imgUrl = htmlContext.tree.element!.attributes['src'];
-              if (!imgUrl!.contains('https') || !imgUrl.contains('http')) {
-                if (imgUrl.contains('//')) {
+              if (!imgUrl!.contains('http')) {
+                if (imgUrl.startsWith('//')) {
                   imgUrl = 'https:$imgUrl';
                 } else {
                   imgUrl = 'https://www.v2ex.com$imgUrl';
@@ -135,8 +135,10 @@ class HtmlRender extends StatelessWidget {
     RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
     bool isValidator = exp.hasMatch(aUrl!);
     if (isValidator) {
-      if (aUrl.contains('www.v2ex.com/t/') ||
-          aUrl.contains('https://v2ex.com/t')) {
+      // http(s) 网址
+      if (aUrl.startsWith('www.v2ex.com/t/') ||
+          aUrl.startsWith('https://v2ex.com/t')) {
+        // v2ex 链接
         List arr = aUrl.split('/');
         String topicId = arr[arr.length - 1];
         Navigator.push(
@@ -146,6 +148,7 @@ class HtmlRender extends StatelessWidget {
           ),
         );
       } else {
+        // 其他链接
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -153,11 +156,10 @@ class HtmlRender extends StatelessWidget {
           ),
         );
       }
-    } else if (aUrl.contains('/member/')) {
+    } else if (aUrl.startsWith('/member/')) {
       String memberId = aUrl.split('/')[2];
-      final heroTag = memberId + Random().nextInt(999).toString();
-      Utils.routeProfile(memberId, '', heroTag);
-    } else if (aUrl.contains('/t/')){
+      Utils.routeProfile(memberId, '', '');
+    } else if (aUrl.startsWith('/t/')){
       String arr = aUrl.split('/')[2];
       String topicId = arr.split('#')[0];
       Navigator.push(

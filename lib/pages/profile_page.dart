@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // 查询用户信息
     queryMemberProfile();
     // 查询签到状态、余额
-    queryDaily();
+    // queryDaily();
     // 手动签到
   }
 
@@ -63,11 +63,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   expandedHeight: 120,
                   actions: memberProfile.isOwner
                       ? [
-                          TextButton(
-                              onPressed: () =>
-                                  {if (!signDetail['signStatus']) {}},
-                              child: Text(
-                                  signDetail['signStatus'] ? '已领取' : '领取奖励')),
+                          // TextButton(
+                          //   onPressed: () =>
+                          //       {if (!signDetail['signStatus']) {}},
+                          //   child:
+                          //       Text(signDetail['signStatus'] ? '已领取' : '领取奖励'),
+                          // ),
                           IconButton(
                               onPressed: () {
                                 SmartDialog.showToast('该功能后续开放');
@@ -129,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(10)),
                                   border: Border.all(
-                                      strokeAlign:BorderSide.strokeAlignCenter,
+                                      strokeAlign: BorderSide.strokeAlignCenter,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .background,

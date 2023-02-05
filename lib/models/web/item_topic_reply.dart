@@ -11,7 +11,8 @@ class ReplyItem {
   String favorites = ''; // 感谢数量
   bool favoritesStatus = false; // 感谢状态 登录状态
   String number = ''; // 楼层
-  String floorNumber = ''; // 楼层
+  int floorNumber = 0; // 楼层
   String platform = ''; // 平台 Android ios
-  bool isChoose = false; // 默认不选中
+  bool isChoose = false; // 默认不选中,
+  List replyMemberList = []; // 回复的用户id
 }

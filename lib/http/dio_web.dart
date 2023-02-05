@@ -123,15 +123,20 @@ class DioRequestWeb {
           ?.first
           .attributes["href"]; // 得到是 /t/522540#reply17
       item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]/a/text()") != null) {
-        item.replyCount = int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-        item.lastReplyTime = aNode
-            .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
-            .name!;
+      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
+        item.replyCount =
+            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
+          item.lastReplyTime = aNode
+              .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
+              .name!
+              .split(' &nbsp;')[0]
+              .replaceAll("/t/", "");
         if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
           item.lastReplyMId =
               aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
         }
+      }else{
+        item.lastReplyTime = aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
       }
       item.topicTitle = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
@@ -140,6 +145,7 @@ class DioRequestWeb {
           .replaceAll('&amp;', '&')
           .replaceAll('&lt;', '<')
           .replaceAll('&gt;', '>');
+      print(item.replyCount);
 
       item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
       item.nodeId = aNode
@@ -176,12 +182,12 @@ class DioRequestWeb {
           ?.first
           .attributes["href"]; // 得到是 /t/522540#reply17
       item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]")!.first.children.length > 0) {
-        item.replyCount = int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
+      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
+        item.replyCount =
+            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
       }
-      item.lastReplyTime = aNode
-          .xpath("/table/tr/td[3]/span[2]/span/text()")![0]
-          .name!;
+      item.lastReplyTime =
+          aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
       item.nodeName = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
           .name!
@@ -670,9 +676,9 @@ class DioRequestWeb {
         //     .querySelector(
         //         '$replyTrQuery > td:nth-child(5) > div.fr > span')!
         //     .text;
-        replyItem.floorNumber = aNode
+        replyItem.floorNumber = int.parse(aNode
             .querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!
-            .text;
+            .text);
         replyItem.contentRendered = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
@@ -681,6 +687,16 @@ class DioRequestWeb {
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
             .text;
+
+        var replyMemberNodes = aNode.querySelectorAll(
+            '$replyTrQuery > td:nth-child(5) > div.reply_content > a');
+        if(replyMemberNodes.isNotEmpty){
+          for(var aNode in replyMemberNodes){
+            if(aNode.attributes['href']!.startsWith('/member')){
+              replyItem.replyMemberList.add(aNode.text);
+            }
+          }
+        }
         replyItem.replyId = aNode.attributes["id"]!.substring(2);
         replies.add(replyItem);
       }
@@ -800,31 +816,35 @@ class DioRequestWeb {
   static Future onLogin(LoginDetailModel args) async {
     Response response;
     Options options = Options();
-    var data = {
-      args.userNameHash: args.userNameValue,
-      args.passwordHash: args.passwordValue,
-      args.codeHash: args.codeValue,
-      'once': args.once,
-      'next': args.next
-    };
-    options.headers = {
-      'content-type': 'application/x-www-form-urlencoded',
-      'refer': '${Strings.v2exHost}/signin',
-      'origin': Strings.v2exHost
-    };
-    // options.contentType = Headers.formUrlEncodedContentType;
-
-    // FormData formData = FormData.fromMap({
+    // var data = {
     //   args.userNameHash: args.userNameValue,
     //   args.passwordHash: args.passwordValue,
     //   args.codeHash: args.codeValue,
     //   'once': args.once,
     //   'next': args.next
-    // });
+    // };
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      'Refer': '${Strings.v2exHost}/signin',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+    // options.contentType = Headers.formUrlEncodedContentType;
+
+    FormData formData = FormData.fromMap({
+      args.userNameHash: args.userNameValue,
+      args.passwordHash: args.passwordValue,
+      args.codeHash: args.codeValue,
+      'once': args.once,
+      'next': args.next
+    });
     // var data =
     //     '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
     // print('data😊:$data');
-    response = await Request().post('/signin', data: data, options: options);
+    response =
+        await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
     // print('response:$response');
     // print('responseData:${response.data}');
@@ -832,13 +852,17 @@ class DioRequestWeb {
     // print('response.statusCode${response.statusCode}');
     if (response.statusCode == 302) {
       print('-------------------------------');
+      print(bodyDom);
+      print(bodyDom!.innerHtml);
+      print(bodyDom.text);
+
       print('onLogin response.headers:${response.headers['set-cookie']}');
       if (parse(response.data).body!.querySelector('div') != null) {
         print(parse(response.data).body!.querySelector('div')!.innerHtml);
       }
       print('-------------------------------');
 
-      return await getUserInfo();
+      // return await getUserInfo();
     }
   }
 
@@ -1016,7 +1040,7 @@ class DioRequestWeb {
       memberProfile.isFollow =
           followBtn.attributes['value'] == '取消特别关注' ? true : false;
     } else {
-      memberProfile.isOwner = true;
+      memberProfile.isOwner = false;
     }
 
     // 加入时间
@@ -1210,7 +1234,6 @@ class DioRequestWeb {
   // 回复主题
   static Future<dynamic> onSubmitReplyTopic(
       String topicId, String once, String replyContent) async {
-    print('replyContent :$replyContent');
     SmartDialog.showLoading(msg: '回复中...');
     Options options = Options();
     options.headers = {

@@ -13,11 +13,13 @@ class ReplyListItem extends StatefulWidget {
   const ReplyListItem({
     required this.reply,
     required this.topicId,
+    this.queryReplyList,
     super.key,
   });
 
   final ReplyItem reply;
   final String topicId;
+  final queryReplyList;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -27,6 +29,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
     {
+      'id': 1,
       'title': '添加回复',
       'leading': const Icon(
         Icons.reply,
@@ -34,6 +37,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       ),
     },
     {
+      'id': 3,
       'title': '复制内容',
       'leading': const Icon(
         Icons.copy_rounded,
@@ -41,6 +45,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       ),
     },
     {
+      'id': 4,
       'title': '忽略回复',
       'leading': const Icon(
         Icons.not_interested_rounded,
@@ -48,6 +53,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       ),
     },
     {
+      'id': 5,
       'title': '查看主页',
       'leading': const Icon(Icons.person, size: 21),
     }
@@ -64,20 +70,32 @@ class _ReplyListItemState extends State<ReplyListItem> {
         sheetMenu.removeAt(2);
       });
     }
+    if(widget.reply.replyMemberList.isNotEmpty) {
+      setState(() {
+        sheetMenu.insert(1, {
+          'id': 2,
+          'title': '查看回复',
+          'leading': const Icon(Icons.messenger_outline_rounded, size: 21),
+        });
+      });
+    }
   }
 
   void menuAction(index) {
     switch (index) {
-      case 0:
+      case 1:
         replyComment();
         break;
-      case 1:
-        copyComment();
-        break;
       case 2:
-        ignoreComment();
+        widget.queryReplyList(widget.reply.replyMemberList, widget.reply.floorNumber, []);
         break;
       case 3:
+        copyComment();
+        break;
+      case 4:
+        ignoreComment();
+        break;
+      case 5:
         Utils.routeProfile(widget.reply.userName, widget.reply.avatar,
             widget.reply.userName + heroTag);
         break;
@@ -149,30 +167,24 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        margin: const EdgeInsets.only(top: 0, right: 16, bottom: 8, left: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            lfAvtar(),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Material(
-                color: Theme.of(context).colorScheme.onInverseSurface,
-                borderRadius: BorderRadius.circular(16),
-                child: InkWell(
-                  onTap: replyComment,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Ink(
-                    padding: const EdgeInsets.only(
-                        top: 10, right: 14, bottom: 6, left: 10),
-                    child: content(context),
-                  ),
-                ),
-              ),
-            ),
-          ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      // decoration: BoxDecoration(
+      //   border: Border(bottom: BorderSide(
+      //     width: 1,
+      //     color: Theme.of(context).dividerColor.withOpacity(0.1)
+      //   ))
+      // ),
+      child: Material(
+        borderRadius: BorderRadius.circular(10),
+        // color: Theme.of(context).colorScheme.onInverseSurface,
+        child: InkWell(
+          onTap: replyComment,
+          borderRadius: BorderRadius.circular(10),
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
+            child: content(context),
+          ),
         ),
       ),
     );
@@ -200,7 +212,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   tag: widget.reply.userName + heroTag,
                   child: CAvatar(
                     url: widget.reply.avatar,
-                    size: 36,
+                    size: 34,
                   ),
                 ),
                 // if (widget.reply.isChoose)
@@ -238,7 +250,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
         // 头像、昵称
         Container(
           margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.only(top: 3, bottom: 3),
           child: Row(
             // 两端对齐
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,45 +257,66 @@ class _ReplyListItemState extends State<ReplyListItem> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(width: 6),
-                  Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 200, // 最大宽度
-                    ),
-                    child: Text(
-                      widget.reply.userName,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  if (widget.reply.isOwner) ...[
-                    Icon(
-                      Icons.person,
-                      size: 15,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                  ]
+                  lfAvtar(),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            widget.reply.userName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(width: 4),
+                          if (widget.reply.isOwner) ...[
+                            Icon(
+                              Icons.person,
+                              size: 15,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          ]
+                        ],
+                      ),
+                      const SizedBox(height: 1.5),
+                      Row(
+                        children: [
+                          if (widget.reply.lastReplyTime.isNotEmpty) ...[
+                            Text(
+                              widget.reply.lastReplyTime,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                            const SizedBox(width: 2),
+                          ],
+                          if (widget.reply.platform == 'Android') ...[
+                            const Icon(
+                              Icons.android,
+                              size: 14,
+                            ),
+                          ],
+                          if (widget.reply.platform == 'iPhone') ...[
+                            const Icon(Icons.apple, size: 16),
+                          ]
+                        ],
+                      )
+                    ],
+                  )
                 ],
               ),
-              Text('#${widget.reply.floorNumber}'),
+              Text(
+                '#${widget.reply.floorNumber}',
+                style: Theme.of(context).textTheme.titleSmall,
+              )
             ],
           ),
         ),
         // title
-        Divider(
-          indent: 8,
-          endIndent: 2,
-          height: 1,
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
-        ),
         Container(
-          // alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 8, bottom: 5, left: 4, right: 4),
+          margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
           child: HtmlRender(htmlContent: widget.reply.contentRendered),
         ),
-        const SizedBox(height: 10),
         bottonAction()
       ],
     );
@@ -294,103 +326,45 @@ class _ReplyListItemState extends State<ReplyListItem> {
   Widget bottonAction() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [
-            const SizedBox(width: 2),
-            SizedBox(
-              height: 28.0,
-              width: 28.0,
-              child: IconButton(
-                padding: const EdgeInsets.all(2.0),
-                // color: themeData.primaryColor,
-                icon: const Icon(Icons.favorite_outline, size: 18.0),
-                selectedIcon: const Icon(Icons.favorite, size: 18.0),
-                onPressed: () => showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('提示'),
-                    content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('手滑了'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'OK'),
-                        child: const Text('确定👌'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            const SizedBox(width: 32),
+            TextButton(
+              onPressed: thanksDialog,
+              child: widget.reply.favorites.isNotEmpty
+                  ? Text('感谢 +${widget.reply.favorites}')
+                  : const Text('感谢'),
             ),
-            const SizedBox(width: 2),
-            SizedBox(
-              height: 28.0,
-              width: 28.0,
-              child: IconButton(
-                padding: const EdgeInsets.all(2.0),
-                // color: themeData.primaryColor,
-                icon: const Icon(Icons.chat_bubble_outline, size: 18.0),
-                onPressed: () {},
-              ),
+            // TextButton(onPressed: () {}, child: Row(children: const [
+            //   // Icon(Icons.people_alt),
+            //   SizedBox(width: 3),
+            //   Text('查看回复'),
+            // ]),),
+            TextButton(
+              onPressed: replyComment,
+              child: Row(children: const [
+                Icon(Icons.reply),
+                SizedBox(width: 3),
+                Text('回复'),
+              ]),
             ),
-            const SizedBox(width: 2),
-            // SizedBox(
-            //   height: 28.0,
-            //   width: 28.0,
-            //   child: IconButton(
-            //     padding: const EdgeInsets.all(2.0),
-            //     // color: themeData.primaryColor,
-            //     icon: const Icon(Icons.copy_rounded, size: 18.0),
-            //     onPressed: () {
-            //       Clipboard.setData(ClipboardData(text: widget.reply.content));
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         const SnackBar(
-            //           content: Text('复制成功'),
-            //           showCloseIcon: true,
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
-            const SizedBox(width: 1),
+          ],
+        ),
+        Row(
+          children: [
             SizedBox(
               height: 28.0,
               width: 28.0,
               child: IconButton(
                 padding: const EdgeInsets.all(2.0),
-                // color: themeData.primaryColor,
                 icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
                 onPressed: showBottomSheet,
               ),
             ),
+            SizedBox(width: 4)
           ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (widget.reply.lastReplyTime.isNotEmpty) ...[
-              Text(
-                widget.reply.lastReplyTime,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              // const SizedBox(width: 2)
-            ],
-            if (widget.reply.platform == 'Android') ...[
-              const Icon(
-                Icons.android,
-                size: 16,
-                color: Color.fromRGBO(45, 223, 133, 100),
-              ),
-            ],
-            if (widget.reply.platform == 'iPhone') ...[
-              const Icon(Icons.apple, size: 16),
-            ]
-          ],
-        ),
+        )
       ],
     );
   }
@@ -409,7 +383,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
             return ListTile(
               onTap: () {
                 Navigator.pop(context);
-                menuAction(index);
+                menuAction(sheetMenu[index]['id']);
               },
               minLeadingWidth: 0,
               iconColor: Theme.of(context).colorScheme.onSurface,
@@ -422,6 +396,26 @@ class _ReplyListItemState extends State<ReplyListItem> {
           },
         );
       },
+    );
+  }
+
+  void thanksDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('提示'),
+        content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('手滑了'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('确定👌'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -40,9 +40,9 @@ class CAvatar extends StatelessWidget {
             // margin: const EdgeInsets.only(right: 10),
             child: Center(
               child: Icon(
-                Icons.error,
-                size: 18,
-                color: Theme.of(context).colorScheme.onBackground,
+                Icons.person,
+                size: size - 10,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -59,6 +59,7 @@ class CAvatar extends StatelessWidget {
             child: Center(
               child: Icon(
                 Icons.person,
+                size: size - 10,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),

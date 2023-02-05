@@ -124,7 +124,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     {'leading': const Icon(Icons.favorite_outline), 'title': '我的关注'},
     {'leading': const Icon(Icons.star_border_rounded), 'title': '我的收藏'},
     {'leading': const Icon(Icons.notifications_none), 'title': '消息提醒'},
-    {'leading': const Icon(Icons.notifications_none), 'title': '消息提醒'},
     {'leading': const Icon(Icons.edit_note_outlined), 'title': '发布主题'},
     {'leading': const Icon(Icons.history_outlined), 'title': '最近浏览'},
   ];

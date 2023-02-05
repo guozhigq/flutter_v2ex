@@ -174,6 +174,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     }
   }
 
+  // 回复框
   void showReplySheet() {
     var replyList = List.from(_replyList);
     replyList.retainWhere((i) => i.isChoose);
@@ -194,6 +195,90 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     );
   }
 
+  // 查看楼中楼回复
+  void queryReplyList(replyMemberList, floorNumber, resultList) {
+    List<ReplyItem> replyList = _replyList;
+    // List<ReplyItem> resultList = [];
+    for (var i in replyList) {
+      if (i.floorNumber! < floorNumber) {
+        if(replyMemberList.contains(i.userName)){
+          resultList.add(i);
+          if(i.replyMemberList.isNotEmpty){
+            queryReplyList(i.replyMemberList, i.floorNumber, resultList);
+          }else{
+            showfloorReply(resultList.reversed.toList());
+          }
+        }
+      }
+    }
+    print(resultList);
+    // showfloorReply(resultList);
+  }
+
+  void showfloorReply(resultList) {
+    var statusHeight = MediaQuery.of(context).padding.top;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          clipBehavior: Clip.hardEdge,
+          constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height - statusHeight,
+              minHeight: 500
+          ),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 35,
+                child: Center(
+                  child: Container(
+                    width: 80,
+                    height: 5,
+                    decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(3),
+                        ),
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
+                  child: ListView.builder(
+                    physics: const ClampingScrollPhysics(), //重要
+                    itemCount: resultList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ReplyListItem(
+                        reply: resultList[index],
+                        topicId: _detailModel!.topicId,
+                      );
+                    },
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -207,6 +292,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     return Stack(
       children: [
         Scaffold(
+          backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
           body: _detailModel != null
               ? Scrollbar(
                   radius: const Radius.circular(10),
@@ -454,20 +540,19 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                 indent: 15,
                 color: Theme.of(context).dividerColor.withOpacity(0.15),
               ),
+              // 内容
               Container(
                 padding: const EdgeInsets.only(
                     top: 5, right: 18, bottom: 10, left: 18),
                 child: HtmlRender(htmlContent: _detailModel!.contentRendered),
               ),
+              // 附言
               if (_detailModel!.subtleList.isNotEmpty) ...[
                 ...subList(_detailModel!.subtleList)
               ],
 
               if (_detailModel!.content.isNotEmpty) ...[
                 Divider(
-                  endIndent: 15,
-                  indent: 15,
-                  height: 1,
                   color: Theme.of(context).dividerColor.withOpacity(0.15),
                 ),
               ]
@@ -484,73 +569,41 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
                   children: [
                     Text(
                       '${_detailModel!.replyCount}条回复',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(fontSize: 18),
                     ),
                     if (_replyList.length > 2) ...[
-                      SizedBox(
-                        width: 170,
-                        height: 40,
-                        child: SegmentedButton(
-                          style: ButtonStyle(
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(200, 30)),
-                            maximumSize:
-                                MaterialStateProperty.all(const Size(20, 30)),
-                            padding: MaterialStateProperty.all(
-                                const EdgeInsets.all(10)),
-                          ),
-                          selected: {reverseSort},
-                          onSelectionChanged: (newSelection) {
-                            setState(() {
-                              reverseSort = newSelection.first;
-                            });
-                            if (reverseSort) {
-                              getDetailReverst(type: 'init');
-                            } else {
-                              getDetail(type: 'init');
-                            }
-                          },
-                          segments: const [
-                            ButtonSegment(
-                                value: false,
-                                label: Text('默认'),
-                                icon: Icon(Icons.menu)),
-                            ButtonSegment(
-                                value: true,
-                                label: Text('最新'),
-                                icon: Icon(Icons.lock_clock_outlined))
-                          ],
+                      RawChip(
+                        side: BorderSide.none,
+                        showCheckmark: false,
+                        labelPadding: const EdgeInsets.only(left: 1, right: 4),
+                        label: Text(
+                          '倒序查看',
+                          style: Theme.of(context).textTheme.labelLarge,
                         ),
+                        avatar: const Icon(
+                          Icons.swap_vert,
+                          size: 19,
+                        ),
+                        onPressed: () => setState(() {
+                          reverseSort = !reverseSort;
+                          if (reverseSort) {
+                            getDetailReverst(type: 'init');
+                          } else {
+                            getDetail(type: 'init');
+                          }
+                        }),
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                              color:
+                                  Theme.of(context).colorScheme.surfaceVariant),
+                        ),
+                        selectedColor:
+                            Theme.of(context).colorScheme.outlineVariant,
+                        selected: reverseSort,
                       ),
-                      // RawChip(
-                      //   side: BorderSide.none,
-                      //   showCheckmark: false,
-                      //   labelPadding: const EdgeInsets.only(left: 1, right: 4),
-                      //   label: Text(
-                      //     '倒序查看',
-                      //     style: Theme.of(context).textTheme.labelLarge,
-                      //   ),
-                      //   avatar: const Icon(
-                      //     Icons.swap_vert,
-                      //     size: 19,
-                      //   ),
-                      //   onPressed: () => setState(() {
-                      //     reverseSort = !reverseSort;
-                      //     if (reverseSort) {
-                      //       getDetailReverst(type: 'init');
-                      //     } else {
-                      //       getDetail(type: 'init');
-                      //     }
-                      //   }),
-                      //   shape: StadiumBorder(
-                      //       side: BorderSide(
-                      //           color: Theme.of(context)
-                      //               .colorScheme
-                      //               .surfaceVariant)),
-                      //   selectedColor:
-                      //       Theme.of(context).colorScheme.outlineVariant,
-                      //   selected: reverseSort,
-                      // ),
                     ]
                   ],
                 )),
@@ -561,9 +614,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               return ReplyListItem(
-                reply: _replyList[index],
-                topicId: _detailModel!.topicId,
-              );
+                  reply: _replyList[index],
+                  topicId: _detailModel!.topicId,
+                  queryReplyList: (replyMemberList, floorNumber, resultList) =>
+                      queryReplyList(replyMemberList, floorNumber, resultList));
             },
             childCount: _replyList.length,
           ),
@@ -592,6 +646,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     );
   }
 
+  // 附言
   List<Widget> subList(data) {
     List<Widget>? list = [];
     for (var i in data) {

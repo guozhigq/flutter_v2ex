@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'dart:math';
