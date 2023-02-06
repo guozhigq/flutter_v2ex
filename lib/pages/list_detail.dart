@@ -19,6 +19,7 @@ import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'dart:math';
+import 'package:flutter_v2ex/components/detail/reply_sheet.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -55,6 +56,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   // bool _showFab = true;
   // bool _isElevated = true;
   bool _isVisible = true;
+  bool floorReplyVisible = false;
 
   SampleItem? selectedMenu;
 
@@ -197,86 +199,46 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   // 查看楼中楼回复
   void queryReplyList(replyMemberList, floorNumber, resultList) {
-    List<ReplyItem> replyList = _replyList;
-    // List<ReplyItem> resultList = [];
+    List<ReplyItem> replyList = _replyList.where((e) => e.floorNumber < floorNumber).toList();
+    List<Map> multipleReplyList = List.filled(replyMemberList.length, {});
     for (var i in replyList) {
-      if (i.floorNumber! < floorNumber) {
-        if(replyMemberList.contains(i.userName)){
-          resultList.add(i);
-          if(i.replyMemberList.isNotEmpty){
-            queryReplyList(i.replyMemberList, i.floorNumber, resultList);
-          }else{
-            showfloorReply(resultList.reversed.toList());
-          }
-        }
+      if(replyMemberList.contains(i.userName)){
+        int index = replyMemberList.indexOf(i.userName);
+        Map replyListMap = {};
+        List repliesList = [];
+        repliesList.add(i);
+        repliesList.add(_replyList.where((value) =>
+           value.floorNumber == floorNumber
+        ).toList()[0]);
+        replyListMap[i.userName] = repliesList;
+        multipleReplyList[index] = replyListMap;
       }
     }
-    print(resultList);
-    // showfloorReply(resultList);
+    showfloorReply(multipleReplyList, replyMemberList);
   }
 
-  void showfloorReply(resultList) {
+  void showfloorReply(multipleReplyList, replyMemberList) {
+    setState(() {
+      floorReplyVisible = true;
+    });
     var statusHeight = MediaQuery.of(context).padding.top;
+    var height = MediaQuery.of(context).size.height - statusHeight;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          clipBehavior: Clip.hardEdge,
-          constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height - statusHeight,
-              minHeight: 500
-          ),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25),
-              topRight: Radius.circular(25),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 35,
-                child: Center(
-                  child: Container(
-                    width: 80,
-                    height: 5,
-                    decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(3),
-                        ),
-                        color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  clipBehavior: Clip.hardEdge,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25),
-                    ),
-                  ),
-                  child: ListView.builder(
-                    physics: const ClampingScrollPhysics(), //重要
-                    itemCount: resultList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ReplyListItem(
-                        reply: resultList[index],
-                        topicId: _detailModel!.topicId,
-                      );
-                    },
-                  ),
-                ),
-              )
-            ],
-          ),
+        return ReplySheet(
+            height: height,
+            replyMemberList: replyMemberList,
+            resultList: multipleReplyList,
+            topicId: _detailModel!.topicId,
         );
       },
-    );
+    ).then((value) {
+      setState(() {
+        floorReplyVisible = false;
+      });
+    });
   }
 
   @override

@@ -61,6 +61,7 @@ class _NoticeItemState extends State<NoticeItem> {
               htmlContent: widget.noticeItem.topicTitleHtml,
             ),
           ),
+        if(widget.noticeItem.replyContentHtml != null)
         Container(
           width: double.infinity,
           margin: const EdgeInsets.only(right: 10, bottom: 8),

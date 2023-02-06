@@ -70,7 +70,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         sheetMenu.removeAt(2);
       });
     }
-    if(widget.reply.replyMemberList.isNotEmpty) {
+    if (widget.reply.replyMemberList.isNotEmpty) {
       setState(() {
         sheetMenu.insert(1, {
           'id': 2,
@@ -87,7 +87,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         replyComment();
         break;
       case 2:
-        widget.queryReplyList(widget.reply.replyMemberList, widget.reply.floorNumber, []);
+        widget.queryReplyList(widget.reply.replyMemberList,
+            widget.reply.floorNumber, [widget.reply]);
         break;
       case 3:
         copyComment();
@@ -158,7 +159,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 child: const Text('取消')),
             TextButton(
                 onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('确定'))
+                child: const Text('确定')),
           ],
         );
       },
@@ -314,7 +315,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         // title
         Container(
-          margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
+          margin: const EdgeInsets.only(top: 0, bottom: 0, left: 46, right: 0),
           child: HtmlRender(htmlContent: widget.reply.contentRendered),
         ),
         bottonAction()
@@ -332,20 +333,25 @@ class _ReplyListItemState extends State<ReplyListItem> {
             const SizedBox(width: 32),
             TextButton(
               onPressed: thanksDialog,
-              child: widget.reply.favorites.isNotEmpty
-                  ? Text('感谢 +${widget.reply.favorites}')
-                  : const Text('感谢'),
+              child: Row(children:  [
+                const Icon(Icons.favorite_border, size: 19),
+                const SizedBox(width: 2),
+                widget.reply.favorites.isNotEmpty
+                    ? Text('感谢 +${widget.reply.favorites}')
+                    : const Text('感谢'),
+              ]),
             ),
-            // TextButton(onPressed: () {}, child: Row(children: const [
-            //   // Icon(Icons.people_alt),
-            //   SizedBox(width: 3),
-            //   Text('查看回复'),
-            // ]),),
+            if(widget.reply.replyMemberList.isNotEmpty)
+            TextButton(
+              onPressed: () =>  widget.queryReplyList(widget.reply.replyMemberList,
+                  widget.reply.floorNumber, [widget.reply]),
+              child: const Text('查看回复'),
+            ),
             TextButton(
               onPressed: replyComment,
               child: Row(children: const [
-                Icon(Icons.reply),
-                SizedBox(width: 3),
+                Icon(Icons.reply, size: 20),
+                SizedBox(width: 2),
                 Text('回复'),
               ]),
             ),

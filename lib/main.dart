@@ -8,7 +8,6 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 
-
 import 'package:flutter_v2ex/pages/app_tab.dart';
 import 'package:flutter_v2ex/pages/help_page.dart';
 import 'package:flutter_v2ex/pages/list_detail.dart';
@@ -24,7 +23,6 @@ import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
-
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
 }
@@ -34,11 +32,19 @@ Future parseJson(String text) {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  ByteData data =
+      await PlatformAssetBundle().load('assets/ca/lets-encrypt-r3.pem');
+  SecurityContext.defaultContext
+      .setTrustedCertificatesBytes(data.buffer.asUint8List());
+
   runApp(const MyApp());
 
   if (Platform.isAndroid) {
     // 以下两行 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
-    SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemUiOverlayStyle systemUiOverlayStyle =
+        const SystemUiOverlayStyle(statusBarColor: Colors.transparent);
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 }
@@ -64,7 +70,6 @@ class _MyAppState extends State<MyApp> {
         currentThemeValue = arg;
       });
     });
-
   }
 
   @override
@@ -92,12 +97,16 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           fontFamily: 'NotoSansSC',
           useMaterial3: true,
-          colorScheme: currentThemeValue == ThemeType.dark ? darkColorScheme : lightColorScheme,
+          colorScheme: currentThemeValue == ThemeType.dark
+              ? darkColorScheme
+              : lightColorScheme,
         ),
         darkTheme: ThemeData(
           fontFamily: 'NotoSansSC',
           useMaterial3: true,
-          colorScheme: currentThemeValue == ThemeType.light  ? lightColorScheme : darkColorScheme,
+          colorScheme: currentThemeValue == ThemeType.light
+              ? lightColorScheme
+              : darkColorScheme,
         ),
         home: const AppTab(),
         navigatorKey: Routes.navigatorKey,
@@ -107,7 +116,9 @@ class _MyAppState extends State<MyApp> {
           '/webView': (context) => WebView(aUrl: ''),
           '/go': (context) => GoPage(nodeKey: ''),
           '/fav': (context) => const FavPage(),
-          '/profile': (context) => ProfilePage(memberId: '',),
+          '/profile': (context) => ProfilePage(
+                memberId: '',
+              ),
           '/nodes': (context) => const NodesPage(),
           '/help': (context) => const HelpPage(),
           '/mine': (context) => MinePage(memberId: ''),

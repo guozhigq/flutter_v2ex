@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/http/init.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
 
@@ -22,11 +21,15 @@ class _LoginPageState extends State<LoginPage> {
   late String? _code;
 
   late LoginDetailModel loginKey = LoginDetailModel();
+  final FocusNode userNameTextFieldNode = FocusNode();
+  final FocusNode passwordTextFieldNode = FocusNode();
+  final FocusNode captchaTextFieldNode = FocusNode();
+  bool passwordVisible = true; // 默认隐藏密码
 
   @override
   void initState() {
     super.initState();
-    // getSignKey();
+    getSignKey();
   }
 
   Future<LoginDetailModel> getSignKey() async {
@@ -67,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
                     child: TextFormField(
                       controller: _userNameController,
+                      focusNode: userNameTextFieldNode,
                       decoration: InputDecoration(
                         labelText: '用户名',
                         border: OutlineInputBorder(
@@ -83,16 +87,29 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   Container(
-                    // height: 70,
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
                     child: TextFormField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: passwordVisible,
+                      focusNode: passwordTextFieldNode,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6.0),
                         ),
                         labelText: '密码',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              passwordVisible = !passwordVisible;
+                            });
+                          },
+                        ),
                       ),
                       //校验密码
                       validator: (v) {
@@ -104,13 +121,13 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   Container(
-                    // height: 70,
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
                     child: Stack(
                       children: [
                         TextFormField(
                           controller: _codeController,
                           keyboardType: TextInputType.text,
+                          focusNode: captchaTextFieldNode,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(6.0),
@@ -124,16 +141,18 @@ class _LoginPageState extends State<LoginPage> {
                             _code = val;
                           },
                         ),
-                        if (loginKey.captchaImg != '') ...[
+                        if (loginKey.captchaImg!='') ...[
                           Positioned(
                             right: 0,
                             top: 0,
-                            bottom: 0,
+                            height: 64,
                             child: Container(
                               clipBehavior: Clip.hardEdge,
                               decoration: const BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(6)),
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(6),
+                                  bottomRight: Radius.circular(6),
+                                ),
                               ),
                               child: GestureDetector(
                                 onTap: () {
@@ -154,6 +173,12 @@ class _LoginPageState extends State<LoginPage> {
                                     child: Text('加载中...'),
                                   ),
                                 ),
+                                // child: Image.memory(
+                                //   loginKey.captchaImgBytes!,
+                                //   height: 64.0,
+                                //   width: 160.0,
+                                //   fit: BoxFit.fitHeight,
+                                // ),
                               ),
                             ),
                           ),
@@ -167,30 +192,24 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size.fromHeight(50)),
-                      // child: Text(
-                      //   '登录',
-                      //   style: Theme.of(context).textTheme.titleMedium,
-                      // ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.person),
-                          const SizedBox(width: 10),
-                          Text(
-                            '登录',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
+                      child: Text(
+                        '登录',
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if ((_formKey.currentState as FormState).validate()) {
                           //验证通过提交数据
                           (_formKey.currentState as FormState).save();
                           loginKey.userNameValue = _userName!;
                           loginKey.passwordValue = _password!;
                           loginKey.codeValue = _code!;
-
-                          DioRequestWeb.onLogin(loginKey);
+                          // 键盘收起
+                          captchaTextFieldNode.unfocus();
+                          var result = await DioRequestWeb.onLogin(loginKey);
+                          if (result == 'true') {
+                          } else {
+                            getSignKey();
+                          }
                         }
                       },
                     ),

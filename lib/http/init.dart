@@ -10,9 +10,7 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 
-String reqCookie =
-'PB3_SESSION="2|1:0|10:1675525570|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NzM5Mjk4NDg=|e767a624fce59268107be141e4884995f2f2194c6a1adf1753cb9f4aaa20e2a7"; expires=Thu, 09 Feb 2023 15:46:10 GMT; httponly; Path=/, V2EX_LANG=zhcn; Path=/';
-    // '_ga=GA1.2.2103211849.1664460012; V2EX_TAB="2|1:0|10:1675306468|8:V2EX_TAB|8:bm9kZXM=|b1190a42022421098830dc1ab15659e12a8e17b36a0c60a8d50bd289b66eba13"; V2EX_LANG=zhcn; A2="2|1:0|10:1675306453|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|d9817fda517b46fd67c0df63e74876049ed0259c37dcacb06a3f7c68f894b776"; V2EX_REFERRER="2|1:0|10:1675306461|13:V2EX_REFERRER|8:Uml0cg==|627842cb11ff326cbf10c9103f50ff7ddb61aa6b4d375f0544e895c16b79c872"; PB3_SESSION="2|1:0|10:1675306631|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NzM2MTEzODQ=|002697d3ccd81e3a79d6812e2e9e168f8dfab6fef9e0039bbe70773bca8cf74f"';
+String reqCookie = 'cf_clearance=sDEwyv8l1D3JaxndDewBLcOgp9TJe1eMC_0c.JuK2P4-1675239032-0-150; _ga=GA1.2.1710244246.1675527700; V2EX_LANG=zhcn; V2EX_REFERRER="2|1:0|10:1675584821|13:V2EX_REFERRER|16:Y2hlbnBlaTQ2Ng==|c6a531ddfcc08f43ae88a733685054fd78f1493879c9a13a4159038cf6ef9f90"; A2="2|1:0|10:1675644381|2:A2|56:MzZhZjViMDEwMmNjYWI4MjI2ODhhNDZjMWM2N2M2ZDRhZDZhMTJlOA==|2068c4286dd124f859c4b47e3ebaf5a735c477407d1afdcb70a30e72eb1104b5"; V2EXTP="2|1:0|10:1675644848|6:V2EXTP|36:eyI5MDQ5NDAiOiAzLCAiOTA0OTQwIjogM30=|e9a2b78fa61cbc2a5c1b108035dd3abe0f26da09b74c39f8b268e1c369dd1760"; PB3_SESSION="2|1:0|10:1675672821|11:PB3_SESSION|36:djJleDoyMDIuOC4xMDQuMzA6NTk4NjA1Mjc=|54fe8468090ba837eec46d51042c6987beb4f39d8aeccc29c8285d1477cfc950"; V2EX_TAB="2|1:0|10:1675675421|8:V2EX_TAB|8:dGVjaA==|f4e297caab26c46b4a03fd8c96d1110257ffbe4f1bfee5f7eb1adb97ad2329c8"';
 
 class Request {
   static final Request _instance = Request._internal();
@@ -48,7 +46,6 @@ class Request {
       //Http请求头.
       headers: {
         'cookie': reqCookie,
-        // 'Authorization': 'Bearer 68fb8a7e-d4c3-402c-99a1-8ff845f9dcb3',
         'user-agent': Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
             : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'

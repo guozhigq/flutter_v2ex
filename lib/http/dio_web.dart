@@ -805,44 +805,50 @@ class DioRequestWeb {
         }
       }
       if (aNode.querySelector('img') != null) {
-        loginKeyMap.captchaImg =
-            '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?now=${DateTime.now().millisecondsSinceEpoch}';
+        loginKeyMap.captchaImg = '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
       }
     }
     return loginKeyMap;
   }
 
   // 登录
-  static Future onLogin(LoginDetailModel args) async {
+  static Future<String> onLogin(LoginDetailModel args) async {
+    SmartDialog.showLoading(msg: '登录中...');
     Response response;
     Options options = Options();
-    // var data = {
+
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      // 必须字段
+      'Referer': '${Strings.v2exHost}/signin',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    // FormData formData = FormData.fromMap({
     //   args.userNameHash: args.userNameValue,
     //   args.passwordHash: args.passwordValue,
     //   args.codeHash: args.codeValue,
     //   'once': args.once,
     //   'next': args.next
-    // };
-    options.contentType = Headers.formUrlEncodedContentType;
-    options.headers = {
-      // 'content-type': 'application/x-www-form-urlencoded',
-      'Refer': '${Strings.v2exHost}/signin',
-      'Origin': Strings.v2exHost,
-      'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
-    };
-    // options.contentType = Headers.formUrlEncodedContentType;
+    // });
 
-    FormData formData = FormData.fromMap({
-      args.userNameHash: args.userNameValue,
-      args.passwordHash: args.passwordValue,
-      args.codeHash: args.codeValue,
-      'once': args.once,
-      'next': args.next
-    });
+    var data = {
+      '32ec105e6f3421fe7ff17ec25a3ed5095347b1f1e4b0d3a2b709bf1672bcac7c': 'guozhigq',
+      '45f3b1d5a1d7e38397b3aa6ea9644a40d19ae0ba75081c45af2f1feaee11cf92': '7loveyou',
+      '7b97e90ea12b30ad8752732954f66f7079d5850ce612e0d9ddc4e0f1efcd4cbd': 'cefk',
+      'once': '97632',
+      'next': '/'
+    };
+    print('data😊:$data');
+    FormData formData = FormData.fromMap(
+      data
+    );
     // var data =
     //     '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
-    // print('data😊:$data');
+
     response =
         await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
@@ -862,14 +868,34 @@ class DioRequestWeb {
       }
       print('-------------------------------');
 
-      // return await getUserInfo();
+      return await getUserInfo();
+    }else{
+      // 登录失败，去获取错误提示信息
+      var tree = ETree.fromString(response.data);
+      // //*[@id="Wrapper"]/div/div[1]/div[3]/ul/li "输入的验证码不正确"
+      // //*[@id="Wrapper"]/div/div[1]/div[2]/ul/li "用户名和密码无法匹配" 等
+      var errorInfo;
+      if (tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()') !=
+          null) {
+        errorInfo = tree
+            .xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()')![0]
+            .name;
+      } else {
+        errorInfo = tree
+            .xpath('//*[@id="Wrapper"]/div/div[1]/div[2]/ul/li/text()')![0]
+            .name;
+      }
+      SmartDialog.dismiss();
+      SmartDialog.showToast(errorInfo);
+      print("wml error!!!!：$errorInfo");
+      return 'false';
     }
   }
 
   // 获取当前用户信息
   static Future<String> getUserInfo() async {
     var response = await Request().get('/', extra: {'ua': 'mob'});
-    // print('response.headers:${response.headers['set-cookie']}');
+    print('response.headers:${response.headers['set-cookie']}');
     if (response.redirects.isNotEmpty) {
       print("wml:" + response.redirects[0].location.path);
       // 需要两步验证
@@ -1332,6 +1358,8 @@ class DioRequestWeb {
       if (td2Node.querySelector('div.payload') != null) {
         noticeItem.replyContentHtml =
             td2Node.querySelector('div.payload')!.innerHtml!;
+      }else{
+        noticeItem.replyContentHtml = null;
       }
 
       noticeItem.replyTime =
