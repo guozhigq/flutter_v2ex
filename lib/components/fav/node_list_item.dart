@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/models/web/model_node_fav.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
 
 class NodeListItem extends StatelessWidget {
   final NodeFavModel? nodeItem;
@@ -15,14 +15,7 @@ class NodeListItem extends StatelessWidget {
         color: Theme.of(context).colorScheme.onInverseSurface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: () => {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GoPage(nodeKey: nodeItem!.nodeId),
-              ),
-            )
-          },
+          onTap: () => Get.toNamed('/go/${nodeItem!.nodeId}'),
           borderRadius: BorderRadius.circular(10),
           child: Ink(
             padding:

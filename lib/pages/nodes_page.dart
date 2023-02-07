@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
 
 class NodesPage extends StatefulWidget {
   const NodesPage({super.key});
@@ -93,15 +93,7 @@ class _NodesPageState extends State<NodesPage> {
           // decoration: BoxDecoration(border: Border.all()),
           padding: EdgeInsets.zero,
           child: TextButton(
-            onPressed: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GoPage(nodeKey: i['id']),
-                  // const ListDetail(topicId: '907145'),
-                ),
-              )
-            },
+            onPressed: () => Get.toNamed('/go/${i['id']}'),
             child: Text(i['name']),
           ),
         ),

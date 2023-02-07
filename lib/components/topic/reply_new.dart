@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 
 class ReplyNew extends StatefulWidget {
@@ -24,7 +24,6 @@ class _ReplyNewState extends State<ReplyNew> {
   final TextEditingController _replyContentController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
   late String _replyContent = '';
-
 
   void onCleanInput() {
     SmartDialog.show(
@@ -56,8 +55,8 @@ class _ReplyNewState extends State<ReplyNew> {
       print(_replyContent);
 
       String replyUser = '';
-      if(widget.replyMemberList!.isNotEmpty){
-        for(var i in widget.replyMemberList as List) {
+      if (widget.replyMemberList!.isNotEmpty) {
+        for (var i in widget.replyMemberList as List) {
           print(i.userName);
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
@@ -121,7 +120,10 @@ class _ReplyNewState extends State<ReplyNew> {
                       runSpacing: 2,
                       spacing: 10,
                       children: [
-                        Text(' 回复：', style: Theme.of(context).textTheme.titleMedium,),
+                        Text(
+                          ' 回复：',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         ...replyList(widget.replyMemberList)
                       ],
                     ),
@@ -187,7 +189,7 @@ class _ReplyNewState extends State<ReplyNew> {
             width: double.infinity,
             height: 60,
             clipBehavior: Clip.hardEdge,
-            margin: const EdgeInsets.only(top: 10, bottom: 30),
+            margin: const EdgeInsets.only(top: 10, bottom: 0),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(30),
@@ -213,12 +215,11 @@ class _ReplyNewState extends State<ReplyNew> {
     List<Widget> widgetList = [];
     for (var i in replyMemberList) {
       widgetList.add(
-        // TextButton(
-        //   onPressed: () => {},
-        //   child: Text(i.userName),
-        // ),
-        FilledButton.tonal(onPressed: ()=>{}, child: Text(i.userName))
-      );
+          // TextButton(
+          //   onPressed: () => {},
+          //   child: Text(i.userName),
+          // ),
+          FilledButton.tonal(onPressed: () => {}, child: Text(i.userName)));
     }
     return widgetList;
   }

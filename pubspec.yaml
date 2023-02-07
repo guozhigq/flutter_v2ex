@@ -62,7 +62,8 @@ dependencies:
     flutter_highlight: ^0.7.0
     flutter_smart_dialog: ^4.8.1
     extended_image: ^7.0.0
-#    flutter_html_all: ^3.0.0-alpha.6
+    # flutter_html_all: ^3.0.0-alpha.6
+    get: ^4.6.5
 
 dev_dependencies:
     flutter_test:
@@ -80,6 +81,7 @@ flutter_icons:
     android: true
     ios: true
     remove_alpha_ios: true
+    image_path: assets/images/icon/ios5.png
     image_path_android: assets/images/icon/ios5.png
     image_path_ios: assets/images/icon/ios5.png
     adaptive_icon_background: "#607D8B"

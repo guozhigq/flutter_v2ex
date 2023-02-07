@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/detail/reply_new.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});

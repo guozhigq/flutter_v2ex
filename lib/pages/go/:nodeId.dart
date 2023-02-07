@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-
-// import 'package:flutter_v2ex/components/go/go_list.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 
-// import 'package:flutter_v2ex/http/dio_web.dart';
-// import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 class GoPage extends StatefulWidget {
-  GoPage({required this.nodeKey, super.key});
-
-  String nodeKey;
+  const GoPage({super.key});
 
   @override
   State<GoPage> createState() => _GoPageState();
@@ -25,14 +20,18 @@ class _GoPageState extends State<GoPage> {
   int _currentPage = 0;
   int _totalPage = 1;
   bool showBackTopBtn = false;
+  String nodeId = '';
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      nodeId = Get.parameters['nodeId']!;
+    });
     getTopics();
     print('go page');
     _controller.addListener(
-      () {
+          () {
         var screenHeight = MediaQuery.of(context).size.height;
         if (_controller.offset >= screenHeight && showBackTopBtn == false) {
           setState(() {
@@ -55,7 +54,7 @@ class _GoPageState extends State<GoPage> {
 
   void getTopics() async {
     var res = await DioRequestWeb.getTopicsByNodeKey(
-        widget.nodeKey, _currentPage + 1);
+        nodeId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
@@ -73,22 +72,22 @@ class _GoPageState extends State<GoPage> {
     return Scaffold(
         appBar: topicListDetail != null
             ? AppBar(
-                centerTitle: false,
-                title: Text(topicListDetail!.nodeName),
-                titleSpacing: 0,
-                actions: [
-                  IconButton(
-                    onPressed: () => {},
-                    icon: const Icon(Icons.star_outline),
-                    selectedIcon: Icon(
-                      Icons.star,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    isSelected: topicListDetail!.isFavorite,
-                  ),
-                  const SizedBox(width: 12)
-                ],
-              )
+          centerTitle: false,
+          title: Text(topicListDetail!.nodeName),
+          titleSpacing: 0,
+          actions: [
+            IconButton(
+              onPressed: () => {},
+              icon: const Icon(Icons.star_outline),
+              selectedIcon: Icon(
+                Icons.star,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              isSelected: topicListDetail!.isFavorite,
+            ),
+            const SizedBox(width: 12)
+          ],
+        )
             : null,
         body: Stack(
           children: [
@@ -96,7 +95,12 @@ class _GoPageState extends State<GoPage> {
               controller: _controller,
               radius: const Radius.circular(10),
               child: PullRefresh(
-                onChildRefresh: () {},
+                onChildRefresh: () {
+                  setState(() {
+                    _currentPage = 0;
+                  });
+                  getTopics();
+                },
                 // 上拉
                 onChildLoad: _totalPage > 1 && _currentPage < _totalPage
                     ? getTopics
@@ -135,10 +139,10 @@ class _GoPageState extends State<GoPage> {
         SliverToBoxAdapter(
           child: topicListDetail!.nodeIntro.isNotEmpty
               ? Container(
-                  padding: const EdgeInsets.only(
-                      top: 20, right: 20, bottom: 30, left: 20),
-                  child: Text(topicListDetail!.nodeIntro),
-                )
+            padding: const EdgeInsets.only(
+                top: 20, right: 20, bottom: 30, left: 20),
+            child: Text(topicListDetail!.nodeIntro),
+          )
               : null,
         ),
         SliverList(

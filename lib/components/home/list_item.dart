@@ -1,10 +1,7 @@
-import 'dart:async';
-
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
-
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -52,14 +49,8 @@ class _ListItemState extends State<ListItem>
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () {
-            Timer(const Duration(milliseconds: 300), () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ListDetail(topicId: widget.topic.topicId),
-                ),
-              );
-            });
+            var arguments = <String, TabTopicItem>{"topic": widget.topic};
+            Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
           },
           borderRadius: BorderRadius.circular(10),
           child: Ink(

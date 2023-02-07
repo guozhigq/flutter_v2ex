@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
+import 'package:get/get.dart';
 
 class HomeSearchBar extends StatelessWidget {
   const HomeSearchBar({super.key});
@@ -48,20 +47,24 @@ class HomeSearchBar extends StatelessWidget {
               GestureDetector(
                 // onTap: () => Utils.routeProfile('guozhigq', '', 'guozhigq'),
                 // onTap: () => Utils.onLogin(),
-                onTap: () => {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           const ListDetail(topicId: '172147'),
-                  //       ),
-                  // )
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
-                        fullscreenDialog: true),
-                  )
+                // onTap: () => {
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => const LoginPage(),
+                //       fullscreenDialog: true,
+                //     ),
+                //   ).then((value) => {
+                //         if (value['loginStatus'] == 'cancel')
+                //           {SmartDialog.showToast('取消登录')}
+                //       })
+                // },
+                onTap: () async{
+                  var memberId = 'guozhigq';
+                 var res = await Get.toNamed('/member/$memberId/topics', parameters: {'memberId': memberId});
+                 if (res['loginStatus'] == 'cancel') {
+                   SmartDialog.showToast('取消登录');
+                 }
                 },
                 // child: Container(
                 //   decoration: BoxDecoration(

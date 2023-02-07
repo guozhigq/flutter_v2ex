@@ -7,21 +7,15 @@ import 'package:flutter/foundation.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:get/get.dart';
+import 'router/app_pages.dart';
 
-import 'package:flutter_v2ex/pages/app_tab.dart';
-import 'package:flutter_v2ex/pages/help_page.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
-import 'package:flutter_v2ex/pages/message_page.dart';
-import 'package:flutter_v2ex/pages/nodes_page.dart';
-import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
-import 'package:flutter_v2ex/pages/tabs/fav_page.dart';
-import 'package:flutter_v2ex/pages/webview_page.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/pages/home_page.dart';
+
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -92,8 +86,11 @@ class _MyAppState extends State<MyApp> {
         );
       }
 
-      return MaterialApp(
-        // title: 'vvex',
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        debugShowMaterialGrid: false,
+        initialRoute: '/',
+        getPages: AppPages.getPages,
         theme: ThemeData(
           fontFamily: 'NotoSansSC',
           useMaterial3: true,
@@ -108,22 +105,10 @@ class _MyAppState extends State<MyApp> {
               ? lightColorScheme
               : darkColorScheme,
         ),
-        home: const AppTab(),
+        home: const HomePage(),
         navigatorKey: Routes.navigatorKey,
-        initialRoute: '/',
         routes: {
-          '/listDetail': (context) => const ListDetail(topicId: '1'),
-          '/webView': (context) => WebView(aUrl: ''),
-          '/go': (context) => GoPage(nodeKey: ''),
-          '/fav': (context) => const FavPage(),
-          '/profile': (context) => ProfilePage(
-                memberId: '',
-              ),
-          '/nodes': (context) => const NodesPage(),
-          '/help': (context) => const HelpPage(),
-          '/mine': (context) => MinePage(memberId: ''),
           '/login': (context) => const LoginPage(),
-          '/message': (context) => const MessagePage(),
         },
         // here
         navigatorObservers: [FlutterSmartDialog.observer],

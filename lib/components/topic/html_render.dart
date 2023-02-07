@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/idea.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+// import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:extended_image/extended_image.dart';
 // import 'package:flutter_html_all/flutter_html_all.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'dart:math';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -141,12 +140,13 @@ class HtmlRender extends StatelessWidget {
         // v2ex 链接
         List arr = aUrl.split('/');
         String topicId = arr[arr.length - 1];
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ListDetail(topicId: topicId),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ListDetail(topicId: topicId),
+        //   ),
+        // );
+        Get.toNamed('/t/$topicId');
       } else {
         // 其他链接
         Navigator.push(
@@ -156,18 +156,24 @@ class HtmlRender extends StatelessWidget {
           ),
         );
       }
-    } else if (aUrl.startsWith('/member/')) {
-      String memberId = aUrl.split('/')[2];
-      Utils.routeProfile(memberId, '', '');
+    }
+    else if (aUrl.startsWith('/member/')) {
+      // String memberId = aUrl.split('/')[2];
+      // Utils.routeProfile(memberId, '', '');
+      print(aUrl);
+      Get.toNamed(aUrl);
     } else if (aUrl.startsWith('/t/')){
-      String arr = aUrl.split('/')[2];
-      String topicId = arr.split('#')[0];
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ListDetail(topicId: topicId),
-        ),
-      );
+      // String arr = aUrl.split('/')[2];
+      // String topicId = arr.split('#')[0];
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => ListDetail(topicId: topicId),
+      //   ),
+      // );
+      Get.toNamed(aUrl);
+    }else if(aUrl.startsWith('/go/')) {
+     Get.toNamed(aUrl);
     }
     else {
       // ignore: avoid_print
@@ -189,7 +195,7 @@ class HtmlRender extends StatelessWidget {
           onVerticalDragUpdate: (details) => {Navigator.pop(context)},
           child: PhotoView(
             tightMode: true,
-            imageProvider: NetworkImage(imgUrl!),
+            imageProvider: NetworkImage(imgUrl),
             heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
             gestureDetectorBehavior: HitTestBehavior.translucent,
             loadingBuilder: (context, event) => Center(

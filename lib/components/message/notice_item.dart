@@ -3,7 +3,7 @@ import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'dart:math';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 
 // TODO 样式
 class NoticeItem extends StatefulWidget {
@@ -61,22 +61,24 @@ class _NoticeItemState extends State<NoticeItem> {
               htmlContent: widget.noticeItem.topicTitleHtml,
             ),
           ),
-        if(widget.noticeItem.replyContentHtml != null)
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(right: 10, bottom: 8),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              color: Theme.of(context).colorScheme.surface,
-              border: Border.all(
-                  color:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.1))),
-          // child: Text(widget.noticeItem.topicTitle),
-          child: HtmlRender(
-            htmlContent: widget.noticeItem.replyContentHtml,
+        if (widget.noticeItem.replyContentHtml != null)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(right: 10, bottom: 8),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Theme.of(context).colorScheme.surface,
+                border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withOpacity(0.1))),
+            // child: Text(widget.noticeItem.topicTitle),
+            child: HtmlRender(
+              htmlContent: widget.noticeItem.replyContentHtml,
+            ),
           ),
-        ),
         Row(
           // 两端对齐
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,12 +86,12 @@ class _NoticeItemState extends State<NoticeItem> {
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Utils.routeProfile(widget.noticeItem!.memberId,
-                      widget.noticeItem!.memberAvatar, herotag),
+                  onTap: () => Utils.routeProfile(widget.noticeItem.memberId,
+                      widget.noticeItem.memberAvatar, herotag),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
-                      url: widget.noticeItem!.memberAvatar,
+                      url: widget.noticeItem.memberAvatar,
                       size: 33,
                     ),
                   ),
@@ -101,7 +103,7 @@ class _NoticeItemState extends State<NoticeItem> {
                     SizedBox(
                       width: 150,
                       child: Text(
-                        widget.noticeItem!.memberId,
+                        widget.noticeItem.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: Theme.of(context)

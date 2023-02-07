@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
@@ -235,7 +236,10 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 IconButton(
                   tooltip: '取消登录',
-                  onPressed: () => {Navigator.pop(context)},
+                  onPressed: () => {
+                    // Navigator.pop(context)
+                    Get.back(result: {'loginStatus': 'cancel'})
+                  },
                   icon: const Icon(
                     Icons.close,
                     size: 28,

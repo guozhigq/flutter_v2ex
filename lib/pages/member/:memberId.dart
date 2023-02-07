@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
-import 'package:flutter_v2ex/components/mine/topic_item.dart';
-import 'package:flutter_v2ex/components/mine/reply_item.dart';
-import 'package:flutter_v2ex/pages/tabs/mine_page.dart';
+import 'package:flutter_v2ex/components/member/topic_item.dart';
+import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 
-class ProfilePage extends StatefulWidget {
-  String memberId = '';
-  String? memberAvatar = '';
-  String? heroTag = '';
-
-  ProfilePage(
-      {required this.memberId, this.memberAvatar, this.heroTag, Key? key})
-      : super(key: key);
+class MemberPage extends StatefulWidget {
+  const MemberPage({Key? key}) : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<MemberPage> createState() => _MemberPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _MemberPageState extends State<MemberPage> {
   ModelMemberProfile memberProfile = ModelMemberProfile();
   bool _loading = true;
   Map signDetail = {};
+  String memberId = '';
+  String memberAvatar = '';
+  String heroTag = '';
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      var mapKey = Get.parameters.keys;
+      memberId = mapKey.contains('memberId') ? Get.parameters['memberId']! : '';
+      memberAvatar = mapKey.contains('memberAvatar')
+          ? Get.parameters['memberAvatar']!
+          : '';
+      heroTag = mapKey.contains('heroTag') ? Get.parameters['heroTag']! : '';
+    });
     // 查询用户信息
     queryMemberProfile();
     // 查询签到状态、余额
@@ -37,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
-    var res = await DioRequestWeb.queryMemberProfile(widget.memberId);
+    var res = await DioRequestWeb.queryMemberProfile(memberId);
     setState(() {
       memberProfile = res;
       _loading = false;
@@ -115,9 +120,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         Stack(
                           children: [
                             Hero(
-                              tag: widget.heroTag!,
-                              child:
-                                  CAvatar(url: widget.memberAvatar!, size: 80),
+                              tag: heroTag,
+                              child: CAvatar(url: memberAvatar, size: 80),
                             ),
                             Positioned(
                               bottom: 1,
@@ -243,7 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ],
-                titleLine('最近发布'),
+                titleLine('最近发布', 'topic'),
                 if (memberProfile.isEmptyTopic) ...[
                   SliverToBoxAdapter(
                     child: Container(
@@ -267,13 +271,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       // padding: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
                       child: Text(
-                        '根据 ${widget.memberId} 的设置，主题列表被隐藏',
+                        '根据 ${memberId} 的设置，主题列表被隐藏',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   )
                 ],
-                titleLine('最近回复'),
+                titleLine('最近回复', 'reply'),
                 if (memberProfile.isEmptyReply) ...[
                   SliverToBoxAdapter(
                     child: Container(
@@ -297,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       // padding: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
                       child: Text(
-                        '根据 ${widget.memberId} 的设置，回复列表被隐藏',
+                        '根据 ${memberId} 的设置，回复列表被隐藏',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -343,7 +347,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return list;
   }
 
-  Widget titleLine(title) {
+  Widget titleLine(title, type) {
     return SliverToBoxAdapter(
       child: Container(
         height: 50,
@@ -355,12 +359,18 @@ class _ProfilePageState extends State<ProfilePage> {
           child: InkWell(
             splashColor: Theme.of(context).colorScheme.surfaceVariant,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MinePage(memberId: widget.memberId),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => MinePage(memberId: memberId),
+              //   ),
+              // );
+              if (type == 'reply') {
+                Get.toNamed('/member/$memberId/replies');
+              }
+              if (type == 'topic') {
+                Get.toNamed('/member/$memberId/topics');
+              }
             },
             child: Ink(
               padding: const EdgeInsets.only(left: 10, right: 10),
@@ -390,7 +400,7 @@ class _ProfilePageState extends State<ProfilePage> {
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                '@${widget.memberId} \' 个人信息',
+                '@${memberId} \' 个人信息',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               centerTitle: false,
@@ -405,8 +415,8 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               children: [
                 Hero(
-                  tag: widget.heroTag!,
-                  child: CAvatar(url: widget.memberAvatar!, size: 80),
+                  tag: heroTag,
+                  child: CAvatar(url: memberAvatar, size: 80),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
@@ -421,7 +431,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     //       borderRadius: BorderRadius.all(Radius.circular(2))),
                     // ),
                     Text(
-                      widget.memberId,
+                      memberId,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -449,8 +459,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        titleLine('最近发布'),
-        titleLine('最近回复')
+        titleLine('最近发布', ''),
+        titleLine('最近回复', '')
       ],
     );
   }

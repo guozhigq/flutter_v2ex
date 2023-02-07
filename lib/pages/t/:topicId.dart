@@ -1,39 +1,38 @@
 import 'dart:async';
-
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:flutter_v2ex/components/detail/bottom_bar.dart';
-import 'package:flutter_v2ex/components/detail/reply_item.dart';
+import 'package:flutter_v2ex/components/topic/bottom_bar.dart';
+import 'package:flutter_v2ex/components/topic/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
-import 'package:flutter_v2ex/components/detail/reply_new.dart';
+import 'package:flutter_v2ex/components/topic/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'dart:math';
-import 'package:flutter_v2ex/components/detail/reply_sheet.dart';
+import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
-class ListDetail extends StatefulWidget {
-  const ListDetail({this.topic, required this.topicId, super.key});
-
-  final TabTopicItem? topic;
-  final String topicId;
+class TopicDetail extends StatefulWidget {
+  const TopicDetail({super.key});
 
   @override
-  State<ListDetail> createState() => _ListDetailState();
+  State<TopicDetail> createState() => _TopicDetailState();
 }
 
-class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
+class _TopicDetailState extends State<TopicDetail>
+    with TickerProviderStateMixin {
+  // TabTopicItem? topic;
+  String topicId = '';
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -67,6 +66,13 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    setState(() {
+      topicId = Get.parameters['topicId']!;
+      // topic =  Get.parameters['topic'];
+// out: 34954
+    });
+
     _controller = EasyRefreshController(
       controlFinishRefresh: true,
       controlFinishLoad: true,
@@ -91,7 +97,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       SmartDialog.showLoading(msg: '请稍等...');
     }
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage + 1);
+        await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       if (_currentPage == 0) {
@@ -133,7 +139,7 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
     SmartDialog.showLoading(msg: '请稍等...');
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(widget.topicId, _currentPage);
+        await DioRequestWeb.getTopicDetail(topicId, _currentPage);
     setState(() {
       if (_currentPage == _totalPage) {
         _replyList = topicDetailModel.replyList.reversed.toList();
@@ -199,17 +205,18 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
 
   // 查看楼中楼回复
   void queryReplyList(replyMemberList, floorNumber, resultList) {
-    List<ReplyItem> replyList = _replyList.where((e) => e.floorNumber < floorNumber).toList();
+    List<ReplyItem> replyList =
+        _replyList.where((e) => e.floorNumber < floorNumber).toList();
     List<Map> multipleReplyList = List.filled(replyMemberList.length, {});
     for (var i in replyList) {
-      if(replyMemberList.contains(i.userName)){
+      if (replyMemberList.contains(i.userName)) {
         int index = replyMemberList.indexOf(i.userName);
         Map replyListMap = {};
         List repliesList = [];
         repliesList.add(i);
-        repliesList.add(_replyList.where((value) =>
-           value.floorNumber == floorNumber
-        ).toList()[0]);
+        repliesList.add(_replyList
+            .where((value) => value.floorNumber == floorNumber)
+            .toList()[0]);
         replyListMap[i.userName] = repliesList;
         multipleReplyList[index] = replyListMap;
       }
@@ -228,10 +235,10 @@ class _ListDetailState extends State<ListDetail> with TickerProviderStateMixin {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplySheet(
-            height: height,
-            replyMemberList: replyMemberList,
-            resultList: multipleReplyList,
-            topicId: _detailModel!.topicId,
+          height: height,
+          replyMemberList: replyMemberList,
+          resultList: multipleReplyList,
+          topicId: _detailModel!.topicId,
         );
       },
     ).then((value) {

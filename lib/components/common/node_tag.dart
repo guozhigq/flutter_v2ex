@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/pages/go_page.dart';
+import 'package:get/get.dart';
 
 class NodeTag extends StatelessWidget {
   final String? nodeId;
@@ -22,14 +22,7 @@ class NodeTag extends StatelessWidget {
       borderRadius: BorderRadius.circular(50),
       color: bgColor,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => GoPage(nodeKey: nodeId!),
-            ),
-          );
-        },
+        onTap: () => Get.toNamed('/go/$nodeId'),
         borderRadius: BorderRadius.circular(50),
         child: Ink(
           padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 10),

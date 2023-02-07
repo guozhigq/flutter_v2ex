@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/models/web/item_member_reply.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 
 class ReplyItem extends StatelessWidget {
   MemberReplyItem replyItem;
@@ -17,14 +17,7 @@ class ReplyItem extends StatelessWidget {
           color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ListDetail(topicId: replyItem.topicId),
-                ),
-              );
-            },
+            onTap: () => Get.toNamed('/t/${replyItem.topicId}'),
             borderRadius: BorderRadius.circular(10),
             child: Ink(
               padding: const EdgeInsets.fromLTRB(7, 15, 7, 0),
@@ -71,6 +64,7 @@ class ReplyItem extends StatelessWidget {
                     replyItem.memberId,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
+                  // TODO 节点
                   Text(
                     '问与答',
                     style: Theme.of(context)
@@ -87,12 +81,6 @@ class ReplyItem extends StatelessWidget {
             ],
           ),
         ),
-        // Row(
-        //     mainAxisAlignment: MainAxisAlignment.end,
-        //   children: [
-        //     Text(widget.replyItem.time , style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Theme.of(context).colorScheme.outline)),
-        //   ],
-        // )
       ],
     );
   }

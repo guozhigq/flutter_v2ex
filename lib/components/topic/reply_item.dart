@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
-import 'package:flutter_v2ex/components/detail/html_render.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/components/detail/reply_new.dart';
+import 'package:flutter_v2ex/components/topic/reply_new.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'dart:math';
 
@@ -333,7 +332,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
             const SizedBox(width: 32),
             TextButton(
               onPressed: thanksDialog,
-              child: Row(children:  [
+              child: Row(children: [
                 const Icon(Icons.favorite_border, size: 19),
                 const SizedBox(width: 2),
                 widget.reply.favorites.isNotEmpty
@@ -341,12 +340,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     : const Text('感谢'),
               ]),
             ),
-            if(widget.reply.replyMemberList.isNotEmpty)
-            TextButton(
-              onPressed: () =>  widget.queryReplyList(widget.reply.replyMemberList,
-                  widget.reply.floorNumber, [widget.reply]),
-              child: const Text('查看回复'),
-            ),
+            if (widget.reply.replyMemberList.isNotEmpty)
+              TextButton(
+                onPressed: () => widget.queryReplyList(
+                    widget.reply.replyMemberList,
+                    widget.reply.floorNumber,
+                    [widget.reply]),
+                child: const Text('查看回复'),
+              ),
             TextButton(
               onPressed: replyComment,
               child: Row(children: const [

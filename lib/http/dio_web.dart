@@ -328,10 +328,9 @@ class DioRequestWeb {
       if (totalPageNode.querySelectorAll('a.page_normal').isNotEmpty) {
         favTopicDetail.totalPage = int.parse(
             totalPageNode.querySelectorAll('a.page_normal').last.text);
-        print(favTopicDetail.totalPage);
       }
     }
-    var cellBox = mainBox!.querySelectorAll('div.cell.item');
+    var cellBox = mainBox.querySelectorAll('div.cell.item');
     for (var aNode in cellBox) {
       TabTopicItem item = TabTopicItem();
       if (aNode.querySelector('img.avatar') != null) {
@@ -364,7 +363,7 @@ class DioRequestWeb {
             .text
             .replaceAll("/t/", "");
         item.memberId =
-            topicTd.querySelectorAll('span.topic_info > strong')[0]!.text;
+            topicTd.querySelectorAll('span.topic_info > strong')[0].text;
       }
       if (aNode.querySelector(' a.node') != null) {
         item.nodeId =
@@ -990,7 +989,7 @@ class DioRequestWeb {
     var bodyDom = parse(response.data).body;
     var mainBox = bodyDom!.querySelector('#Main');
     var noticeNode =
-        bodyDom!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (mainBox != null) {
       // 领取 X 铜币 表示未签到
       var signStatus = mainBox.querySelector('input')!.attributes['value'];
@@ -1007,7 +1006,7 @@ class DioRequestWeb {
     print('$unRead条未读消息');
 
     // 余额
-    List balance = noticeNode!.querySelector('div#money')!.text.split(' ');
+    List balance = noticeNode.querySelector('div#money')!.text.split(' ');
     balance.removeAt(1);
     balance.removeAt(2);
     signDetail['balance'] = balance;
@@ -1056,7 +1055,7 @@ class DioRequestWeb {
     memberProfile.mbAvatar =
         profileCellNode!.querySelector('img')!.attributes['src']!;
     memberProfile.memberId = memberId;
-    if (profileCellNode!.querySelector('tr>td>strong.online') != null) {
+    if (profileCellNode.querySelector('tr>td>strong.online') != null) {
       memberProfile.isOnline = true;
     }
     print(memberProfile.isOnline);
@@ -1070,7 +1069,7 @@ class DioRequestWeb {
     }
 
     // 加入时间
-    var mbCreatedTimeDom = profileCellNode!.querySelector('span.gray')!.text!;
+    var mbCreatedTimeDom = profileCellNode.querySelector('span.gray')!.text;
     memberProfile.mbSort = mbCreatedTimeDom.split('+')[0].split('，')[0];
     memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0].split('，')[1];
     // 社交
@@ -1080,7 +1079,7 @@ class DioRequestWeb {
       for (var aNode in socialNodes) {
         MemberSocialItem item = MemberSocialItem();
         item.name = aNode.text;
-        item.href = aNode!.attributes['href']!;
+        item.href = aNode.attributes['href']!;
         item.icon =
             Strings.v2exHost + aNode.querySelector('img')!.attributes['src']!;
         item.type = aNode.querySelector('img')!.attributes['alt']!;
@@ -1122,11 +1121,11 @@ class DioRequestWeb {
           item.replyCount =
               topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
           item.topicTitle =
-              itemNode!.querySelector('span.item_title > a.topic-link')!.text;
-          item.time = itemNode!.querySelector('span.topic_info > span')!.text;
+              itemNode.querySelector('span.item_title > a.topic-link')!.text;
+          item.time = itemNode.querySelector('span.topic_info > span')!.text;
           item.nodeName =
-              itemNode!.querySelector('span.topic_info > a.node')!.text;
-          item.nodeId = itemNode!
+              itemNode.querySelector('span.topic_info > a.node')!.text;
+          item.nodeId = itemNode
               .querySelector('span.topic_info > a.node')!
               .attributes['href']!
               .split('/')[2];
@@ -1136,11 +1135,11 @@ class DioRequestWeb {
     }
 
     // 回复列表
-    var dockAreaDom = replysNode!.querySelectorAll('div.dock_area');
+    var dockAreaDom = replysNode.querySelectorAll('div.dock_area');
     if (dockAreaDom.isEmpty) {
       memberProfile.isEmptyReply = true;
     } else {
-      var innerDom = replysNode!.querySelectorAll('div.reply_content');
+      var innerDom = replysNode.querySelectorAll('div.reply_content');
       for (int i = 0;
           i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
           i++) {
@@ -1177,19 +1176,19 @@ class DioRequestWeb {
     ModelMemberReply memberReply = ModelMemberReply();
     Response response;
     response = await Request().get('/member/$memberId/replies',
-        data: {'p': p ?? 1}, extra: {'ua': 'pc'});
+        data: {'p': p}, extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main > div.box');
     if (contentDom!.querySelector('div.cell > table') != null) {
-      memberReply.totalPage = contentDom!
+      memberReply.totalPage = contentDom
           .querySelector('div.cell > table')!
           .querySelectorAll('a')
           .last
           .text;
     }
 
-    var dockAreaDom = contentDom!.querySelectorAll('div.dock_area');
-    var innerDom = contentDom!.querySelectorAll('div.reply_content');
+    var dockAreaDom = contentDom.querySelectorAll('div.dock_area');
+    var innerDom = contentDom.querySelectorAll('div.reply_content');
     for (int i = 0; i < dockAreaDom.length; i++) {
       MemberReplyItem item = MemberReplyItem();
       item.time = dockAreaDom[i].querySelector('span.fade')!.text;
@@ -1218,21 +1217,21 @@ class DioRequestWeb {
     List<MemberTopicItem> topicList = [];
     Response response;
     response = await Request().get('/member/$memberId/topics',
-        data: {'p': p ?? 1}, extra: {'ua': 'pc'});
+        data: {'p': p}, extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main');
     // 获取总页数
     if (contentDom!.querySelector('div.box > div.cell:not(.item)') != null) {
-      if (contentDom!
+      if (contentDom
           .querySelector('div.box > div.cell:not(.item)')!
           .text
           .contains('主题列表被隐藏')) {
         memberTopic.isShow = false;
         return memberTopic;
       }
-      memberTopic.totalPage = contentDom!.querySelectorAll('a').last!.text!;
+      memberTopic.totalPage = contentDom.querySelectorAll('a').last.text;
     }
-    var cellNode = contentDom!.querySelectorAll('div.cell.item');
+    var cellNode = contentDom.querySelectorAll('div.cell.item');
     for (var aNode in cellNode) {
       MemberTopicItem item = MemberTopicItem();
       var itemNode = aNode.querySelector('table');
@@ -1244,10 +1243,10 @@ class DioRequestWeb {
       item.replyCount =
           topicHref.split('#')[1].replaceAll(RegExp(r'[^0-9]'), '');
       item.topicTitle =
-          itemNode!.querySelector('span.item_title > a.topic-link')!.text;
-      item.time = itemNode!.querySelector('span.topic_info > span')!.text;
-      item.nodeName = itemNode!.querySelector('span.topic_info > a.node')!.text;
-      item.nodeId = itemNode!
+          itemNode.querySelector('span.item_title > a.topic-link')!.text;
+      item.time = itemNode.querySelector('span.topic_info > span')!.text;
+      item.nodeName = itemNode.querySelector('span.topic_info > a.node')!.text;
+      item.nodeId = itemNode
           .querySelector('span.topic_info > a.node')!
           .attributes['href']!
           .split('/')[2];
@@ -1282,9 +1281,9 @@ class DioRequestWeb {
     } else if (response.statusCode == 200) {
       var contentDom = bodyDom!.querySelector('#Wrapper');
       print(contentDom!.text);
-      if (contentDom!.querySelector('div.content > div.box > div.problem') !=
+      if (contentDom.querySelector('div.content > div.box > div.problem') !=
           null) {
-        String responseText = contentDom!
+        String responseText = contentDom
             .querySelector('div.content > div.box > div.problem')!
             .text;
         SmartDialog.show(
@@ -1331,7 +1330,7 @@ class DioRequestWeb {
         .xpath("/div[@class='header']/div/strong/text()")![0]
         .name!);
     // 总页数
-    memberNotices.totalPage = int.parse(mainNode![0]
+    memberNotices.totalPage = int.parse(mainNode[0]
         .xpath("/div[@class='cell']/table/tr/td/input")!
         .first
         .attributes['max']);
@@ -1352,12 +1351,12 @@ class DioRequestWeb {
           .split('#')[0];
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       noticeItem.topicTitleHtml =
-          td2Node.querySelector('span.fade')!.innerHtml!;
+          td2Node.querySelector('span.fade')!.innerHtml;
 
       noticeItem.replyContent = '';
       if (td2Node.querySelector('div.payload') != null) {
         noticeItem.replyContentHtml =
-            td2Node.querySelector('div.payload')!.innerHtml!;
+            td2Node.querySelector('div.payload')!.innerHtml;
       }else{
         noticeItem.replyContentHtml = null;
       }

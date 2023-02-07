@@ -1,9 +1,10 @@
 // import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
-import 'package:flutter_v2ex/pages/profile_page.dart';
+// import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 
 // import 'package:device_info/device_info.dart';
@@ -112,16 +113,20 @@ class Utils {
   }
 
   static void routeProfile(memberId, memberAvatar, heroTag) {
-    Navigator.push(
-      Routes.navigatorKey.currentContext!,
-      MaterialPageRoute(
-        builder: (context) => ProfilePage(
-          memberId: memberId,
-          memberAvatar: memberAvatar,
-          heroTag: heroTag
-        ),
-      ),
-    );
+    // Navigator.push(
+    //   Routes.navigatorKey.currentContext!,
+    //   MaterialPageRoute(
+    //     builder: (context) => ProfilePage(
+    //       memberId: memberId,
+    //       memberAvatar: memberAvatar,
+    //       heroTag: heroTag
+    //     ),
+    //   ),
+    // );
+    Get.toNamed('/member/$memberId', parameters: {
+      'memberAvatar': memberAvatar,
+      'heroTag': heroTag,
+    });
   }
 
   static void onLogin() {

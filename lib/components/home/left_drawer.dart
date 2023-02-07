@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
@@ -14,18 +15,23 @@ class HomeLeftDrawer extends StatefulWidget {
 }
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
-  String selectedId = '1';
+  // String selectedId = '1';
   int selectedIndex = 99;
   Map<dynamic, dynamic>? signDetail;
   ThemeType? tempThemeValue = ThemeType.system;
   ThemeType? currentThemeValue = ThemeType.system;
 
   void onDestinationSelected(int index) {
+    if (index == 0) {
+      Get.toNamed('/my/following');
+    }
     if (index == 1) {
-      Navigator.pushNamed(context, '/fav');
+      // Navigator.pushNamed(context, '/fav');
+      Get.toNamed('/my/topics');
     }
     if (index == 2) {
-      Navigator.pushNamed(context, '/message');
+      // Navigator.pushNamed(context, '/message');
+      Get.toNamed('/notifications');
     }
     if (index == 3) {
       print('_character: $tempThemeValue');

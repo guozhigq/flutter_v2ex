@@ -117,7 +117,7 @@ class _MessagePageState extends State<MessagePage> {
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          return NoticeItem(noticeItem: noticeList![index]);
+                          return NoticeItem(noticeItem: noticeList[index]);
                         },
                         childCount: noticeList.length,
                       ),

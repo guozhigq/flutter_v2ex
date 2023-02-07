@@ -7,7 +7,7 @@ class HomeStickyBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 42,
+      height: 40,
       child: Row(
         children: [
           Expanded(

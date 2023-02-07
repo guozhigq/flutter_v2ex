@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/models/web/item_member_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
-import 'package:flutter_v2ex/pages/list_detail.dart';
 
 class TopicItem extends StatelessWidget {
   MemberTopicItem topicItem;
@@ -14,17 +14,9 @@ class TopicItem extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
       child: Material(
         color: Theme.of(context).colorScheme.onInverseSurface,
-        // color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ListDetail(topicId: topicItem.topicId),
-              ),
-            );
-          },
+          onTap: () => Get.toNamed('/t/${topicItem.topicId}'),
           borderRadius: BorderRadius.circular(10),
           child: Ink(
             padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),
@@ -43,7 +35,6 @@ class TopicItem extends StatelessWidget {
           alignment: Alignment.centerLeft,
           margin: const EdgeInsets.only(bottom: 8),
           child: Text(
-            // Characters(widget.topic.topicTitle).join('\u{200B}'),
             topicItem.topicTitle,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,

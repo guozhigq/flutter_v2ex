@@ -121,11 +121,11 @@ class _TabBarListState extends State<TabBarList>
             child: buildSkeleton(),
           )
         : topicList.isNotEmpty
-            ? showRes(topicList)
+            ? showRes()
             : emptyData();
   }
 
-  Widget showRes(snapshot) {
+  Widget showRes() {
     return Stack(
       children: [
         Scrollbar(
@@ -151,11 +151,11 @@ class _TabBarListState extends State<TabBarList>
                 padding: const EdgeInsets.only(top: 1, bottom: 0),
                 physics: const AlwaysScrollableScrollPhysics(),
                 //重要
-                itemCount: snapshot.length + 1,
+                itemCount: topicList.length + 1,
                 controller: _controller,
                 // prototypeItem: ListItem(topic: snapshot[0]),
                 itemBuilder: (BuildContext context, int index) {
-                  if (index == snapshot.length) {
+                  if (index == topicList.length) {
                     if (widget.tabItem['id'] == 'recent') {
                       // return moreTopic('正在加载更多...');
                       return Container(
@@ -168,7 +168,7 @@ class _TabBarListState extends State<TabBarList>
                       return moreTopic('全部加载完成');
                     }
                   } else {
-                    return ListItem(topic: snapshot[index]);
+                    return ListItem(topic: topicList[index]);
                   }
                 },
               ),

@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage>
               child: const HomeSearchBar(),
             ),
             HomeStickyBar(tabs: tabs),
+            const SizedBox(height: 3),
             Expanded(
               child: TabBarView(
                 children: tabs.map((e) {
