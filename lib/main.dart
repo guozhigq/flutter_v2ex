@@ -25,14 +25,7 @@ Future parseJson(String text) {
   return compute(_parseAndDecode, text);
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  ByteData data =
-      await PlatformAssetBundle().load('assets/ca/lets-encrypt-r3.pem');
-  SecurityContext.defaultContext
-      .setTrustedCertificatesBytes(data.buffer.asUint8List());
-
+void main(){
   runApp(const MyApp());
 
   if (Platform.isAndroid) {
@@ -115,7 +108,8 @@ class _MyAppState extends State<MyApp> {
         // here
         builder: FlutterSmartDialog.init(
           //default loading widget
-          loadingBuilder: (String msg) => SmartLoading(msg: msg),
+          loadingBuilder: (String msg) => CustomLoading(msg: msg),
+          toastBuilder: (String msg) => CustomToast(msg: msg),
         ),
       );
     });

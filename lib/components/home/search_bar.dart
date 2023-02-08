@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
 import 'package:get/get.dart';
 
@@ -61,10 +62,11 @@ class HomeSearchBar extends StatelessWidget {
                 // },
                 onTap: () async{
                   var memberId = 'guozhigq';
-                 var res = await Get.toNamed('/member/$memberId/topics', parameters: {'memberId': memberId});
-                 if (res['loginStatus'] == 'cancel') {
-                   SmartDialog.showToast('取消登录');
-                 }
+                  var res = await Get.toNamed('/member/$memberId',
+                      parameters: {'memberId': memberId});
+                  if (res['loginStatus'] == 'cancel') {
+                    SmartDialog.showToast('取消登录');
+                  }
                 },
                 // child: Container(
                 //   decoration: BoxDecoration(

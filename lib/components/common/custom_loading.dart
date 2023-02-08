@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class SmartLoading extends StatelessWidget {
+class CustomLoading extends StatelessWidget {
   String msg = '加载中';
-  SmartLoading({required this.msg, super.key});
+  CustomLoading({required this.msg, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +29,27 @@ class SmartLoading extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CustomToast extends StatelessWidget {
+  final String msg;
+  const CustomToast({Key? key, required this.msg}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(msg, style: Theme.of(context).textTheme.titleMedium!.copyWith(
+        color: Theme.of(context).colorScheme.primary
+      )),
     );
   }
 }

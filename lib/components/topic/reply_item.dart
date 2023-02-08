@@ -168,7 +168,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       // decoration: BoxDecoration(
       //   border: Border(bottom: BorderSide(
       //     width: 1,
@@ -314,7 +314,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         // title
         Container(
-          margin: const EdgeInsets.only(top: 0, bottom: 0, left: 46, right: 0),
+          margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
           child: HtmlRender(htmlContent: widget.reply.contentRendered),
         ),
         bottonAction()
@@ -324,7 +324,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 感谢、回复、复制
   Widget bottonAction() {
-    return Row(
+    var color = Theme.of(context).colorScheme.onBackground;
+    return
+      Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
@@ -333,11 +335,19 @@ class _ReplyListItemState extends State<ReplyListItem> {
             TextButton(
               onPressed: thanksDialog,
               child: Row(children: [
-                const Icon(Icons.favorite_border, size: 19),
+                Icon(Icons.favorite_border, size: 17, color: color),
                 const SizedBox(width: 2),
                 widget.reply.favorites.isNotEmpty
-                    ? Text('感谢 +${widget.reply.favorites}')
-                    : const Text('感谢'),
+                    ? Text(widget.reply.favorites, style: TextStyle(color: color))
+                    : Text('感谢', style: TextStyle(color: color)),
+              ]),
+            ),
+            TextButton(
+              onPressed: replyComment,
+              child: Row(children: [
+                Icon(Icons.reply, size: 20, color: color.withOpacity(0.9)),
+                const SizedBox(width: 2),
+                Text('回复', style: TextStyle(color: color)),
               ]),
             ),
             if (widget.reply.replyMemberList.isNotEmpty)
@@ -346,16 +356,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     widget.reply.replyMemberList,
                     widget.reply.floorNumber,
                     [widget.reply]),
-                child: const Text('查看回复'),
+                child: Text('查看回复', style: TextStyle(color: color), ),
               ),
-            TextButton(
-              onPressed: replyComment,
-              child: Row(children: const [
-                Icon(Icons.reply, size: 20),
-                SizedBox(width: 2),
-                Text('回复'),
-              ]),
-            ),
           ],
         ),
         Row(

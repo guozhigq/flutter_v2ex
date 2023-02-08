@@ -5,7 +5,6 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 
-
 class GoPage extends StatefulWidget {
   const GoPage({super.key});
 
@@ -31,7 +30,7 @@ class _GoPageState extends State<GoPage> {
     getTopics();
     print('go page');
     _controller.addListener(
-          () {
+      () {
         var screenHeight = MediaQuery.of(context).size.height;
         if (_controller.offset >= screenHeight && showBackTopBtn == false) {
           setState(() {
@@ -53,8 +52,7 @@ class _GoPageState extends State<GoPage> {
   }
 
   void getTopics() async {
-    var res = await DioRequestWeb.getTopicsByNodeKey(
-        nodeId, _currentPage + 1);
+    var res = await DioRequestWeb.getTopicsByNodeKey(nodeId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
@@ -72,42 +70,45 @@ class _GoPageState extends State<GoPage> {
     return Scaffold(
         appBar: topicListDetail != null
             ? AppBar(
-          centerTitle: false,
-          title: Text(topicListDetail!.nodeName),
-          titleSpacing: 0,
-          actions: [
-            IconButton(
-              onPressed: () => {},
-              icon: const Icon(Icons.star_outline),
-              selectedIcon: Icon(
-                Icons.star,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              isSelected: topicListDetail!.isFavorite,
-            ),
-            const SizedBox(width: 12)
-          ],
-        )
+                centerTitle: false,
+                title: Text(topicListDetail!.nodeName),
+                titleSpacing: 0,
+                actions: [
+                  IconButton(
+                    onPressed: () => {},
+                    icon: const Icon(Icons.star_outline),
+                    selectedIcon: Icon(
+                      Icons.star,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    isSelected: topicListDetail!.isFavorite,
+                  ),
+                  const SizedBox(width: 12)
+                ],
+              )
             : null,
         body: Stack(
           children: [
             Scrollbar(
               controller: _controller,
               radius: const Radius.circular(10),
-              child: PullRefresh(
-                onChildRefresh: () {
-                  setState(() {
-                    _currentPage = 0;
-                  });
-                  getTopics();
-                },
-                // 上拉
-                onChildLoad: _totalPage > 1 && _currentPage < _totalPage
-                    ? getTopics
-                    : null,
-                currentPage: _currentPage,
-                totalPage: _totalPage,
-                child: topicListDetail != null ? content() : showLoading(),
+              child: Container(
+                margin: const EdgeInsets.only(right: 12, left: 12),
+                child: PullRefresh(
+                  onChildRefresh: () {
+                    setState(() {
+                      _currentPage = 0;
+                    });
+                    getTopics();
+                  },
+                  // 上拉
+                  onChildLoad: _totalPage > 1 && _currentPage < _totalPage
+                      ? getTopics
+                      : null,
+                  currentPage: _currentPage,
+                  totalPage: _totalPage,
+                  child: topicListDetail != null ? content() : showLoading(),
+                ),
               ),
             ),
             Positioned(
@@ -139,10 +140,10 @@ class _GoPageState extends State<GoPage> {
         SliverToBoxAdapter(
           child: topicListDetail!.nodeIntro.isNotEmpty
               ? Container(
-            padding: const EdgeInsets.only(
-                top: 20, right: 20, bottom: 30, left: 20),
-            child: Text(topicListDetail!.nodeIntro),
-          )
+                  padding: const EdgeInsets.only(
+                      top: 20, right: 20, bottom: 30, left: 20),
+                  child: Text(topicListDetail!.nodeIntro),
+                )
               : null,
         ),
         SliverList(

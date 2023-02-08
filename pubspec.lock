@@ -347,6 +347,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.6.5"
+  get_storage:
+    dependency: "direct main"
+    description:
+      name: get_storage
+      sha256: "00b3908d9cd4138738b4db69bcc0fc1cf4ee8570c06594136569470f32a84207"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.3"
   glob:
     dependency: transitive
     description:

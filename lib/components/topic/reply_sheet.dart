@@ -46,11 +46,12 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
         children: [
           Container(
             width: double.infinity,
-            height: 45,
+            height: 40,
+            padding: const EdgeInsets.only(bottom: 2),
             child: Center(
               child: Container(
-                width: 80,
-                height: 5,
+                width: 38,
+                height: 2,
                 decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(
                       Radius.circular(3),
@@ -64,6 +65,7 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
             Expanded(
               child: Container(
                 width: double.infinity,
+                padding: const EdgeInsets.only(left: 12, right: 12),
                 clipBehavior: Clip.hardEdge,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
