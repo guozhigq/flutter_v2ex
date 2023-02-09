@@ -47,7 +47,7 @@ class CustomToast extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(msg, style: Theme.of(context).textTheme.titleMedium!.copyWith(
+      child: Text(msg, style: Theme.of(context).textTheme.titleSmall!.copyWith(
         color: Theme.of(context).colorScheme.primary
       )),
     );

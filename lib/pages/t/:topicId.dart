@@ -63,6 +63,7 @@ class _TopicDetailState extends State<TopicDetail>
       ? FloatingActionButtonLocation.endContained
       : FloatingActionButtonLocation.endFloat;
 
+
   @override
   void initState() {
     super.initState();
@@ -420,10 +421,12 @@ class _TopicDetailState extends State<TopicDetail>
                         Container(
                           margin: const EdgeInsets.only(right: 10),
                           child: GestureDetector(
-                              onTap: () => Utils.routeProfile(
-                                  _detailModel!.createdId,
-                                  _detailModel!.avatar,
-                                  _detailModel!.createdId + heroTag),
+                              onTap: () => Get.toNamed(
+                                      '/member/${_detailModel!.createdId}',
+                                      parameters: {
+                                        'memberAvatar': _detailModel!.avatar,
+                                        'heroTag': heroTag,
+                                      }),
                               child: Hero(
                                 tag: _detailModel!.createdId + heroTag,
                                 child: CAvatar(
@@ -513,7 +516,10 @@ class _TopicDetailState extends State<TopicDetail>
               Container(
                 padding: const EdgeInsets.only(
                     top: 5, right: 18, bottom: 10, left: 18),
-                child: HtmlRender(htmlContent: _detailModel!.contentRendered),
+                child: HtmlRender(
+                    htmlContent: _detailModel!.contentRendered,
+                    imgCount: _detailModel!.imgCount,
+                    imgList: _detailModel!.imgList),
               ),
               // 附言
               if (_detailModel!.subtleList.isNotEmpty) ...[
@@ -643,7 +649,11 @@ class _TopicDetailState extends State<TopicDetail>
               const SizedBox(
                 height: 10,
               ),
-              HtmlRender(htmlContent: i.content)
+              HtmlRender(
+                htmlContent: i.content,
+                imgCount: _detailModel!.imgCount,
+                imgList: _detailModel!.imgList,
+              )
             ],
           ),
         ),

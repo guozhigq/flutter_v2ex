@@ -58,6 +58,37 @@ class _MemberPageState extends State<MemberPage> {
     return res;
   }
 
+  void onBlockMember() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('提示'),
+        // content: Text('确认屏蔽${memberId}吗？'),
+        content: Text.rich(TextSpan(children: [
+          const TextSpan(text: '确认屏蔽用户 '),
+          TextSpan(
+            text: '@$memberId',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(color: Theme.of(context).colorScheme.primary),
+          ),
+          const TextSpan(text: ' 吗')
+        ])),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('确认屏蔽'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +123,7 @@ class _MemberPageState extends State<MemberPage> {
                               )),
                           IconButton(
                               tooltip: 'Block',
-                              onPressed: () {},
+                              onPressed: () => onBlockMember(),
                               icon: Icon(
                                 Icons.not_interested,
                                 color: Theme.of(context).colorScheme.error,
@@ -150,7 +181,7 @@ class _MemberPageState extends State<MemberPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                memberProfile.memberId,
+                                '${memberProfile.memberId}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -175,7 +206,7 @@ class _MemberPageState extends State<MemberPage> {
                     child: Container(
                       margin:
                           const EdgeInsetsDirectional.only(top: 30, bottom: 8),
-                      padding: const EdgeInsets.only(left: 15, right: 2),
+                      padding: const EdgeInsets.only(left: 20, right: 2),
                       child: Text('Balance',
                           style: Theme.of(context).textTheme.titleMedium),
                     ),
@@ -212,7 +243,7 @@ class _MemberPageState extends State<MemberPage> {
                     child: Container(
                       margin:
                           const EdgeInsetsDirectional.only(top: 30, bottom: 15),
-                      padding: const EdgeInsets.only(left: 15, right: 2),
+                      padding: const EdgeInsets.only(left: 20, right: 2),
                       child: Text('社交',
                           style: Theme.of(context).textTheme.titleMedium),
                     ),
@@ -233,14 +264,14 @@ class _MemberPageState extends State<MemberPage> {
                     child: Container(
                       margin:
                           const EdgeInsetsDirectional.only(top: 30, bottom: 15),
-                      padding: const EdgeInsets.only(left: 15, right: 2),
+                      padding: const EdgeInsets.only(left: 20, right: 2),
                       child: Text('说明',
                           style: Theme.of(context).textTheme.titleMedium),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.only(left: 15, right: 15),
+                      padding: const EdgeInsets.only(left: 20, right: 15),
                       child: HtmlRender(
                         htmlContent: memberProfile.mbSign,
                       ),
@@ -411,7 +442,7 @@ class _MemberPageState extends State<MemberPage> {
         SliverToBoxAdapter(
           child: Container(
             margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
+            padding: const EdgeInsets.only(left: 20, right: 2),
             child: Row(
               children: [
                 Hero(

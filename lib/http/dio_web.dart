@@ -1,26 +1,24 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-// import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/http/init.dart';
 import 'package:html/dom.dart'
     as dom; // Contains DOM related classes for extracting data from elements
-// import 'package:html/dom.dart';
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 // import 'package:xpath/xpath.dart';
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
-
-// import 'package:html/dom_parsing.dart';
-// import 'package:html/html_escape.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart'; // 主题详情
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart'; // 主题回复
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart'; // 主题附言
 import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
-// import 'package:flutter_v2ex/models/web/item_node_list.dart';
 import 'package:flutter_v2ex/models/web/model_topic_fav.dart'; // 收藏的主题
 import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登录字段
 import 'package:flutter_v2ex/models/web/model_node_fav.dart';
@@ -34,11 +32,9 @@ import 'package:flutter_v2ex/models/web/model_member_notice.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 
 import 'package:dio_http_cache/dio_http_cache.dart';
-import '/utils/utils.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:async';
-import 'dart:convert';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class DioRequestWeb {
   static dynamic _parseAndDecode(String response) {
@@ -48,6 +44,8 @@ class DioRequestWeb {
   static Future parseJson(String text) {
     return compute(_parseAndDecode, text);
   }
+
+  GetStorage storage = GetStorage();
 
   // 错误、异常处理
   static void formatError(DioError e) {
@@ -126,17 +124,18 @@ class DioRequestWeb {
       if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
         item.replyCount =
             int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-          item.lastReplyTime = aNode
-              .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
-              .name!
-              .split(' &nbsp;')[0]
-              .replaceAll("/t/", "");
+        item.lastReplyTime = aNode
+            .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
+            .name!
+            .split(' &nbsp;')[0]
+            .replaceAll("/t/", "");
         if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
           item.lastReplyMId =
               aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
         }
-      }else{
-        item.lastReplyTime = aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
+      } else {
+        item.lastReplyTime =
+            aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
       }
       item.topicTitle = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
@@ -413,6 +412,8 @@ class DioRequestWeb {
     return favNodeList;
   }
 
+  // 获取关注的用户、主题
+
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
     // ignore: avoid_print
@@ -500,12 +501,6 @@ class DioRequestWeb {
     detailModel.visitorCount =
         pureStr.split('·')[1].replaceAll(RegExp(r'[^0-9]'), '');
 
-    // detailModel.smallGray = document
-    //     .querySelector('$headerQuery > small')!
-    //     .text
-    //     .split(' at')[1]
-    //     .replaceFirst(' +08:00', ''); // 时间 去除+ 08:00;
-
     detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
 
     // [email_protected] 转码回到正确的邮件字符串
@@ -526,6 +521,20 @@ class DioRequestWeb {
           document.querySelector('$mainBoxQuery > div.cell > div')!.text;
       detailModel.contentRendered =
           document.querySelector('$mainBoxQuery > div.cell > div')!.innerHtml;
+      if (document
+              .querySelector('$mainBoxQuery > div.cell > div')!
+              .querySelector('img') !=
+          null) {
+        var imgNodes = document
+            .querySelector('$mainBoxQuery > div.cell > div')!
+            .querySelectorAll('img');
+        var imgLength = imgNodes.length;
+        detailModel.imgCount += imgLength;
+        detailModel.imgList = [];
+        for (var imgNode in imgNodes) {
+          detailModel.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
+        }
+      }
     }
 
     // 附言
@@ -539,11 +548,20 @@ class DioRequestWeb {
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
         subtleItem.content = node.querySelector('div.topic_content')!.innerHtml;
+        if (node.querySelector('div.topic_content')!.querySelector('img') !=
+            null) {
+          var subImgNodes =
+              node.querySelector('div.topic_content')!.querySelectorAll('img');
+          detailModel.imgCount += subImgNodes.length;
+          for (var subImgNode in subImgNodes) {
+            detailModel.imgList
+                .add(Utils().imageUrl(subImgNode.attributes['src']!));
+          }
+        }
         subtleList.add(subtleItem);
       }
     }
     detailModel.subtleList = subtleList;
-
     // token 是否收藏
     // <a href="/unfavorite/topic/541492?t=lqstjafahqohhptitvcrplmjbllwqsxc" class="op">取消收藏</a>
     // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(2)
@@ -682,16 +700,29 @@ class DioRequestWeb {
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
             .innerHtml;
+
         replyItem.content = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
             .text;
-
+        if (aNode
+                .querySelector(
+                    '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+                .querySelector('img') !=
+            null) {
+          var imgNodes = aNode
+              .querySelector(
+                  '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+              .querySelectorAll('img');
+          for (var imgNode in imgNodes) {
+            replyItem.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
+          }
+        }
         var replyMemberNodes = aNode.querySelectorAll(
             '$replyTrQuery > td:nth-child(5) > div.reply_content > a');
-        if(replyMemberNodes.isNotEmpty){
-          for(var aNode in replyMemberNodes){
-            if(aNode.attributes['href']!.startsWith('/member')){
+        if (replyMemberNodes.isNotEmpty) {
+          for (var aNode in replyMemberNodes) {
+            if (aNode.attributes['href']!.startsWith('/member')) {
               replyItem.replyMemberList.add(aNode.text);
             }
           }
@@ -710,7 +741,7 @@ class DioRequestWeb {
     Response response;
     response = await Request().get(
       '/',
-      extra: {'ua': 'pc'},
+      extra: {'ua': 'pc', 'cache': true},
     );
     var document = parse(response.data);
     var nodesBox = document.querySelector('#Main')!.children.last;
@@ -804,9 +835,22 @@ class DioRequestWeb {
         }
       }
       if (aNode.querySelector('img') != null) {
-        loginKeyMap.captchaImg = '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
+        loginKeyMap.captchaImg =
+            '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
       }
     }
+
+    // 获取验证码
+    ResponseType resType = ResponseType.bytes;
+    Response res = await Request().get(
+      "/_captcha",
+      data: {'once': loginKeyMap.once},
+      extra: {'ua': 'mob', 'resType': resType},
+    );
+    if ((res.data as List<int>).isEmpty) {
+      throw Exception('NetworkImage is an empty file');
+    }
+    loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
     return loginKeyMap;
   }
 
@@ -826,54 +870,26 @@ class DioRequestWeb {
           'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
-    // FormData formData = FormData.fromMap({
-    //   args.userNameHash: args.userNameValue,
-    //   args.passwordHash: args.passwordValue,
-    //   args.codeHash: args.codeValue,
-    //   'once': args.once,
-    //   'next': args.next
-    // });
-
-    var data = {
-      '32ec105e6f3421fe7ff17ec25a3ed5095347b1f1e4b0d3a2b709bf1672bcac7c': 'guozhigq',
-      '45f3b1d5a1d7e38397b3aa6ea9644a40d19ae0ba75081c45af2f1feaee11cf92': '7loveyou',
-      '7b97e90ea12b30ad8752732954f66f7079d5850ce612e0d9ddc4e0f1efcd4cbd': 'cefk',
-      'once': '97632',
-      'next': '/'
-    };
-    print('data😊:$data');
-    FormData formData = FormData.fromMap(
-      data
-    );
-    // var data =
-    //     '${args.userNameHash}=${args.userNameValue}&${args.passwordHash}=${args.passwordValue}&${args.codeHash}=${args.codeValue}&once=${args.once}&next="/"';
+    FormData formData = FormData.fromMap({
+      args.userNameHash: args.userNameValue,
+      args.passwordHash: args.passwordValue,
+      args.codeHash: args.codeValue,
+      'once': args.once,
+      'next': args.next
+    });
 
     response =
         await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
-    // print('response:$response');
-    // print('responseData:${response.data}');
-    var bodyDom = parse(response.data).body;
-    // print('response.statusCode${response.statusCode}');
     if (response.statusCode == 302) {
-      print('-------------------------------');
-      print(bodyDom);
-      print(bodyDom!.innerHtml);
-      print(bodyDom.text);
-
-      print('onLogin response.headers:${response.headers['set-cookie']}');
-      if (parse(response.data).body!.querySelector('div') != null) {
-        print(parse(response.data).body!.querySelector('div')!.innerHtml);
-      }
-      print('-------------------------------');
-
+      // 登录成功，重定向
       return await getUserInfo();
-    }else{
+    } else {
       // 登录失败，去获取错误提示信息
       var tree = ETree.fromString(response.data);
       // //*[@id="Wrapper"]/div/div[1]/div[3]/ul/li "输入的验证码不正确"
       // //*[@id="Wrapper"]/div/div[1]/div[2]/ul/li "用户名和密码无法匹配" 等
-      var errorInfo;
+      String? errorInfo;
       if (tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()') !=
           null) {
         errorInfo = tree
@@ -885,8 +901,7 @@ class DioRequestWeb {
             .name;
       }
       SmartDialog.dismiss();
-      SmartDialog.showToast(errorInfo);
-      print("wml error!!!!：$errorInfo");
+      SmartDialog.showToast(errorInfo!);
       return 'false';
     }
   }
@@ -894,7 +909,7 @@ class DioRequestWeb {
   // 获取当前用户信息
   static Future<String> getUserInfo() async {
     var response = await Request().get('/', extra: {'ua': 'mob'});
-    print('response.headers:${response.headers['set-cookie']}');
+    SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
       print("wml:" + response.redirects[0].location.path);
       // 需要两步验证
@@ -907,12 +922,10 @@ class DioRequestWeb {
     if (elementOfAvatarImg != null) {
       // 获取用户头像
       String avatar = elementOfAvatarImg.attributes["src"];
-      String username = elementOfAvatarImg.attributes["alt"]; // "w4mxl"
-      print(avatar);
-      print(username);
-
+      String userName = elementOfAvatarImg.attributes["alt"];
+      await Storage().setUserInfo({'avatar': avatar, 'userName': userName});
+      await Storage().setLoginStatus(true);
       // todo 判断用户是否开启了两步验证
-
       // 需要两步验证
       if (response.requestOptions.path == "/2fa") {
         var tree = ETree.fromString(response.data);
@@ -1175,8 +1188,8 @@ class DioRequestWeb {
       String memberId, int p) async {
     ModelMemberReply memberReply = ModelMemberReply();
     Response response;
-    response = await Request().get('/member/$memberId/replies',
-        data: {'p': p}, extra: {'ua': 'pc'});
+    response = await Request()
+        .get('/member/$memberId/replies', data: {'p': p}, extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main > div.box');
     if (contentDom!.querySelector('div.cell > table') != null) {
@@ -1216,8 +1229,8 @@ class DioRequestWeb {
     ModelMemberTopic memberTopic = ModelMemberTopic();
     List<MemberTopicItem> topicList = [];
     Response response;
-    response = await Request().get('/member/$memberId/topics',
-        data: {'p': p}, extra: {'ua': 'pc'});
+    response = await Request()
+        .get('/member/$memberId/topics', data: {'p': p}, extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main');
     // 获取总页数
@@ -1350,14 +1363,13 @@ class DioRequestWeb {
           .split('/')[2]
           .split('#')[0];
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
-      noticeItem.topicTitleHtml =
-          td2Node.querySelector('span.fade')!.innerHtml;
+      noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
 
       noticeItem.replyContent = '';
       if (td2Node.querySelector('div.payload') != null) {
         noticeItem.replyContentHtml =
             td2Node.querySelector('div.payload')!.innerHtml;
-      }else{
+      } else {
         noticeItem.replyContentHtml = null;
       }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'dart:math';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 
@@ -86,8 +86,12 @@ class _NoticeItemState extends State<NoticeItem> {
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Utils.routeProfile(widget.noticeItem.memberId,
-                      widget.noticeItem.memberAvatar, herotag),
+                  onTap: () => Get.toNamed(
+                      '/member/${widget.noticeItem.memberId}',
+                      parameters: {
+                        'memberAvatar': widget.noticeItem.memberAvatar,
+                        'heroTag': herotag,
+                      }),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(

@@ -1,21 +1,23 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'package:get/get.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
-import 'package:get/get.dart';
-import 'router/app_pages.dart';
 
-import 'package:flutter_v2ex/pages/login_page.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/string.dart';
-import 'package:flutter_v2ex/pages/home_page.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 
+import 'router/app_pages.dart';
+import 'package:flutter_v2ex/pages/home_page.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -25,7 +27,8 @@ Future parseJson(String text) {
   return compute(_parseAndDecode, text);
 }
 
-void main(){
+void main() async {
+  await GetStorage.init();
   runApp(const MyApp());
 
   if (Platform.isAndroid) {
@@ -80,8 +83,7 @@ class _MyAppState extends State<MyApp> {
       }
 
       return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        debugShowMaterialGrid: false,
+        debugShowCheckedModeBanner: true,
         initialRoute: '/',
         getPages: AppPages.getPages,
         theme: ThemeData(
@@ -100,8 +102,10 @@ class _MyAppState extends State<MyApp> {
         ),
         home: const HomePage(),
         navigatorKey: Routes.navigatorKey,
-        routes: {
-          '/login': (context) => const LoginPage(),
+        routingCallback: (routing) {
+          if(routing!.previous == '/login'){
+            print('123');
+          }
         },
         // here
         navigatorObservers: [FlutterSmartDialog.observer],

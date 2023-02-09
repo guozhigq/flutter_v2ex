@@ -91,8 +91,11 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Utils.routeProfile(
-                      widget.topic.memberId, widget.topic.avatar, herotag),
+                  onTap: () => Get.toNamed('/member/${widget.topic.memberId}',
+                      parameters: {
+                        'memberAvatar': widget.topic.avatar,
+                        'heroTag': herotag,
+                      }),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
@@ -131,7 +134,7 @@ class _ListItemState extends State<ListItem>
                                         Theme.of(context).colorScheme.outline),
                           ),
                         ],
-                        if (widget.topic.replyCount>0) ...[
+                        if (widget.topic.replyCount > 0) ...[
                           const SizedBox(width: 10),
                           Text(
                             '${widget.topic.replyCount} 回复',

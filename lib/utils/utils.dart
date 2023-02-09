@@ -1,41 +1,44 @@
-// import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
-// import 'package:flutter_v2ex/pages/profile_page.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 
-// import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+
 // import 'package:ovprogresshud/progresshud.dart';
 import 'package:path_provider/path_provider.dart';
+
 // import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'event_bus.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
 //   static AndroidDeviceInfo androidInfo;
 
   // // 获取设备系统版本号
-  // static deviceInfo() async {
-  //   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  //   if (Platform.isAndroid) {
-  //     androidInfo = await deviceInfo.androidInfo;
-  //     print('Running on ${androidInfo.version.sdkInt}');
-  //   } else if (Platform.isIOS) {
-  //     iosInfo = await deviceInfo.iosInfo;
-  //     print('Running on ${iosInfo.systemVersion}');
-  //   }
-  // }
+  static deviceInfo() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      print('Running on ${androidInfo.version.sdkInt}');
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      print('Running on ${iosInfo.systemVersion}');
+    }
+  }
 
   static Future<String> getCookiePath() async {
     Directory tempDir = await getApplicationDocumentsDirectory();
-    String tempPath = "${tempDir.path}/.vvex_cookie";
-    Directory dir = Directory(tempPath);
-    bool b = await dir.exists();
-    if (!b) {
-      dir.createSync(recursive: true);
-    }
+    String tempPath = "${tempDir.path}/.vvexCookie";
+    // Directory dir = Directory(tempPath);
+    // bool b = await dir.exists();
+    // if (!b) {
+    //   dir.createSync(recursive: true);
+    // }
+
     return tempPath;
   }
 
@@ -75,6 +78,24 @@ class Utils {
     return avatar;
   }
 
+  // img链接
+  String imageUrl(String imgUrl) {
+    if (!imgUrl.startsWith('http')) {
+      if (imgUrl.startsWith('//')) {
+        imgUrl = 'https:$imgUrl';
+      } else {
+        imgUrl = 'https://www.v2ex.com$imgUrl';
+      }
+    }
+    var suffix =
+        '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
+    RegExp exp = RegExp(r'.*\.' + suffix);
+    if (!exp.hasMatch(imgUrl)) {
+      imgUrl = '$imgUrl.png';
+    }
+    return imgUrl;
+  }
+
   // https://usamaejaz.com/cloudflare-email-decoding/
   // cloudflare email 转码
   static String cfDecodeEmail(String encodedString) {
@@ -112,29 +133,24 @@ class Utils {
     return target;
   }
 
-  static void routeProfile(memberId, memberAvatar, heroTag) {
-    // Navigator.push(
-    //   Routes.navigatorKey.currentContext!,
-    //   MaterialPageRoute(
-    //     builder: (context) => ProfilePage(
-    //       memberId: memberId,
-    //       memberAvatar: memberAvatar,
-    //       heroTag: heroTag
-    //     ),
-    //   ),
-    // );
-    Get.toNamed('/member/$memberId', parameters: {
-      'memberAvatar': memberAvatar,
-      'heroTag': heroTag,
-    });
-  }
-
   static void onLogin() {
     Navigator.push(
       Routes.navigatorKey.currentContext!,
       MaterialPageRoute(
         builder: (context) => const LoginPage(),
+        fullscreenDialog: true,
       ),
+    ).then(
+      (value) => {
+        if (value['loginStatus'] == 'cancel') {
+          SmartDialog.showToast('取消登录'),
+          EventBus().emit('login', 'cancel')
+        },
+        if (value['loginStatus'] == 'finish') {
+          SmartDialog.showToast('登录成功'),
+          EventBus().emit('login', 'finish')
+        }
+      },
     );
   }
 }

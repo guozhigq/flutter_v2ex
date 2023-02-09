@@ -5,11 +5,15 @@ class CAvatar extends StatelessWidget {
   final String url;
   final double size;
   final int radius = 50;
+  final fadeOutDuration;
+  final fadeInDuration;
 
   const CAvatar({
     Key? key,
     required this.url,
     required this.size,
+    this.fadeOutDuration,
+    this.fadeInDuration,
   }) : super(key: key);
 
   @override
@@ -22,8 +26,8 @@ class CAvatar extends StatelessWidget {
         height: size,
         width: size,
         fit: BoxFit.cover,
-        fadeOutDuration: const Duration(milliseconds: 800),
-        fadeInDuration: const Duration(milliseconds: 300),
+        fadeOutDuration: fadeOutDuration ?? const Duration(milliseconds: 800),
+        fadeInDuration: fadeInDuration ?? const Duration(milliseconds: 300),
         // progressIndicatorBuilder: (context, url, downloadProgress) =>
         //     CircularProgressIndicator(
         //   value: downloadProgress.progress,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:photo_view/photo_view.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,12 +11,14 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:extended_image/extended_image.dart';
 // import 'package:flutter_html_all/flutter_html_all.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:flutter_v2ex/pages/image_preview_page.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
   String? htmlContent;
-  HtmlRender({this.htmlContent, super.key});
-
+  final int? imgCount;
+  final List? imgList;
+  HtmlRender({this.htmlContent, this.imgCount, this.imgList, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,47 +35,42 @@ class HtmlRender extends StatelessWidget {
           // ),
           tagMatcher("img"): CustomRender.widget(
             widget: (htmlContext, buildChildren) {
-              // print(htmlContext.tree.element!.attributes['src']);
               String? imgUrl = htmlContext.tree.element!.attributes['src'];
-              if (!imgUrl!.contains('http')) {
-                if (imgUrl.startsWith('//')) {
-                  imgUrl = 'https:$imgUrl';
-                } else {
-                  imgUrl = 'https://www.v2ex.com$imgUrl';
-                }
-              }
-              var suffix =
-                  '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
-              RegExp exp = RegExp(r'.*\.' + suffix);
-              if (!exp.hasMatch(imgUrl)) {
-                imgUrl = '$imgUrl.png';
-              }
-              print('imgUrl:$imgUrl');
-
+              imgUrl = Utils().imageUrl(imgUrl!);
               // todo 多张图片轮播
               return SelectionContainer.disabled(
                 child: GestureDetector(
                   onTap: () {
-                    openImageDialog(imgUrl!, context, htmlContext);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImagePreview(imgList: imgList!, initialPage: imgList!.indexOf(imgUrl)
+                        ),
+                        fullscreenDialog: true,
+                      ),
+                    );
                   },
                   child: Container(
                     clipBehavior: Clip.hardEdge,
                     margin: const EdgeInsets.only(top: 4, bottom: 4),
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(4)),
-                    child: CachedNetworkImage(
-                      imageUrl: imgUrl,
-                      width: double.infinity,
-                      fit: BoxFit.fitHeight,
-                      fadeOutDuration: const Duration(milliseconds: 500),
-                      placeholder: (htmlContext, url) {
-                        return const SizedBox(
-                          height: 30,
-                          child: Center(
-                            child: Text('图片加载中...'),
-                          ),
-                        );
-                      },
+                    child: Hero(
+                      tag: imgUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: imgUrl,
+                        width: double.infinity,
+                        fit: BoxFit.fitHeight,
+                        fadeOutDuration: const Duration(milliseconds: 500),
+                        placeholder: (htmlContext, url) {
+                          return const SizedBox(
+                            height: 30,
+                            child: Center(
+                              child: Text('图片加载中...'),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -140,12 +137,6 @@ class HtmlRender extends StatelessWidget {
         // v2ex 链接
         List arr = aUrl.split('/');
         String topicId = arr[arr.length - 1];
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ListDetail(topicId: topicId),
-        //   ),
-        // );
         Get.toNamed('/t/$topicId');
       } else {
         // 其他链接
@@ -156,26 +147,9 @@ class HtmlRender extends StatelessWidget {
           ),
         );
       }
-    }
-    else if (aUrl.startsWith('/member/')) {
-      // String memberId = aUrl.split('/')[2];
-      // Utils.routeProfile(memberId, '', '');
-      print(aUrl);
+    } else if (aUrl.startsWith('/member/') || aUrl.startsWith('/go/') || aUrl.startsWith('/t/')) {
       Get.toNamed(aUrl);
-    } else if (aUrl.startsWith('/t/')){
-      // String arr = aUrl.split('/')[2];
-      // String topicId = arr.split('#')[0];
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => ListDetail(topicId: topicId),
-      //   ),
-      // );
-      Get.toNamed(aUrl);
-    }else if(aUrl.startsWith('/go/')) {
-     Get.toNamed(aUrl);
-    }
-    else {
+    } else {
       // ignore: avoid_print
       print('无效网址');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -184,32 +158,4 @@ class HtmlRender extends StatelessWidget {
     }
   }
 
-  // 打开大图预览
-  void openImageDialog(String imgUrl, BuildContext context, htmlContext) {
-    // ignore: avoid_print
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return GestureDetector(
-          behavior: HitTestBehavior.deferToChild,
-          onVerticalDragUpdate: (details) => {Navigator.pop(context)},
-          child: PhotoView(
-            tightMode: true,
-            imageProvider: NetworkImage(imgUrl),
-            heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
-            gestureDetectorBehavior: HitTestBehavior.translucent,
-            loadingBuilder: (context, event) => Center(
-              child: SizedBox(
-                width: 30.0,
-                height: 30.0,
-                child: CircularProgressIndicator(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }

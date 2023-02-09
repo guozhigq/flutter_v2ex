@@ -1,12 +1,10 @@
 import 'package:get_storage/get_storage.dart';
 
-enum StoreKeys { token, refreshToken, userInfo }
+enum StoreKeys { token, userInfo, loginStatus }
 
 class Storage {
   static final Storage _storage = Storage._internal();
   final GetStorage _box = GetStorage();
-
-  GetStorage get box => _box;
 
   Storage._internal();
 
@@ -14,12 +12,14 @@ class Storage {
 
   // setToken, getToken
   setToken(String token) => _box.write(StoreKeys.token.toString(), token);
-  String? getToken() => _box.read<String>(StoreKeys.token.toString());
+  String getToken() => _box.read<String>(StoreKeys.token.toString())!;
 
-  // setRefreshToken, getRefreshToken
-  setRefreshToken(String refreshToken) =>
-      _box.write(StoreKeys.refreshToken.toString(), refreshToken);
-  String? getRefreshToken() =>
-      _box.read<String>(StoreKeys.refreshToken.toString());
+  // 用户信息
+  setUserInfo(Map info) => _box.write(StoreKeys.userInfo.toString(), info);
+  Map getUserInfo() => _box.read<Map>(StoreKeys.userInfo.toString()) ??  {};
+
+  // 签到状态
+  setLoginStatus(bool status) => _box.write(StoreKeys.loginStatus.toString(), status);
+  bool getLoginStatus() => _box.read<bool>(StoreKeys.loginStatus.toString()) ?? false;
 
 }

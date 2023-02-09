@@ -1,11 +1,13 @@
+import 'dart:math';
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+
 
 class HomeLeftDrawer extends StatefulWidget {
   const HomeLeftDrawer({super.key});
@@ -15,22 +17,22 @@ class HomeLeftDrawer extends StatefulWidget {
 }
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
-  // String selectedId = '1';
+  bool loginStatus = false;
+  Map userInfo = {};
   int selectedIndex = 99;
   Map<dynamic, dynamic>? signDetail;
   ThemeType? tempThemeValue = ThemeType.system;
   ThemeType? currentThemeValue = ThemeType.system;
+
 
   void onDestinationSelected(int index) {
     if (index == 0) {
       Get.toNamed('/my/following');
     }
     if (index == 1) {
-      // Navigator.pushNamed(context, '/fav');
       Get.toNamed('/my/topics');
     }
     if (index == 2) {
-      // Navigator.pushNamed(context, '/message');
       Get.toNamed('/notifications');
     }
     if (index == 3) {
@@ -115,7 +117,29 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   @override
   void initState() {
     super.initState();
+    if (Storage().getLoginStatus()) {
+      setState(() {
+        loginStatus = true;
+      });
+      readUserInfo();
+    } else {
+      EventBus().on('login', (arg) {
+        if (arg == 'finish') {
+          readUserInfo();
+          EventBus().off('login');
+        }
+      });
+    }
     // queryDaily();
+  }
+
+  void readUserInfo() {
+    if (Storage().getUserInfo() != {}) {
+      Map userInfoStorage = Storage().getUserInfo();
+      setState(() {
+        userInfo = userInfoStorage;
+      });
+    }
   }
 
   // 查询签到状态
@@ -142,18 +166,20 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   @override
   Widget build(BuildContext context) {
+
     return NavigationDrawer(
       onDestinationSelected: onDestinationSelected,
       selectedIndex: selectedIndex,
       children: [
-        Container(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 25,
-            bottom: 20,
-          ),
-          child: Text('VVex', style: Theme.of(context).textTheme.titleLarge),
-        ),
+        // Container(
+        //   padding: EdgeInsets.only(
+        //     top: MediaQuery.of(context).padding.top,
+        //     left: 25,
+        //     bottom: 20,
+        //   ),
+        //   child: Text('VVex', style: Theme.of(context).textTheme.titleLarge),
+        // ),
+        header(),
         for (var i in listTitleMap)
           NavigationDrawerDestination(
             icon: i['leading'],
@@ -173,126 +199,132 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     );
   }
 
-// Widget header() {
-//   return DrawerHeader(
-//     curve: Curves.bounceInOut,
-//     child: Stack(
-//       children: [
-//         Column(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             const SizedBox(height: 20),
-//             GestureDetector(
-//               onTap: () => {Navigator.of(context).pushNamed('/login')},
-//               child: const CAvatar(
-//                 size: 65,
-//                 url:
-//                     'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
-//               ),
-//             ),
-//             // const SizedBox(height: 10),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 Text(
-//                   'guozhigq',
-//                   style: Theme.of(context).textTheme.titleMedium,
-//                 ),
-//                 // Row(
-//                 //   children: [
-//                 //     Icon(
-//                 //       Icons.auto_fix_high,
-//                 //       size: 18,
-//                 //       color: Theme.of(context).colorScheme.primary,
-//                 //     ),
-//                 //     const SizedBox(width: 5),
-//                 //     Text(
-//                 //       '领取登陆奖励',
-//                 //       style: Theme.of(context)
-//                 //           .textTheme
-//                 //           .labelMedium!
-//                 //           .copyWith(
-//                 //               color: Theme.of(context).colorScheme.primary),
-//                 //     ),
-//                 //   ],
-//                 // )
-//                 if (signDetail != null) ...[
-//                   TextButton(
-//                     onPressed: () => {
-//                       if (!signDetail!['signStatus'])
-//                         {
-//                           // 签到
-//                           DioRequestWeb.dailyMission()
-//                         }
-//                     },
-//                     child: Row(
-//                       children: [
-//                         Icon(
-//                           !signDetail!['signStatus']
-//                               ? Icons.auto_fix_high
-//                               : Icons.done_all,
-//                           size: 18,
-//                           color: Theme.of(context).colorScheme.primary,
-//                         ),
-//                         const SizedBox(width: 5),
-//                         Text(
-//                           !signDetail!['signStatus']
-//                               ? '领取登陆奖励'
-//                               : signDetail!['signDays'],
-//                           style: Theme.of(context)
-//                               .textTheme
-//                               .labelMedium!
-//                               .copyWith(
-//                                   color:
-//                                       Theme.of(context).colorScheme.primary),
-//                         ),
-//                       ],
-//                     ),
-//                   )
-//                 ] else ...[
-//                   TextButton(
-//                     onPressed: () => {},
-//                     child: Row(
-//                       children: [
-//                         Icon(
-//                           Icons.cached_sharp,
-//                           size: 18,
-//                           color: Theme.of(context).colorScheme.primary,
-//                         ),
-//                         const SizedBox(width: 5),
-//                         Text(
-//                           '稍等',
-//                           style: Theme.of(context)
-//                               .textTheme
-//                               .labelMedium!
-//                               .copyWith(
-//                                   color:
-//                                       Theme.of(context).colorScheme.primary),
-//                         ),
-//                       ],
-//                     ),
-//                   )
-//                 ]
-//               ],
-//             ),
-//             // const SizedBox(height: 8),
-//           ],
-//         ),
-//         Positioned(
-//           top: 0,
-//           right: 0,
-//           child: IconButton(
-//             onPressed: (() => {
-//                   // ignore: avoid_print
-//                   print('夜间模式切换按钮')
-//                 }),
-//             icon: const Icon(Icons.brightness_medium_rounded),
-//           ),
-//         )
-//       ],
-//     ),
-//   );
-// }
+  Widget header() {
+    final herotag = userInfo['userName'] + Random().nextInt(999).toString();
+    return DrawerHeader(
+      curve: Curves.bounceInOut,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(left: 15),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if(userInfo != {}) {
+                      Get.toNamed('/member/${userInfo['userName']}',
+                          parameters: {
+                          'memberAvatar': userInfo['avatar'],
+                          'heroTag': herotag,
+                          });
+                    }else{
+                      Get.toNamed('/login');
+                    }
+                  },
+                  child: Hero(
+                    tag: userInfo != {} ? herotag : null,
+                    child: CAvatar(
+                      size: 80,
+                      url: userInfo != {} ? '${userInfo['avatar']}':
+                      'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
+                    ),
+                  )
+
+                ),
+                // const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      userInfo == {} ? '登录' : '${userInfo['userName']}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (signDetail != null) ...[
+                      TextButton(
+                        onPressed: () => {
+                          if (!signDetail!['signStatus'])
+                            {
+                              // 签到
+                              DioRequestWeb.dailyMission()
+                            }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              !signDetail!['signStatus']
+                                  ? Icons.auto_fix_high
+                                  : Icons.done_all,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              !signDetail!['signStatus']
+                                  ? '领取登陆奖励'
+                                  : signDetail!['signDays'],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                            ),
+                          ],
+                        ),
+                      )
+                    ] else ...[
+                      TextButton(
+                        onPressed: () => {},
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.cached_sharp,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              '稍等',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                            ),
+                          ],
+                        ),
+                      )
+                    ]
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            // child: Column(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   crossAxisAlignment: CrossAxisAlignment.end,
+            //   children: [
+            //     Text('2023-02-10', style: Theme.of(context).textTheme.titleMedium),
+            //     const SizedBox(height: 3),
+            //     Text('星期三', style: Theme.of(context).textTheme.titleSmall)
+            //   ],
+            // ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }

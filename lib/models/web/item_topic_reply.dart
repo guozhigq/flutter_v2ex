@@ -15,4 +15,5 @@ class ReplyItem {
   String platform = ''; // 平台 Android ios
   bool isChoose = false; // 默认不选中,
   List replyMemberList = []; // 回复的用户id
+  List imgList = []; // image
 }

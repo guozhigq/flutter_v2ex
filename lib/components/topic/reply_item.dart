@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/reply_new.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'dart:math';
 
 class ReplyListItem extends StatefulWidget {
@@ -96,8 +96,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ignoreComment();
         break;
       case 5:
-        Utils.routeProfile(widget.reply.userName, widget.reply.avatar,
-            widget.reply.userName + heroTag);
+        Get.toNamed('/member/${widget.reply.userName}', parameters: {
+          'memberAvatar': widget.reply.avatar,
+          'heroTag': widget.reply.userName + heroTag,
+        });
         break;
     }
   }
@@ -197,8 +199,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
           widget.reply.isChoose = !widget.reply.isChoose;
         });
       },
-      onTap: () => Utils.routeProfile(widget.reply.userName,
-          widget.reply.avatar, widget.reply.userName + heroTag),
+      onTap: () => Get.toNamed('/member/${widget.reply.userName}', parameters: {
+        'memberAvatar': widget.reply.avatar,
+        'heroTag': widget.reply.userName + heroTag,
+      }),
       child: Column(
         children: [
           Container(
@@ -315,7 +319,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
         // title
         Container(
           margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
-          child: HtmlRender(htmlContent: widget.reply.contentRendered),
+          child: HtmlRender(
+            htmlContent: widget.reply.contentRendered,
+            imgList: widget.reply.imgList,
+          ),
         ),
         bottonAction()
       ],
@@ -324,9 +331,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 感谢、回复、复制
   Widget bottonAction() {
-    var color = Theme.of(context).colorScheme.onBackground;
-    return
-      Row(
+    var color = Theme.of(context).colorScheme.onBackground.withOpacity(0.8);
+    var textStyle = Theme.of(context).textTheme.bodyMedium !.copyWith(
+      color: Theme.of(context).colorScheme.onBackground,
+    );
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
@@ -338,16 +347,17 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 Icon(Icons.favorite_border, size: 17, color: color),
                 const SizedBox(width: 2),
                 widget.reply.favorites.isNotEmpty
-                    ? Text(widget.reply.favorites, style: TextStyle(color: color))
-                    : Text('感谢', style: TextStyle(color: color)),
+                    ? Text(widget.reply.favorites,
+                        style: textStyle)
+                    : Text('感谢', style:textStyle),
               ]),
             ),
             TextButton(
               onPressed: replyComment,
               child: Row(children: [
-                Icon(Icons.reply, size: 20, color: color.withOpacity(0.9)),
+                Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
                 const SizedBox(width: 2),
-                Text('回复', style: TextStyle(color: color)),
+                Text('回复', style: textStyle),
               ]),
             ),
             if (widget.reply.replyMemberList.isNotEmpty)
@@ -356,7 +366,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     widget.reply.replyMemberList,
                     widget.reply.floorNumber,
                     [widget.reply]),
-                child: Text('查看回复', style: TextStyle(color: color), ),
+                child: Text(
+                  '查看回复',
+                  style: textStyle,
+                ),
               ),
           ],
         ),

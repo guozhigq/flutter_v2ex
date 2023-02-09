@@ -45,207 +45,197 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () =>
+                Get.back(result: {
+                  'loginStatus': 'cancel'
+                }),
+            );
+          },
+        ),
+        actions: [TextButton(onPressed: () => {}, child: const Text('注册账号'))],
+      ),
       body: Stack(
         alignment: AlignmentDirectional.bottomCenter,
         children: [
-          Container(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).padding.top + 100),
-            child: Form(
-              key: _formKey, //设置globalKey，用于后面获取FormState
-              autovalidateMode: AutovalidateMode.disabled,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                // mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    '登录',
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  const SizedBox(height: 10),
-                  Text('使用您的v2ex账号',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 50),
-                  Container(
-                    // height: 70,
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-                    child: TextFormField(
-                      controller: _userNameController,
-                      focusNode: userNameTextFieldNode,
-                      decoration: InputDecoration(
-                        labelText: '用户名',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                        ),
-                      ),
-                      // 校验用户名
-                      validator: (v) {
-                        return v!.trim().isNotEmpty ? null : "用户名不能为空";
-                      },
-                      onSaved: (val) {
-                        _userName = val;
-                      },
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-                    child: TextFormField(
-                      controller: _passwordController,
-                      obscureText: passwordVisible,
-                      focusNode: passwordTextFieldNode,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                        ),
-                        labelText: '密码',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            passwordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              passwordVisible = !passwordVisible;
-                            });
-                          },
-                        ),
-                      ),
-                      //校验密码
-                      validator: (v) {
-                        return v!.trim().length > 5 ? null : "密码不能少于6位";
-                      },
-                      onSaved: (val) {
-                        _password = val;
-                      },
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-                    child: Stack(
-                      children: [
-                        TextFormField(
-                          controller: _codeController,
-                          keyboardType: TextInputType.text,
-                          focusNode: captchaTextFieldNode,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(6.0),
-                            ),
-                            labelText: '验证码',
-                          ),
-                          validator: (v) {
-                            return v!.trim().isNotEmpty ? null : "验证码不能为空";
-                          },
-                          onSaved: (val) {
-                            _code = val;
-                          },
-                        ),
-                        if (loginKey.captchaImg!='') ...[
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            height: 64,
-                            child: Container(
-                              clipBehavior: Clip.hardEdge,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(6),
-                                  bottomRight: Radius.circular(6),
-                                ),
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    getSignKey();
-                                  });
-                                },
-                                child: CachedNetworkImage(
-                                  imageUrl: loginKey.captchaImg,
-                                  width: 200,
-                                  alignment: Alignment.centerLeft,
-                                  fadeOutDuration:
-                                      const Duration(milliseconds: 600),
-                                  fit: BoxFit.fitHeight,
-                                  progressIndicatorBuilder:
-                                      (context, url, downloadProgress) =>
-                                          const Center(
-                                    child: Text('加载中...'),
-                                  ),
-                                ),
-                                // child: Image.memory(
-                                //   loginKey.captchaImgBytes!,
-                                //   height: 64.0,
-                                //   width: 160.0,
-                                //   fit: BoxFit.fitHeight,
-                                // ),
-                              ),
-                            ),
-                          ),
-                        ]
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 94,
-                    padding: const EdgeInsets.all(20),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50)),
-                      child: Text(
-                        '登录',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      onPressed: () async {
-                        if ((_formKey.currentState as FormState).validate()) {
-                          //验证通过提交数据
-                          (_formKey.currentState as FormState).save();
-                          loginKey.userNameValue = _userName!;
-                          loginKey.passwordValue = _password!;
-                          loginKey.codeValue = _code!;
-                          // 键盘收起
-                          captchaTextFieldNode.unfocus();
-                          var result = await DioRequestWeb.onLogin(loginKey);
-                          if (result == 'true') {
-                          } else {
-                            getSignKey();
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      '忘记密码？',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 14,
-            right: 14,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Form(
+            key: _formKey, //设置globalKey，用于后面获取FormState
+            autovalidateMode: AutovalidateMode.disabled,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  tooltip: '取消登录',
-                  onPressed: () => {
-                    // Navigator.pop(context)
-                    Get.back(result: {'loginStatus': 'cancel'})
-                  },
-                  icon: const Icon(
-                    Icons.close,
-                    size: 28,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  '登录',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(height: 10),
+                Text('使用您的v2ex账号',
+                    style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 50),
+                Container(
+                  // height: 70,
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+                  child: TextFormField(
+                    controller: _userNameController,
+                    focusNode: userNameTextFieldNode,
+                    decoration: InputDecoration(
+                      labelText: '用户名',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                    ),
+                    // 校验用户名
+                    validator: (v) {
+                      return v!.trim().isNotEmpty ? null : "用户名不能为空";
+                    },
+                    onSaved: (val) {
+                      _userName = val;
+                    },
                   ),
                 ),
-                TextButton(onPressed: () => {}, child: const Text('注册账号'))
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: passwordVisible,
+                    focusNode: passwordTextFieldNode,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      labelText: '密码',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            passwordVisible = !passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    //校验密码
+                    validator: (v) {
+                      return v!.trim().length > 5 ? null : "密码不能少于6位";
+                    },
+                    onSaved: (val) {
+                      _password = val;
+                    },
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+                  child: Stack(
+                    children: [
+                      TextFormField(
+                        controller: _codeController,
+                        keyboardType: TextInputType.text,
+                        focusNode: captchaTextFieldNode,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6.0),
+                          ),
+                          labelText: '验证码',
+                        ),
+                        validator: (v) {
+                          return v!.trim().isNotEmpty ? null : "验证码不能为空";
+                        },
+                        onSaved: (val) {
+                          _code = val;
+                        },
+                      ),
+                      if (loginKey.captchaImg != '') ...[
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          height: 64,
+                          child: Container(
+                            clipBehavior: Clip.hardEdge,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(6),
+                                bottomRight: Radius.circular(6),
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  getSignKey();
+                                });
+                              },
+                              // child: CachedNetworkImage(
+                              //   imageUrl: loginKey.captchaImg,
+                              //   width: 200,
+                              //   alignment: Alignment.centerLeft,
+                              //   fadeOutDuration:
+                              //       const Duration(milliseconds: 600),
+                              //   fit: BoxFit.fitHeight,
+                              //   progressIndicatorBuilder:
+                              //       (context, url, downloadProgress) =>
+                              //           const Center(
+                              //     child: Text('加载中...'),
+                              //   ),
+                              // ),
+                              child: Image.memory(
+                                loginKey.captchaImgBytes!,
+                                height: 64.0,
+                                // width: 200.0,
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 94,
+                  padding: const EdgeInsets.all(20),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50)),
+                    child: Text(
+                      '登录',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onPressed: () async {
+                      if ((_formKey.currentState as FormState).validate()) {
+                        //验证通过提交数据
+                        (_formKey.currentState as FormState).save();
+                        loginKey.userNameValue = _userName!;
+                        loginKey.passwordValue = _password!;
+                        loginKey.codeValue = _code!;
+                        // 键盘收起
+                        captchaTextFieldNode.unfocus();
+                        var result = await DioRequestWeb.onLogin(loginKey);
+                        if (result == 'true') {
+                          Get.back(result: {
+                            'loginStatus': 'finish'
+                          });
+                        } else {
+                          getSignKey();
+                        }
+                      }
+                    },
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    '忘记密码？',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
               ],
             ),
           ),
