@@ -3,16 +3,19 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class ReplyNew extends StatefulWidget {
   final statusHeight;
   List? replyMemberList;
   final String topicId;
+  int? totalPage;
 
   ReplyNew({
     this.statusHeight,
     this.replyMemberList,
     required this.topicId,
+    this.totalPage,
     super.key,
   });
 
@@ -52,18 +55,25 @@ class _ReplyNewState extends State<ReplyNew> {
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
-      print(_replyContent);
 
       String replyUser = '';
       if (widget.replyMemberList!.isNotEmpty) {
         for (var i in widget.replyMemberList as List) {
-          print(i.userName);
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
       }
 
-      print(replyUser);
-      // var res = await DioRequestWeb.onSubmitReplyTopic(widget.topicId, '', _replyContent);
+      var res = await DioRequestWeb.onSubmitReplyTopic(
+          widget.topicId,
+        replyUser + _replyContent,
+        widget.totalPage!
+      );
+      if (res) {
+        Navigator.pop(context, {'replyStatus': 'success'});
+      } else {
+        Navigator.pop(context, {'replyStatus': 'fail'});
+        print('回复失败');
+      }
     }
   }
 
@@ -85,7 +95,12 @@ class _ReplyNewState extends State<ReplyNew> {
             children: [
               IconButton(
                 tooltip: '关闭弹框',
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Map res = {
+                    'replyStatus': 'cancel'
+                  };
+                  Navigator.pop(context, res);
+                },
                 icon: const Icon(Icons.close),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
@@ -109,7 +124,7 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (widget.replyMemberList!.isNotEmpty)
             if (widget.replyMemberList!.length > 1)
               Row(
@@ -132,22 +147,20 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
           if (widget.replyMemberList!.length == 1)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+              padding: const EdgeInsets.only(top: 0, right: 10, bottom: 20, left: 10),
               alignment: Alignment.topLeft,
               child: HtmlRender(
                 htmlContent: widget.replyMemberList![0].contentRendered,
               ),
-              // child: Text(widget.replyMemberList![0].content, style: Theme.of(context).textTheme.titleMedium,),
             ),
-          const SizedBox(height: 20),
           Expanded(
             child: Container(
               width: double.infinity,
               height: double.infinity,
               padding: EdgeInsets.only(
                   top: 12,
-                  right: 20,
-                  left: 20,
+                  right: 15,
+                  left: 15,
                   bottom: MediaQuery.of(context).padding.bottom + 10),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
@@ -158,13 +171,6 @@ class _ReplyNewState extends State<ReplyNew> {
                   bottomRight: Radius.circular(16),
                 ),
               ),
-              // child: TextField(
-              //   minLines: 1,
-              //   maxLines: null,
-              //   decoration: const InputDecoration(
-              //       hintText: "输入回复内容", border: InputBorder.none),
-              //   style: Theme.of(context).textTheme.bodyLarge,
-              // ),
               child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -189,7 +195,7 @@ class _ReplyNewState extends State<ReplyNew> {
             width: double.infinity,
             height: 60,
             clipBehavior: Clip.hardEdge,
-            margin: const EdgeInsets.only(top: 10, bottom: 0),
+            margin: EdgeInsets.only(top: 10, bottom: MediaQuery.of(context).padding.bottom),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(30),

@@ -455,6 +455,7 @@ class DioRequestWeb {
                       {SmartDialog.dismiss(), Navigator.pop(context)}),
                   child: const Text('返回上一页')),
               TextButton(
+                  // TODO
                   onPressed: (() =>
                       {Navigator.of(context).pushNamed('/login')}),
                   child: const Text('去登录'))
@@ -562,24 +563,37 @@ class DioRequestWeb {
       }
     }
     detailModel.subtleList = subtleList;
-    // token 是否收藏
-    // <a href="/unfavorite/topic/541492?t=lqstjafahqohhptitvcrplmjbllwqsxc" class="op">取消收藏</a>
-    // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(2)
+
+    // 收藏、感谢、屏蔽区域 未登录为null
     if (document.querySelector("$innerQuery > div > a[class='op']") != null) {
+      // 收藏状态  isFavorite:true 已收藏
       String collect = document
           .querySelector("$innerQuery > div > a[class='op']")!
           .attributes["href"]!;
-      // detailModel.token = collect.split('?t=')[1];
       detailModel.isFavorite = collect.startsWith('/unfavorite');
-      // print('detailModel.isFavorite: ${detailModel.isFavorite}');
-    }
 
-    // 登录
-    if (document.querySelector("$innerQuery > div > span") != null) {
-      String count = document.querySelector("$innerQuery > div > span")!.text;
-      if (count.contains('人收藏')) {
-        detailModel.favoriteCount = int.parse(count.trim().split('人收藏')[0]);
+      // once
+
+      var menuBodyNode = document.querySelector("div[id='menu-body']");
+      var loginOutNode =
+          menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
+      var loginOutHref = loginOutNode!.attributes['href'];
+      int once = int.parse(loginOutHref!.split('once=')[1]);
+      Storage().setOnce(once);
+
+      // 收藏人数
+      if (document.querySelector("$innerQuery > div > span") != null) {
+        String count = document.querySelector("$innerQuery > div > span")!.text;
+        if (count.contains('人收藏')) {
+          detailModel.favoriteCount = int.parse(count.trim().split('人收藏')[0]);
+        }
       }
+
+      // 是否感谢 isThank: true已感谢
+      detailModel.isThank = document.querySelector(
+              "$innerQuery > div > div[id='topic_thank'] > span") !=
+          null;
+      print('585 - thank: ${detailModel.isThank}');
     }
 
     // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？')) { location.href = '/ignore/topic/583319?once=62479'; }"
@@ -587,7 +601,7 @@ class DioRequestWeb {
     // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(5)
 
     // 登录 是否感谢 document.querySelector('#topic_thank > span')
-    detailModel.isThank = document.querySelector('#topic_thank > span') != null;
+    // detailModel.isThank = document.querySelector('#topic_thank > span') != null;
     // print(detailModel.isFavorite == true ? 'yes' : 'no');
     // print(detailModel.isThank == true ? 'yes' : 'no');
 
@@ -629,17 +643,6 @@ class DioRequestWeb {
           .text
           .replaceAll(RegExp(r"\s+"), "")
           .split('条回复')[0];
-      // if (p == 1) {
-      //   // 只有第一页这样的解析才对
-      //   if (document.querySelector(
-      //           '#Wrapper > div > div:nth-child(7) > div:last-child > a:last-child') !=
-      //       null) {
-      //     detailModel.totalPage = int.parse(document
-      //         .querySelector(
-      //             '#Wrapper > div > div:nth-child(5) > div:last-child > a:last-child')!
-      //         .text);
-      //   }
-      // }
 
       /// 回复楼层
       /// first td user avatar
@@ -945,34 +948,85 @@ class DioRequestWeb {
 
   /// action
   // 收藏 / 取消收藏
-  static Future<bool> favoriteTopic(bool isFavorite, String topicId,
-      {String token = '11896'}) async {
-    SmartDialog.showLoading(msg: '请稍等...');
+  static Future<bool> favoriteTopic(bool isFavorite, String topicId) async {
+    int once = Storage().getOnce();
+    SmartDialog.showLoading(msg: isFavorite ? '取消中...' : '收藏中...');
     String url = isFavorite
-        ? ("/unfavorite/topic/$topicId?once=$token")
-        : ("/favorite/topic/$topicId?once=$token");
-    var response = await Request().get(url, extra: {});
+        ? ("/unfavorite/topic/$topicId?once=$once")
+        : ("/favorite/topic/$topicId?once=$once");
+    var response = await Request().get(url, extra: {'ua': 'mob'});
     SmartDialog.dismiss();
+    // 返回的pc端ua
     if (response.statusCode == 200 || response.statusCode == 302) {
+      if (response.statusCode == 200) {
+        var document = parse(response.data);
+        var menuBodyNode = document
+            .querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+        var loginOutHref = loginOutNode!.attributes['onclick']!;
+        RegExp regExp = RegExp(r'\d{3,}');
+        Iterable<Match> matches = regExp.allMatches(loginOutHref);
+        for (Match m in matches) {
+          Storage().setOnce(int.parse(m.group(0)!));
+        }
+      }
       // 操作成功
       return true;
     }
     return false;
   }
 
-  // 感谢
+  // 感谢主题
   static Future<bool> thankTopic(String topicId) async {
-    // String once = await getOnce();
-    // print("thankTopic：" + once);
-    // if (once == null || once.isEmpty) {
-    //   return false;
-    // }
-    var response = await Request().get("/thank/topic/$topicId?once=28900");
+    int once = Storage().getOnce();
+    SmartDialog.showLoading(msg: '表示感谢ing');
+    var response =
+        await Request().post("/thank/topic/$topicId?once=$once");
     if (response.statusCode == 200 || response.statusCode == 302) {
+      if (response.statusCode == 200) {
+        var document = parse(response.data);
+        var menuBodyNode = document.querySelector("div[id='menu-body']");
+        var loginOutNode =
+            menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
+        var loginOutHref = loginOutNode!.attributes['href'];
+        int once = int.parse(loginOutHref!.split('once=')[1]);
+        Storage().setOnce(once);
+      }
       // 操作成功
       return true;
     }
     return false;
+  }
+
+  // 感谢回复
+  static Future thankReply(String replyId, String topicId) async {
+    // Options options = Options();
+    // options.headers = {
+    //   'refer': '${Strings.v2exHost}/t/$topicId',
+    //   'origin': Strings.v2exHost
+    // };
+    var res  = await Request().post('/thank/reply/999');
+    log(res);
+    return true;
+    // int once = Storage().getOnce();
+    // SmartDialog.showLoading(msg: '表示感谢ing');
+    // var response =
+    //     await Request().post("/thank/reply/$replyId?once=$once");
+    // print('1019 thankReply: $response');
+    // if (response.statusCode == 200 || response.statusCode == 302) {
+    //   if (response.statusCode == 200) {
+    //     var document = parse(response.data);
+    //     var menuBodyNode = document.querySelector("div[id='menu-body']");
+    //     var loginOutNode =
+    //         menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
+    //     var loginOutHref = loginOutNode!.attributes['href'];
+    //     int once = int.parse(loginOutHref!.split('once=')[1]);
+    //     Storage().setOnce(once);
+    //   }
+    //   // 操作成功
+    //   return true;
+    // }
+    // return false;
   }
 
   // 忽略主题
@@ -1270,31 +1324,37 @@ class DioRequestWeb {
   }
 
   // 回复主题
-  static Future<dynamic> onSubmitReplyTopic(
-      String topicId, String once, String replyContent) async {
+  static Future<bool> onSubmitReplyTopic(
+      String topicId, String replyContent, int totalPage) async {
     SmartDialog.showLoading(msg: '回复中...');
+    int once = Storage().getOnce();
     Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
-      'content-type': 'application/x-www-form-urlencoded',
+      // 'content-type': 'application/x-www-form-urlencoded',
       'refer': '${Strings.v2exHost}/t/$topicId',
       'origin': Strings.v2exHost
     };
+    FormData formData = FormData.fromMap({
+      'once': once,
+      'content': replyContent
+    });
     Response response;
     response = await Request().post('/t/$topicId',
-        data: {
-          'once': '51524',
-          'content': replyContent,
-        },
+        data: formData,
         extra: {'ua': 'mob'},
         options: options);
-    SmartDialog.dismiss();
     var bodyDom = parse(response.data).body;
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
+      // 获取最后一页最近一条
+      var replyList = await getTopicDetail(topicId, totalPage+1);
+      Storage().setReplyItem(replyList.replyList.last);
+      SmartDialog.dismiss();
+      return true;
     } else if (response.statusCode == 200) {
       var contentDom = bodyDom!.querySelector('#Wrapper');
-      print(contentDom!.text);
-      if (contentDom.querySelector('div.content > div.box > div.problem') !=
+      if (contentDom!.querySelector('div.content > div.box > div.problem') !=
           null) {
         String responseText = contentDom
             .querySelector('div.content > div.box > div.problem')!
@@ -1318,8 +1378,11 @@ class DioRequestWeb {
         );
       }
       SmartDialog.showToast('回复失败了');
+      return false;
+    }else{
+      SmartDialog.dismiss();
+      return false;
     }
-    return bodyDom;
   }
 
   // 消息提醒
@@ -1386,4 +1449,7 @@ class DioRequestWeb {
     memberNotices.noticeList = noticeList;
     return memberNotices;
   }
+
+  // 查看余额
+  // /ajax/money
 }

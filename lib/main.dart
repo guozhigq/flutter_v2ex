@@ -105,6 +105,7 @@ class _MyAppState extends State<MyApp> {
         routingCallback: (routing) {
           if(routing!.previous == '/login'){
             print('123');
+            return;
           }
         },
         // here

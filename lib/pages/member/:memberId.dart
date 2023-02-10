@@ -239,14 +239,8 @@ class _MemberPageState extends State<MemberPage> {
                   ),
                 ],
                 if (memberProfile.socialList.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: Container(
-                      margin:
-                          const EdgeInsetsDirectional.only(top: 30, bottom: 15),
-                      padding: const EdgeInsets.only(left: 20, right: 2),
-                      child: Text('社交',
-                          style: Theme.of(context).textTheme.titleMedium),
-                    ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 30),
                   ),
                   SliverToBoxAdapter(
                     child: Container(
@@ -260,18 +254,12 @@ class _MemberPageState extends State<MemberPage> {
                   ),
                 ],
                 if (memberProfile.mbSign.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: Container(
-                      margin:
-                          const EdgeInsetsDirectional.only(top: 30, bottom: 15),
-                      padding: const EdgeInsets.only(left: 20, right: 2),
-                      child: Text('说明',
-                          style: Theme.of(context).textTheme.titleMedium),
-                    ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 20),
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 15),
+                      padding: const EdgeInsets.only(left: 20, right: 20),
                       child: HtmlRender(
                         htmlContent: memberProfile.mbSign,
                       ),

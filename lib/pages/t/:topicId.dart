@@ -17,8 +17,11 @@ import 'package:flutter_v2ex/components/topic/reply_new.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'dart:math';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
+import 'package:get_storage/get_storage.dart';
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -63,15 +66,12 @@ class _TopicDetailState extends State<TopicDetail>
       ? FloatingActionButtonLocation.endContained
       : FloatingActionButtonLocation.endFloat;
 
-
   @override
   void initState() {
     super.initState();
 
     setState(() {
       topicId = Get.parameters['topicId']!;
-      // topic =  Get.parameters['topic'];
-// out: 34954
     });
 
     _controller = EasyRefreshController(
@@ -82,6 +82,28 @@ class _TopicDetailState extends State<TopicDetail>
     // TODO build优化
     _scrollController.addListener(_listen);
     getDetailInit();
+
+    EventBus().on('topicReply', (status) {
+      print('eventON: $status');
+      String msg = '回复成功';
+      if(status == 'cancel'){
+        msg = '取消回复';
+      }
+      if(status == 'fail'){
+        msg = '回复失败';
+      }
+      if(status == 'succes'){
+        msg = '回复成功';
+      }
+      SmartDialog.showToast(msg);
+      if(status != 'success') return;
+      ReplyItem item = Storage().getReplyItem();
+      if (mounted) {
+        setState(() {
+          _replyList.add(item);
+        });
+      }
+    });
   }
 
   Future getDetailInit() async {
@@ -191,7 +213,7 @@ class _TopicDetailState extends State<TopicDetail>
       replyMemberList = replyList;
     });
     var statusHeight = MediaQuery.of(context).padding.top;
-    showModalBottomSheet<void>(
+    showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
@@ -199,9 +221,13 @@ class _TopicDetailState extends State<TopicDetail>
           statusHeight: statusHeight,
           replyMemberList: replyMemberList,
           topicId: _detailModel!.topicId,
+          totalPage: _totalPage,
         );
       },
-    );
+    ).then((value) => {
+      EventBus().emit('topicReply', value!['replyStatus'])
+    });
+
   }
 
   // 查看楼中楼回复
@@ -254,6 +280,7 @@ class _TopicDetailState extends State<TopicDetail>
     _controller.dispose();
     _scrollController.removeListener(_listen);
     _scrollController.dispose();
+    // EventBus().off('topicReply');
     super.dispose();
   }
 
@@ -332,7 +359,6 @@ class _TopicDetailState extends State<TopicDetail>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(_detailModel!.isFavorite ? '已添加到收藏' : '已取消收藏'),
-                duration: const Duration(milliseconds: 500),
                 showCloseIcon: true,
               ),
             );
@@ -591,6 +617,7 @@ class _TopicDetailState extends State<TopicDetail>
               return ReplyListItem(
                   reply: _replyList[index],
                   topicId: _detailModel!.topicId,
+                  totalPage: _totalPage,
                   queryReplyList: (replyMemberList, floorNumber, resultList) =>
                       queryReplyList(replyMemberList, floorNumber, resultList));
             },

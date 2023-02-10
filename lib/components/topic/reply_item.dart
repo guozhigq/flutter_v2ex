@@ -1,24 +1,28 @@
+import 'dart:math';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/reply_new.dart';
-import 'dart:math';
 
 class ReplyListItem extends StatefulWidget {
-  const ReplyListItem({
+  ReplyListItem({
     required this.reply,
     required this.topicId,
     this.queryReplyList,
+    this.totalPage,
     super.key,
   });
 
   final ReplyItem reply;
   final String topicId;
   final queryReplyList;
+  int? totalPage;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -57,6 +61,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       'leading': const Icon(Icons.person, size: 21),
     }
   ];
+  ReplyItem reply = ReplyItem();
   String heroTag = Random().nextInt(999).toString();
 
   @override
@@ -69,7 +74,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
         sheetMenu.removeAt(2);
       });
     }
-    if (widget.reply.replyMemberList.isNotEmpty) {
+    setState(() {
+      reply = widget.reply;
+    });
+    if (reply.replyMemberList.isNotEmpty) {
       setState(() {
         sheetMenu.insert(1, {
           'id': 2,
@@ -86,8 +94,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         replyComment();
         break;
       case 2:
-        widget.queryReplyList(widget.reply.replyMemberList,
-            widget.reply.floorNumber, [widget.reply]);
+        widget
+            .queryReplyList(reply.replyMemberList, reply.floorNumber, [reply]);
         break;
       case 3:
         copyComment();
@@ -96,9 +104,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ignoreComment();
         break;
       case 5:
-        Get.toNamed('/member/${widget.reply.userName}', parameters: {
-          'memberAvatar': widget.reply.avatar,
-          'heroTag': widget.reply.userName + heroTag,
+        Get.toNamed('/member/${reply.userName}', parameters: {
+          'memberAvatar': reply.avatar,
+          'heroTag': reply.userName + heroTag,
         });
         break;
     }
@@ -107,22 +115,31 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // 回复评论
   void replyComment() {
     var statusHeight = MediaQuery.of(context).padding.top;
-    showModalBottomSheet<void>(
+    var replyId = reply.replyId;
+    if(replyId == ''){
+      // 刚回复的楼层没有回复replyId
+      SmartDialog.showToast('无法回复最新评论');
+      return;
+    }
+    showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplyNew(
           statusHeight: statusHeight,
-          replyMemberList: [widget.reply],
+          replyMemberList: [reply],
           topicId: widget.topicId,
+          totalPage: widget.totalPage,
         );
       },
-    );
+    ).then((value) => {
+      EventBus().emit('topicReply', value!['replyStatus'])
+    });
   }
 
   // 复制评论
   void copyComment() {
-    Clipboard.setData(ClipboardData(text: widget.reply.content));
+    Clipboard.setData(ClipboardData(text: reply.content));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -148,7 +165,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
             children: [
               const Text('确定不再显示来自 '),
               Text(
-                '@${widget.reply.userName}',
+                '@${reply.userName}',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const Text(' 的这条回复？'),
@@ -165,6 +182,20 @@ class _ReplyListItemState extends State<ReplyListItem> {
         );
       },
     );
+  }
+
+  // 感谢回复 request
+  void onThankReply() async {
+    var res = await DioRequestWeb.thankReply(reply.replyId, widget.topicId);
+    print(res);
+    // if (res) {
+    //   SmartDialog.showToast('操作成功');
+    //   setState(() {
+    //     reply.favoritesStatus = true;
+    //   });
+    // } else {
+    //   SmartDialog.showToast('操作失败');
+    // }
   }
 
   @override
@@ -196,12 +227,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
     return GestureDetector(
       onLongPress: () {
         setState(() {
-          widget.reply.isChoose = !widget.reply.isChoose;
+          reply.isChoose = !reply.isChoose;
         });
       },
-      onTap: () => Get.toNamed('/member/${widget.reply.userName}', parameters: {
-        'memberAvatar': widget.reply.avatar,
-        'heroTag': widget.reply.userName + heroTag,
+      onTap: () => Get.toNamed('/member/${reply.userName}', parameters: {
+        'memberAvatar': reply.avatar,
+        'heroTag': reply.userName + heroTag,
       }),
       child: Column(
         children: [
@@ -213,18 +244,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
             child: Stack(
               children: [
                 Hero(
-                  tag: widget.reply.userName + heroTag,
+                  tag: reply.userName + heroTag,
                   child: CAvatar(
-                    url: widget.reply.avatar,
+                    url: reply.avatar,
                     size: 34,
                   ),
                 ),
-                // if (widget.reply.isChoose)
+                // if (reply.isChoose)
                 Positioned(
                   top: 0,
                   left: 0,
                   child: AnimatedOpacity(
-                    opacity: widget.reply.isChoose ? 1.0 : 0.0,
+                    opacity: reply.isChoose ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 100),
                     child: Container(
                       color: Theme.of(context)
@@ -269,13 +300,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       Row(
                         children: [
                           Text(
-                            widget.reply.userName,
+                            reply.userName,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(width: 4),
-                          if (widget.reply.isOwner) ...[
+                          if (reply.isOwner) ...[
                             Icon(
                               Icons.person,
                               size: 15,
@@ -287,20 +318,20 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       const SizedBox(height: 1.5),
                       Row(
                         children: [
-                          if (widget.reply.lastReplyTime.isNotEmpty) ...[
+                          if (reply.lastReplyTime.isNotEmpty) ...[
                             Text(
-                              widget.reply.lastReplyTime,
+                              reply.lastReplyTime,
                               style: Theme.of(context).textTheme.labelSmall,
                             ),
                             const SizedBox(width: 2),
                           ],
-                          if (widget.reply.platform == 'Android') ...[
+                          if (reply.platform == 'Android') ...[
                             const Icon(
                               Icons.android,
                               size: 14,
                             ),
                           ],
-                          if (widget.reply.platform == 'iPhone') ...[
+                          if (reply.platform == 'iPhone') ...[
                             const Icon(Icons.apple, size: 16),
                           ]
                         ],
@@ -310,7 +341,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 ],
               ),
               Text(
-                '#${widget.reply.floorNumber}',
+                '#${reply.floorNumber}',
                 style: Theme.of(context).textTheme.titleSmall,
               )
             ],
@@ -320,8 +351,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Container(
           margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
           child: HtmlRender(
-            htmlContent: widget.reply.contentRendered,
-            imgList: widget.reply.imgList,
+            htmlContent: reply.contentRendered,
+            imgList: reply.imgList,
           ),
         ),
         bottonAction()
@@ -332,9 +363,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // 感谢、回复、复制
   Widget bottonAction() {
     var color = Theme.of(context).colorScheme.onBackground.withOpacity(0.8);
-    var textStyle = Theme.of(context).textTheme.bodyMedium !.copyWith(
-      color: Theme.of(context).colorScheme.onBackground,
-    );
+    var textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          color: Theme.of(context).colorScheme.onBackground,
+        );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -346,10 +377,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
               child: Row(children: [
                 Icon(Icons.favorite_border, size: 17, color: color),
                 const SizedBox(width: 2),
-                widget.reply.favorites.isNotEmpty
-                    ? Text(widget.reply.favorites,
-                        style: textStyle)
-                    : Text('感谢', style:textStyle),
+                reply.favorites.isNotEmpty
+                    ? Text(reply.favorites, style: textStyle)
+                    : Text('感谢', style: textStyle),
               ]),
             ),
             TextButton(
@@ -360,12 +390,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 Text('回复', style: textStyle),
               ]),
             ),
-            if (widget.reply.replyMemberList.isNotEmpty)
+            if (reply.replyMemberList.isNotEmpty)
               TextButton(
                 onPressed: () => widget.queryReplyList(
-                    widget.reply.replyMemberList,
-                    widget.reply.floorNumber,
-                    [widget.reply]),
+                    reply.replyMemberList, reply.floorNumber, [reply]),
                 child: Text(
                   '查看回复',
                   style: textStyle,
@@ -433,8 +461,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
             child: const Text('手滑了'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text('确定👌'),
+            onPressed: () {
+              Navigator.pop(context, 'Ok');
+              onThankReply();
+            },
+            child: const Text('确认'),
           ),
         ],
       ),

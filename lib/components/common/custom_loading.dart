@@ -24,7 +24,7 @@ class CustomLoading extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           Text(
-            '请稍等...',
+            msg,
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ],
@@ -37,7 +37,6 @@ class CustomToast extends StatelessWidget {
   final String msg;
   const CustomToast({Key? key, required this.msg}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,9 +46,11 @@ class CustomToast extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(msg, style: Theme.of(context).textTheme.titleSmall!.copyWith(
-        color: Theme.of(context).colorScheme.primary
-      )),
+      child: Text(msg,
+          style: Theme.of(context)
+              .textTheme
+              .titleSmall!
+              .copyWith(color: Theme.of(context).colorScheme.primary)),
     );
   }
 }

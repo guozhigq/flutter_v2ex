@@ -178,7 +178,7 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      // print('post success---------${response.data}');
+      print('post success---------${response.data}');
       return response;
     } on DioError catch (e) {
       print('post error---------$e');

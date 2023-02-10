@@ -200,7 +200,10 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   }
 
   Widget header() {
-    final herotag = userInfo['userName'] + Random().nextInt(999).toString();
+    var herotag = '';
+    if(userInfo.keys.isNotEmpty){
+      herotag = userInfo['userName'] + Random().nextInt(999).toString();
+    }
     return DrawerHeader(
       curve: Curves.bounceInOut,
       child: Stack(
@@ -213,7 +216,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    if(userInfo != {}) {
+                    if(userInfo.keys.isNotEmpty) {
                       Get.toNamed('/member/${userInfo['userName']}',
                           parameters: {
                           'memberAvatar': userInfo['avatar'],
@@ -224,10 +227,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                     }
                   },
                   child: Hero(
-                    tag: userInfo != {} ? herotag : null,
+                    tag: herotag,
+                    // tag: userInfo.keys.isNotEmpty ? herotag : null,
                     child: CAvatar(
                       size: 80,
-                      url: userInfo != {} ? '${userInfo['avatar']}':
+                      url: userInfo.keys.isNotEmpty ? '${userInfo['avatar']}':
                       'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
                     ),
                   )
@@ -239,7 +243,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      userInfo == {} ? '登录' : '${userInfo['userName']}',
+                      userInfo.keys.isNotEmpty ? '${userInfo['userName']}' : '登录',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (signDetail != null) ...[

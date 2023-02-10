@@ -132,12 +132,13 @@ class HtmlRender extends StatelessWidget {
     bool isValidator = exp.hasMatch(aUrl!);
     if (isValidator) {
       // http(s) 网址
-      if (aUrl.startsWith('www.v2ex.com/t/') ||
-          aUrl.startsWith('https://v2ex.com/t')) {
+      if (aUrl.startsWith('www.v2ex.com/') ||
+          aUrl.startsWith('https://v2ex.com') ||
+          aUrl.startsWith('https://www.v2ex.com')
+      ) {
         // v2ex 链接
-        List arr = aUrl.split('/');
-        String topicId = arr[arr.length - 1];
-        Get.toNamed('/t/$topicId');
+        List arr = aUrl.split('.com');
+        Get.toNamed(arr[1]);
       } else {
         // 其他链接
         Navigator.push(

@@ -27,13 +27,6 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
         loginStatus = true;
       });
       readUserInfo();
-    } else {
-      EventBus().on('login', (arg) {
-        if (arg == 'finish') {
-          readUserInfo();
-          EventBus().off('login');
-        }
-      });
     }
   }
 
@@ -80,7 +73,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
               ),
               GestureDetector(
                 onTap: () async {
-                  if (userInfo != {}) {
+                  if (userInfo.keys.isNotEmpty) {
                     Get.toNamed('/member/${userInfo['userName']}',
                         parameters: {
                           'memberAvatar': userInfo['avatar'],
@@ -92,17 +85,21 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       SmartDialog.showToast('取消登录');
                     } else {
                       SmartDialog.showToast('登录成功');
+                      if (Storage().getLoginStatus()) {
+                        setState(() {
+                          loginStatus = true;
+                        });
+                        readUserInfo();
+                      }
                     }
                   }
                 },
-                child: loginStatus && userInfo != {}
+                child: loginStatus && userInfo.keys.isNotEmpty
                     ? Hero(
                         tag: userInfo['userName'],
                         child: CAvatar(
                           url: userInfo['avatar'],
                           size: 37,
-                          // fadeInDuration: Duration(milliseconds: 0),
-                          // fadeOutDuration: Duration(milliseconds: 100),
                         ),
                       )
                     // ?  Text(userInfo['userName'])

@@ -85,7 +85,7 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('最近发布'),
+        title: Text('${memberId}的最近发布'),
       ),
       body: Stack(
         children: [
