@@ -70,9 +70,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 70,
-      padding: const EdgeInsets.only(top: 10, right: 8, left: 8, bottom: 10),
-      // decoration: BoxDecoration(border: Border.all()),
+      height: 85,
+      padding: const EdgeInsets.only(top: 20, right: 0, left: 0, bottom: 15),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: Container(
@@ -101,7 +100,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
               GestureDetector(
                 onTap: () async {
                   if (userInfo.isNotEmpty) {
-                    Get.toNamed('/member/GOKOG', parameters: {
+                    Get.toNamed('/member/${userInfo['userName']}', parameters: {
                       'memberAvatar': userInfo['avatar'],
                       'heroTag': userInfo['userName'],
                     });

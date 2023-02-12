@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 
@@ -63,6 +64,10 @@ class _TabBarListState extends State<TabBarList>
         }
       },
     );
+
+    EventBus().on('ignoreTopic', (arg) => {
+      print('69: $arg')
+    });
   }
 
   @override

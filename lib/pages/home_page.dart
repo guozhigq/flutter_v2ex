@@ -56,14 +56,13 @@ class _HomePageState extends State<HomePage>
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        // backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const HomeSearchBar(),
+        ),
         drawer: const HomeLeftDrawer(),
         body: Column(
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              child: const HomeSearchBar(),
-            ),
             HomeStickyBar(tabs: tabs),
             const SizedBox(height: 3),
             Expanded(

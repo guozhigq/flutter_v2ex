@@ -33,13 +33,19 @@ void main() async {
   runApp(const MyApp());
 
   if (Platform.isAndroid) {
-    // 以下两行 设置android状态栏为透明的沉浸。写在组件渲染之后，是为了在渲染后进行set赋值，覆盖状态栏，写在渲染之前MaterialApp组件会覆盖掉这个值。
-    SystemUiOverlayStyle systemUiOverlayStyle =
-        const SystemUiOverlayStyle(statusBarColor: Colors.transparent);
-    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent, // Setting a transparent navigation bar color
+      systemNavigationBarContrastEnforced: true, // Default
+      statusBarBrightness: Brightness.light,
+      // statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark, // This defines the color of the scrim
+    ));
   }
 }
 
+// 主题色
 Color brandColor = const Color.fromRGBO(58, 105, 154, 100);
 
 class MyApp extends StatefulWidget {

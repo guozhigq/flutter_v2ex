@@ -119,7 +119,9 @@ flutter:
         - assets/images/social/Duolingo.png
         - assets/images/social/BattleTag.png
         - assets/images/social/Btc.png
-        - assets/ca/lets-encrypt-r3.pem
+        - assets/images/gold.png
+        - assets/images/silver.png
+        - assets/images/bronze.png
 
     #   - images/a_dot_ham.jpeg
 

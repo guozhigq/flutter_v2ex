@@ -902,7 +902,7 @@ class DioRequestWeb {
     options.contentType = Headers.jsonContentType; // 还原
     if (response.statusCode == 302) {
       // 登录成功，重定向
-      SmartDialog.dismiss();
+      // SmartDialog.dismiss();
       return await getUserInfo();
     } else {
       // 登录失败，去获取错误提示信息
@@ -929,7 +929,7 @@ class DioRequestWeb {
   static Future<String> getUserInfo() async {
     print('getUserInfo');
     var response = await Request().get('/', extra: {'ua': 'mob'});
-    SmartDialog.dismiss();
+    // SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
       print('getUserInfo 2fa');
       print("wml:" + response.redirects[0].location.path);
@@ -959,13 +959,15 @@ class DioRequestWeb {
             .first
             .attributes["value"];
         Storage().setOnce(int.parse(once));
-
+        SmartDialog.dismiss();
         return "2fa";
       }else{
         Storage().setLoginStatus(true);
+        SmartDialog.dismiss();
         return "true";
       }
     }
+    SmartDialog.dismiss();
     return "false";
   }
 
@@ -1570,5 +1572,39 @@ class DioRequestWeb {
     // }else{
     //   return false;
     // }
+  }
+
+  // 屏蔽主题 完成后返回上一页
+  static Future<bool> onIgnoreTopic(String topicId) async{
+    SmartDialog.showLoading();
+    int once = Storage().getOnce();
+    Response response;
+    response = await Request().get('/ignore/topic/$topicId', data: {
+      'once': once
+    });
+    SmartDialog.dismiss();
+    if(response.statusCode == 200){
+    // 操作成功
+    return true;
+    }else{
+      return false;
+    }
+  }
+
+  // 报告(举报)主题
+  static Future<bool> onReportTopic(String topicId) async{
+    SmartDialog.showLoading();
+    int once = Storage().getOnce();
+    Response response;
+    response = await Request().get('/report/topic/$topicId', data: {
+      'once': once
+    });
+    SmartDialog.dismiss();
+    if(response.statusCode == 200){
+    // 操作成功
+    return true;
+    }else{
+      return false;
+    }
   }
 }

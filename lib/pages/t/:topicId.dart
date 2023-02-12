@@ -86,17 +86,17 @@ class _TopicDetailState extends State<TopicDetail>
     EventBus().on('topicReply', (status) {
       print('eventON: $status');
       String msg = '回复成功';
-      if(status == 'cancel'){
+      if (status == 'cancel') {
         msg = '取消回复';
       }
-      if(status == 'fail'){
+      if (status == 'fail') {
         msg = '回复失败';
       }
-      if(status == 'succes'){
+      if (status == 'succes') {
         msg = '回复成功';
       }
       SmartDialog.showToast(msg);
-      if(status != 'success') return;
+      if (status != 'success') return;
       ReplyItem item = Storage().getReplyItem();
       if (mounted) {
         setState(() {
@@ -223,11 +223,9 @@ class _TopicDetailState extends State<TopicDetail>
         );
       },
     ).then((value) => {
-      if(value != null){
-        EventBus().emit('topicReply', value!['replyStatus'])
-      }
-    });
-
+          if (value != null)
+            {EventBus().emit('topicReply', value!['replyStatus'])}
+        });
   }
 
   // 查看楼中楼回复
@@ -273,6 +271,23 @@ class _TopicDetailState extends State<TopicDetail>
         floorReplyVisible = false;
       });
     });
+  }
+
+  Future<bool> onIgnoreTopic() async {
+    var res = await DioRequestWeb.onIgnoreTopic(topicId);
+    print('topic detail line 280:  $res');
+    SmartDialog.showToast(res ? '操作成功' : '操作失败');
+    if(res){
+      EventBus().emit('ignoreTopic', topicId);
+    }
+    return res;
+  }
+
+  Future<bool> onReportTopic() async {
+    var res = await DioRequestWeb.onReportTopic(topicId);
+    print('topic detail line 286:  $res');
+    SmartDialog.showToast(res ? '操作成功' : '操作失败');
+    return res;
   }
 
   @override
@@ -354,6 +369,7 @@ class _TopicDetailState extends State<TopicDetail>
           if (res) {
             setState(() {
               _detailModel!.isFavorite = !_detailModel!.isFavorite;
+              _detailModel!.favoriteCount = _detailModel!.isFavorite ? _detailModel!.favoriteCount+1 : _detailModel!.favoriteCount-1 ;
             });
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
@@ -394,7 +410,7 @@ class _TopicDetailState extends State<TopicDetail>
         itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
           PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
-            onTap: () => {print('忽略主题')},
+            onTap: () => onIgnoreTopic(),
             child: const Text('忽略主题'),
           ),
           const PopupMenuItem<SampleItem>(
@@ -403,6 +419,7 @@ class _TopicDetailState extends State<TopicDetail>
           ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
+            onTap: () => onReportTopic(),
             child: Text(
               '举报',
               style: TextStyle(
