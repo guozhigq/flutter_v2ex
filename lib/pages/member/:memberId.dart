@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
@@ -7,6 +7,7 @@ import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class _MemberPageState extends State<MemberPage> {
   String memberId = '';
   String memberAvatar = '';
   String heroTag = '';
+  bool isOwner = false;
 
   @override
   void initState() {
@@ -36,9 +38,16 @@ class _MemberPageState extends State<MemberPage> {
     });
     // 查询用户信息
     queryMemberProfile();
-    // 查询签到状态、余额
-    // queryDaily();
-    // 手动签到
+
+    if (Storage().getUserInfo().isNotEmpty) {
+      if (memberId == Storage().getUserInfo()['userName']) {
+        setState(() {
+          isOwner = true;
+        });
+        // 查询签到状态、余额
+        queryDaily();
+      }
+    }
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
@@ -58,14 +67,15 @@ class _MemberPageState extends State<MemberPage> {
     return res;
   }
 
-  void onBlockMember() {
+  // 关注用户
+  void onFollowMemeber() {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('提示'),
         // content: Text('确认屏蔽${memberId}吗？'),
         content: Text.rich(TextSpan(children: [
-          const TextSpan(text: '确认屏蔽用户 '),
+          TextSpan(text: memberProfile.isFollow ? '确认不再关注用户 ' : '确认要开始关注用户 '),
           TextSpan(
             text: '@$memberId',
             style: Theme.of(context)
@@ -81,12 +91,93 @@ class _MemberPageState extends State<MemberPage> {
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
+            onPressed: () {
+              Navigator.pop(context, 'OK');
+              onFollowReq();
+            },
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> onFollowReq() async{
+    var followId = '';
+    RegExp regExp = RegExp(r'\d{3,}');
+    Iterable<Match> matches = regExp.allMatches(memberProfile.mbSort);
+    for (Match m in matches) {
+      followId = m.group(0)!;
+    }
+    bool followStatus = memberProfile.isFollow;
+    bool res = await DioRequestWeb.onFollowMember(followId, followStatus);
+    if(res){
+      SmartDialog.showToast(followStatus ? '已取消关注' : '关注成功');
+      setState(() {
+        memberProfile.isFollow = !followStatus;
+      });
+    }else{
+      SmartDialog.showToast('操作失败');
+    }
+    return res;
+  }
+
+  // 屏蔽用户
+  void onBlockMember() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('提示'),
+        content: Text.rich(TextSpan(children: [
+          TextSpan(text: memberProfile.isBlock ? '取消屏蔽用户 ' : '确认屏蔽用户 '),
+          TextSpan(
+            text: '@$memberId',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(color: Theme.of(context).colorScheme.primary),
+          ),
+          const TextSpan(text: ' 吗')
+        ])),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, 'OK');
+              onBlockReq();
+            },
             child: const Text('确认屏蔽'),
           ),
         ],
       ),
     );
+  }
+
+  Future<bool> onBlockReq() async{
+    var blockId = '';
+    RegExp regExp = RegExp(r'\d{3,}');
+    Iterable<Match> matches = regExp.allMatches(memberProfile.mbSort);
+    for (Match m in matches) {
+      blockId = m.group(0)!;
+    }
+    bool blockStatus = memberProfile.isBlock;
+    // bool followStatus = memberProfile.isFollow;
+    bool res = await DioRequestWeb.onBlockMember(blockId, blockStatus);
+    if(res){
+      SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
+      setState(() {
+        memberProfile.isBlock = !blockStatus;
+        // if(!blockStatus && followStatus){
+        //   memberProfile.isFollow = false;
+        // }
+      });
+    }else{
+      SmartDialog.showToast('操作失败');
+    }
+    return res;
   }
 
   @override
@@ -97,36 +188,35 @@ class _MemberPageState extends State<MemberPage> {
               slivers: [
                 SliverAppBar(
                   expandedHeight: 120,
-                  actions: memberProfile.isOwner
+                  actions: isOwner
                       ? [
-                          // TextButton(
-                          //   onPressed: () =>
-                          //       {if (!signDetail['signStatus']) {}},
-                          //   child:
-                          //       Text(signDetail['signStatus'] ? '已领取' : '领取奖励'),
-                          // ),
-                          IconButton(
-                              onPressed: () {
-                                SmartDialog.showToast('该功能后续开放');
-                              },
-                              tooltip: '个人信息设置',
-                              icon: const Icon(Icons.settings_sharp)),
+                          TextButton(
+                            onPressed: () =>
+                                {if (!signDetail['signStatus']) {}},
+                            child: Text(
+                                signDetail['signStatus'] ? '已领取奖励' : '领取奖励'),
+                          ),
                           const SizedBox(width: 12)
                         ]
                       : [
-                          IconButton(
-                              tooltip: '关注',
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.favorite_border,
-                                color: Theme.of(context).colorScheme.primary,
-                              )),
-                          IconButton(
-                              tooltip: 'Block',
+                          TextButton(
+                            onPressed: () => onFollowMemeber(),
+                            child: Row(
+                              children: [
+                                Icon(memberProfile.isFollow
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border),
+                                const SizedBox(width: 4),
+                                Text(memberProfile.isFollow ? '取关' : '关注')
+                              ],
+                            ),
+                          ),
+                          TextButton(
                               onPressed: () => onBlockMember(),
-                              icon: Icon(
-                                Icons.not_interested,
-                                color: Theme.of(context).colorScheme.error,
+                              child: Text(
+                                memberProfile.isBlock ? '取消屏蔽' : '屏蔽',
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error),
                               )),
                           const SizedBox(width: 12)
                         ],
@@ -201,7 +291,7 @@ class _MemberPageState extends State<MemberPage> {
                     ),
                   ),
                 ),
-                if (signDetail.isNotEmpty && memberProfile.isOwner) ...[
+                if (signDetail.isNotEmpty && isOwner) ...[
                   SliverToBoxAdapter(
                     child: Container(
                       margin:

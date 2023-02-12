@@ -7,7 +7,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class HomeLeftDrawer extends StatefulWidget {
   const HomeLeftDrawer({super.key});
@@ -23,7 +23,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   Map<dynamic, dynamic>? signDetail;
   ThemeType? tempThemeValue = ThemeType.system;
   ThemeType? currentThemeValue = ThemeType.system;
-
 
   void onDestinationSelected(int index) {
     if (index == 0) {
@@ -43,6 +42,9 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         tempThemeValue = currentThemeValue;
       });
       themeDialog();
+    }
+    if(index == 6) {
+      Get.toNamed('/setting');
     }
   }
 
@@ -124,17 +126,18 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       readUserInfo();
     } else {
       EventBus().on('login', (arg) {
-        if (arg == 'finish') {
+        if (arg == 'success') {
           readUserInfo();
           EventBus().off('login');
         }
       });
     }
-    // queryDaily();
+    queryDaily();
+    DioRequestWeb.dailyMission();
   }
 
   void readUserInfo() {
-    if (Storage().getUserInfo() != {}) {
+    if (Storage().getUserInfo().isNotEmpty) {
       Map userInfoStorage = Storage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
@@ -166,7 +169,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   @override
   Widget build(BuildContext context) {
-
     return NavigationDrawer(
       onDestinationSelected: onDestinationSelected,
       selectedIndex: selectedIndex,
@@ -201,7 +203,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   Widget header() {
     var herotag = '';
-    if(userInfo.keys.isNotEmpty){
+    if (userInfo.isNotEmpty) {
       herotag = userInfo['userName'] + Random().nextInt(999).toString();
     }
     return DrawerHeader(
@@ -215,35 +217,46 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    if(userInfo.keys.isNotEmpty) {
-                      Get.toNamed('/member/${userInfo['userName']}',
-                          parameters: {
-                          'memberAvatar': userInfo['avatar'],
-                          'heroTag': herotag,
+                    onTap: () {
+                      if (userInfo.isNotEmpty) {
+                        Get.toNamed('/member/${userInfo['userName']}',
+                            parameters: {
+                              'memberAvatar': userInfo['avatar'],
+                              'heroTag': herotag,
+                            });
+                      } else {
+                        Get.toNamed('/login')!.then((res) {
+                        if (res['loginStatus'] == 'cancel') {
+                          SmartDialog.showToast('取消登录');
+                        } else {
+                          SmartDialog.showToast('登录成功');
+                        if (Storage().getLoginStatus()) {
+                          setState(() {
+                          loginStatus = true;
                           });
-                    }else{
-                      Get.toNamed('/login');
-                    }
-                  },
-                  child: Hero(
-                    tag: herotag,
-                    // tag: userInfo.keys.isNotEmpty ? herotag : null,
-                    child: CAvatar(
-                      size: 80,
-                      url: userInfo.keys.isNotEmpty ? '${userInfo['avatar']}':
-                      'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
-                    ),
-                  )
-
-                ),
+                          readUserInfo();
+                        }
+                        }
+                        });
+                      }
+                    },
+                    child: Hero(
+                      tag: herotag,
+                      // tag: userInfo.isNotEmpty ? herotag : null,
+                      child: CAvatar(
+                        size: 80,
+                        url: userInfo.isNotEmpty
+                            ? '${userInfo['avatar']}'
+                            : 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
+                      ),
+                    )),
                 // const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      userInfo.keys.isNotEmpty ? '${userInfo['userName']}' : '登录',
+                      userInfo.isNotEmpty ? '${userInfo['userName']}' : '点击头像登录',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (signDetail != null) ...[

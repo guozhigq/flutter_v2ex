@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
@@ -142,14 +143,109 @@ class Utils {
       ),
     ).then(
       (value) => {
-        if (value['loginStatus'] == 'cancel') {
-          SmartDialog.showToast('取消登录'),
-          EventBus().emit('login', 'cancel')
-        },
-        if (value['loginStatus'] == 'finish') {
-          SmartDialog.showToast('登录成功'),
-          EventBus().emit('login', 'finish')
-        }
+        if (value['loginStatus'] == 'cancel')
+          {SmartDialog.showToast('取消登录'), EventBus().emit('login', 'cancel')},
+        if (value['loginStatus'] == 'success')
+          {SmartDialog.showToast('登录成功'), EventBus().emit('login', 'success')}
+      },
+    );
+  }
+
+  static void loginDialog(
+    String content, {
+    String title = '提示',
+    String cancelText = '取消',
+    String confirmText = '去登录',
+    bool isPopContext = false,
+    bool isPopDialog = true,
+  }) {
+    SmartDialog.show(
+      useSystem: true,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  SmartDialog.dismiss();
+                  isPopContext ? Navigator.pop(context) : null;
+                },
+                child: Text(cancelText)),
+            TextButton(
+                onPressed: () async {
+                  if (isPopDialog) {
+                    SmartDialog.dismiss()
+                        .then((value) => Get.toNamed('/login'));
+                  } else {
+                    Get.toNamed('/login');
+                  }
+                },
+                child: Text(confirmText))
+          ],
+        );
+      },
+    );
+  }
+
+  static void twoFADialog() {
+    var twoFACode = '';
+    SmartDialog.show(
+      useSystem: true,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('2FA 验证'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('你的 V2EX 账号已经开启了两步验证，请输入验证码继续'),
+              const SizedBox(height: 12),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: '验证码',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                ),
+                onChanged: (e) {
+                  twoFACode = e;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('取消')),
+            TextButton(
+                onPressed: () async{
+                  if (twoFACode.length == 6) {
+                    var res = await DioRequestWeb.twoFALOgin(twoFACode);
+                    print('utils 228： $res');
+                    if(res == 'true'){
+                        SmartDialog.showToast('登录成功');
+                        EventBus().emit('login', 'success');
+                        // 关闭2fa dialog
+                        Navigator.pop(context);
+                        // 关闭login page
+                        Get.back();
+                    }else{
+                      twoFACode = '';
+                    }
+                  } else {
+                    SmartDialog.showToast(
+                      '验证码有误',
+                      displayTime: const Duration(milliseconds: 500),
+                    );
+                  }
+                },
+                child: const Text('登录'))
+          ],
+        );
       },
     );
   }

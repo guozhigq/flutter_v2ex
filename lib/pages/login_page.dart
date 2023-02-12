@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +19,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
+
+
   var codeImg = '';
   late String? _userName;
   late String? _password;
@@ -35,9 +40,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<LoginDetailModel> getSignKey() async {
     var res = await DioRequestWeb.getLoginKey();
-    setState(() {
-      loginKey = res;
-    });
+    if(res.twoFa){
+      Utils.twoFADialog();
+    }else{
+      setState(() {
+        loginKey = res;
+      });
+    }
     return res;
   }
 
@@ -50,14 +59,11 @@ class _LoginPageState extends State<LoginPage> {
           builder: (BuildContext context) {
             return IconButton(
               icon: const Icon(Icons.close),
-              onPressed: () =>
-                Get.back(result: {
-                  'loginStatus': 'cancel'
-                }),
+              onPressed: () => Get.back(result: {'loginStatus': 'cancel'}),
             );
           },
         ),
-        actions: [TextButton(onPressed: () => {}, child: const Text('注册账号'))],
+        actions: [TextButton(onPressed: () => {}, child: const Text('注册账号')), const SizedBox(width: 12)],
       ),
       body: Stack(
         alignment: AlignmentDirectional.bottomCenter,
@@ -69,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               // mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                const SizedBox(height: 20),
                 Text(
                   '登录',
                   style: Theme.of(context).textTheme.headlineLarge,
@@ -155,15 +162,14 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       if (loginKey.captchaImg != '') ...[
                         Positioned(
-                          right: 0,
-                          top: 0,
-                          height: 64,
+                          right: 6,
+                          top: 6,
+                          height: 52,
                           child: Container(
                             clipBehavior: Clip.hardEdge,
                             decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(6),
-                                bottomRight: Radius.circular(6),
+                              borderRadius: BorderRadius.all(
+                               Radius.circular(6),
                               ),
                             ),
                             child: GestureDetector(
@@ -172,23 +178,9 @@ class _LoginPageState extends State<LoginPage> {
                                   getSignKey();
                                 });
                               },
-                              // child: CachedNetworkImage(
-                              //   imageUrl: loginKey.captchaImg,
-                              //   width: 200,
-                              //   alignment: Alignment.centerLeft,
-                              //   fadeOutDuration:
-                              //       const Duration(milliseconds: 600),
-                              //   fit: BoxFit.fitHeight,
-                              //   progressIndicatorBuilder:
-                              //       (context, url, downloadProgress) =>
-                              //           const Center(
-                              //     child: Text('加载中...'),
-                              //   ),
-                              // ),
                               child: Image.memory(
                                 loginKey.captchaImgBytes!,
-                                height: 64.0,
-                                // width: 200.0,
+                                height: 52.0,
                                 fit: BoxFit.fitHeight,
                               ),
                             ),
@@ -219,11 +211,19 @@ class _LoginPageState extends State<LoginPage> {
                         captchaTextFieldNode.unfocus();
                         var result = await DioRequestWeb.onLogin(loginKey);
                         if (result == 'true') {
-                          Get.back(result: {
-                            'loginStatus': 'finish'
+                          // 登录成功
+                          Get.back(result: {'loginStatus': 'success'});
+                        } else if(result == 'false'){
+                          // 登录失败
+                          setState(() {
+                            _passwordController.value = const TextEditingValue(text: '');
+                            _codeController.value  = const TextEditingValue(text: '');
                           });
-                        } else {
-                          getSignKey();
+                          Timer(const Duration(milliseconds: 500), () {
+                            getSignKey();
+                          });
+                        }else if(result == '2fa') {
+                          Utils.twoFADialog();
                         }
                       }
                     },

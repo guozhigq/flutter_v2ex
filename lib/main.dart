@@ -17,6 +17,7 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 
 import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/home_page.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 dynamic _parseAndDecode(String response) {
@@ -103,8 +104,7 @@ class _MyAppState extends State<MyApp> {
         home: const HomePage(),
         navigatorKey: Routes.navigatorKey,
         routingCallback: (routing) {
-          if(routing!.previous == '/login'){
-            print('123');
+          if (routing!.previous == '/login') {
             return;
           }
         },

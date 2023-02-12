@@ -12,4 +12,6 @@ class LoginDetailModel {
   String userNameValue = '';
   String passwordValue = '';
   String codeValue = '';
+
+  bool twoFa = false;
 }

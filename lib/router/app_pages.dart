@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/pages/message_page.dart';
 import 'package:flutter_v2ex/pages/nodes_page.dart';
 import 'package:flutter_v2ex/pages/webview_page.dart';
 import 'package:flutter_v2ex/pages/login_page.dart';
+import 'package:flutter_v2ex/pages/setting_page.dart';
 
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/pages/go/:nodeId.dart';
@@ -53,7 +54,9 @@ class AppPages {
     // 消息提醒
     GetPage(name: '/notifications', page: () => const MessagePage()),
     // 图片预览
-    GetPage(name: '/imgPreview', page: () => ImagePreview(imgList: []), fullscreenDialog: true)
+    GetPage(name: '/imgPreview', page: () => ImagePreview(imgList: []), fullscreenDialog: true),
+
+    GetPage(name: '/setting', page: () => const SettingPage()),
   ];
 
 }

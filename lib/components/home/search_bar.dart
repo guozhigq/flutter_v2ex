@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-
 
 class HomeSearchBar extends StatefulWidget {
   final userInfo;
@@ -22,21 +23,47 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    // 启动式读取用户信息
     if (Storage().getLoginStatus()) {
       setState(() {
         loginStatus = true;
       });
       readUserInfo();
     }
+    {
+      EventBus().on('login', (arg) {
+        if (arg == 'success') {
+          readUserInfo();
+        }
+        if(arg == 'fail') {
+          Utils.loginDialog('登录状态失效，请重新登录');
+          Storage().setLoginStatus(false);
+          Storage().setUserInfo({});
+          setState(() {
+            loginStatus = false;
+            userInfo = {};
+          });
+        }
+      });
+    }
   }
 
   void readUserInfo() {
     if (Storage().getUserInfo() != {}) {
+      // DioRequestWeb.dailyMission();
       Map userInfoStorage = Storage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    EventBus().off('login');
+    super.dispose();
   }
 
   @override
@@ -73,12 +100,11 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
               ),
               GestureDetector(
                 onTap: () async {
-                  if (userInfo.keys.isNotEmpty) {
-                    Get.toNamed('/member/${userInfo['userName']}',
-                        parameters: {
-                          'memberAvatar': userInfo['avatar'],
-                          'heroTag': userInfo['userName'],
-                        });
+                  if (userInfo.isNotEmpty) {
+                    Get.toNamed('/member/GOKOG', parameters: {
+                      'memberAvatar': userInfo['avatar'],
+                      'heroTag': userInfo['userName'],
+                    });
                   } else {
                     var res = await Get.toNamed('/login');
                     if (res['loginStatus'] == 'cancel') {
@@ -94,7 +120,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     }
                   }
                 },
-                child: loginStatus && userInfo.keys.isNotEmpty
+                child: loginStatus && userInfo.isNotEmpty
                     ? Hero(
                         tag: userInfo['userName'],
                         child: CAvatar(

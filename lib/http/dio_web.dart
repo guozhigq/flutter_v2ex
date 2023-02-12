@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
@@ -101,11 +102,13 @@ class DioRequestWeb {
         break;
     }
     var tree = ETree.fromString(response.data);
-    // 用户信息解析
-    // var rootDom = parse(response.data);
-    // var userWrap = rootDom.querySelector('div#site-header-menu');
-    // print(userWrap!.querySelectorAll('div.cell').length);
-    // var isLogin = userWrap!.querySelectorAll('div.cell').length > 6
+
+    // 用户信息解析 mob
+    var rootDom = parse(response.data);
+    var userCellWrap = rootDom.querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
+    var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
+    int once = int.parse(onceHref!.split('once=')[1]);
+    Storage().setOnce(once);
 
     var aRootNode = tree.xpath("//*[@class='cell item']");
     for (var aNode in aRootNode!) {
@@ -144,7 +147,6 @@ class DioRequestWeb {
           .replaceAll('&amp;', '&')
           .replaceAll('&lt;', '<')
           .replaceAll('&gt;', '>');
-      print(item.replyCount);
 
       item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
       item.nodeId = aNode
@@ -425,7 +427,7 @@ class DioRequestWeb {
     var response = await Request().get(
       "/t/$topicId",
       data: {'p': p},
-      options: buildCacheOptions(const Duration(days: 4), forceRefresh: true),
+      cacheOptions: buildCacheOptions(const Duration(days: 4), forceRefresh: true),
       extra: {'ua': 'mob'},
     );
     // Use html parser and query selector
@@ -467,6 +469,12 @@ class DioRequestWeb {
       detailModel.isAuth = true;
       return detailModel;
     }
+
+    var rootDom = parse(response.data);
+    var userCellWrap = rootDom.querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
+    var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
+    int once = int.parse(onceHref!.split('once=')[1]);
+    Storage().setOnce(once);
 
     /// 头部内容
     /// 查询头部内容公共头
@@ -744,7 +752,8 @@ class DioRequestWeb {
     Response response;
     response = await Request().get(
       '/',
-      extra: {'ua': 'pc', 'cache': true},
+      cacheOptions: buildCacheOptions(const Duration(days: 7)),
+      extra: {'ua': 'pc'},
     );
     var document = parse(response.data);
     var nodesBox = document.querySelector('#Main')!.children.last;
@@ -772,12 +781,12 @@ class DioRequestWeb {
   static Future<LoginDetailModel> getLoginKey() async {
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
-    SmartDialog.showLoading();
+    SmartDialog.showLoading(msg: '获取验证码...');
     response = await Request().get(
       '/signin',
       extra: {'ua': 'mob'},
     );
-    SmartDialog.dismiss();
+
     var document = parse(response.data);
     var tableDom = document.querySelector('table');
     if (document.body!.querySelector('div.dock_area') != null) {
@@ -788,6 +797,7 @@ class DioRequestWeb {
       String tipsIp = document.body!
           .querySelector('#Main > div.box > div.dock_area > div.cell')!
           .text;
+      SmartDialog.dismiss();
       SmartDialog.show(
         animationType: SmartAnimationType.centerFade_otherSlide,
         builder: (BuildContext context) {
@@ -850,10 +860,16 @@ class DioRequestWeb {
       data: {'once': loginKeyMap.once},
       extra: {'ua': 'mob', 'resType': resType},
     );
-    if ((res.data as List<int>).isEmpty) {
-      throw Exception('NetworkImage is an empty file');
+    //  登录后未2fa 退出，第二次进入触发
+    if(res.redirects.isNotEmpty && res.redirects[0].location.path == '/2fa'){
+      loginKeyMap.twoFa = true;
+    }else{
+      if ((res.data as List<int>).isEmpty) {
+        throw Exception('NetworkImage is an empty file');
+      }
+      loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
     }
-    loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
+    SmartDialog.dismiss();
     return loginKeyMap;
   }
 
@@ -886,6 +902,7 @@ class DioRequestWeb {
     options.contentType = Headers.jsonContentType; // 还原
     if (response.statusCode == 302) {
       // 登录成功，重定向
+      SmartDialog.dismiss();
       return await getUserInfo();
     } else {
       // 登录失败，去获取错误提示信息
@@ -903,7 +920,6 @@ class DioRequestWeb {
             .xpath('//*[@id="Wrapper"]/div/div[1]/div[2]/ul/li/text()')![0]
             .name;
       }
-      SmartDialog.dismiss();
       SmartDialog.showToast(errorInfo!);
       return 'false';
     }
@@ -911,9 +927,11 @@ class DioRequestWeb {
 
   // 获取当前用户信息
   static Future<String> getUserInfo() async {
+    print('getUserInfo');
     var response = await Request().get('/', extra: {'ua': 'mob'});
     SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
+      print('getUserInfo 2fa');
       print("wml:" + response.redirects[0].location.path);
       // 需要两步验证
       if (response.redirects[0].location.path == "/2fa") {
@@ -927,10 +945,12 @@ class DioRequestWeb {
       String avatar = elementOfAvatarImg.attributes["src"];
       String userName = elementOfAvatarImg.attributes["alt"];
       await Storage().setUserInfo({'avatar': avatar, 'userName': userName});
-      await Storage().setLoginStatus(true);
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
+      print('两步验证判断');
+      log(parse(response.data).body!.innerHtml);
       if (response.requestOptions.path == "/2fa") {
+        print('需要两步验证');
         var tree = ETree.fromString(response.data);
         // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
         String once = tree
@@ -938,12 +958,42 @@ class DioRequestWeb {
                 "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
             .first
             .attributes["value"];
-        print('两步验证前保存once:$once');
+        Storage().setOnce(int.parse(once));
+
         return "2fa";
+      }else{
+        Storage().setLoginStatus(true);
+        return "true";
       }
-      return "true";
     }
     return "false";
+  }
+
+  // 2fa登录
+  static Future<String> twoFALOgin(String code) async{
+    SmartDialog.showLoading();
+    Response response;
+    FormData formData = FormData.fromMap({
+      "once": Storage().getOnce(),
+      "code": code,
+    });
+    response = await Request().post('/2fa', data: formData);
+    var document = parse(response.data);
+    log(document.body!.innerHtml);
+    // var menuBodyNode = document.querySelector("div[id='menu-body']");
+    // var loginOutNode =
+    // menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
+    // var loginOutHref = loginOutNode!.attributes['href'];
+    // int once = int.parse(loginOutHref!.split('once=')[1]);
+    // Storage().setOnce(once);
+    SmartDialog.dismiss();
+    if(response.statusCode == 302){
+      print('成功');
+      return 'true';
+    }else{
+      SmartDialog.showToast('验证失败，请重新输入');
+      return 'false';
+    }
   }
 
   /// action
@@ -982,6 +1032,7 @@ class DioRequestWeb {
     SmartDialog.showLoading(msg: '表示感谢ing');
     var response =
         await Request().post("/thank/topic/$topicId?once=$once");
+    // ua mob
     if (response.statusCode == 200 || response.statusCode == 302) {
       if (response.statusCode == 200) {
         var document = parse(response.data);
@@ -1084,15 +1135,32 @@ class DioRequestWeb {
   // 签到
   static Future dailyMission() async {
     try {
-      var once = 27561;
-      var missionResponse = await Request()
+      Response response;
+      int once = Storage().getOnce();
+      response = await Request()
           .get("/mission/daily/redeem?once=$once", extra: {'ua': 'mob'});
-      print('领取每日奖励:' "/mission/daily/redeem?once=$once");
-      if (missionResponse.data.contains('每日登录奖励已领取')) {
-        print('每日奖励已自动领取');
-      } else {
-        print(missionResponse.data);
+
+      if(response.statusCode == 302){
+        SmartDialog.showToast('签到成功');
+      }else if(response.statusCode == 200){
+        // print(response.redirect!);
+        print(response.redirects[0].location.path);
+        var res = parse(response.data);
+        var document = res.body;
+        var mainBox = document!.querySelector('div[id="Main"]');
+        if(mainBox!.querySelector('div.message') != null){
+          var tipsText = mainBox.querySelector('div.message')!.innerHtml;
+          if(tipsText.contains('你要查看的页面需要先登录')){
+            SmartDialog.showToast('登录状态失效');
+            // EventBus().emit('login', 'fail');
+          }
+        }
       }
+      // if (response.data.contains('每日登录奖励已领取')) {
+      //   print('每日奖励已自动领取');
+      // } else {
+      //   print(response.data);
+      // }
     } on DioError catch (e) {
       log(e.message);
       // Fluttertoast.showToast(
@@ -1117,6 +1185,16 @@ class DioRequestWeb {
     var topicsNode = contentDom[1];
     var replysNode = contentDom[2];
 
+    var menuBodyNode = bodyDom
+        .querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+    var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+    var loginOutHref = loginOutNode!.attributes['onclick']!;
+    RegExp regExp = RegExp(r'\d{3,}');
+    Iterable<Match> matches = regExp.allMatches(loginOutHref);
+    for (Match m in matches) {
+      Storage().setOnce(int.parse(m.group(0)!));
+    }
+
     // 头像、昵称、在线状态、加入时间、关注状态
     var profileCellNode = profileNode.querySelector('div.cell > table');
     memberProfile.mbAvatar =
@@ -1125,15 +1203,23 @@ class DioRequestWeb {
     if (profileCellNode.querySelector('tr>td>strong.online') != null) {
       memberProfile.isOnline = true;
     }
-    print(memberProfile.isOnline);
+    print('line 1189: ${memberProfile.isOnline}');
     if (profileNode.querySelectorAll('input[type=button]').isNotEmpty) {
       var buttonDom = profileNode.querySelectorAll('input[type=button]');
       var followBtn = buttonDom[0];
       memberProfile.isFollow =
           followBtn.attributes['value'] == '取消特别关注' ? true : false;
-    } else {
-      memberProfile.isOwner = false;
+      print('line 1195: ${memberProfile.isFollow}');
+
+      var blockBtn = buttonDom[1];
+      // true 已屏蔽
+      memberProfile.isBlock =
+      blockBtn.attributes['value'] == 'Unblock' ? true : false;
+      print('line 1199: ${blockBtn.attributes['value']}');
     }
+    // else {
+    //   memberProfile.isOwner = false;
+    // }
 
     // 加入时间
     var mbCreatedTimeDom = profileCellNode.querySelector('span.gray')!.text;
@@ -1450,6 +1536,39 @@ class DioRequestWeb {
     return memberNotices;
   }
 
-  // 查看余额
-  // /ajax/money
+  // 关注用户
+  static Future<bool> onFollowMember(String followId, bool followStatus) async{
+      SmartDialog.showLoading();
+      int once = Storage().getOnce();
+      Response response;
+      var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
+      response = await Request().get(url, data: {
+        'once': once
+      });
+      SmartDialog.dismiss();
+      // if(response.statusCode == 302){
+        // 操作成功
+        return true;
+      // }else{
+      //   return false;
+      // }
+  }
+
+  // 屏蔽用户
+  static Future<bool> onBlockMember(String blockId, bool blockStatus) async{
+    SmartDialog.showLoading();
+    int once = Storage().getOnce();
+    Response response;
+    var url = blockStatus ? '/unblock/$blockId' : '/block/$blockId';
+    response = await Request().get(url, data: {
+      'once': once
+    });
+    SmartDialog.dismiss();
+    // if(response.statusCode == 302){
+      // 操作成功
+      return true;
+    // }else{
+    //   return false;
+    // }
+  }
 }

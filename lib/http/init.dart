@@ -121,7 +121,7 @@ class Request {
   /*
    * get请求
    */
-  get(url, {data, options, cancelToken, extra}) async {
+  get(url, {data, cacheOptions, options, cancelToken, extra}) async {
     Response response;
     Options options;
     String ua = 'mob';
@@ -133,12 +133,23 @@ class Request {
       resType = extra!['resType'] ?? ResponseType.json;
     }
     // String channel = extra['channel'] ?? 'web';
-    if (cache == true) {
-      Options cacheOptions = buildCacheOptions(const Duration(days: 7),
-          options: Options(
-            headers: {'user-agent': headerUa(ua)},
-          ));
+    if (cacheOptions != null) {
+      // Options cacheOptions = buildCacheOptions(const Duration(days: 7),
+      //     options: Options(
+      //       headers: {'user-agent': headerUa(ua)},
+      //     ));
+      // Options cacheOptions = buildCacheOptions(
+      //     customOptions,
+      //     options: Options(
+      //             headers: {'user-agent': headerUa(ua)},
+      //           )
+      // );
+      // options = cacheOptions;
+      cacheOptions.headers= {'user-agent': headerUa(ua)};
       options = cacheOptions;
+      print('------------');
+      print(cacheOptions.headers);
+      print('------------');
     } else {
       options = Options();
       options.headers = {'user-agent': headerUa(ua)};

@@ -1,18 +1,16 @@
+import 'package:get/get.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
 
 class ReplyNew extends StatefulWidget {
-  final statusHeight;
   List? replyMemberList;
   final String topicId;
   int? totalPage;
 
   ReplyNew({
-    this.statusHeight,
     this.replyMemberList,
     required this.topicId,
     this.totalPage,
@@ -27,6 +25,14 @@ class _ReplyNewState extends State<ReplyNew> {
   final TextEditingController _replyContentController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
   late String _replyContent = '';
+  final statusBarHeight = Storage().getStatusBarHeight();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print(Navigator.of(context).widget);
+    super.initState();
+  }
 
   void onCleanInput() {
     SmartDialog.show(
@@ -72,7 +78,6 @@ class _ReplyNewState extends State<ReplyNew> {
         Navigator.pop(context, {'replyStatus': 'success'});
       } else {
         Navigator.pop(context, {'replyStatus': 'fail'});
-        print('回复失败');
       }
     }
   }
@@ -80,7 +85,7 @@ class _ReplyNewState extends State<ReplyNew> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height - widget.statusHeight,
+      height: MediaQuery.of(context).size.height - statusBarHeight,
       padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -124,7 +129,7 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (widget.replyMemberList!.isNotEmpty)
             if (widget.replyMemberList!.length > 1)
               Row(
@@ -178,6 +183,7 @@ class _ReplyNewState extends State<ReplyNew> {
                   controller: _replyContentController,
                   minLines: 1,
                   maxLines: null,
+                  autofocus: true,
                   decoration: const InputDecoration(
                       hintText: "输入回复内容", border: InputBorder.none),
                   style: Theme.of(context).textTheme.bodyLarge,

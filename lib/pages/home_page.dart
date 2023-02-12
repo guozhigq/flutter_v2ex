@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/components/home/search_bar.dart';
 import 'package:flutter_v2ex/components/home/sticky_bar.dart';
 import 'package:flutter_v2ex/components/home/tabbar_list.dart';
 import 'package:flutter_v2ex/components/home/left_drawer.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 // import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
@@ -38,6 +39,11 @@ class _HomePageState extends State<HomePage>
     {'name': 'R2', 'id': 'r2', 'type': 'tab'},
   ];
 
+    @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   // 页面缓存
   @override
   bool get wantKeepAlive => true;
@@ -45,6 +51,8 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    num height = MediaQuery.of(context).padding.top;
+    Storage().setStatusBarHeight(height);
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(

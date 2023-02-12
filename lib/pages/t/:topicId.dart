@@ -212,20 +212,20 @@ class _TopicDetailState extends State<TopicDetail>
     setState(() {
       replyMemberList = replyList;
     });
-    var statusHeight = MediaQuery.of(context).padding.top;
     showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplyNew(
-          statusHeight: statusHeight,
           replyMemberList: replyMemberList,
           topicId: _detailModel!.topicId,
           totalPage: _totalPage,
         );
       },
     ).then((value) => {
-      EventBus().emit('topicReply', value!['replyStatus'])
+      if(value != null){
+        EventBus().emit('topicReply', value!['replyStatus'])
+      }
     });
 
   }
@@ -280,7 +280,7 @@ class _TopicDetailState extends State<TopicDetail>
     _controller.dispose();
     _scrollController.removeListener(_listen);
     _scrollController.dispose();
-    // EventBus().off('topicReply');
+    EventBus().off('topicReply');
     super.dispose();
   }
 

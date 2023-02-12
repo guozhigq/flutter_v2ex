@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -116,7 +117,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   void replyComment() {
     var statusHeight = MediaQuery.of(context).padding.top;
     var replyId = reply.replyId;
-    if(replyId == ''){
+    if (replyId == '') {
       // 刚回复的楼层没有回复replyId
       SmartDialog.showToast('无法回复最新评论');
       return;
@@ -126,15 +127,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplyNew(
-          statusHeight: statusHeight,
           replyMemberList: [reply],
           topicId: widget.topicId,
           totalPage: widget.totalPage,
         );
       },
     ).then((value) => {
-      EventBus().emit('topicReply', value!['replyStatus'])
-    });
+          if (value != null)
+            {
+              print('reply item EventBus'),
+              EventBus().emit('topicReply', value!['replyStatus'])
+            }
+        });
   }
 
   // 复制评论
@@ -202,20 +206,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-      // decoration: BoxDecoration(
-      //   border: Border(bottom: BorderSide(
-      //     width: 1,
-      //     color: Theme.of(context).dividerColor.withOpacity(0.1)
-      //   ))
-      // ),
       child: Material(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
         // color: Theme.of(context).colorScheme.onInverseSurface,
         child: InkWell(
           onTap: replyComment,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
           child: Ink(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
             child: content(context),
           ),
         ),
@@ -318,6 +316,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       const SizedBox(height: 1.5),
                       Row(
                         children: [
+                          Text('${reply.floorNumber}楼 · ',
+                              style: Theme.of(context).textTheme.labelSmall),
                           if (reply.lastReplyTime.isNotEmpty) ...[
                             Text(
                               reply.lastReplyTime,
@@ -340,21 +340,27 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   )
                 ],
               ),
-              Text(
-                '#${reply.floorNumber}',
-                style: Theme.of(context).textTheme.titleSmall,
-              )
+              IconButton(
+                padding: const EdgeInsets.all(2.0),
+                icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
+                onPressed: showBottomSheet,
+              ),
+              // Text(
+              //   '#${reply.floorNumber}',
+              //   style: Theme.of(context).textTheme.titleSmall,
+              // )
             ],
           ),
         ),
         // title
         Container(
-          margin: const EdgeInsets.only(top: 0, bottom: 5, left: 46, right: 0),
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 0),
           child: HtmlRender(
             htmlContent: reply.contentRendered,
             imgList: reply.imgList,
           ),
         ),
+        // Divider(indent: 0, endIndent: 10, height: 1, color: Theme.of(context).dividerColor.withOpacity(0.15),),
         bottonAction()
       ],
     );
@@ -372,25 +378,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Row(
           children: [
             const SizedBox(width: 32),
-            TextButton(
-              onPressed: thanksDialog,
-              child: Row(children: [
-                Icon(Icons.favorite_border, size: 17, color: color),
-                const SizedBox(width: 2),
-                reply.favorites.isNotEmpty
-                    ? Text(reply.favorites, style: textStyle)
-                    : Text('感谢', style: textStyle),
-              ]),
-            ),
-            TextButton(
-              onPressed: replyComment,
-              child: Row(children: [
-                Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
-                const SizedBox(width: 2),
-                Text('回复', style: textStyle),
-              ]),
-            ),
-            if (reply.replyMemberList.isNotEmpty)
+            if (reply.replyMemberList.isNotEmpty &&
+                widget.queryReplyList != null)
               TextButton(
                 onPressed: () => widget.queryReplyList(
                     reply.replyMemberList, reply.floorNumber, [reply]),
@@ -399,22 +388,46 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   style: textStyle,
                 ),
               ),
+            if (reply.userName != Storage().getUserInfo()['userName'])
+              TextButton(
+                onPressed: thanksDialog,
+                child: Row(children: [
+                  if (reply.favoritesStatus) ...[
+                    Icon(Icons.favorite,
+                        size: 17, color: Theme.of(context).colorScheme.primary),
+                  ] else ...[
+                    Icon(Icons.favorite_border, size: 17, color: color),
+                  ],
+                  const SizedBox(width: 2),
+                  reply.favorites.isNotEmpty
+                      ? Text(reply.favorites, style: textStyle)
+                      : Text('感谢', style: textStyle),
+                ]),
+              ),
+            TextButton(
+              onPressed: replyComment,
+              child: Row(children: [
+                Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
+                const SizedBox(width: 2),
+                Text('回复', style: textStyle),
+              ]),
+            ),
           ],
         ),
-        Row(
-          children: [
-            SizedBox(
-              height: 28.0,
-              width: 28.0,
-              child: IconButton(
-                padding: const EdgeInsets.all(2.0),
-                icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
-                onPressed: showBottomSheet,
-              ),
-            ),
-            SizedBox(width: 4)
-          ],
-        )
+        // Row(
+        //   children: [
+        //     SizedBox(
+        //       height: 28.0,
+        //       width: 28.0,
+        //       child: IconButton(
+        //         padding: const EdgeInsets.all(2.0),
+        //         icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
+        //         onPressed: showBottomSheet,
+        //       ),
+        //     ),
+        //     SizedBox(width: 4)
+        //   ],
+        // )
       ],
     );
   }
