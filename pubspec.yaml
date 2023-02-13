@@ -64,6 +64,9 @@ dependencies:
     get: ^4.6.5
     get_storage: ^2.0.3
     device_info_plus: ^8.0.0
+    dio_http2_adapter: ^2.0.0
+    dio_smart_retry: ^1.0.0
+
 
 dev_dependencies:
     flutter_test:

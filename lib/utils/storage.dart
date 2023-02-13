@@ -1,5 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 
 enum StoreKeys {
   token,
@@ -9,6 +10,8 @@ enum StoreKeys {
   replyContent,
   replyItem,
   statusBarHeight,
+  themeType,
+  signStatus
 }
 
 class Storage {
@@ -29,7 +32,7 @@ class Storage {
 
   Map getUserInfo() => _box.read<Map>(StoreKeys.userInfo.toString()) ?? {};
 
-  // 签到状态
+  // 登陆状态
   setLoginStatus(bool status) =>
       _box.write(StoreKeys.loginStatus.toString(), status);
 
@@ -59,4 +62,18 @@ class Storage {
 
   num getStatusBarHeight() =>
       _box.read<num>(StoreKeys.statusBarHeight.toString()) ?? 0;
+
+  // 主题风格 默认跟随系统
+  setSystemType(ThemeType type) =>
+      _box.write(StoreKeys.themeType.toString(), type);
+
+  ThemeType getSystemType() =>
+      _box.read<ThemeType>(StoreKeys.themeType.toString()) ?? ThemeType.system;
+
+  // 签到状态
+  setSignStatus(String date) =>
+      _box.write(StoreKeys.signStatus.toString(), date);
+
+  String getSignStatus() =>
+      _box.read<String>(StoreKeys.signStatus.toString()) ?? '';
 }

@@ -15,7 +15,7 @@ import 'package:flutter_v2ex/pages/member/:memberId/replies.dart';
 
 import 'package:flutter_v2ex/pages/my/nodes.dart';
 import 'package:flutter_v2ex/pages/my/topics.dart';
-import 'package:flutter_v2ex/pages/my/following.dart';
+import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/image_preview_page.dart';
 
 

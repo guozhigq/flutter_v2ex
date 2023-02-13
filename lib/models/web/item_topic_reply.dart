@@ -8,7 +8,7 @@ class ReplyItem {
   String content = ''; // 纯文本
   String contentRendered = ''; // 带html标签
   String replyId = '';
-  String favorites = ''; // 感谢数量
+  int favorites = 0; // 感谢数量
   bool favoritesStatus = false; // 感谢状态 登录状态
   String number = ''; // 楼层
   int floorNumber = 0; // 楼层

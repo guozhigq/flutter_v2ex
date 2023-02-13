@@ -14,6 +14,7 @@ import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/home_page.dart';
@@ -62,10 +63,16 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      currentThemeValue = Storage().getSystemType();
+    });
+    print('69: $currentThemeValue');
     eventBus.on('themeChange', (arg) {
+      Storage().setSystemType(arg);
       setState(() {
         currentThemeValue = arg;
       });
+      print('75: ${Storage().getSystemType()}');
     });
   }
 

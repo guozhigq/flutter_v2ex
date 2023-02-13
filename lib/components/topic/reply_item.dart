@@ -32,19 +32,27 @@ class ReplyListItem extends StatefulWidget {
 class _ReplyListItemState extends State<ReplyListItem> {
   // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
-    {
-      'id': 1,
-      'title': '添加回复',
-      'leading': const Icon(
-        Icons.reply,
-        size: 21,
-      ),
-    },
+    // {
+    //   'id': 1,
+    //   'title': '添加回复',
+    //   'leading': const Icon(
+    //     Icons.reply,
+    //     size: 21,
+    //   ),
+    // },
     {
       'id': 3,
       'title': '复制内容',
       'leading': const Icon(
         Icons.copy_rounded,
+        size: 21,
+      ),
+    },
+    {
+      'id': 6,
+      'title': '自由复制',
+      'leading': const Icon(
+        Icons.copy_all,
         size: 21,
       ),
     },
@@ -62,6 +70,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       'leading': const Icon(Icons.person, size: 21),
     }
   ];
+
   ReplyItem reply = ReplyItem();
   String heroTag = Random().nextInt(999).toString();
 
@@ -89,8 +98,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
     }
   }
 
-  void menuAction(index) {
-    switch (index) {
+  void menuAction(id) {
+    switch (id) {
       case 1:
         replyComment();
         break;
@@ -110,12 +119,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
           'heroTag': reply.userName + heroTag,
         });
         break;
+      case 6:
+        showCopySheet();
+        break;
     }
   }
 
   // 回复评论
   void replyComment() {
-    var statusHeight = MediaQuery.of(context).padding.top;
+    var statusHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
     var replyId = reply.replyId;
     if (replyId == '') {
       // 刚回复的楼层没有回复replyId
@@ -132,30 +147,20 @@ class _ReplyListItemState extends State<ReplyListItem> {
           totalPage: widget.totalPage,
         );
       },
-    ).then((value) => {
-          if (value != null)
-            {
-              print('reply item EventBus'),
-              EventBus().emit('topicReply', value!['replyStatus'])
-            }
-        });
+    ).then((value) =>
+    {
+      if (value != null)
+        {
+          print('reply item EventBus'),
+          EventBus().emit('topicReply', value!['replyStatus'])
+        }
+    });
   }
 
   // 复制评论
   void copyComment() {
     Clipboard.setData(ClipboardData(text: reply.content));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.done, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 4),
-            const Text('复制成功')
-          ],
-        ),
-        showCloseIcon: true,
-      ),
-    );
+    SmartDialog.showToast('复制成功');
   }
 
   // 忽略回复
@@ -170,7 +175,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
               const Text('确定不再显示来自 '),
               Text(
                 '@${reply.userName}',
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleSmall,
               ),
               const Text(' 的这条回复？'),
             ],
@@ -191,13 +199,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // 感谢回复 request
   void onThankReply() async {
     var res = await DioRequestWeb.thankReply(reply.replyId, widget.topicId);
-    print(res);
-    // if (res) {
-    //   SmartDialog.showToast('操作成功');
-    //   setState(() {
-    //     reply.favoritesStatus = true;
-    //   });
-    // } else {
+    if (res) {
+      setState(() {
+        reply.favoritesStatus = true;
+        reply.favorites += 1;
+      });
+    }
+    // else {
     //   SmartDialog.showToast('操作失败');
     // }
   }
@@ -228,10 +236,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
           reply.isChoose = !reply.isChoose;
         });
       },
-      onTap: () => Get.toNamed('/member/${reply.userName}', parameters: {
-        'memberAvatar': reply.avatar,
-        'heroTag': reply.userName + heroTag,
-      }),
+      onTap: () =>
+          Get.toNamed('/member/${reply.userName}', parameters: {
+            'memberAvatar': reply.avatar,
+            'heroTag': reply.userName + heroTag,
+          }),
       child: Column(
         children: [
           Container(
@@ -256,14 +265,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     opacity: reply.isChoose ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 100),
                     child: Container(
-                      color: Theme.of(context)
+                      color: Theme
+                          .of(context)
                           .colorScheme
                           .primaryContainer
                           .withOpacity(0.8),
                       width: 36,
                       height: 36,
                       child: Icon(Icons.done,
-                          color: Theme.of(context).colorScheme.primary),
+                          color: Theme
+                              .of(context)
+                              .colorScheme
+                              .primary),
                     ),
                   ),
                 ),
@@ -301,14 +314,20 @@ class _ReplyListItemState extends State<ReplyListItem> {
                             reply.userName,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: Theme.of(context).textTheme.labelLarge,
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .labelLarge,
                           ),
                           const SizedBox(width: 4),
                           if (reply.isOwner) ...[
                             Icon(
                               Icons.person,
                               size: 15,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme
+                                  .of(context)
+                                  .colorScheme
+                                  .primary,
                             )
                           ]
                         ],
@@ -316,12 +335,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       const SizedBox(height: 1.5),
                       Row(
                         children: [
-                          Text('${reply.floorNumber}楼 · ',
-                              style: Theme.of(context).textTheme.labelSmall),
                           if (reply.lastReplyTime.isNotEmpty) ...[
                             Text(
                               reply.lastReplyTime,
-                              style: Theme.of(context).textTheme.labelSmall,
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelSmall,
                             ),
                             const SizedBox(width: 2),
                           ],
@@ -368,10 +388,21 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 感谢、回复、复制
   Widget bottonAction() {
-    var color = Theme.of(context).colorScheme.onBackground.withOpacity(0.8);
-    var textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-          color: Theme.of(context).colorScheme.onBackground,
-        );
+    var color = Theme
+        .of(context)
+        .colorScheme
+        .onBackground
+        .withOpacity(0.8);
+    var textStyle = Theme
+        .of(context)
+        .textTheme
+        .bodyMedium!
+        .copyWith(
+      color: Theme
+          .of(context)
+          .colorScheme
+          .onBackground,
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -381,8 +412,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
             if (reply.replyMemberList.isNotEmpty &&
                 widget.queryReplyList != null)
               TextButton(
-                onPressed: () => widget.queryReplyList(
-                    reply.replyMemberList, reply.floorNumber, [reply]),
+                onPressed: () =>
+                    widget.queryReplyList(
+                        reply.replyMemberList, reply.floorNumber, [reply]),
                 child: Text(
                   '查看回复',
                   style: textStyle,
@@ -392,15 +424,20 @@ class _ReplyListItemState extends State<ReplyListItem> {
               TextButton(
                 onPressed: thanksDialog,
                 child: Row(children: [
+                  // 感谢状态
                   if (reply.favoritesStatus) ...[
                     Icon(Icons.favorite,
-                        size: 17, color: Theme.of(context).colorScheme.primary),
-                  ] else ...[
-                    Icon(Icons.favorite_border, size: 17, color: color),
-                  ],
+                        size: 17, color: Theme
+                            .of(context)
+                            .colorScheme
+                            .primary),
+                  ] else
+                    ...[
+                      Icon(Icons.favorite_border, size: 17, color: color),
+                    ],
                   const SizedBox(width: 2),
-                  reply.favorites.isNotEmpty
-                      ? Text(reply.favorites, style: textStyle)
+                  reply.favorites > 0
+                      ? reply.favoritesStatus ? Text(reply.favorites.toString(), style: textStyle.copyWith(color: Theme.of(context).colorScheme.primary)) : Text(reply.favorites.toString(), style: textStyle)
                       : Text('感谢', style: textStyle),
                 ]),
               ),
@@ -414,20 +451,16 @@ class _ReplyListItemState extends State<ReplyListItem> {
             ),
           ],
         ),
-        // Row(
-        //   children: [
-        //     SizedBox(
-        //       height: 28.0,
-        //       width: 28.0,
-        //       child: IconButton(
-        //         padding: const EdgeInsets.all(2.0),
-        //         icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
-        //         onPressed: showBottomSheet,
-        //       ),
-        //     ),
-        //     SizedBox(width: 4)
-        //   ],
-        // )
+        Row(
+          children: [
+            Text('${reply.floorNumber}楼',
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .labelSmall),
+            const SizedBox(width: 14)
+          ],
+        )
       ],
     );
   }
@@ -449,11 +482,17 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 menuAction(sheetMenu[index]['id']);
               },
               minLeadingWidth: 0,
-              iconColor: Theme.of(context).colorScheme.onSurface,
+              iconColor: Theme
+                  .of(context)
+                  .colorScheme
+                  .onSurface,
               leading: sheetMenu[index]['leading'],
               title: Text(
                 sheetMenu[index]['title'],
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleSmall,
               ),
             );
           },
@@ -462,26 +501,51 @@ class _ReplyListItemState extends State<ReplyListItem> {
     );
   }
 
+  void showCopySheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Scaffold(
+          body: Center(
+            child: Container(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                bottom: MediaQuery.of(context).padding.bottom,
+                left: 20,
+                right: 20
+              ),
+              child: SelectionArea(
+                  child: HtmlRender(htmlContent: widget.reply.contentRendered)
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void thanksDialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('提示'),
-        content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('手滑了'),
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: const Text('提示'),
+            content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('手滑了'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Ok');
+                  onThankReply();
+                },
+                child: const Text('确认'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, 'Ok');
-              onThankReply();
-            },
-            child: const Text('确认'),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -52,7 +52,7 @@ class _GoPageState extends State<GoPage> {
   }
 
   void getTopics() async {
-    var res = await DioRequestWeb.getTopicsByNodeKey(nodeId, _currentPage + 1);
+    var res = await DioRequestWeb.getTopicsByNodeId(nodeId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
@@ -65,6 +65,14 @@ class _GoPageState extends State<GoPage> {
     });
   }
 
+  Future<bool> favNode() async {
+    bool res = await DioRequestWeb.onFavNode(topicListDetail!.nodeId, topicListDetail!.isFavorite);
+    if(res) {
+      topicListDetail!.isFavorite = !topicListDetail!.isFavorite;
+    }
+    return res;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +83,7 @@ class _GoPageState extends State<GoPage> {
                 titleSpacing: 0,
                 actions: [
                   IconButton(
-                    onPressed: () => {},
+                    onPressed: () => favNode(),
                     icon: const Icon(Icons.star_outline),
                     selectedIcon: Icon(
                       Icons.star,

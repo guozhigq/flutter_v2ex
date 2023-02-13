@@ -110,10 +110,14 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
                   physics: const ClampingScrollPhysics(), //重要
                   itemCount: widget.resultList[i][e].length,
                   itemBuilder: (BuildContext context, int index) {
-                    return ReplyListItem(
-                      reply: widget.resultList[i][e][index],
-                      topicId: widget.topicId,
-                    );
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: ReplyListItem(
+                        reply: widget.resultList[i][e][index],
+                        topicId: widget.topicId,
+                      ),
+                    )
+                      ;
                     // return Text('123');
                   },
                 );

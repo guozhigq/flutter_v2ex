@@ -133,7 +133,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       });
     }
     queryDaily();
-    DioRequestWeb.dailyMission();
   }
 
   void readUserInfo() {

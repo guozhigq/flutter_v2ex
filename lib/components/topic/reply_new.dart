@@ -201,7 +201,7 @@ class _ReplyNewState extends State<ReplyNew> {
             width: double.infinity,
             height: 60,
             clipBehavior: Clip.hardEdge,
-            margin: EdgeInsets.only(top: 10, bottom: MediaQuery.of(context).padding.bottom),
+            margin: EdgeInsets.only(top: 10, bottom: MediaQuery.of(context).padding.bottom + 10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(30),

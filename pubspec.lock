@@ -217,6 +217,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
+  dio_http2_adapter:
+    dependency: "direct main"
+    description:
+      name: dio_http2_adapter
+      sha256: f4ce5e29aaf24c6c1b99b2135c8f4f03c3e2f1b7b535bbfdc859f0c5a74a8298
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
   dio_http_cache:
     dependency: "direct main"
     description:
@@ -225,6 +233,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.0"
+  dio_smart_retry:
+    dependency: "direct main"
+    description:
+      name: dio_smart_retry
+      sha256: "7c008542f7a5c5552a0757c7cd0e8c7b3131617120ee3e48456425f673f8ff09"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.4.0"
   dynamic_color:
     dependency: "direct main"
     description:
@@ -416,6 +432,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.13.5"
+  http2:
+    dependency: transitive
+    description:
+      name: http2
+      sha256: "58805ebc6513eed3b98ee0a455a8357e61d187bf2e0fdc1e53120770f78de258"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.1"
   http_client_helper:
     dependency: transitive
     description:

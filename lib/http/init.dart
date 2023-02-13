@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,8 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:dio_smart_retry/dio_smart_retry.dart'; // dio 重试
 
 String reqCookie = '';
 
@@ -20,7 +23,14 @@ class Request {
 
   factory Request() => _instance;
 
-  Dio dio = Dio();
+  Dio dio = Dio()
+    ..httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: 10000,
+        // Ignore bad certificate
+        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+      ),
+    );
 
   // final CancelToken _cancelToken = CancelToken();
   // static Request getInstance() {
@@ -39,9 +49,11 @@ class Request {
   ///设置cookie
   void _getLocalFile() async {
     var cookiePath = await Utils.getCookiePath();
-    var cookieJar = PersistCookieJar(ignoreExpires: true, storage: FileStorage(cookiePath));
+    var cookieJar =
+        PersistCookieJar(ignoreExpires: true, storage: FileStorage(cookiePath));
     dio.interceptors.add(CookieManager(cookieJar));
   }
+
   /*
    * config it and create
    */
@@ -75,9 +87,20 @@ class Request {
       // ..add(CookieManager(cookieJar))
       ..add(LogInterceptor())
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
+      // ..add(RetryInterceptor(
+      //   dio: dio,
+      //   logPrint: print, // specify log function
+      //   retries: 3, // retry count
+      //   retryDelays: const [
+      //     Duration(seconds: 10), // wait 1 sec before first retry
+      //     Duration(seconds: 2), // wait 2 sec before second retry
+      //     Duration(seconds: 3), // wait 3 sec before third retry
+      //   ],
+      // ))
       ..add(
         InterceptorsWrapper(
           onRequest: (RequestOptions options, handler) {
+
             print("请求之前");
             return handler.next(options);
           },
@@ -93,15 +116,15 @@ class Request {
           },
         ),
       );
-    (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+    // (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         (HttpClient client) {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
-        return 'PROXY 192.168.1.60:7890';
+        // return 'PROXY 192.168.1.60:7890';
         // return 'PROXY 172.16.32.186:7890';
-        // return 'PROXY localhost:7890';
+        return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:7890';
         // 不设置代理 TODO 打包前关闭代理
         // return 'DIRECT';
@@ -145,11 +168,8 @@ class Request {
       //           )
       // );
       // options = cacheOptions;
-      cacheOptions.headers= {'user-agent': headerUa(ua)};
+      cacheOptions.headers = {'user-agent': headerUa(ua)};
       options = cacheOptions;
-      print('------------');
-      print(cacheOptions.headers);
-      print('------------');
     } else {
       options = Options();
       options.headers = {'user-agent': headerUa(ua)};
@@ -162,17 +182,15 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      // print('get success---------${response.statusCode}');
-      // print('get success---------${response.data}');
-
-//      response.data; 响应体
-//      response.headers; 响应头
-//      response.request; 请求体
-//      response.statusCode; 状态码
       return response;
-    } on DioError catch (e) {
+    } on DioError catch (e, handler) {
       print('get error---------$e');
-      return Future.error(_dioError(e));
+      int statusCode = e.response!.statusCode!;
+      // if(statusCode == 503){
+      //   return handleError(statusCode);
+      // }else{
+        return Future.error(_dioError(e));
+      // }
     }
   }
 
@@ -256,8 +274,31 @@ class Request {
           : 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36';
     } else {
       headerUa =
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
+          'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
     }
     return headerUa;
+  }
+
+  handleError(error) async{
+    print('266： ${error.toString()}');
+    Response response = await dio.get('https://www.v2ex.com/my/following?p=1');
+    return response;
+    // try {
+    // if (
+    // isObjectLike(error) &&
+    // isObjectLike(error.config) &&
+    // error.message.includes(`503`) &&
+    // error.config.method === 'get' &&
+    // !error.config.url.startsWith('http')
+    // ) {
+    // const open503UrlTime = await store.get(open503UrlTimeAtom)
+    // if (dayjs().diff(open503UrlTime, 'hour') > 8) {
+    // store.set(open503UrlTimeAtom, Date.now())
+    // openURL(`${baseURL}${error.config.url}`)
+    // }
+    // }
+    // } catch {
+    // // empty
+    // }
   }
 }

@@ -251,16 +251,27 @@ class _TabBarListState extends State<TabBarList>
     var commonColor = Theme.of(context).colorScheme.surfaceVariant;
 
     return Container(
-      // height: 108,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).colorScheme.onInverseSurface,
       ),
       margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Container(
+            width: 300,
+            height: 14,
+            margin: const EdgeInsets.only(top: 0, bottom: 6),
+            color: commonColor,
+          ),
+          Container(
+            width: 150,
+            height: 14,
+            margin: const EdgeInsets.only(top: 0, bottom: 12),
+            color: commonColor,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -313,12 +324,6 @@ class _TabBarListState extends State<TabBarList>
                 ),
               ),
             ],
-          ),
-          Container(
-            width: 300,
-            height: 12,
-            margin: const EdgeInsets.only(top: 12, bottom: 3),
-            color: commonColor,
           ),
         ],
       ),

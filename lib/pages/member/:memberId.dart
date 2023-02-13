@@ -322,8 +322,8 @@ class _MemberPageState extends State<MemberPage> {
                           const SizedBox(width: 2),
                           Image.asset('assets/images/bronze.png', width: 15,height: 15,),
                           const SizedBox(width: 5),
-                          TextButton(
-                              onPressed: () => {}, child: const Text(' 查看明细 '))
+                          // TextButton(
+                          //     onPressed: () => {}, child: const Text(' 查看明细 '))
                         ],
                       ),
                     ),

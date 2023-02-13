@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/models/web/model_topic_fav.dart';
+import 'package:flutter_v2ex/components/home/list_item.dart';
+import 'package:flutter_v2ex/models/web/model_topic_follow.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 
-class MyTopicsPage extends StatefulWidget {
-  const MyTopicsPage({Key? key}) : super(key: key);
+class MyFollowPage extends StatefulWidget {
+  const MyFollowPage({Key? key}) : super(key: key);
 
   @override
-  State<MyTopicsPage> createState() => _MyTopicsPageState();
+  State<MyFollowPage> createState() => _MyFollowPageState();
 }
 
-class _MyTopicsPageState extends State<MyTopicsPage> {
+class _MyFollowPageState extends State<MyFollowPage> {
   final ScrollController _controller = ScrollController();
   List<TabTopicItem> topicList = [];
   int _currentPage = 0;
@@ -39,11 +39,12 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
         }
       },
     );
+
     getTopics();
   }
 
-  Future<FavTopicModel> getTopics() async {
-    FavTopicModel res = await DioRequestWeb.getFavTopics(_currentPage + 1);
+  Future<FollowTopicModel> getTopics() async {
+    FollowTopicModel res = await DioRequestWeb.getFollowTopics(1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
@@ -68,7 +69,7 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的收藏'),
+        title: const Text('我的关注'),
       ),
       body: Stack(
         children: [

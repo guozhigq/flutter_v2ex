@@ -14,37 +14,37 @@ class TabTopicItem {
   String lastReplyMId = ''; // 最后回复人id
   String lastReplyTime = ''; // 最后回复时间
 
-  TabTopicItem();
+  // TabTopicItem();
 
-  get name => null;
+  // get name => null;
 
-  Map<String, dynamic> toMap() {
-    final map = <String, dynamic>{};
-    map['readStatus'] = readStatus;
-    map['memberId'] = memberId;
-    map['topicId'] = topicId;
-    map['avatar'] = avatar;
-    map['topicTitle'] = topicTitle;
-    map['replyCount'] = replyCount;
-    map['clickCount'] = clickCount;
-    map['nodeId'] = nodeId;
-    map['nodeName'] = nodeName;
-    map['lastReplyMId'] = lastReplyMId;
-    map['lastReplyTime'] = lastReplyTime;
-    return map;
-  }
+  // Map<String, dynamic> toMap() {
+  //   final map = <String, dynamic>{};
+  //   map['readStatus'] = readStatus;
+  //   map['memberId'] = memberId;
+  //   map['topicId'] = topicId;
+  //   map['avatar'] = avatar;
+  //   map['topicTitle'] = topicTitle;
+  //   map['replyCount'] = replyCount;
+  //   map['clickCount'] = clickCount;
+  //   map['nodeId'] = nodeId;
+  //   map['nodeName'] = nodeName;
+  //   map['lastReplyMId'] = lastReplyMId;
+  //   map['lastReplyTime'] = lastReplyTime;
+  //   return map;
+  // }
 
-  TabTopicItem.fromMap(Map<String, dynamic> map) {
-    readStatus = map['readStatus'];
-    memberId = map['memberId'];
-    topicId = map['topicId'];
-    avatar = map['avatar'];
-    topicTitle = map['topicTitle'];
-    replyCount = map['replyCount'];
-    clickCount = map['clickCount'];
-    nodeId = map['nodeId'];
-    nodeName = map['nodeName'];
-    lastReplyMId = map['lastReplyMId'];
-    lastReplyTime = map['lastReplyTime'];
-  }
+  // TabTopicItem.fromMap(Map<String, dynamic> map) {
+  //   readStatus = map['readStatus'];
+  //   memberId = map['memberId'];
+  //   topicId = map['topicId'];
+  //   avatar = map['avatar'];
+  //   topicTitle = map['topicTitle'];
+  //   replyCount = map['replyCount'];
+  //   clickCount = map['clickCount'];
+  //   nodeId = map['nodeId'];
+  //   nodeName = map['nodeName'];
+  //   lastReplyMId = map['lastReplyMId'];
+  //   lastReplyTime = map['lastReplyTime'];
+  // }
 }

@@ -70,8 +70,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 85,
-      padding: const EdgeInsets.only(top: 20, right: 0, left: 0, bottom: 15),
+      height: 110,
+      padding: const EdgeInsets.only(top: 28, right: 0, left: 0, bottom: 33),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: Container(

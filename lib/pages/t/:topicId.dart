@@ -59,6 +59,7 @@ class _TopicDetailState extends State<TopicDetail>
   // bool _isElevated = true;
   bool _isVisible = true;
   bool floorReplyVisible = false;
+  String myUserName = '';
 
   SampleItem? selectedMenu;
 
@@ -72,6 +73,9 @@ class _TopicDetailState extends State<TopicDetail>
 
     setState(() {
       topicId = Get.parameters['topicId']!;
+      myUserName = Storage().getUserInfo().isNotEmpty
+          ? Storage().getUserInfo()['userName']
+          : '';
     });
 
     _controller = EasyRefreshController(
@@ -277,7 +281,7 @@ class _TopicDetailState extends State<TopicDetail>
     var res = await DioRequestWeb.onIgnoreTopic(topicId);
     print('topic detail line 280:  $res');
     SmartDialog.showToast(res ? '操作成功' : '操作失败');
-    if(res){
+    if (res) {
       EventBus().emit('ignoreTopic', topicId);
     }
     return res;
@@ -304,6 +308,14 @@ class _TopicDetailState extends State<TopicDetail>
     return Stack(
       children: [
         Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            title: Text(
+              _detailModel != null ? _detailModel!.topicTitle : '',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            actions: _detailModel != null ? appBarAction() : [],
+          ),
           backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
           body: _detailModel != null
               ? Scrollbar(
@@ -342,18 +354,18 @@ class _TopicDetailState extends State<TopicDetail>
             detailModel: _detailModel,
           ),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).padding.top,
-            color: _isVisible
-                ? Theme.of(context).appBarTheme.foregroundColor
-                : Theme.of(context).colorScheme.background,
-          ),
-        ),
+        // Positioned(
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: Container(
+        //     width: double.infinity,
+        //     height: MediaQuery.of(context).padding.top,
+        //     color: _isVisible
+        //         ? Theme.of(context).appBarTheme.foregroundColor
+        //         : Theme.of(context).colorScheme.background,
+        //   ),
+        // ),
       ],
     );
   }
@@ -369,7 +381,9 @@ class _TopicDetailState extends State<TopicDetail>
           if (res) {
             setState(() {
               _detailModel!.isFavorite = !_detailModel!.isFavorite;
-              _detailModel!.favoriteCount = _detailModel!.isFavorite ? _detailModel!.favoriteCount+1 : _detailModel!.favoriteCount-1 ;
+              _detailModel!.favoriteCount = _detailModel!.isFavorite
+                  ? _detailModel!.favoriteCount + 1
+                  : _detailModel!.favoriteCount - 1;
             });
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
@@ -383,7 +397,7 @@ class _TopicDetailState extends State<TopicDetail>
         tooltip: '收藏主题',
         icon: const Icon(Icons.star_border),
         selectedIcon: Icon(
-          Icons.star,
+          Icons.star_rounded,
           color: Theme.of(context).colorScheme.primary,
         ),
         isSelected: _detailModel!.isFavorite,
@@ -442,13 +456,13 @@ class _TopicDetailState extends State<TopicDetail>
       controller: _scrollController,
       key: listGlobalKey,
       slivers: [
-        SliverAppBar(
-          pinned: false,
-          floating: true,
-          title: Text(_detailModel!.topicTitle),
-          titleTextStyle: Theme.of(context).textTheme.titleMedium,
-          actions: appBarAction(),
-        ),
+        // SliverAppBar(
+        //   pinned: false,
+        //   floating: true,
+        //   title: Text(_detailModel!.topicTitle),
+        //   titleTextStyle: Theme.of(context).textTheme.titleMedium,
+        //   actions: appBarAction(),
+        // ),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -481,12 +495,22 @@ class _TopicDetailState extends State<TopicDetail>
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              _detailModel!.createdId,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
+                            if (myUserName != '' &&
+                                myUserName == _detailModel!.createdId) ...[
+                              Text(
+                                _detailModel!.createdId,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ] else ...[
+                              Text(
+                                _detailModel!.createdId,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ],
                             SizedBox(
                               height: 15,
                               child: _detailModel != null
@@ -559,10 +583,12 @@ class _TopicDetailState extends State<TopicDetail>
               Container(
                 padding: const EdgeInsets.only(
                     top: 5, right: 18, bottom: 10, left: 18),
-                child: HtmlRender(
-                    htmlContent: _detailModel!.contentRendered,
-                    imgCount: _detailModel!.imgCount,
-                    imgList: _detailModel!.imgList),
+                child: SelectionArea(
+                  child: HtmlRender(
+                      htmlContent: _detailModel!.contentRendered,
+                      imgCount: _detailModel!.imgCount,
+                      imgList: _detailModel!.imgList),
+                ),
               ),
               // 附言
               if (_detailModel!.subtleList.isNotEmpty) ...[
