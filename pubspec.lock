@@ -233,14 +233,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.0"
-  dio_smart_retry:
-    dependency: "direct main"
-    description:
-      name: dio_smart_retry
-      sha256: "7c008542f7a5c5552a0757c7cd0e8c7b3131617120ee3e48456425f673f8ff09"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.4.0"
   dynamic_color:
     dependency: "direct main"
     description:

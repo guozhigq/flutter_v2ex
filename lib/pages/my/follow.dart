@@ -4,6 +4,8 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/model_topic_follow.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
+import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
+
 
 class MyFollowPage extends StatefulWidget {
   const MyFollowPage({Key? key}) : super(key: key);
@@ -76,11 +78,9 @@ class _MyFollowPageState extends State<MyFollowPage> {
           Scrollbar(
             controller: _controller,
             radius: const Radius.circular(10),
-            child: Container(
+            child: _isLoading ? const TopicSkeleton() : Container(
               margin: const EdgeInsets.only(right: 12, left: 12),
-              child: _isLoading
-                  ? showLoading()
-                  : topicList.isNotEmpty
+              child: topicList.isNotEmpty
                       ? PullRefresh(
                           totalPage: _totalPage,
                           currentPage: _currentPage,
@@ -137,17 +137,4 @@ class _MyFollowPageState extends State<MyFollowPage> {
     );
   }
 
-  Widget showLoading() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          CircularProgressIndicator(
-            strokeWidth: 3,
-          ),
-          SizedBox(height: 10),
-        ],
-      ),
-    );
-  }
 }
