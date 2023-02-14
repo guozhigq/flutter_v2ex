@@ -20,6 +20,7 @@ import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/home_page.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/http/soV2ex.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -63,16 +64,17 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    // 读取默认主题配置
     setState(() {
       currentThemeValue = Storage().getSystemType();
     });
-    print('69: $currentThemeValue');
+    // 监听主题更改
     eventBus.on('themeChange', (arg) {
       Storage().setSystemType(arg);
       setState(() {
         currentThemeValue = arg;
       });
-      print('75: ${Storage().getSystemType()}');
     });
   }
 

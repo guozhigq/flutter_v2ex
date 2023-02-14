@@ -14,6 +14,7 @@ import 'package:extended_image/extended_image.dart';
 // import 'package:flutter_html_all/flutter_html_all.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_v2ex/pages/image_preview_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -141,12 +142,16 @@ class HtmlRender extends StatelessWidget {
         Get.toNamed(arr[1]);
       } else {
         // 其他链接
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WebView(aUrl: aUrl),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => WebView(aUrl: aUrl),
+        //   ),
+        // );
+        final Uri _url = Uri.parse(aUrl);
+        if (!await launchUrl(_url)) {
+          throw Exception('Could not launch $aUrl');
+        }
       }
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||

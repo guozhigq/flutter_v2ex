@@ -26,25 +26,35 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   void onDestinationSelected(int index) {
     if (index == 0) {
+      // 我的关注
       Get.toNamed('/my/following');
     }
     if (index == 1) {
+      // 我的收藏
       Get.toNamed('/my/topics');
     }
     if (index == 2) {
+      // 消息提醒
       Get.toNamed('/notifications');
     }
     if (index == 3) {
+      // 发布主题
       print('_character: $tempThemeValue');
     }
     if (index == 5) {
+      // 选择主题
       setState(() {
         tempThemeValue = currentThemeValue;
       });
       themeDialog();
     }
     if(index == 6) {
+      // 设置
       Get.toNamed('/setting');
+    }
+    if(index == 7) {
+      // 帮助
+      Get.toNamed('/help');
     }
   }
 

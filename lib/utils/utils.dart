@@ -11,7 +11,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 // import 'package:ovprogresshud/progresshud.dart';
 import 'package:path_provider/path_provider.dart';
 
-// import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'event_bus.dart';
 
@@ -44,19 +44,31 @@ class Utils {
   }
 
   // 外链跳转
-  // static launchURL(String url) async {
-  //   // 处理有些链接是 //xxxx 形式
-  //   if (url.startsWith('//')) {
-  //     url = 'https:$url';
-  //   }
+  static launchURL(url, {String scheme = 'https'}) async {
+    Uri _url;
+    if(scheme == 'https'){
+      if (url.startsWith('//')) {
+        // 处理有些链接是 //xxxx 形式
+        url = 'https:$url';
+      }
+      _url = Uri.parse(url);
+    }
+   else{
+      // sms email tel
+      _url = url;
+    }
+    if (await canLaunchUrl(_url)) {
+      launchUrl(_url);
+    } else {
+      SmartDialog.showToast('Could not launch $_url');
+    }
+  }
 
-  //   if (await canLaunch(url)) {
-  //     await launch(url,
-  //         statusBarBrightness: Platform.isIOS ? Brightness.light : null);
-  //   } else {
-  //     Progresshud.showErrorWithStatus('Could not launch $url');
-  //   }
-  // }
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
 
   // 头像转成大图
   String avatarLarge(String avatar) {

@@ -295,7 +295,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
       children: <Widget>[
         // 头像、昵称
         Container(
-          margin: const EdgeInsets.only(bottom: 8),
           child: Row(
             // 两端对齐
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -17,6 +17,7 @@ import 'package:flutter_v2ex/pages/my/nodes.dart';
 import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/image_preview_page.dart';
+import 'package:flutter_v2ex/pages/search_page.dart';
 
 
 class AppPages {
@@ -55,8 +56,11 @@ class AppPages {
     GetPage(name: '/notifications', page: () => const MessagePage()),
     // 图片预览
     GetPage(name: '/imgPreview', page: () => ImagePreview(imgList: []), fullscreenDialog: true),
-
+    // 设置
     GetPage(name: '/setting', page: () => const SettingPage()),
+    // 搜索
+    GetPage(name: '/search', page: () => const SearchPage()),
+
   ];
 
 }

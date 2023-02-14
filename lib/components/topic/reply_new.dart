@@ -85,7 +85,7 @@ class _ReplyNewState extends State<ReplyNew> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height - statusBarHeight,
+      height: MediaQuery.of(context).size.height - statusBarHeight - 10,
       padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(

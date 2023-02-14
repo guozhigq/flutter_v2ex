@@ -50,27 +50,6 @@ class DioRequestWeb {
 
   GetStorage storage = GetStorage();
 
-  // 错误、异常处理
-  static void formatError(DioError e) {
-    switch (e.type) {
-      case DioErrorType.cancel:
-        break;
-      case DioErrorType.connectTimeout:
-        print('链接超时');
-        break;
-      case DioErrorType.sendTimeout:
-        print('发送请求超时');
-        break;
-      case DioErrorType.receiveTimeout:
-        print('响应超时');
-        break;
-      case DioErrorType.response:
-        break;
-      case DioErrorType.other:
-        break;
-    }
-  }
-
   // 获取主页分类内容
   static Future<List<TabTopicItem>> getTopicsByTabKey(
     String type,

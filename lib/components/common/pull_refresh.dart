@@ -91,13 +91,16 @@ class _PullRefreshState extends State<PullRefresh> {
         triggerOffset: 100,
         // position: IndicatorPosition.locator,
       ),
-      onRefresh: () async {
-        await widget.onChildRefresh();
-        // ignore: avoid_print
-        print('onRefresh Finish');
-        _controller.finishRefresh();
-        _controller.resetFooter();
-      }, // 下拉
+      onRefresh: widget.onChildRefresh != null
+          ? () async {
+              await widget.onChildRefresh();
+              // ignore: avoid_print
+              print('onRefresh Finish');
+              _controller.finishRefresh();
+              _controller.resetFooter();
+            }
+          : null,
+      // 下拉
       onLoad: widget.onChildLoad != null
           ? () async {
               if (widget.currentPage == widget.totalPage!) {
@@ -105,14 +108,14 @@ class _PullRefreshState extends State<PullRefresh> {
                 _controller.resetFooter();
                 return IndicatorResult.noMore;
               }
-                await widget.onChildLoad!();
-                // ignore: avoid_print
-                print('onLoad Finish');
-                print('widget.currentPage: ${widget.currentPage}');
-                print('widget.totalPage: ${widget.totalPage}');
-                _controller.finishLoad();
-                _controller.resetFooter();
-      }
+              await widget.onChildLoad!();
+              // ignore: avoid_print
+              print('onLoad Finish');
+              print('widget.currentPage: ${widget.currentPage}');
+              print('widget.totalPage: ${widget.totalPage}');
+              _controller.finishLoad();
+              _controller.resetFooter();
+            }
           : null,
       child: widget.child,
     );
