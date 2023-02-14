@@ -72,8 +72,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       onTap: () => Get.toNamed('/search'),
       child: Container(
         width: double.infinity,
-        height: 120,
-        padding: const EdgeInsets.only(top: 38, right: 0, left: 0, bottom: 33),
+        height: 115,
+        padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),
           child: Container(

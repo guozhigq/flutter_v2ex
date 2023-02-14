@@ -1599,7 +1599,7 @@ class DioRequestWeb {
 
   // 收藏节点
   static Future onFavNode(String nodeId, bool isFavorite) async {
-    SmartDialog.showLoading();
+    SmartDialog.showLoading(msg: isFavorite ? '取消收藏ing' : '收藏中ing');
     int once = Storage().getOnce();
     Response response;
     var reqUrl =
@@ -1610,7 +1610,7 @@ class DioRequestWeb {
       extra: {'ua': 'pc'},
     );
     SmartDialog.dismiss();
-    if (response.statusCode == 302) {
+    if (response.statusCode == 200) {
       return true;
     } else {
       return false;

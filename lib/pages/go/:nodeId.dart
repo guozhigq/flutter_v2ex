@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
@@ -68,7 +69,10 @@ class _GoPageState extends State<GoPage> {
   Future<bool> favNode() async {
     bool res = await DioRequestWeb.onFavNode(topicListDetail!.nodeId, topicListDetail!.isFavorite);
     if(res) {
-      topicListDetail!.isFavorite = !topicListDetail!.isFavorite;
+      SmartDialog.showToast(topicListDetail!.isFavorite ? '取消收藏成功' : '收藏成功');
+      setState(() {
+        topicListDetail!.isFavorite = !topicListDetail!.isFavorite;
+      });
     }
     return res;
   }

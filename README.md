@@ -26,7 +26,7 @@ samples, guidance on mobile development, and a full API reference.
 + 自动签到逻辑
 + 搜索  70%
 + 节点排序
-+ 节点收藏
++ 节点收藏 ✅
 + 深浅色模式切换
 + 骨架屏
 + 话题已读标记
