@@ -100,11 +100,11 @@ class Request {
       ..add(
         InterceptorsWrapper(
           onRequest: (RequestOptions options, handler) {
-
             print("请求之前");
             return handler.next(options);
           },
           onResponse: (Response response, handler) {
+            // 更新用户信息 消息计数 ...
             print("响应之前");
             return handler.next(response);
           },
@@ -226,7 +226,7 @@ class Request {
         //进度
         // print("$count $total");
       });
-      // print('downloadFile success---------${response.data}');
+      print('downloadFile success---------${response.data}');
 
       return response.data;
     } on DioError catch (e) {

@@ -17,10 +17,7 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 import 'router/app_pages.dart';
-import 'package:flutter_v2ex/pages/home_page.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/http/soV2ex.dart';
+import 'package:flutter_v2ex/pages/page_home.dart';
 
 dynamic _parseAndDecode(String response) {
   return jsonDecode(response);
@@ -60,6 +57,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   ThemeType currentThemeValue = ThemeType.system;
   EventBus eventBus = EventBus();
+  DateTime? lastPopTime; //上次点击时间
+
 
   @override
   void initState() {
@@ -90,6 +89,7 @@ class _MyAppState extends State<MyApp> {
         lightColorScheme = lightDynamic.harmonized();
         darkColorScheme = darkDynamic.harmonized();
       } else {
+        print('dynamic取色失败，采用品牌色');
         // dynamic取色失败，采用品牌色
         lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
         darkColorScheme = ColorScheme.fromSeed(
@@ -116,7 +116,19 @@ class _MyAppState extends State<MyApp> {
               ? lightColorScheme
               : darkColorScheme,
         ),
-        home: const HomePage(),
+        home: WillPopScope(
+          onWillPop: () async{
+            // 点击返回键的操作
+            if(DateTime.now().difference(lastPopTime!) > const Duration(seconds: 2)){
+              lastPopTime = DateTime.now();
+              SmartDialog.showToast('再按一次退出');
+              return false;
+            }
+            return true;
+              // 退出app
+          },
+          child: const HomePage(),
+        ),
         navigatorKey: Routes.navigatorKey,
         routingCallback: (routing) {
           if (routing!.previous == '/login') {

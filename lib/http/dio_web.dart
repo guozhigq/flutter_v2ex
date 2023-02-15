@@ -415,8 +415,7 @@ class DioRequestWeb {
     var response = await Request().get(
       "/t/$topicId",
       data: {'p': p},
-      cacheOptions:
-          buildCacheOptions(const Duration(days: 4), forceRefresh: true),
+      cacheOptions: buildCacheOptions(const Duration(days: 4), forceRefresh: true),
       extra: {'ua': 'mob'},
     );
     // Use html parser and query selector
@@ -922,7 +921,6 @@ class DioRequestWeb {
     // SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
       print('getUserInfo 2fa');
-      print("wml:" + response.redirects[0].location.path);
       // 需要两步验证
       if (response.redirects[0].location.path == "/2fa") {
         response = await Request().get('/2fa');
@@ -934,7 +932,7 @@ class DioRequestWeb {
       // 获取用户头像
       String avatar = elementOfAvatarImg.attributes["src"];
       String userName = elementOfAvatarImg.attributes["alt"];
-      await Storage().setUserInfo({'avatar': avatar, 'userName': userName});
+      Storage().setUserInfo({'avatar': avatar, 'userName': userName});
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
       print('两步验证判断');
@@ -989,7 +987,7 @@ class DioRequestWeb {
   }
 
   /// action
-  // 收藏 / 取消收藏
+  // 收藏 / 取消收藏主题
   static Future<bool> favoriteTopic(bool isFavorite, String topicId) async {
     int once = Storage().getOnce();
     SmartDialog.showLoading(msg: isFavorite ? '取消中...' : '收藏中...');

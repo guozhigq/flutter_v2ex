@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/pages/login_page.dart';
+import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'event_bus.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -237,14 +238,15 @@ class Utils {
                 onPressed: () async{
                   if (twoFACode.length == 6) {
                     var res = await DioRequestWeb.twoFALOgin(twoFACode);
-                    print('utils 228： $res');
                     if(res == 'true'){
                         SmartDialog.showToast('登录成功');
+                        Storage().setLoginStatus(true);
                         EventBus().emit('login', 'success');
                         // 关闭2fa dialog
-                        Navigator.pop(context);
+                        SmartDialog.dismiss();
+                        // Navigator.pop(context);
                         // 关闭login page
-                        Get.back();
+                        // Get.back();
                     }else{
                       twoFACode = '';
                     }

@@ -65,10 +65,18 @@ class Storage {
 
   // 主题风格 默认跟随系统
   setSystemType(ThemeType type) =>
-      _box.write(StoreKeys.themeType.toString(), type);
+    _box.write(StoreKeys.themeType.toString(), type.name.toString());
 
-  ThemeType getSystemType() =>
-      _box.read<ThemeType>(StoreKeys.themeType.toString()) ?? ThemeType.system;
+  clearSystemType() => _box.remove(StoreKeys.themeType.toString());
+
+  ThemeType getSystemType()  {
+    var value = _box.read(StoreKeys.themeType.toString());
+    ThemeType f = ThemeType.system;
+    if(value != null){
+      f = ThemeType.values.firstWhere((e) => e.name.toString() == value);
+    }
+    return f;
+  }
 
   // 签到状态
   setSignStatus(String date) =>

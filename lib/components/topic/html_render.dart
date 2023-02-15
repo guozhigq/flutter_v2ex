@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_v2ex/pages/webview_page.dart';
+import 'package:flutter_v2ex/pages/page_webView.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/idea.dart';
@@ -13,7 +13,7 @@ import 'package:extended_image/extended_image.dart';
 
 // import 'package:flutter_html_all/flutter_html_all.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:flutter_v2ex/pages/image_preview_page.dart';
+import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ignore: must_be_immutable
@@ -40,6 +40,7 @@ class HtmlRender extends StatelessWidget {
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
             imgUrl = Utils().imageUrl(imgUrl!);
+            print(imgUrl);
             // todo 多张图片轮播
             return SelectionContainer.disabled(
               child: GestureDetector(
@@ -139,7 +140,11 @@ class HtmlRender extends StatelessWidget {
           aUrl.startsWith('https://www.v2ex.com')) {
         // v2ex 链接
         List arr = aUrl.split('.com');
-        Get.toNamed(arr[1]);
+        var tHref = arr[1];
+        if(arr[1].contains('#')){
+          tHref = arr[1].split('#')[0];
+        }
+        Get.toNamed(tHref);
       } else {
         // 其他链接
         // Navigator.push(

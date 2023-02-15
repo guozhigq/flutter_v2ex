@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Skeleton extends StatefulWidget {
-  bool isLoading = false;
   final Widget child;
 
   Skeleton({
-    required this.isLoading,
     required this.child,
     super.key,
   });
@@ -37,7 +35,7 @@ class _SkeletonState extends State<Skeleton> {
     return Shimmer(
       linearGradient: shimmerGradient,
       child: ShimmerLoading(
-        isLoading: widget.isLoading,
+        isLoading:true,
         child: widget.child,
       ),
     );

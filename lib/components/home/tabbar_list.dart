@@ -10,7 +10,6 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 
-
 class TabBarList extends StatefulWidget {
   final Map<dynamic, dynamic> tabItem;
 
@@ -43,7 +42,7 @@ class _TabBarListState extends State<TabBarList>
       () {
         if (widget.tabItem['id'] == 'recent') {
           if (_controller.position.pixels >=
-              _controller.position.maxScrollExtent) {
+              _controller.position.maxScrollExtent - 100) {
             if (!_isLoadingMore) {
               setState(() {
                 _isLoadingMore = true;
@@ -66,9 +65,7 @@ class _TabBarListState extends State<TabBarList>
       },
     );
 
-    EventBus().on('ignoreTopic', (arg) => {
-      print('69: $arg')
-    });
+    EventBus().on('ignoreTopic', (arg) => {print('69: $arg')});
   }
 
   @override
@@ -212,15 +209,19 @@ class _TabBarListState extends State<TabBarList>
   Widget moreTopic(text) {
     return Container(
       width: double.infinity,
-      height: 80 + MediaQuery.of(context).padding.bottom,
+      height: 100 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 10),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
       child: Center(
-          // child: ElevatedButton(
-          //   onPressed: () => {},
-          //   child: const Text('更多相关主题'),
-          // ),
-          child: Text(text)),
+        // child: ElevatedButton(
+        //   onPressed: () => {},
+        //   child: const Text('更多相关主题'),
+        // ),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ),
     );
   }
 

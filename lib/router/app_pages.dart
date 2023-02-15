@@ -1,11 +1,11 @@
 
 import 'package:get/get.dart';
-import 'package:flutter_v2ex/pages/help_page.dart';
-import 'package:flutter_v2ex/pages/message_page.dart';
-import 'package:flutter_v2ex/pages/nodes_page.dart';
-import 'package:flutter_v2ex/pages/webview_page.dart';
-import 'package:flutter_v2ex/pages/login_page.dart';
-import 'package:flutter_v2ex/pages/setting_page.dart';
+import 'package:flutter_v2ex/pages/page_help.dart';
+import 'package:flutter_v2ex/pages/page_message.dart';
+import 'package:flutter_v2ex/pages/page_nodes.dart';
+import 'package:flutter_v2ex/pages/page_webView.dart';
+import 'package:flutter_v2ex/pages/page_login.dart';
+import 'package:flutter_v2ex/pages/page_setting.dart';
 
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/pages/go/:nodeId.dart';
@@ -16,8 +16,8 @@ import 'package:flutter_v2ex/pages/member/:memberId/replies.dart';
 import 'package:flutter_v2ex/pages/my/nodes.dart';
 import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
-import 'package:flutter_v2ex/pages/image_preview_page.dart';
-import 'package:flutter_v2ex/pages/search_page.dart';
+import 'package:flutter_v2ex/pages/page_preview.dart';
+import 'package:flutter_v2ex/pages/page_search.dart';
 
 
 class AppPages {
@@ -26,7 +26,7 @@ class AppPages {
     GetPage(name: '/login', page: () => const LoginPage(), fullscreenDialog: true),
     // 话题详情
     GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
-    // webview
+    // webView
     GetPage(name: '/webView', page: () => WebView(aUrl: '')),
 
     // 节点主页

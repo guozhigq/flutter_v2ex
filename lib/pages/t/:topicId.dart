@@ -117,11 +117,11 @@ class _TopicDetailState extends State<TopicDetail>
   Future getDetail({type}) async {
     if (type == 'init') {
       setState(() {
-        _currentPage = 0;
+        _currentPage = !reverseSort  ? 0 : _totalPage;
       });
     }
     if (reverseSort) {
-      SmartDialog.showLoading(msg: '请稍等...');
+      SmartDialog.showLoading(msg: '加载中ing');
     }
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
@@ -134,21 +134,6 @@ class _TopicDetailState extends State<TopicDetail>
         _replyList.addAll(topicDetailModel.replyList);
       }
       _currentPage += 1;
-      // print('line 89---_totalPage---:$_totalPage');
-      // print(reverseSort);
-      // print(_totalPage);
-      // print(_currentPage);
-      // Timer(const Duration(milliseconds: 0), () {
-      //   final globalHeight = _globalKey.currentContext!.size!.height;
-      //   print('globalHeight: $globalHeight');
-      //   if (listGlobalKey.currentContext != null) {
-      //     final listHeight = listGlobalKey.currentContext!
-      //         .findRenderObject()!
-      //         .semanticBounds
-      //         .height;
-      //     print('listHeight: $listHeight');
-      //   }
-      // });
     });
     SmartDialog.dismiss();
   }
@@ -163,7 +148,7 @@ class _TopicDetailState extends State<TopicDetail>
     if (!reverseSort || _currentPage == 0) {
       return;
     }
-    SmartDialog.showLoading(msg: '请稍等...');
+    SmartDialog.showLoading(msg: '加载中ing');
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(topicId, _currentPage);
@@ -395,7 +380,7 @@ class _TopicDetailState extends State<TopicDetail>
           }
         }),
         tooltip: '收藏主题',
-        icon: const Icon(Icons.star_border),
+        icon: const Icon(Icons.star_border_rounded),
         selectedIcon: Icon(
           Icons.star_rounded,
           color: Theme.of(context).colorScheme.primary,
@@ -736,9 +721,9 @@ class _TopicDetailState extends State<TopicDetail>
   Widget moreTopic({type = 'noMore'}) {
     return Container(
       width: double.infinity,
-      height: 80 + MediaQuery.of(context).padding.bottom,
+      height: 100 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
       child: Center(
         // child: TextField(),
         child: Text(

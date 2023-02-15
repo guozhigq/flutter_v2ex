@@ -2,11 +2,11 @@ import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class HomeLeftDrawer extends StatefulWidget {
@@ -129,6 +129,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   @override
   void initState() {
     super.initState();
+    // 获取登录状态
     if (Storage().getLoginStatus()) {
       setState(() {
         loginStatus = true;
@@ -142,6 +143,10 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         }
       });
     }
+    // 读取默认主题配置
+    setState(() {
+      currentThemeValue = Storage().getSystemType();
+    });
     queryDaily();
   }
 

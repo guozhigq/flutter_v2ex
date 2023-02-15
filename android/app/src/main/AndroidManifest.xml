@@ -25,7 +25,7 @@
     </queries>
 
     <application
-        android:label="flutter_v2ex"
+        android:label="vvex"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -57,4 +57,8 @@
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
 </manifest>

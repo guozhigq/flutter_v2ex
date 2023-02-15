@@ -16,10 +16,10 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 ## TODO
-+ 话题、评论图片查看&保存
++ 话题、评论图片查看&保存 ✅
 + 话题、评论感谢功能 ✅
 + 多选评论
-+ 评论保存为图片
++ 评论保存为图片 ✅
 + 话题分享
 + webview
 + 关注列表 ✅ ua为pc时请求会503
@@ -27,8 +27,10 @@ samples, guidance on mobile development, and a full API reference.
 + 搜索  70%
 + 节点排序
 + 节点收藏 ✅
-+ 深浅色模式切换
++ 深浅色模式切换 ✅
 + 骨架屏
 + 话题已读标记
 + 评论倒序渲染
 + noData
++ 话题详情页 视频iframe渲染
++ 发帖

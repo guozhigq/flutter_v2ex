@@ -88,9 +88,9 @@ class _GoPageState extends State<GoPage> {
                 actions: [
                   IconButton(
                     onPressed: () => favNode(),
-                    icon: const Icon(Icons.star_outline),
+                    icon: const Icon(Icons.star_border_rounded),
                     selectedIcon: Icon(
-                      Icons.star,
+                      Icons.star_rounded,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     isSelected: topicListDetail!.isFavorite,

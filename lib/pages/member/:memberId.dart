@@ -1,13 +1,15 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/components/common/skeleton.dart';
+
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -36,18 +38,21 @@ class _MemberPageState extends State<MemberPage> {
           : '';
       heroTag = mapKey.contains('heroTag') ? Get.parameters['heroTag']! : '';
     });
-    // 查询用户信息
-    queryMemberProfile();
 
     if (Storage().getUserInfo().isNotEmpty) {
       if (memberId == Storage().getUserInfo()['userName']) {
         setState(() {
           isOwner = true;
+          // 查询签到状态、余额
+          queryDaily();
         });
-        // 查询签到状态、余额
-        queryDaily();
       }
     }
+
+    // 查询用户信息
+    queryMemberProfile();
+
+
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
@@ -56,6 +61,7 @@ class _MemberPageState extends State<MemberPage> {
       memberProfile = res;
       _loading = false;
     });
+
     return res;
   }
 
@@ -102,7 +108,7 @@ class _MemberPageState extends State<MemberPage> {
     );
   }
 
-  Future<bool> onFollowReq() async{
+  Future<bool> onFollowReq() async {
     var followId = '';
     RegExp regExp = RegExp(r'\d{3,}');
     Iterable<Match> matches = regExp.allMatches(memberProfile.mbSort);
@@ -111,12 +117,12 @@ class _MemberPageState extends State<MemberPage> {
     }
     bool followStatus = memberProfile.isFollow;
     bool res = await DioRequestWeb.onFollowMember(followId, followStatus);
-    if(res){
+    if (res) {
       SmartDialog.showToast(followStatus ? '已取消关注' : '关注成功');
       setState(() {
         memberProfile.isFollow = !followStatus;
       });
-    }else{
+    } else {
       SmartDialog.showToast('操作失败');
     }
     return res;
@@ -156,7 +162,7 @@ class _MemberPageState extends State<MemberPage> {
     );
   }
 
-  Future<bool> onBlockReq() async{
+  Future<bool> onBlockReq() async {
     var blockId = '';
     RegExp regExp = RegExp(r'\d{3,}');
     Iterable<Match> matches = regExp.allMatches(memberProfile.mbSort);
@@ -166,7 +172,7 @@ class _MemberPageState extends State<MemberPage> {
     bool blockStatus = memberProfile.isBlock;
     // bool followStatus = memberProfile.isFollow;
     bool res = await DioRequestWeb.onBlockMember(blockId, blockStatus);
-    if(res){
+    if (res) {
       SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
       setState(() {
         memberProfile.isBlock = !blockStatus;
@@ -174,7 +180,7 @@ class _MemberPageState extends State<MemberPage> {
         //   memberProfile.isFollow = false;
         // }
       });
-    }else{
+    } else {
       SmartDialog.showToast('操作失败');
     }
     return res;
@@ -194,7 +200,7 @@ class _MemberPageState extends State<MemberPage> {
                             onPressed: () =>
                                 {if (!signDetail['signStatus']) {}},
                             child: Text(
-                                signDetail['signStatus'] ? '已领取奖励' : '领取奖励'),
+                                signDetail.isNotEmpty && signDetail['signStatus'] ? '已领取奖励' : '领取奖励'),
                           ),
                           const SizedBox(width: 12)
                         ]
@@ -310,17 +316,29 @@ class _MemberPageState extends State<MemberPage> {
                               style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
                           // const Icon(Icons.album, color: Colors.yellowAccent),
-                          Image.asset('assets/images/gold.png', width: 15,height: 15,),
+                          Image.asset(
+                            'assets/images/gold.png',
+                            width: 15,
+                            height: 15,
+                          ),
                           const SizedBox(width: 5),
                           Text(signDetail['balance'][1],
                               style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
-                          Image.asset('assets/images/silver.png', width: 15,height: 15,),
+                          Image.asset(
+                            'assets/images/silver.png',
+                            width: 15,
+                            height: 15,
+                          ),
                           const SizedBox(width: 5),
                           Text(signDetail['balance'][2],
                               style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(width: 2),
-                          Image.asset('assets/images/bronze.png', width: 15,height: 15,),
+                          Image.asset(
+                            'assets/images/bronze.png',
+                            width: 15,
+                            height: 15,
+                          ),
                           const SizedBox(width: 5),
                           // TextButton(
                           //     onPressed: () => {}, child: const Text(' 查看明细 '))
@@ -503,75 +521,103 @@ class _MemberPageState extends State<MemberPage> {
   }
 
   Widget loading() {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 120,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '@${memberId} \' 个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
-        ),
-        SliverToBoxAdapter(
-          child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 20, right: 2),
-            child: Row(
-              children: [
-                Hero(
-                  tag: heroTag,
-                  child: CAvatar(url: memberAvatar, size: 80),
+    // Skeleton 会影响Hero效果
+    return
+      // Skeleton(
+      // child:
+      CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+                title: Text(
+                  '个人信息',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Container(
-                    //   width: 100,
-                    //   height: 20,
-                    //   decoration: BoxDecoration(
-                    //       color: Theme.of(context).colorScheme.onInverseSurface,
-                    //       borderRadius: BorderRadius.all(Radius.circular(2))),
-                    // ),
-                    Text(
-                      memberId,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                centerTitle: false,
+                titlePadding:
+                const EdgeInsetsDirectional.only(start: 42, bottom: 16),
+                expandedTitleScale: 1.1),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
+              padding: const EdgeInsets.only(left: 15, right: 2),
+              child: Row(
+                children: [
+                  Hero(
+                    tag: heroTag,
+                    child: CAvatar(url: memberAvatar, size: 80),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            memberId,
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      width: 170,
-                      height: 20,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          borderRadius: BorderRadius.all(Radius.circular(2))),
-                    ),
-                    const SizedBox(height: 2),
-                    Container(
-                      width: 120,
-                      height: 20,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          borderRadius: BorderRadius.all(Radius.circular(2))),
-                    ),
-                  ],
-                )),
+                          const SizedBox(height: 5),
+                          Container(
+                            width: 170,
+                            height: 18,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.onInverseSurface,
+                                borderRadius:
+                                const BorderRadius.all(Radius.circular(2))),
+                          ),
+                          const SizedBox(height: 3),
+                          Container(
+                            width: 120,
+                            height: 18,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.onInverseSurface,
+                                borderRadius:
+                                const BorderRadius.all(Radius.circular(2))),
+                          ),
+                        ],
+                      )),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 20),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Container(
+                  height: 18,
+                  margin: const EdgeInsets.only(left: 20, right: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
+                Container(
+                  height: 18,
+                  margin: const EdgeInsets.only(left: 20, right: 170),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-        titleLine('最近发布', ''),
-        titleLine('最近回复', '')
-      ],
+          titleLine('最近发布', ''),
+          titleLine('最近回复', '')
+        ],
+      // ),
     );
   }
 }

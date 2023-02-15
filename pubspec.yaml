@@ -67,6 +67,9 @@ dependencies:
     dio_http2_adapter: ^2.0.0
 #    dio_smart_retry: ^1.0.0
     url_launcher: ^6.1.9
+    # 权限
+    permission_handler: ^10.2.0
+    image_gallery_saver: ^1.7.1
 
 
 dev_dependencies:
@@ -85,10 +88,10 @@ flutter_icons:
     android: true
     ios: true
     remove_alpha_ios: true
-    image_path: assets/images/icon/ios5.png
-    image_path_android: assets/images/icon/ios5.png
-    image_path_ios: assets/images/icon/ios5.png
-    adaptive_icon_background: "#607D8B"
+    image_path: assets/images/icon/icon_launcher.png
+    image_path_android: assets/images/icon/icon_android.png
+    image_path_ios: assets/images/icon/icon_ios.png
+    adaptive_icon_background: "#3A699A"
     adaptive_icon_foreground: assets/images/icon/ic_launcher_foreground.png
 
 # For information on the generic Dart part of this file, see the

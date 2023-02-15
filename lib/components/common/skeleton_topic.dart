@@ -11,7 +11,6 @@ class TopicSkeleton extends StatelessWidget {
     var arr = List.filled(count, 1, growable: false);
 
     return Skeleton(
-      isLoading: true,
       child: ListView.builder(
         padding: EdgeInsets.zero,
         itemCount: arr.length,
