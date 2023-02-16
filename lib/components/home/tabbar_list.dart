@@ -169,9 +169,32 @@ class _TabBarListState extends State<TabBarList>
                       // return moreTopic('正在加载更多...');
                       return Container(
                         padding: const EdgeInsets.all(30),
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2.0),
-                        ),
+                        child: Center(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2.0)),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('加载中...',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '最后更新于刚刚',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                )
+                              ],
+                            )
+                          ],
+                        )),
                       );
                     } else {
                       return moreTopic('全部加载完成');
@@ -191,14 +214,26 @@ class _TabBarListState extends State<TabBarList>
             scale: showBackTopBtn ? 1 : 0,
             curve: Curves.easeInOut,
             duration: const Duration(milliseconds: 300),
-            child: FloatingActionButton(
-              heroTag: null,
-              child: const Icon(Icons.vertical_align_top_rounded),
-              onPressed: () {
+            child: GestureDetector(
+              // 长按回顶刷新
+              onLongPress: () {
                 _controller.animateTo(0,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
+                setState(() {
+                  _currentPage = 0;
+                });
+                getTopics();
               },
+              child: FloatingActionButton(
+                heroTag: null,
+                child: const Icon(Icons.vertical_align_top_rounded),
+                onPressed: () {
+                  _controller.animateTo(0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.ease);
+                },
+              ),
             ),
           ),
         ),

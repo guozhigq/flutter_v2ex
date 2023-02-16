@@ -58,7 +58,7 @@ class _PullRefreshState extends State<PullRefresh> {
       clipBehavior: Clip.none,
       controller: _controller,
       header: MaterialHeader(
-        backgroundColor: ThemeData().canvasColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         clamping: _headerProperties.clamping,
         showBezierBackground: _headerProperties.background,
         bezierBackgroundAnimation: _headerProperties.animation,

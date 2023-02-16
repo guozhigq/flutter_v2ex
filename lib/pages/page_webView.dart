@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_v2ex/utils/web_uri.dart';
+// import 'package:flutter_v2ex/utils/web_uri.dart';
 
 class WebView extends StatefulWidget {
   WebView({required this.aUrl, super.key});

@@ -15,9 +15,12 @@ import 'package:extended_image/extended_image.dart';
 // import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_html_iframe/flutter_html_iframe.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter/services.dart';
 
 // ignore: must_be_immutable
-class HtmlRender extends StatelessWidget {
+class HtmlRender extends StatefulWidget {
   String? htmlContent;
   final int? imgCount;
   final List? imgList;
@@ -25,17 +28,55 @@ class HtmlRender extends StatelessWidget {
   HtmlRender({this.htmlContent, this.imgCount, this.imgList, super.key});
 
   @override
+  _HtmlRenderState createState() => _HtmlRenderState();
+}
+
+class _HtmlRenderState extends State<HtmlRender> {
+  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
+
+  @override
+  void initState() {
+    // rootBundle.load('assets/images/flutter-logo.png').then((actionButtonIcon) {
+    //   browser.setActionButton(ChromeSafariBrowserActionButton(
+    //       id: 1,
+    //       description: 'Action Button description',
+    //       icon: actionButtonIcon.buffer.asUint8List(),
+    //       onClick: (url, title) {
+    //         print('Action Button 1 clicked!');
+    //         print(url);
+    //         print(title);
+    //       }));
+    // });
+
+    // browser.addMenuItem(ChromeSafariBrowserMenuItem(
+    //     id: 2,
+    //     label: 'Custom item menu 1',
+    //     image: UIImage(systemName: "sun.max"),
+    //     onClick: (url, title) {
+    //       print('Custom item menu 1 clicked!');
+    //       print(url);
+    //       print(title);
+    //     }));
+    // browser.addMenuItem(ChromeSafariBrowserMenuItem(
+    //     id: 3,
+    //     label: 'Custom item menu 2',
+    //     image: UIImage(systemName: "pencil"),
+    //     onClick: (url, title) {
+    //       print('Custom item menu 2 clicked!');
+    //       print(url);
+    //       print(title);
+    //     }));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Html(
-      data: htmlContent,
+      data: widget.htmlContent,
       onLinkTap: (url, buildContext, attributes, element) =>
           {openHrefByWebview(url!, context)},
       customRenders: {
-        // tagMatcher("iframe"): CustomRender.widget(
-        // widget: (htmlContext, buildChildren) {
-        //   return Text('Youtube video Player', style: Theme.of(context).textTheme.titleMedium,);
-        // }
-        // ),
+        tagMatcher("iframe"): iframeRender(),
         tagMatcher("img"): CustomRender.widget(
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
@@ -49,8 +90,8 @@ class HtmlRender extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ImagePreview(
-                          imgList: imgList!,
-                          initialPage: imgList!.indexOf(imgUrl)),
+                          imgList: widget.imgList!,
+                          initialPage: widget.imgList!.indexOf(imgUrl)),
                       fullscreenDialog: true,
                     ),
                   );
@@ -141,33 +182,75 @@ class HtmlRender extends StatelessWidget {
         // v2ex 链接
         List arr = aUrl.split('.com');
         var tHref = arr[1];
-        if(arr[1].contains('#')){
+        if (arr[1].contains('#')) {
           tHref = arr[1].split('#')[0];
         }
         Get.toNamed(tHref);
       } else {
-        // 其他链接
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => WebView(aUrl: aUrl),
-        //   ),
+        // 1. openWithSystemBrowser
+        // await InAppBrowser.openWithSystemBrowser(
+        //     url: WebUri(aUrl)
         // );
-        final Uri _url = Uri.parse(aUrl);
-        if (!await launchUrl(_url)) {
-          throw Exception('Could not launch $aUrl');
-        }
+
+        // 2. openWithAppBrowser
+        await browser.open(
+          url: WebUri(aUrl),
+          settings: ChromeSafariBrowserSettings(
+              shareState: CustomTabsShareState.SHARE_STATE_OFF,
+              isSingleInstance: false,
+              isTrustedWebActivity: false,
+              keepAliveEnabled: true,
+              startAnimations: [
+                AndroidResource.anim(
+                    name: "slide_in_left", defPackage: "android"),
+                AndroidResource.anim(
+                    name: "slide_out_right", defPackage: "android")
+              ],
+              exitAnimations: [
+                AndroidResource.anim(
+                    name: "abc_slide_in_top",
+                    defPackage:
+                        "com.pichillilorenzo.flutter_inappwebviewexample"),
+                AndroidResource.anim(
+                    name: "abc_slide_out_top",
+                    defPackage:
+                        "com.pichillilorenzo.flutter_inappwebviewexample")
+              ],
+              dismissButtonStyle: DismissButtonStyle.CLOSE,
+              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+        );
       }
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||
         aUrl.startsWith('/t/')) {
       Get.toNamed(aUrl);
     } else {
-      // ignore: avoid_print
-      print('无效网址');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(showCloseIcon: true, content: Text('无效网址')),
-      );
+      // sms tel email schemeUrl
+      final Uri _url = Uri.parse(aUrl);
+      if (!await launchUrl(_url)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(showCloseIcon: true, content: Text('无效网址')),
+        );
+        throw Exception('Could not launch $aUrl');
+      }
     }
+  }
+}
+
+// 初始化
+class MyChromeSafariBrowser extends ChromeSafariBrowser {
+  @override
+  void onOpened() {
+    print("ChromeSafari browser opened");
+  }
+
+  @override
+  void onCompletedInitialLoad(didLoadSuccessfully) {
+    print("ChromeSafari browser initial load completed");
+  }
+
+  @override
+  void onClosed() {
+    print("ChromeSafari browser closed");
   }
 }

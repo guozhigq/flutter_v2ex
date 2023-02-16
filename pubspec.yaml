@@ -55,12 +55,13 @@ dependencies:
 #    extended_nested_scroll_view: ^5.1.3
     flare_flutter: ^3.0.2
     flutter_html: 3.0.0-alpha.6
-    flutter_inappwebview: ^5.7.2+3
+    flutter_inappwebview: ^6.0.0-beta.22
     animations: ^2.0.7
     flutter_highlight: ^0.7.0
     flutter_smart_dialog: ^4.8.1
     extended_image: ^7.0.0
     # flutter_html_all: ^3.0.0-alpha.6
+    flutter_html_iframe: ^3.0.0-alpha.4
     get: ^4.6.5
     get_storage: ^2.0.3
     device_info_plus: ^8.0.0
@@ -70,7 +71,11 @@ dependencies:
     # 权限
     permission_handler: ^10.2.0
     image_gallery_saver: ^1.7.1
-
+    # 桌面长按菜单
+#    flutter_shortcuts: ^1.3.0
+    # 通知
+#    flutter_local_notifications: ^13.0.0
+    flutter_slidable: ^2.0.0
 
 dev_dependencies:
     flutter_test:

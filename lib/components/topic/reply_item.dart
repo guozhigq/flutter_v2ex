@@ -17,8 +17,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-
-
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ReplyListItem extends StatefulWidget {
   ReplyListItem({
@@ -231,17 +230,19 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   Future<void> takePicture() async {
     SmartDialog.showLoading(msg: '保存中');
-    RenderRepaintBoundary boundary = repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    RenderRepaintBoundary boundary =
+        repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
     final result = await ImageGallerySaver.saveImage(
         Uint8List.fromList(pngBytes),
         quality: 100,
-        name: "reply${reply.userName}_vvex${DateTime.now().toString().split('-').join()}");
+        name:
+            "reply${reply.userName}_vvex${DateTime.now().toString().split('-').join()}");
     SmartDialog.dismiss();
-    if(result != null){
-      if(result['isSuccess']){
+    if (result != null) {
+      if (result['isSuccess']) {
         SmartDialog.showToast('已保存到相册');
       }
     }
@@ -252,20 +253,43 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      key: repaintKey,
+    return Slidable(
+      key: ValueKey(int.parse(widget.reply.replyId)),
+      endActionPane: ActionPane(
+        extentRatio: 0.44,
+        openThreshold: 0.9,
+        closeThreshold: 0.4,
+        motion: const BehindMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (BuildContext context) {
+              print('123');
+            },
+            autoClose: true,
+            spacing: 1,
+            backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+            foregroundColor: Theme.of(context).colorScheme.onInverseSurface,
+            icon: Icons.bluetooth_audio,
+          ),
+        ],
+      ),
       child: Container(
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-        child:
-        Material(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          // color: Theme.of(context).colorScheme.onInverseSurface,
-          child: InkWell(
-            onTap: replyComment,
+        ),
+        child: RepaintBoundary(
+          key: repaintKey,
+          child: Material(
             borderRadius: BorderRadius.circular(20),
-            child: Ink(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
-              child: content(context),
+            // color: Theme.of(context).colorScheme.onInverseSurface,
+            child: InkWell(
+              onTap: replyComment,
+              borderRadius: BorderRadius.circular(20),
+              child: Ink(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
+                child: content(context),
+              ),
             ),
           ),
         ),

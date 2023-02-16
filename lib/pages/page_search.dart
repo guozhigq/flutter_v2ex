@@ -104,6 +104,7 @@ class _SearchPageState extends State<SearchPage> {
             setState(() {
               _currentPage = 0;
               searchKeyWord = value;
+              _isLoading = true;
             });
             search();
           },
@@ -128,7 +129,9 @@ class _SearchPageState extends State<SearchPage> {
                                     : null,
                             child: wrap(),
                           )
-                        : const Text('没有数据'),
+                        : Center(
+                      child: Text('没有搜索结果', style: Theme.of(context).textTheme.titleMedium,),
+                    ),
                   ),
           ),
           Positioned(

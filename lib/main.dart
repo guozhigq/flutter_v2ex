@@ -32,14 +32,17 @@ void main() async {
   runApp(const MyApp());
 
   if (Platform.isAndroid) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
+    SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent, // Setting a transparent navigation bar color
+      systemNavigationBarColor:
+          Colors.transparent, // Setting a transparent navigation bar color
       systemNavigationBarContrastEnforced: true, // Default
       statusBarBrightness: Brightness.light,
       // statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarIconBrightness: Brightness.dark, // This defines the color of the scrim
+      systemNavigationBarIconBrightness:
+          Brightness.dark, // This defines the color of the scrim
     ));
   }
 }
@@ -58,7 +61,6 @@ class _MyAppState extends State<MyApp> {
   ThemeType currentThemeValue = ThemeType.system;
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
-
 
   @override
   void initState() {
@@ -80,70 +82,71 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
-        builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-      ColorScheme? lightColorScheme;
-      ColorScheme? darkColorScheme;
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        ColorScheme? lightColorScheme;
+        ColorScheme? darkColorScheme;
 
-      if (lightDynamic != null && darkDynamic != null) {
-        // dynamic取色成功
-        lightColorScheme = lightDynamic.harmonized();
-        darkColorScheme = darkDynamic.harmonized();
-      } else {
-        print('dynamic取色失败，采用品牌色');
-        // dynamic取色失败，采用品牌色
-        lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
-        darkColorScheme = ColorScheme.fromSeed(
-          seedColor: brandColor,
-          brightness: Brightness.dark,
-        );
-      }
+        if (lightDynamic != null && darkDynamic != null) {
+          // dynamic取色成功
+          lightColorScheme = lightDynamic.harmonized();
+          darkColorScheme = darkDynamic.harmonized();
+        } else {
+          // dynamic取色失败，采用品牌色
+          lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
+          darkColorScheme = ColorScheme.fromSeed(
+            seedColor: brandColor,
+            brightness: Brightness.dark,
+          );
+        }
 
-      return GetMaterialApp(
-        debugShowCheckedModeBanner: true,
-        initialRoute: '/',
-        getPages: AppPages.getPages,
-        theme: ThemeData(
-          fontFamily: 'NotoSansSC',
-          useMaterial3: true,
-          colorScheme: currentThemeValue == ThemeType.dark
-              ? darkColorScheme
-              : lightColorScheme,
-        ),
-        darkTheme: ThemeData(
-          fontFamily: 'NotoSansSC',
-          useMaterial3: true,
-          colorScheme: currentThemeValue == ThemeType.light
-              ? lightColorScheme
-              : darkColorScheme,
-        ),
-        home: WillPopScope(
-          onWillPop: () async{
-            // 点击返回键的操作
-            if(DateTime.now().difference(lastPopTime!) > const Duration(seconds: 2)){
-              lastPopTime = DateTime.now();
-              SmartDialog.showToast('再按一次退出');
-              return false;
-            }
-            return true;
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: true,
+          initialRoute: '/',
+          getPages: AppPages.getPages,
+          theme: ThemeData(
+            fontFamily: 'NotoSansSC',
+            useMaterial3: true,
+            colorScheme: currentThemeValue == ThemeType.dark
+                ? darkColorScheme
+                : lightColorScheme,
+          ),
+          darkTheme: ThemeData(
+            fontFamily: 'NotoSansSC',
+            useMaterial3: true,
+            colorScheme: currentThemeValue == ThemeType.light
+                ? lightColorScheme
+                : darkColorScheme,
+          ),
+          home: WillPopScope(
+            onWillPop: () async {
+              // 点击返回键的操作
+              if (DateTime.now().difference(lastPopTime!) >
+                  const Duration(seconds: 2)) {
+                lastPopTime = DateTime.now();
+                SmartDialog.showToast('再按一次退出');
+                return false;
+              }
+              return true;
               // 退出app
+            },
+            child: const HomePage(),
+          ),
+          navigatorKey: Routes.navigatorKey,
+          routingCallback: (routing) {
+            if (routing!.previous == '/login') {
+              return;
+            }
           },
-          child: const HomePage(),
-        ),
-        navigatorKey: Routes.navigatorKey,
-        routingCallback: (routing) {
-          if (routing!.previous == '/login') {
-            return;
-          }
-        },
-        // here
-        navigatorObservers: [FlutterSmartDialog.observer],
-        // here
-        builder: FlutterSmartDialog.init(
-          //default loading widget
-          loadingBuilder: (String msg) => CustomLoading(msg: msg),
-          toastBuilder: (String msg) => CustomToast(msg: msg),
-        ),
-      );
-    });
+          // here
+          navigatorObservers: [FlutterSmartDialog.observer],
+          // here
+          builder: FlutterSmartDialog.init(
+            //default loading widget
+            loadingBuilder: (String msg) => CustomLoading(msg: msg),
+            toastBuilder: (String msg) => CustomToast(msg: msg),
+          ),
+        );
+      },
+    );
   }
 }

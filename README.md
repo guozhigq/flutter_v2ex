@@ -21,16 +21,21 @@ samples, guidance on mobile development, and a full API reference.
 + 多选评论
 + 评论保存为图片 ✅
 + 话题分享
-+ webview
++ webview ✅
 + 关注列表 ✅ ua为pc时请求会503
-+ 自动签到逻辑
 + 搜索  70%
 + 节点排序
 + 节点收藏 ✅
 + 深浅色模式切换 ✅
-+ 骨架屏
+
 + 话题已读标记
 + 评论倒序渲染
 + noData
-+ 话题详情页 视频iframe渲染
++ 话题详情页 视频iframe渲染 ✅
 + 发帖
++ google auth
+
+## Optimize
++ 话题详情页BottomBar显隐导致widget重新渲染
++ 自动签到逻辑
++ 骨架屏

@@ -48,8 +48,9 @@ class _TopicDetailState extends State<TopicDetail>
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
-  GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
   GlobalKey listGlobalKey = GlobalKey();
+  late StreamController<bool> aStreamC;
 
   // action
   bool reverseSort = false; // 倒序
@@ -108,6 +109,8 @@ class _TopicDetailState extends State<TopicDetail>
         });
       }
     });
+
+    aStreamC = StreamController<bool>();
   }
 
   Future getDetailInit() async {
@@ -117,7 +120,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future getDetail({type}) async {
     if (type == 'init') {
       setState(() {
-        _currentPage = !reverseSort  ? 0 : _totalPage;
+        _currentPage = !reverseSort ? 0 : _totalPage;
       });
     }
     if (reverseSort) {
@@ -167,9 +170,10 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
+    print('12');
     await _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-    return _controller.callRefresh();
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    _controller.callRefresh();
   }
 
   void _listen() {
@@ -184,12 +188,16 @@ class _TopicDetailState extends State<TopicDetail>
 
   void _show() {
     if (!_isVisible) {
+      // _isVisible = true;
+      // aStreamC.add(true);
       setState(() => _isVisible = true);
     }
   }
 
   void _hide() {
     if (_isVisible) {
+      // _isVisible = false;
+      // aStreamC.add(false);
       setState(() => _isVisible = false);
     }
   }
@@ -338,19 +346,18 @@ class _TopicDetailState extends State<TopicDetail>
             isVisible: _isVisible,
             detailModel: _detailModel,
           ),
+          // bottomNavigationBar: StreamBuilder(
+          //   stream: aStreamC.stream,
+          //   initialData: false,
+          //   builder: (context, AsyncSnapshot snapshot) {
+          //     return DetailBottomBar(
+          //       onRefresh: onRefreshBtm,
+          //       isVisible: snapshot.data,
+          //       detailModel: _detailModel,
+          //     );
+          //   },
+          // ),
         ),
-        // Positioned(
-        //   top: 0,
-        //   left: 0,
-        //   right: 0,
-        //   child: Container(
-        //     width: double.infinity,
-        //     height: MediaQuery.of(context).padding.top,
-        //     color: _isVisible
-        //         ? Theme.of(context).appBarTheme.foregroundColor
-        //         : Theme.of(context).colorScheme.background,
-        //   ),
-        // ),
       ],
     );
   }
@@ -486,7 +493,13 @@ class _TopicDetailState extends State<TopicDetail>
                                 _detailModel!.createdId,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.primary),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
                               ),
                             ] else ...[
                               Text(
@@ -525,7 +538,7 @@ class _TopicDetailState extends State<TopicDetail>
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
-                    top: 0, right: 18, bottom: 12, left: 18),
+                    top: 0, right: 18, bottom: 15, left: 18),
                 child: Text(
                   _detailModel!.topicTitle,
                   style: Theme.of(context)
@@ -547,18 +560,18 @@ class _TopicDetailState extends State<TopicDetail>
                     const SizedBox(width: 16),
                   ],
                   Text(
-                    '${_detailModel!.visitorCount}点击',
+                    '${_detailModel!.visitorCount}次查看',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    '${_detailModel!.replyCount}回复',
+                    '${_detailModel!.replyCount}条回复',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                   const SizedBox(width: 20)
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Divider(
                 endIndent: 15,
                 indent: 15,
@@ -579,12 +592,26 @@ class _TopicDetailState extends State<TopicDetail>
               if (_detailModel!.subtleList.isNotEmpty) ...[
                 ...subList(_detailModel!.subtleList)
               ],
-
-              if (_detailModel!.content.isNotEmpty) ...[
+              //
+              // Divider(
+              //   color: Theme.of(context).dividerColor.withOpacity(0.15),
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     SizedBox(width: 20),
+              //     IconButton(onPressed: () {}, icon: Icon(Icons.messenger_outline_rounded)),
+              //     IconButton(onPressed: () {}, icon: Icon(Icons.favorite_outline_rounded)),
+              //     IconButton(onPressed: () {}, icon: Icon(Icons.star_outline_rounded, size: 29,)),
+              //     IconButton(onPressed: () {}, icon: Icon(Icons.language_rounded)),
+              //     IconButton(onPressed: () {}, icon: Icon(Icons.share_outlined)),
+              //     SizedBox(width: 20),
+              //   ],
+              // ),
+              if (_detailModel!.content.isNotEmpty)
                 Divider(
                   color: Theme.of(context).dividerColor.withOpacity(0.15),
                 ),
-              ]
             ],
           ),
         ),

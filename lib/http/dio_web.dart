@@ -173,14 +173,14 @@ class DioRequestWeb {
           aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
       item.nodeName = aNode
           .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
-          .name!
-          .replaceAll('&quot;', '')
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>');
+          .name!;
 
       item.topicTitle =
-          aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+          aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!
+              .replaceAll('&quot;', '"')
+              .replaceAll('&amp;', '&')
+              .replaceAll('&lt;', '<')
+              .replaceAll('&gt;', '>');
       item.nodeId = aNode
           .xpath("/table/tr/td[3]/span[2]/a")
           ?.first
@@ -258,7 +258,7 @@ class DioRequestWeb {
           item.topicTitle = aNode
               .querySelector('td:nth-child(5) > span.item_title')!
               .text
-              .replaceAll('&quot;', '')
+              .replaceAll('&quot;', '"')
               .replaceAll('&amp;', '&')
               .replaceAll('&lt;', '<')
               .replaceAll('&gt;', '>');
