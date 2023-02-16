@@ -27,9 +27,8 @@ samples, guidance on mobile development, and a full API reference.
 + 节点排序
 + 节点收藏 ✅
 + 深浅色模式切换 ✅
-
 + 话题已读标记
-+ 评论倒序渲染
++ 评论倒序渲染 ✅
 + noData
 + 话题详情页 视频iframe渲染 ✅
 + 发帖

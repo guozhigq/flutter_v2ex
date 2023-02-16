@@ -25,8 +25,9 @@ class ReplyListItem extends StatefulWidget {
     required this.topicId,
     this.queryReplyList,
     this.totalPage,
-    super.key,
-  });
+    Key? key,
+  }): super(key: key);
+
 
   final ReplyItem reply;
   final String topicId;

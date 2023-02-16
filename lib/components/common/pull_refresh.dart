@@ -11,7 +11,7 @@ class PullRefresh extends StatefulWidget {
   final int? currentPage;
   final int? totalPage;
 
-  const PullRefresh({
+   PullRefresh({
     // this.ctr,
     this.child,
     this.onChildRefresh,
@@ -103,7 +103,11 @@ class _PullRefreshState extends State<PullRefresh> {
       // 下拉
       onLoad: widget.onChildLoad != null
           ? () async {
-              if (widget.currentPage == widget.totalPage!) {
+        print('---------------------');
+        print('-------${widget.currentPage}');
+        print('-------${widget.totalPage}');
+
+        if (widget.currentPage == widget.totalPage!) {
                 _controller.finishLoad();
                 _controller.resetFooter();
                 return IndicatorResult.noMore;

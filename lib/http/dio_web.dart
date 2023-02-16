@@ -626,14 +626,12 @@ class DioRequestWeb {
         replyBoxDom =
             document.querySelector('$wrapperQuery > div')!.children[2];
       }
-      if (replyBoxDom.querySelectorAll('div.cell > a.page_normal').isNotEmpty) {
+      if (replyBoxDom.querySelectorAll('div.cell > div.fr.fade').isNotEmpty) {
         totalPageDom =
-            replyBoxDom.querySelectorAll('div.cell > a.page_normal').last;
+            replyBoxDom.querySelectorAll('div.cell > div.fr.fade').last;
       }
-      if (p == 1) {
         detailModel.totalPage =
-            totalPageDom != null ? int.parse(totalPageDom.text) : 1;
-      }
+            totalPageDom != null ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), '')) : 1;
 
       detailModel.replyCount = replyBoxDom
           .querySelector('div.cell span')!

@@ -143,15 +143,17 @@ class _TopicDetailState extends State<TopicDetail>
 
   // todo 下拉刷新逻辑优化  正倒序排列数据复用
   Future getDetailReverst({type}) async {
+
+
     if (type == 'init') {
       setState(() {
         _currentPage = _totalPage;
       });
+      SmartDialog.showLoading(msg: '加载中ing');
     }
     if (!reverseSort || _currentPage == 0) {
       return;
     }
-    SmartDialog.showLoading(msg: '加载中ing');
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
         await DioRequestWeb.getTopicDetail(topicId, _currentPage);
@@ -163,7 +165,7 @@ class _TopicDetailState extends State<TopicDetail>
         _replyList.addAll(topicDetailModel.replyList.reversed);
       }
       _currentPage -= 1;
-      // print('---_totalPage---:$_totalPage');
+      print('---_totalPage---:$_totalPage');
     });
     SmartDialog.dismiss();
   }
@@ -322,7 +324,7 @@ class _TopicDetailState extends State<TopicDetail>
                         ? (_totalPage > 1 && _currentPage < _totalPage
                             ? getDetail
                             : null)
-                        : (_currentPage > 1 ? getDetailReverst : null),
+                        : (_currentPage > 0 ? getDetailReverst : null),
                     currentPage: _currentPage,
                     totalPage: _totalPage,
                     child: showRes(),
@@ -330,7 +332,6 @@ class _TopicDetailState extends State<TopicDetail>
                 )
               : showLoading(),
           floatingActionButton: Badge(
-            // smallSize: 12,
             isLabelVisible: false,
             alignment: AlignmentDirectional.topStart,
             label: const Text('1'),
@@ -673,6 +674,7 @@ class _TopicDetailState extends State<TopicDetail>
                   reply: _replyList[index],
                   topicId: _detailModel!.topicId,
                   totalPage: _totalPage,
+                  key: UniqueKey(),
                   queryReplyList: (replyMemberList, floorNumber, resultList) =>
                       queryReplyList(replyMemberList, floorNumber, resultList));
             },
@@ -695,7 +697,7 @@ class _TopicDetailState extends State<TopicDetail>
             //
             offstage: _detailModel!.replyCount == '0' ||
                 (!reverseSort && (_currentPage < _totalPage)) ||
-                (reverseSort && (_currentPage > 1)),
+                (reverseSort && (_currentPage > 0)),
             child: moreTopic(),
           ),
         )
