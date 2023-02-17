@@ -12,6 +12,8 @@ import 'package:flutter_v2ex/utils/storage.dart';
 
 // plugin fix https://github.com/flutter/flutter/issues/36419
 // import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
+import 'package:quick_actions/quick_actions.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,11 +40,48 @@ class _HomePageState extends State<HomePage>
     {'name': '问与答', 'id': 'qna', 'type': 'tab'},
     {'name': 'R2', 'id': 'r2', 'type': 'tab'},
   ];
+  String shortcut = 'no action set';
 
     @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    const QuickActions quickActions = QuickActions();
+    quickActions.initialize((String shortcutType) {
+      setState(() {
+        if (shortcutType != null) {
+          shortcut = shortcutType;
+        }
+      });
+    });
+
+    quickActions.setShortcutItems(<ShortcutItem>[
+      // NOTE: This first action icon will only work on iOS.
+      // In a real world project keep the same file name for both platforms.
+      const ShortcutItem(
+        type: 'event',
+        localizedTitle: '今日热门',
+        icon: 'icon_hot',
+      ),
+      const ShortcutItem(
+        type: 'message',
+        localizedTitle: '签到',
+        icon: 'icon_sign',
+      ),
+      // NOTE: This second action icon will only work on Android.
+      // In a real world project keep the same file name for both platforms.
+      const ShortcutItem(
+          type: 'search',
+          localizedTitle: '搜索',
+          icon: 'icon_search'),
+    ]).then((void _) {
+      setState(() {
+        if (shortcut == 'no action set') {
+          shortcut = 'actions ready';
+        }
+      });
+    });
   }
   // 页面缓存
   @override

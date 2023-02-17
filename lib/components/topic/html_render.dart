@@ -109,8 +109,10 @@ class _HtmlRenderState extends State<HtmlRender> {
                       fit: BoxFit.fitHeight,
                       fadeOutDuration: const Duration(milliseconds: 500),
                       placeholder: (htmlContext, url) {
-                        return const SizedBox(
-                          height: 30,
+                        return Container(
+                          width: double.infinity,
+                          height: 60,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
                           child: Center(
                             child: Text('图片加载中...'),
                           ),

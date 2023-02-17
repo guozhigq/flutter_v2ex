@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:async';
-import 'dart:convert';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -18,16 +16,37 @@ import 'package:flutter_v2ex/utils/storage.dart';
 
 import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
+import 'package:flutter_v2ex/service/local_notice.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:system_proxy/system_proxy.dart';
 
-dynamic _parseAndDecode(String response) {
-  return jsonDecode(response);
-}
 
-Future parseJson(String text) {
-  return compute(_parseAndDecode, text);
+class ProxiedHttpOverrides extends HttpOverrides {
+  String _port;
+  String _host;
+  ProxiedHttpOverrides(this._host, this._port);
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+    // set proxy
+      ..findProxy = (uri) {
+        return "PROXY $_host:$_port;";
+      };
+  }
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // 消息通知初始化
+  await LocalNoticeService().init();
+
+  Map<String, String>? proxy = await SystemProxy.getProxySettings();
+  if (proxy != null) {
+    HttpOverrides.global = ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
+  }
+
+  // 本地存储初始化
   await GetStorage.init();
   runApp(const MyApp());
 
@@ -36,9 +55,10 @@ void main() async {
         SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      systemNavigationBarColor:
-          Colors.transparent, // Setting a transparent navigation bar color
-      systemNavigationBarContrastEnforced: true, // Default
+      systemNavigationBarColor: Colors.transparent,
+      // Setting a transparent navigation bar color
+      systemNavigationBarContrastEnforced: true,
+      // Default
       statusBarBrightness: Brightness.light,
       // statusBarIconBrightness: Brightness.dark,
       systemNavigationBarIconBrightness:
@@ -77,6 +97,12 @@ class _MyAppState extends State<MyApp> {
         currentThemeValue = arg;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    EventBus().offAll();
+    super.dispose();
   }
 
   @override

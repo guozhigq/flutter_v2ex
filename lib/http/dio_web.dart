@@ -171,16 +171,15 @@ class DioRequestWeb {
       }
       item.lastReplyTime =
           aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
-      item.nodeName = aNode
-          .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
-          .name!;
+      item.nodeName = aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
 
-      item.topicTitle =
-          aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!
-              .replaceAll('&quot;', '"')
-              .replaceAll('&amp;', '&')
-              .replaceAll('&lt;', '<')
-              .replaceAll('&gt;', '>');
+      item.topicTitle = aNode
+          .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
+          .name!
+          .replaceAll('&quot;', '"')
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>');
       item.nodeId = aNode
           .xpath("/table/tr/td[3]/span[2]/a")
           ?.first
@@ -415,7 +414,8 @@ class DioRequestWeb {
     var response = await Request().get(
       "/t/$topicId",
       data: {'p': p},
-      cacheOptions: buildCacheOptions(const Duration(days: 4), forceRefresh: true),
+      cacheOptions:
+          buildCacheOptions(const Duration(days: 4), forceRefresh: true),
       extra: {'ua': 'mob'},
     );
     // Use html parser and query selector
@@ -508,6 +508,7 @@ class DioRequestWeb {
       String encodedCf = aNode.attributes["data-cfemail"].toString();
       var newEl = document.createElement('SPAN');
       newEl.innerHtml = Utils.cfDecodeEmail(encodedCf);
+      print(newEl.innerHtml);
       aNode.replaceWith(newEl);
 
       // aNode.replaceWith(Text(Utils.cfDecodeEmail(encodedCf)));
@@ -630,8 +631,9 @@ class DioRequestWeb {
         totalPageDom =
             replyBoxDom.querySelectorAll('div.cell > div.fr.fade').last;
       }
-        detailModel.totalPage =
-            totalPageDom != null ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), '')) : 1;
+      detailModel.totalPage = totalPageDom != null
+          ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
+          : 1;
 
       detailModel.replyCount = replyBoxDom
           .querySelector('div.cell span')!
@@ -1018,7 +1020,7 @@ class DioRequestWeb {
   static Future thankTopic(String topicId) async {
     int once = Storage().getOnce();
     SmartDialog.showLoading(msg: '表示感谢ing');
-    try{
+    try {
       var response = await Request().post("/thank/topic/$topicId?once=$once");
       // ua mob
       var data = jsonDecode(response.toString());
@@ -1029,7 +1031,7 @@ class DioRequestWeb {
       } else {
         SmartDialog.showToast(data['message']);
       }
-      if(data['once'] != null){
+      if (data['once'] != null) {
         int onceR = data['once'];
         Storage().setOnce(onceR);
       }
@@ -1045,7 +1047,7 @@ class DioRequestWeb {
   static Future thankReply(String replyId, String topicId) async {
     int once = Storage().getOnce();
     SmartDialog.showLoading(msg: '表示感谢ing');
-    try{
+    try {
       var response = await Request().post("/thank/reply/$replyId?once=$once");
       // print('1019 thankReply: $response');
       var data = jsonDecode(response.toString());
@@ -1056,7 +1058,7 @@ class DioRequestWeb {
       } else {
         SmartDialog.showToast(data['message']);
       }
-      if(data['once'] != null){
+      if (data['once'] != null) {
         int onceR = data['once'];
         Storage().setOnce(onceR);
       }
@@ -1066,7 +1068,6 @@ class DioRequestWeb {
       SmartDialog.dismiss();
       SmartDialog.showToast(e.message);
     }
-
   }
 
   // 忽略主题
@@ -1126,7 +1127,7 @@ class DioRequestWeb {
   static Future dailyMission() async {
     String lastSignDate = Storage().getSignStatus();
     String currentDate = DateTime.now().toString().split(' ')[0];
-    if(lastSignDate == currentDate){
+    if (lastSignDate == currentDate) {
       // print('已签到');
       return false;
     }
@@ -1155,7 +1156,7 @@ class DioRequestWeb {
           var tipsText = mainBox.querySelector('span.gray')!.innerHtml;
           if (tipsText.contains('已领取')) {
             SmartDialog.showToast('今日已签到');
-            Storage().setSignStatus( DateTime.now().toString().split(' ')[0]);
+            Storage().setSignStatus(DateTime.now().toString().split(' ')[0]);
 
             // EventBus().emit('login', 'fail');
           }
@@ -1266,8 +1267,7 @@ class DioRequestWeb {
           String topicHref = itemNode!
               .querySelector('span.item_title > a.topic-link')!
               .attributes['href']!;
-          item.topicId =
-              topicHref.split('#')[0].replaceAll(RegExp(r'\D'), '');
+          item.topicId = topicHref.split('#')[0].replaceAll(RegExp(r'\D'), '');
           item.replyCount =
               topicHref.split('#')[1].replaceAll(RegExp(r'\D'), '');
           item.topicTitle =
@@ -1390,8 +1390,7 @@ class DioRequestWeb {
           .attributes['href']!;
 
       item.topicId = topicHref.split('#')[0].replaceAll(RegExp(r'\D'), '');
-      item.replyCount =
-          topicHref.split('#')[1].replaceAll(RegExp(r'\D'), '');
+      item.replyCount = topicHref.split('#')[1].replaceAll(RegExp(r'\D'), '');
       item.topicTitle =
           itemNode.querySelector('span.item_title > a.topic-link')!.text;
       item.time = itemNode.querySelector('span.topic_info > span')!.text;
@@ -1618,12 +1617,13 @@ class DioRequestWeb {
     FollowTopicModel followTopicModel = FollowTopicModel();
     List<TabTopicItem> topicList = [];
 
-    Response response = await Request().get('/my/following', data: {'p': p}, extra: {'ua': 'mob'});
+    Response response = await Request()
+        .get('/my/following', data: {'p': p}, extra: {'ua': 'mob'});
     var document = parse(response.data);
     var mainBox = document
         .querySelector('#Wrapper > div.content > div.box:not(.box-title)');
     var totalPageNode =
-    mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
+        mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
       if (totalPageNode.querySelectorAll('a.page_normal').isNotEmpty) {
         followTopicModel.totalPage = int.parse(

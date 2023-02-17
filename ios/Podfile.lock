@@ -9,6 +9,10 @@ PODS:
   - flutter_inappwebview/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 5.0)
+  - flutter_local_notifications (0.0.1):
+    - Flutter
+  - flutter_native_timezone (0.0.1):
+    - Flutter
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
@@ -20,9 +24,13 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.0.4):
     - Flutter
+  - quick_actions_ios (0.0.1):
+    - Flutter
   - sqflite (0.0.2):
     - Flutter
     - FMDB (>= 2.7.5)
+  - system_proxy (0.0.1):
+    - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -32,10 +40,14 @@ DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
+  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_native_timezone (from `.symlinks/plugins/flutter_native_timezone/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - quick_actions_ios (from `.symlinks/plugins/quick_actions_ios/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - system_proxy (from `.symlinks/plugins/system_proxy/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
@@ -51,14 +63,22 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_inappwebview:
     :path: ".symlinks/plugins/flutter_inappwebview/ios"
+  flutter_local_notifications:
+    :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_native_timezone:
+    :path: ".symlinks/plugins/flutter_native_timezone/ios"
   image_gallery_saver:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  quick_actions_ios:
+    :path: ".symlinks/plugins/quick_actions_ios/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
+  system_proxy:
+    :path: ".symlinks/plugins/system_proxy/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
@@ -68,12 +88,16 @@ SPEC CHECKSUMS:
   device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_inappwebview: 4fe74e5e65809c3d363febfd9e2b21aa79bb0f1c
+  flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
+  flutter_native_timezone: 5f05b2de06c9776b4cc70e1839f03de178394d22
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   image_gallery_saver: 259eab68fb271cfd57d599904f7acdc7832e7ef2
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
+  quick_actions_ios: d211ffc5d7619ace7e9fb1800540b14a1aafe940
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
+  system_proxy: bec1a5c5af67dd3e3ebf43979400a8756c04cc44
   url_launcher_ios: fb12c43172927bb5cf75aeebd073f883801f1993
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 

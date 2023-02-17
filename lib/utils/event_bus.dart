@@ -32,6 +32,11 @@ class EventBus {
     }
   }
 
+  void offAll([EventCallback? f]) {
+    var list = _emap;
+    list.remove(f);
+  }
+
   //触发事件，事件触发后该事件所有订阅者会被调用
   void emit(eventName, [arg]) {
     var list = _emap[eventName];

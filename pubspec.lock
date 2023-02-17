@@ -185,6 +185,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "6f07cba3f7b3448d42d015bfd3d53fe12e5b36da2423f23838efc1d5fb31a263"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.7.8"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -245,18 +253,18 @@ packages:
     dependency: "direct main"
     description:
       name: easy_refresh
-      sha256: "924316c44ff5c0506c7690c98189adb7956dbd36905aeb050370335857144215"
+      sha256: "4bf1e3bea60ca21ece286fcde16cdd64bdb7383b4901422a683404f77708c644"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.0+1"
+    version: "3.3.1"
   extended_image:
     dependency: "direct main"
     description:
       name: extended_image
-      sha256: "6494c5728d0a8216fafcda7a4125f7a6da3d510ab00677a630d01dbb1125da96"
+      sha256: "75e4b0ad0f8f63eed7935ff2506c809a670f5e6dd0f61304525879d53fc41a17"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "7.0.1"
+    version: "7.0.2"
   extended_image_library:
     dependency: transitive
     description:
@@ -374,6 +382,38 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      sha256: "293995f94e120c8afce768981bd1fa9c5d6de67c547568e3b42ae2defdcbb4a0"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "13.0.0"
+  flutter_local_notifications_linux:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_linux
+      sha256: "8f6c1611e0c4a88a382691a97bb3c3feb24cc0c0b54152b8b5fb7ffb837f7fbf"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
+  flutter_local_notifications_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_platform_interface
+      sha256: "5ec1feac5f7f7d9266759488bc5f76416152baba9aa1b26fe572246caa00d1ab"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "6.0.0"
+  flutter_native_timezone:
+    dependency: "direct main"
+    description:
+      name: flutter_native_timezone
+      sha256: ed7bfb982f036243de1c068e269182a877100c994f05143c8b26a325e28c1b02
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -759,6 +799,38 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  quick_actions:
+    dependency: "direct main"
+    description:
+      name: quick_actions
+      sha256: "4c0a83915649901a07f45327467c3b567097269b2b248fb39ecdc1a564f3ccfb"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
+  quick_actions_android:
+    dependency: transitive
+    description:
+      name: quick_actions_android
+      sha256: "053d3b45a43bf8fd45b22c2a39e49566e8fdc1adb72ce24c8aca7ac9f373fa70"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0"
+  quick_actions_ios:
+    dependency: transitive
+    description:
+      name: quick_actions_ios
+      sha256: "9d9e995029005a4188113394c8c9ac9a9aba30c8cc9a08bcb037d855f92677ba"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  quick_actions_platform_interface:
+    dependency: transitive
+    description:
+      name: quick_actions_platform_interface
+      sha256: e7302e8487e3c0e6170843107d8eb142926b9eb19e927142c8b3dfa0dcca54ca
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.3"
   quiver:
     dependency: transitive
     description:
@@ -844,6 +916,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.1"
+  system_proxy:
+    dependency: "direct main"
+    description:
+      name: system_proxy
+      sha256: bbdfc9736a963409941fb0e7c494606c1f13c2be34de15833ee385da83cf7ab0
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.0"
   term_glyph:
     dependency: transitive
     description:
@@ -860,6 +940,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.16"
+  timezone:
+    dependency: "direct main"
+    description:
+      name: timezone
+      sha256: "24c8fcdd49a805d95777a39064862133ff816ebfffe0ceff110fb5960e557964"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.9.1"
   typed_data:
     dependency: transitive
     description:
@@ -1000,10 +1088,10 @@ packages:
     dependency: transitive
     description:
       name: xdg_directories
-      sha256: ee1505df1426458f7f60aac270645098d318a8b4766d85fde75f76f2e21807d1
+      sha256: bd512f03919aac5f1313eb8249f223bacf4927031bf60b02601f81f687689e86
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.0"
+    version: "0.2.0+3"
   xml:
     dependency: transitive
     description:

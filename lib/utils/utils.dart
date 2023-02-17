@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:flutter_v2ex/utils/global.dart';
-
 import 'package:device_info_plus/device_info_plus.dart';
 
 // import 'package:ovprogresshud/progresshud.dart';
@@ -101,12 +100,13 @@ class Utils {
         imgUrl = 'https://www.v2ex.com$imgUrl';
       }
     }
-    var suffix =
-        '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
-    RegExp exp = RegExp(r'.*\.' + suffix);
-    if (!exp.hasMatch(imgUrl)) {
-      imgUrl = '$imgUrl.png';
-    }
+
+    // var suffix =
+    //     '(bmp|jpg|png|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|jpeg)';
+    // RegExp exp = RegExp(r'.*\.' + suffix);
+    // if (!exp.hasMatch(imgUrl)) {
+    //   imgUrl = '$imgUrl.png';
+    // }
     return imgUrl;
   }
 
