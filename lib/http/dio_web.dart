@@ -504,15 +504,19 @@ class DioRequestWeb {
     // [email_protected] 转码回到正确的邮件字符串
     List<dom.Element> aRootNode =
         document.querySelectorAll("a[class='__cf_email__']");
-    for (var aNode in aRootNode) {
-      String encodedCf = aNode.attributes["data-cfemail"].toString();
-      var newEl = document.createElement('SPAN');
-      newEl.innerHtml = Utils.cfDecodeEmail(encodedCf);
-      print(newEl.innerHtml);
-      aNode.replaceWith(newEl);
-
-      // aNode.replaceWith(Text(Utils.cfDecodeEmail(encodedCf)));
+    List<dom.Element> bRootNode =
+    document.querySelectorAll("span[class='__cf_email__']");
+    var emailNode = aRootNode.isNotEmpty ? aRootNode : bRootNode.isNotEmpty ? bRootNode : [];
+    if(emailNode.isNotEmpty){
+      for (var aNode in emailNode) {
+        String encodedCf = aNode.attributes["data-cfemail"].toString();
+        var newEl = document.createElement('a');
+        newEl.innerHtml = Utils.cfDecodeEmail(encodedCf);
+        newEl.attributes['href'] = 'mailto:${Utils.cfDecodeEmail(encodedCf)}';
+        aNode.replaceWith(newEl);
+      }
     }
+
 
     // 判断是否有正文
     if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {

@@ -105,8 +105,8 @@ class _HtmlRenderState extends State<HtmlRender> {
                     tag: imgUrl,
                     child: CachedNetworkImage(
                       imageUrl: imgUrl,
-                      width: double.infinity,
-                      fit: BoxFit.fitHeight,
+                      // width: double.infinity,
+                      // fit: BoxFit.fitHeight,
                       fadeOutDuration: const Duration(milliseconds: 500),
                       placeholder: (htmlContext, url) {
                         return Container(
@@ -174,7 +174,7 @@ class _HtmlRenderState extends State<HtmlRender> {
 
   // a标签webview跳转
   void openHrefByWebview(String? aUrl, BuildContext context) async {
-    RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    RegExp exp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     bool isValidator = exp.hasMatch(aUrl!);
     if (isValidator) {
       // http(s) 网址
@@ -229,9 +229,22 @@ class _HtmlRenderState extends State<HtmlRender> {
     } else {
       // sms tel email schemeUrl
       final Uri _url = Uri.parse(aUrl);
-      if (!await launchUrl(_url)) {
+      print(aUrl);
+      if (await canLaunchUrl(_url)) {
+        launchUrl(_url);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(showCloseIcon: true, content: Text('无效网址')),
+          SnackBar(
+              duration: const Duration(milliseconds: 3000),
+            // showCloseIcon: true,
+            content: Text('🔗链接打开失败'),
+            action: SnackBarAction(
+              label: '复制',
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: aUrl));
+              },
+            ),
+          ),
         );
         throw Exception('Could not launch $aUrl');
       }

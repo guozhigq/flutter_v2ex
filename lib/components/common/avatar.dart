@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CAvatar extends StatelessWidget {
@@ -20,7 +21,7 @@ class CAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipOval(
       child: CachedNetworkImage(
-        imageUrl: url,
+        imageUrl: Utils().avatarLarge(url),
         height: size,
         width: size,
         fit: BoxFit.cover,
@@ -60,9 +61,9 @@ class CAvatar extends StatelessWidget {
             // margin: const EdgeInsets.only(right: 10),
             child: Center(
               child: Icon(
-                Icons.person,
+                Icons.face,
                 size: size - 10,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),

@@ -8,7 +8,6 @@ import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
-import 'package:flutter_v2ex/components/common/skeleton.dart';
 
 
 class MemberPage extends StatefulWidget {
