@@ -135,6 +135,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         loginStatus = true;
       });
       readUserInfo();
+      queryDaily();
     } else {
       EventBus().on('login', (arg) {
         if (arg == 'success') {
@@ -147,7 +148,6 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     setState(() {
       currentThemeValue = GStorage().getSystemType();
     });
-    queryDaily();
   }
 
   void readUserInfo() {

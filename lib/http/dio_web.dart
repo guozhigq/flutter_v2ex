@@ -1194,13 +1194,15 @@ class DioRequestWeb {
     var menuBodyNode =
         bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
     var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
-    var loginOutHref = loginOutNode.attributes['onclick']!;
-    RegExp regExp = RegExp(r'\d{3,}');
-    Iterable<Match> matches = regExp.allMatches(loginOutHref);
-    for (Match m in matches) {
-      GStorage().setOnce(int.parse(m.group(0)!));
+    if(loginOutNode.attributes['onclick'] != null){
+      // 登录状态
+      var loginOutHref = loginOutNode.attributes['onclick']!;
+      RegExp regExp = RegExp(r'\d{3,}');
+      Iterable<Match> matches = regExp.allMatches(loginOutHref);
+      for (Match m in matches) {
+        GStorage().setOnce(int.parse(m.group(0)!));
+      }
     }
-
     // 头像、昵称、在线状态、加入时间、关注状态
     var profileCellNode = profileNode.querySelector('div.cell > table');
     memberProfile.mbAvatar =

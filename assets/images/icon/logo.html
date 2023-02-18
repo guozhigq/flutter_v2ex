@@ -1,0 +1,66 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="box">
+    <div class="wrap">
+      <div class="two"></div>
+      <div class="one"></div>
+    </div>
+  </div>
+</body>
+
+<style>
+  .box {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wrap {
+    position: relative;
+    width: 512px;
+    height: 512px;
+    /* border: 1px solid #000; */
+    transform: scale(0.9);
+  }
+
+  .one {
+    position: absolute;
+    transform: rotate(-45deg);
+    top: 110px;
+    left: 80px;
+    width: 350px;
+    height: 160px;
+    background-color: #5CCFFF;
+    border-top-right-radius: 80px;
+    border-bottom-right-radius: 80px;
+    border-top-left-radius: 50px;
+    box-shadow: inset 5px 5px 30px rgba(18, 92, 156, 0.3);
+  }
+
+  .two {
+    position: absolute;
+    transform: rotate(45deg);
+    top: 254px;
+    left: 90px;
+    width: 350px;
+    height: 160px;
+    border-top-right-radius: 80px;
+    border-bottom-right-radius: 80px;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    box-shadow: inset 5px 5px 40px rgba(0, 0, 0, 0.4);
+    background-color: #125C9C;
+  }
+</style>
+
+</html>

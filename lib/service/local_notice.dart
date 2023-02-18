@@ -6,9 +6,14 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-int noticeId = 0;
-
 class LocalNoticeService {
+  int noticeId = 0; //  通知id
+  String title = ''; // 标题
+  String body = ''; // 内容
+  String channel = '';
+  String channelDescription = 'your channel description'; // 渠道描述
+  var payload;
+
   static final LocalNoticeService _notificationService =
       LocalNoticeService._internal();
 
@@ -50,7 +55,7 @@ class LocalNoticeService {
     }
 
     const AndroidInitializationSettings androidSetting =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('app_icon');
     const iosSetting = DarwinInitializationSettings(
       requestSoundPermission: true,
       requestBadgePermission: true,
@@ -75,10 +80,10 @@ class LocalNoticeService {
             // if (notificationResponse.actionId == navigationActionId) {
             //   selectNotificationStream.add(notificationResponse.payload);
             // }
-            print('77: ${notificationResponse.payload}');
             break;
         }
       },
+      // 文本回复
       // onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     ).then((_) {
       debugPrint('setupPlugin: setup success');
@@ -90,7 +95,7 @@ class LocalNoticeService {
 //     AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
 
     await _configureLocalTimeZone();
-    await _isAndroidPermissionGranted();
+    // await _isAndroidPermissionGranted();
     await _requestPermissions();
   }
 
@@ -102,10 +107,6 @@ class LocalNoticeService {
                   AndroidFlutterLocalNotificationsPlugin>()
               ?.areNotificationsEnabled() ??
           false;
-
-      // setState(() {
-      //   _notificationsEnabled = granted;
-      // });
     }
   }
 
@@ -132,75 +133,98 @@ class LocalNoticeService {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           _localNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
-
-      // final bool? granted = await androidImplementation?.requestPermission();
-      // setState(() {
-      //   _notificationsEnabled = granted ?? false;
-      // });
     }
   }
 
   // 下发消息
   void send(
-    String title,
-    String body,
-     {Duration endTime = const Duration(seconds: 1),
-    String sound = 'slow_spring_board.aiff',
-    String channel = 'default',
-  }) async {
-    // final scheduleTime =
-    //     tz.TZDateTime.fromMillisecondsSinceEpoch(tz.local, endTime);
-    final scheduleTime = tz.TZDateTime.now(tz.local).add(endTime);
-    // ios端额外配置 DarwinNotificationDetails
-    final iosDetail = sound == ''
-        ? null
-        : DarwinNotificationDetails(presentSound: true, sound: sound);
+      String title, // 标题
+      String body, // 内容
+      {bool customSound = false, // 是否自定义通知声
+      bool delayed = false, // 是否延长
+      Duration endTime = const Duration(seconds: 1), // 默认延时1s
+      String sound = 'slow_spring_board.mp3', // 自定义通知声文件
+      String channel = '消息提醒', // 渠道 在「设置」中展示
+      String channelDescription = 'your channel description',
+      payload}) async {
+    LocalNoticeService().title = title;
+    LocalNoticeService().body = body;
+    LocalNoticeService().channel = channel;
+    LocalNoticeService().channelDescription = channelDescription;
+    LocalNoticeService().payload = payload;
 
-    // Android端额外配置 AndroidNotificationDetails
-    // 自定义提示音
-    final soundFile = sound.replaceAll('.mp3', '');
-    final notificationSound =
-        sound == '' ? null : RawResourceAndroidNotificationSound(soundFile);
+    // 默认通知
+    if (!customSound && !delayed) {
+      _showNotification();
+    }
+    // 延时通知
+    if (!customSound && delayed) {
+      _zonedScheduleNotification(endTime);
+    }
+    // 自定义通知声
+    if (customSound && !delayed) {
+      _showNotificationCustomSound(sound);
+    }
+  }
 
-    final AndroidNotificationDetails androidDetail = AndroidNotificationDetails(
-      channel, // channel Id
-      channel, // channel Name
-      channelDescription: 'your channel description',
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: true,
-      sound: notificationSound,
-    );
-
-    final NotificationDetails noticeDetail = NotificationDetails(
-      iOS: iosDetail,
-      android: androidDetail,
-      // so on
-    );
-
-    // zonedSchedule  延时
-    // show
-    await _localNotificationsPlugin.zonedSchedule(
+  // 默认展示
+  Future<void> _showNotification() async {
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails('your channel id', channel,
+            channelDescription: 'your channel description',
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker');
+    NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+    await _localNotificationsPlugin.show(
       noticeId++,
-      title, // null
-      body, // null
-      // scheduleTime,
-      scheduleTime,
-      noticeDetail, // 传入配置项
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      androidAllowWhileIdle: true,
-      payload: 'item x', //传参
+      title,
+      body,
+      notificationDetails,
+      payload: payload,
     );
+  }
 
-    // await _localNotificationsPlugin.show(
-    //   noticeId++,
-    //   title, // null
-    //   body, // null
-    //   noticeDetail, // 传入配置项
-    //   payload: 'item x', //传参
-    // );
-    print('notice send');
+  // 延迟展示
+  Future<void> _zonedScheduleNotification(endTime) async {
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      'your channel id',
+      channel,
+      channelDescription: channelDescription,
+    );
+    NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+    await _localNotificationsPlugin.zonedSchedule(noticeId++, title, body,
+        tz.TZDateTime.now(tz.local).add(endTime), notificationDetails,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload);
+  }
+
+  // 自定义通知声音
+  Future<void> _showNotificationCustomSound(sound) async {
+    final soundFile = sound.replaceAll('.mp3', '');
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      'your other channel id',
+      channel,
+      channelDescription: 'your other channel description',
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(soundFile),
+    );
+    DarwinNotificationDetails darwinNotificationDetails =
+        DarwinNotificationDetails(presentSound: true, sound: sound);
+
+    NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: darwinNotificationDetails,
+      macOS: darwinNotificationDetails,
+    );
+    await _localNotificationsPlugin
+        .show(noticeId++, title, body, notificationDetails, payload: payload);
   }
 
   // 可回复通知
@@ -258,7 +282,7 @@ class LocalNoticeService {
   // 清除最近一条通知
   void cancelLast() {
     // 传入id
-    // _localNotificationsPlugin.cancel();
+    _localNotificationsPlugin.cancel(noticeId--);
   }
 
   // 清除所有
@@ -267,10 +291,16 @@ class LocalNoticeService {
   }
 
   // 是否有正在进行中的通知
-  Future<void> checkPendingNotificationRequests() async {
+  Future<void> checkPending() async {
     final List<PendingNotificationRequest> pendingNotificationRequests =
         await _localNotificationsPlugin.pendingNotificationRequests();
     print(pendingNotificationRequests.length);
+  }
+
+  Future<void> getActive() async {
+    final List<ActiveNotification>? activeNotifications =
+        await _localNotificationsPlugin.getActiveNotifications();
+    print(activeNotifications);
   }
 
   // 当前时区

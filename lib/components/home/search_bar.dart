@@ -164,10 +164,11 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                         LocalNoticeService().send(
                           '您有新的消息提醒',
                           "点击查看",
-                          channel: 'work-end',
+                          channel: 'message',
+                          customSound: true,
                         );
                       },
-                      icon: const Icon(Icons.notifications_none_rounded)),
+                      icon: Icon(Icons.notifications_none_rounded, color: Theme.of(context).colorScheme.onSurface)),
                 )
               ],
             )),
