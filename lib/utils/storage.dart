@@ -14,13 +14,13 @@ enum StoreKeys {
   signStatus
 }
 
-class Storage {
-  static final Storage _storage = Storage._internal();
+class GStorage {
+  static final GStorage _storage = GStorage._internal();
   final GetStorage _box = GetStorage();
 
-  Storage._internal();
+  GStorage._internal();
 
-  factory Storage() => _storage;
+  factory GStorage() => _storage;
 
   // setToken, getToken
   setToken(String token) => _box.write(StoreKeys.token.toString(), token);
@@ -65,14 +65,14 @@ class Storage {
 
   // 主题风格 默认跟随系统
   setSystemType(ThemeType type) =>
-    _box.write(StoreKeys.themeType.toString(), type.name.toString());
+      _box.write(StoreKeys.themeType.toString(), type.name.toString());
 
   clearSystemType() => _box.remove(StoreKeys.themeType.toString());
 
-  ThemeType getSystemType()  {
+  ThemeType getSystemType() {
     var value = _box.read(StoreKeys.themeType.toString());
     ThemeType f = ThemeType.system;
-    if(value != null){
+    if (value != null) {
       f = ThemeType.values.firstWhere((e) => e.name.toString() == value);
     }
     return f;

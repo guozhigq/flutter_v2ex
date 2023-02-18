@@ -8,7 +8,7 @@ import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
-
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -25,6 +25,7 @@ class _MemberPageState extends State<MemberPage> {
   String memberAvatar = '';
   String heroTag = '';
   bool isOwner = false;
+  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class _MemberPageState extends State<MemberPage> {
       heroTag = mapKey.contains('heroTag') ? Get.parameters['heroTag']! : '';
     });
 
-    if (Storage().getUserInfo().isNotEmpty) {
-      if (memberId == Storage().getUserInfo()['userName']) {
+    if (GStorage().getUserInfo().isNotEmpty) {
+      if (memberId == GStorage().getUserInfo()['userName']) {
         setState(() {
           isOwner = true;
           // 查询签到状态、余额
@@ -50,8 +51,6 @@ class _MemberPageState extends State<MemberPage> {
 
     // 查询用户信息
     queryMemberProfile();
-
-
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
@@ -198,8 +197,10 @@ class _MemberPageState extends State<MemberPage> {
                           TextButton(
                             onPressed: () =>
                                 {if (!signDetail['signStatus']) {}},
-                            child: Text(
-                                signDetail.isNotEmpty && signDetail['signStatus'] ? '已领取奖励' : '领取奖励'),
+                            child: Text(signDetail.isNotEmpty &&
+                                    signDetail['signStatus']
+                                ? '已领取奖励'
+                                : '领取奖励'),
                           ),
                           const SizedBox(width: 12)
                         ]
@@ -453,7 +454,34 @@ class _MemberPageState extends State<MemberPage> {
             style: ButtonStyle(
                 padding: MaterialStateProperty.all(const EdgeInsets.only(
                     top: 7, right: 12, bottom: 7, left: 8))),
-            onPressed: () => {},
+            onPressed: () async {
+              await browser.open(
+                url: WebUri(i.href),
+                settings: ChromeSafariBrowserSettings(
+                    shareState: CustomTabsShareState.SHARE_STATE_OFF,
+                    isSingleInstance: false,
+                    isTrustedWebActivity: false,
+                    keepAliveEnabled: true,
+                    startAnimations: [
+                      AndroidResource.anim(
+                          name: "slide_in_left", defPackage: "android"),
+                      AndroidResource.anim(
+                          name: "slide_out_right", defPackage: "android")
+                    ],
+                    exitAnimations: [
+                      AndroidResource.anim(
+                          name: "abc_slide_in_top",
+                          defPackage:
+                              "com.pichillilorenzo.flutter_inappwebviewexample"),
+                      AndroidResource.anim(
+                          name: "abc_slide_out_top",
+                          defPackage:
+                              "com.pichillilorenzo.flutter_inappwebviewexample")
+                    ],
+                    dismissButtonStyle: DismissButtonStyle.CLOSE,
+                    presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+              );
+            },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -522,100 +550,100 @@ class _MemberPageState extends State<MemberPage> {
   Widget loading() {
     // Skeleton 会影响Hero效果
     return
-      // Skeleton(
-      // child:
-      CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  '个人信息',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                centerTitle: false,
-                titlePadding:
-                const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-                expandedTitleScale: 1.1),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-              padding: const EdgeInsets.only(left: 15, right: 2),
-              child: Row(
-                children: [
-                  Hero(
-                    tag: heroTag,
-                    child: CAvatar(url: memberAvatar, size: 80),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            memberId,
-                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Container(
-                            width: 170,
-                            height: 18,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.onInverseSurface,
-                                borderRadius:
-                                const BorderRadius.all(Radius.circular(2))),
-                          ),
-                          const SizedBox(height: 3),
-                          Container(
-                            width: 120,
-                            height: 18,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.onInverseSurface,
-                                borderRadius:
-                                const BorderRadius.all(Radius.circular(2))),
-                          ),
-                        ],
-                      )),
-                ],
+        // Skeleton(
+        // child:
+        CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 120,
+          pinned: true,
+          flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                '个人信息',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 20),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
+              centerTitle: false,
+              titlePadding:
+                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
+              expandedTitleScale: 1.1),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
+            padding: const EdgeInsets.only(left: 15, right: 2),
+            child: Row(
               children: [
-                Container(
-                  height: 18,
-                  margin: const EdgeInsets.only(left: 20, right: 20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                  ),
+                Hero(
+                  tag: heroTag,
+                  child: CAvatar(url: memberAvatar, size: 80),
                 ),
-                const SizedBox(
-                  height: 4,
-                ),
-                Container(
-                  height: 18,
-                  margin: const EdgeInsets.only(left: 20, right: 170),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                  ),
-                ),
+                const SizedBox(width: 20),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      memberId,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      width: 170,
+                      height: 18,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(2))),
+                    ),
+                    const SizedBox(height: 3),
+                    Container(
+                      width: 120,
+                      height: 18,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(2))),
+                    ),
+                  ],
+                )),
               ],
             ),
           ),
-          titleLine('最近发布', ''),
-          titleLine('最近回复', '')
-        ],
+        ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 20),
+        ),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              Container(
+                height: 18,
+                margin: const EdgeInsets.only(left: 20, right: 20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+                ),
+              ),
+              const SizedBox(
+                height: 4,
+              ),
+              Container(
+                height: 18,
+                margin: const EdgeInsets.only(left: 20, right: 170),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        titleLine('最近发布', ''),
+        titleLine('最近回复', '')
+      ],
       // ),
     );
   }

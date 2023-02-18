@@ -90,7 +90,7 @@ class DioRequestWeb {
         .querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
     var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
     int once = int.parse(onceHref!.split('once=')[1]);
-    Storage().setOnce(once);
+    GStorage().setOnce(once);
 
     var aRootNode = tree.xpath("//*[@class='cell item']");
     for (var aNode in aRootNode!) {
@@ -269,15 +269,16 @@ class DioRequestWeb {
           // item.clickCount =
           //     topicSub.split('•')[2].trim().replaceAll(RegExp(r'[^0-9]'), '');
         }
-        if (aNode.querySelector('tr > td:last-child > a') != null) {
+        if (aNode.querySelector('tr > td:nth-child(5) > span > a') != null) {
           String? topicUrl = aNode
-              .querySelector('tr > td:last-child > a')!
+              .querySelector('tr > td:nth-child(5) > span > a')!
               .attributes['href']; // 得到是 /t/522540#reply17
           item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
           item.replyCount = int.parse(topicUrl
               .replaceAll("/t/", "")
               .split("#")[1]
               .replaceAll(RegExp(r'\D'), ''));
+          print('${item.topicId} : ${item.replyCount}');
         }
         if (aNode.querySelector('tr') != null) {
           var topicTd = aNode.querySelector('tr')!.children[2];
@@ -463,7 +464,7 @@ class DioRequestWeb {
         .querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
     var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
     int once = int.parse(onceHref!.split('once=')[1]);
-    Storage().setOnce(once);
+    GStorage().setOnce(once);
 
     /// 头部内容
     /// 查询头部内容公共头
@@ -505,9 +506,13 @@ class DioRequestWeb {
     List<dom.Element> aRootNode =
         document.querySelectorAll("a[class='__cf_email__']");
     List<dom.Element> bRootNode =
-    document.querySelectorAll("span[class='__cf_email__']");
-    var emailNode = aRootNode.isNotEmpty ? aRootNode : bRootNode.isNotEmpty ? bRootNode : [];
-    if(emailNode.isNotEmpty){
+        document.querySelectorAll("span[class='__cf_email__']");
+    var emailNode = aRootNode.isNotEmpty
+        ? aRootNode
+        : bRootNode.isNotEmpty
+            ? bRootNode
+            : [];
+    if (emailNode.isNotEmpty) {
       for (var aNode in emailNode) {
         String encodedCf = aNode.attributes["data-cfemail"].toString();
         var newEl = document.createElement('a');
@@ -516,7 +521,6 @@ class DioRequestWeb {
         aNode.replaceWith(newEl);
       }
     }
-
 
     // 判断是否有正文
     if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
@@ -581,7 +585,7 @@ class DioRequestWeb {
           menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
       var loginOutHref = loginOutNode!.attributes['href'];
       int once = int.parse(loginOutHref!.split('once=')[1]);
-      Storage().setOnce(once);
+      GStorage().setOnce(once);
 
       // 收藏人数
       if (document.querySelector("$innerQuery > div > span") != null) {
@@ -936,7 +940,7 @@ class DioRequestWeb {
       // 获取用户头像
       String avatar = elementOfAvatarImg.attributes["src"];
       String userName = elementOfAvatarImg.attributes["alt"];
-      Storage().setUserInfo({'avatar': avatar, 'userName': userName});
+      GStorage().setUserInfo({'avatar': avatar, 'userName': userName});
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
       print('两步验证判断');
@@ -950,11 +954,11 @@ class DioRequestWeb {
                 "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
             .first
             .attributes["value"];
-        Storage().setOnce(int.parse(once));
+        GStorage().setOnce(int.parse(once));
         SmartDialog.dismiss();
         return "2fa";
       } else {
-        Storage().setLoginStatus(true);
+        GStorage().setLoginStatus(true);
         SmartDialog.dismiss();
         return "true";
       }
@@ -968,7 +972,7 @@ class DioRequestWeb {
     SmartDialog.showLoading();
     Response response;
     FormData formData = FormData.fromMap({
-      "once": Storage().getOnce(),
+      "once": GStorage().getOnce(),
       "code": code,
     });
     response = await Request().post('/2fa', data: formData);
@@ -979,7 +983,7 @@ class DioRequestWeb {
     // menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
     // var loginOutHref = loginOutNode!.attributes['href'];
     // int once = int.parse(loginOutHref!.split('once=')[1]);
-    // Storage().setOnce(once);
+    // GStorage().setOnce(once);
     SmartDialog.dismiss();
     if (response.statusCode == 302) {
       print('成功');
@@ -993,7 +997,7 @@ class DioRequestWeb {
   /// action
   // 收藏 / 取消收藏主题
   static Future<bool> favoriteTopic(bool isFavorite, String topicId) async {
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     SmartDialog.showLoading(msg: isFavorite ? '取消中...' : '收藏中...');
     String url = isFavorite
         ? ("/unfavorite/topic/$topicId?once=$once")
@@ -1011,7 +1015,7 @@ class DioRequestWeb {
         RegExp regExp = RegExp(r'\d{3,}');
         Iterable<Match> matches = regExp.allMatches(loginOutHref);
         for (Match m in matches) {
-          Storage().setOnce(int.parse(m.group(0)!));
+          GStorage().setOnce(int.parse(m.group(0)!));
         }
       }
       // 操作成功
@@ -1022,7 +1026,7 @@ class DioRequestWeb {
 
   // 感谢主题
   static Future thankTopic(String topicId) async {
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     SmartDialog.showLoading(msg: '表示感谢ing');
     try {
       var response = await Request().post("/thank/topic/$topicId?once=$once");
@@ -1037,7 +1041,7 @@ class DioRequestWeb {
       }
       if (data['once'] != null) {
         int onceR = data['once'];
-        Storage().setOnce(onceR);
+        GStorage().setOnce(onceR);
       }
       // 操作成功
       return responseStatus;
@@ -1049,7 +1053,7 @@ class DioRequestWeb {
 
   // 感谢回复
   static Future thankReply(String replyId, String topicId) async {
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     SmartDialog.showLoading(msg: '表示感谢ing');
     try {
       var response = await Request().post("/thank/reply/$replyId?once=$once");
@@ -1064,7 +1068,7 @@ class DioRequestWeb {
       }
       if (data['once'] != null) {
         int onceR = data['once'];
-        Storage().setOnce(onceR);
+        GStorage().setOnce(onceR);
       }
       // 操作成功
       return responseStatus;
@@ -1129,7 +1133,7 @@ class DioRequestWeb {
 
   // 签到 北京时间8点之后
   static Future dailyMission() async {
-    String lastSignDate = Storage().getSignStatus();
+    String lastSignDate = GStorage().getSignStatus();
     String currentDate = DateTime.now().toString().split(' ')[0];
     if (lastSignDate == currentDate) {
       // print('已签到');
@@ -1137,7 +1141,7 @@ class DioRequestWeb {
     }
     try {
       Response response;
-      int once = Storage().getOnce();
+      int once = GStorage().getOnce();
       response = await Request()
           .get("/mission/daily/redeem?once=$once", extra: {'ua': 'mob'});
 
@@ -1160,7 +1164,7 @@ class DioRequestWeb {
           var tipsText = mainBox.querySelector('span.gray')!.innerHtml;
           if (tipsText.contains('已领取')) {
             SmartDialog.showToast('今日已签到');
-            Storage().setSignStatus(DateTime.now().toString().split(' ')[0]);
+            GStorage().setSignStatus(DateTime.now().toString().split(' ')[0]);
 
             // EventBus().emit('login', 'fail');
           }
@@ -1194,7 +1198,7 @@ class DioRequestWeb {
     RegExp regExp = RegExp(r'\d{3,}');
     Iterable<Match> matches = regExp.allMatches(loginOutHref);
     for (Match m in matches) {
-      Storage().setOnce(int.parse(m.group(0)!));
+      GStorage().setOnce(int.parse(m.group(0)!));
     }
 
     // 头像、昵称、在线状态、加入时间、关注状态
@@ -1413,7 +1417,7 @@ class DioRequestWeb {
   static Future<bool> onSubmitReplyTopic(
       String topicId, String replyContent, int totalPage) async {
     SmartDialog.showLoading(msg: '回复中...');
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Options options = Options();
     options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
@@ -1431,7 +1435,7 @@ class DioRequestWeb {
       SmartDialog.showToast('回复成功');
       // 获取最后一页最近一条
       var replyList = await getTopicDetail(topicId, totalPage + 1);
-      Storage().setReplyItem(replyList.replyList.last);
+      GStorage().setReplyItem(replyList.replyList.last);
       SmartDialog.dismiss();
       return true;
     } else if (response.statusCode == 200) {
@@ -1535,7 +1539,7 @@ class DioRequestWeb {
   // 关注用户
   static Future<bool> onFollowMember(String followId, bool followStatus) async {
     SmartDialog.showLoading();
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Response response;
     var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
     response = await Request().get(url, data: {'once': once});
@@ -1551,7 +1555,7 @@ class DioRequestWeb {
   // 屏蔽用户
   static Future<bool> onBlockMember(String blockId, bool blockStatus) async {
     SmartDialog.showLoading();
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Response response;
     var url = blockStatus ? '/unblock/$blockId' : '/block/$blockId';
     response = await Request().get(url, data: {'once': once});
@@ -1567,7 +1571,7 @@ class DioRequestWeb {
   // 屏蔽主题 完成后返回上一页
   static Future<bool> onIgnoreTopic(String topicId) async {
     SmartDialog.showLoading();
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Response response;
     response =
         await Request().get('/ignore/topic/$topicId', data: {'once': once});
@@ -1583,7 +1587,7 @@ class DioRequestWeb {
   // 报告(举报)主题
   static Future<bool> onReportTopic(String topicId) async {
     SmartDialog.showLoading();
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Response response;
     response =
         await Request().get('/report/topic/$topicId', data: {'once': once});
@@ -1599,7 +1603,7 @@ class DioRequestWeb {
   // 收藏节点
   static Future onFavNode(String nodeId, bool isFavorite) async {
     SmartDialog.showLoading(msg: isFavorite ? '取消收藏ing' : '收藏中ing');
-    int once = Storage().getOnce();
+    int once = GStorage().getOnce();
     Response response;
     var reqUrl =
         isFavorite ? '/unfavorite/node/$nodeId' : '/favorite/node/$nodeId';

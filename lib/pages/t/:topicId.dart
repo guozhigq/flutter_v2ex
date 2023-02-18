@@ -74,8 +74,8 @@ class _TopicDetailState extends State<TopicDetail>
 
     setState(() {
       topicId = Get.parameters['topicId']!;
-      myUserName = Storage().getUserInfo().isNotEmpty
-          ? Storage().getUserInfo()['userName']
+      myUserName = GStorage().getUserInfo().isNotEmpty
+          ? GStorage().getUserInfo()['userName']
           : '';
     });
 
@@ -102,7 +102,7 @@ class _TopicDetailState extends State<TopicDetail>
       }
       SmartDialog.showToast(msg);
       if (status != 'success') return;
-      ReplyItem item = Storage().getReplyItem();
+      ReplyItem item = GStorage().getReplyItem();
       if (mounted) {
         setState(() {
           _replyList.add(item);
@@ -143,8 +143,6 @@ class _TopicDetailState extends State<TopicDetail>
 
   // todo 下拉刷新逻辑优化  正倒序排列数据复用
   Future getDetailReverst({type}) async {
-
-
     if (type == 'init') {
       setState(() {
         _currentPage = _totalPage;

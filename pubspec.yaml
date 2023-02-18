@@ -135,6 +135,7 @@ flutter:
         - assets/images/gold.png
         - assets/images/silver.png
         - assets/images/bronze.png
+        - assets/sound/
 
     #   - images/a_dot_ham.jpeg
 

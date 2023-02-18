@@ -29,7 +29,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     super.initState();
 
     // 启动式读取用户信息
-    if (Storage().getLoginStatus()) {
+    if (GStorage().getLoginStatus()) {
       setState(() {
         loginStatus = true;
       });
@@ -42,8 +42,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
         }
         if (arg == 'fail') {
           Utils.loginDialog('登录状态失效，请重新登录');
-          Storage().setLoginStatus(false);
-          Storage().setUserInfo({});
+          GStorage().setLoginStatus(false);
+          GStorage().setUserInfo({});
           setState(() {
             loginStatus = false;
             userInfo = {};
@@ -54,9 +54,9 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   }
 
   void readUserInfo() {
-    if (Storage().getUserInfo() != {}) {
+    if (GStorage().getUserInfo() != {}) {
       // DioRequestWeb.dailyMission();
-      Map userInfoStorage = Storage().getUserInfo();
+      Map userInfoStorage = GStorage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
       });
@@ -115,7 +115,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                               SmartDialog.showToast('取消登录');
                             } else {
                               SmartDialog.showToast('登录成功');
-                              if (Storage().getLoginStatus()) {
+                              if (GStorage().getLoginStatus()) {
                                 setState(() {
                                   loginStatus = true;
                                 });
@@ -160,7 +160,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   right: 38,
                   top: 0,
                   child: IconButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         LocalNoticeService().send(
                           '您有新的消息提醒',
                           "点击查看",

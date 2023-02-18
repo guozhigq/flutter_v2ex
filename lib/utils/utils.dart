@@ -46,14 +46,13 @@ class Utils {
   // 外链跳转
   static launchURL(url, {String scheme = 'https'}) async {
     Uri _url;
-    if(scheme == 'https'){
+    if (scheme == 'https') {
       if (url.startsWith('//')) {
         // 处理有些链接是 //xxxx 形式
         url = 'https:$url';
       }
       _url = Uri.parse(url);
-    }
-   else{
+    } else {
       // sms email tel
       _url = url;
     }
@@ -66,7 +65,8 @@ class Utils {
 
   String? encodeQueryParameters(Map<String, String> params) {
     return params.entries
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map((e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
         .join('&');
   }
 
@@ -235,19 +235,19 @@ class Utils {
                 },
                 child: const Text('取消')),
             TextButton(
-                onPressed: () async{
+                onPressed: () async {
                   if (twoFACode.length == 6) {
                     var res = await DioRequestWeb.twoFALOgin(twoFACode);
-                    if(res == 'true'){
-                        SmartDialog.showToast('登录成功');
-                        Storage().setLoginStatus(true);
-                        EventBus().emit('login', 'success');
-                        // 关闭2fa dialog
-                        SmartDialog.dismiss();
-                        // Navigator.pop(context);
-                        // 关闭login page
-                        // Get.back();
-                    }else{
+                    if (res == 'true') {
+                      SmartDialog.showToast('登录成功');
+                      GStorage().setLoginStatus(true);
+                      EventBus().emit('login', 'success');
+                      // 关闭2fa dialog
+                      SmartDialog.dismiss();
+                      // Navigator.pop(context);
+                      // 关闭login page
+                      // Get.back();
+                    } else {
                       twoFACode = '';
                     }
                   } else {

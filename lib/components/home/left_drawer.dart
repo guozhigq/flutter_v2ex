@@ -48,11 +48,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       });
       themeDialog();
     }
-    if(index == 6) {
+    if (index == 6) {
       // 设置
       Get.toNamed('/setting');
     }
-    if(index == 7) {
+    if (index == 7) {
       // 帮助
       Get.toNamed('/help');
     }
@@ -130,7 +130,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   void initState() {
     super.initState();
     // 获取登录状态
-    if (Storage().getLoginStatus()) {
+    if (GStorage().getLoginStatus()) {
       setState(() {
         loginStatus = true;
       });
@@ -145,14 +145,14 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     }
     // 读取默认主题配置
     setState(() {
-      currentThemeValue = Storage().getSystemType();
+      currentThemeValue = GStorage().getSystemType();
     });
     queryDaily();
   }
 
   void readUserInfo() {
-    if (Storage().getUserInfo().isNotEmpty) {
-      Map userInfoStorage = Storage().getUserInfo();
+    if (GStorage().getUserInfo().isNotEmpty) {
+      Map userInfoStorage = GStorage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
       });
@@ -240,17 +240,17 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                             });
                       } else {
                         Get.toNamed('/login')!.then((res) {
-                        if (res['loginStatus'] == 'cancel') {
-                          SmartDialog.showToast('取消登录');
-                        } else {
-                          SmartDialog.showToast('登录成功');
-                        if (Storage().getLoginStatus()) {
-                          setState(() {
-                          loginStatus = true;
-                          });
-                          readUserInfo();
-                        }
-                        }
+                          if (res['loginStatus'] == 'cancel') {
+                            SmartDialog.showToast('取消登录');
+                          } else {
+                            SmartDialog.showToast('登录成功');
+                            if (GStorage().getLoginStatus()) {
+                              setState(() {
+                                loginStatus = true;
+                              });
+                              readUserInfo();
+                            }
+                          }
                         });
                       }
                     },
@@ -270,7 +270,9 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      userInfo.isNotEmpty ? '${userInfo['userName']}' : '点击头像登录',
+                      userInfo.isNotEmpty
+                          ? '${userInfo['userName']}'
+                          : '点击头像登录',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (signDetail != null) ...[

@@ -25,7 +25,7 @@ class _ReplyNewState extends State<ReplyNew> {
   final TextEditingController _replyContentController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
   late String _replyContent = '';
-  final statusBarHeight = Storage().getStatusBarHeight();
+  final statusBarHeight = GStorage().getStatusBarHeight();
 
   @override
   void initState() {
@@ -70,10 +70,7 @@ class _ReplyNewState extends State<ReplyNew> {
       }
 
       var res = await DioRequestWeb.onSubmitReplyTopic(
-          widget.topicId,
-        replyUser + _replyContent,
-        widget.totalPage!
-      );
+          widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res) {
         Navigator.pop(context, {'replyStatus': 'success'});
       } else {
@@ -101,9 +98,7 @@ class _ReplyNewState extends State<ReplyNew> {
               IconButton(
                 tooltip: '关闭弹框',
                 onPressed: () {
-                  Map res = {
-                    'replyStatus': 'cancel'
-                  };
+                  Map res = {'replyStatus': 'cancel'};
                   Navigator.pop(context, res);
                 },
                 icon: const Icon(Icons.close),
@@ -152,7 +147,8 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
           if (widget.replyMemberList!.length == 1)
             Container(
-              padding: const EdgeInsets.only(top: 0, right: 10, bottom: 20, left: 10),
+              padding: const EdgeInsets.only(
+                  top: 0, right: 10, bottom: 20, left: 10),
               alignment: Alignment.topLeft,
               child: HtmlRender(
                 htmlContent: widget.replyMemberList![0].contentRendered,
@@ -201,7 +197,8 @@ class _ReplyNewState extends State<ReplyNew> {
             width: double.infinity,
             height: 60,
             clipBehavior: Clip.hardEdge,
-            margin: EdgeInsets.only(top: 10, bottom: MediaQuery.of(context).padding.bottom + 10),
+            margin: EdgeInsets.only(
+                top: 10, bottom: MediaQuery.of(context).padding.bottom + 10),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(30),

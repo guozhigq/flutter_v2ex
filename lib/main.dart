@@ -20,7 +20,6 @@ import 'package:flutter_v2ex/service/local_notice.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:system_proxy/system_proxy.dart';
 
-
 class ProxiedHttpOverrides extends HttpOverrides {
   String _port;
   String _host;
@@ -29,7 +28,7 @@ class ProxiedHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-    // set proxy
+      // set proxy
       ..findProxy = (uri) {
         return "PROXY $_host:$_port;";
       };
@@ -88,11 +87,11 @@ class _MyAppState extends State<MyApp> {
 
     // 读取默认主题配置
     setState(() {
-      currentThemeValue = Storage().getSystemType();
+      currentThemeValue = GStorage().getSystemType();
     });
     // 监听主题更改
     eventBus.on('themeChange', (arg) {
-      Storage().setSystemType(arg);
+      GStorage().setSystemType(arg);
       setState(() {
         currentThemeValue = arg;
       });

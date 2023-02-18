@@ -229,7 +229,6 @@ class _HtmlRenderState extends State<HtmlRender> {
     } else {
       // sms tel email schemeUrl
       final Uri _url = Uri.parse(aUrl);
-      print(aUrl);
       if (await canLaunchUrl(_url)) {
         launchUrl(_url);
       } else {

@@ -14,7 +14,6 @@ import 'package:flutter_v2ex/utils/storage.dart';
 // import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:quick_actions/quick_actions.dart';
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -42,7 +41,7 @@ class _HomePageState extends State<HomePage>
   ];
   String shortcut = 'no action set';
 
-    @override
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -72,9 +71,7 @@ class _HomePageState extends State<HomePage>
       // NOTE: This second action icon will only work on Android.
       // In a real world project keep the same file name for both platforms.
       const ShortcutItem(
-          type: 'search',
-          localizedTitle: '搜索',
-          icon: 'icon_search'),
+          type: 'search', localizedTitle: '搜索', icon: 'icon_search'),
     ]).then((void _) {
       setState(() {
         if (shortcut == 'no action set') {
@@ -83,6 +80,7 @@ class _HomePageState extends State<HomePage>
       });
     });
   }
+
   // 页面缓存
   @override
   bool get wantKeepAlive => true;
@@ -91,7 +89,7 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     super.build(context);
     num height = MediaQuery.of(context).padding.top;
-    Storage().setStatusBarHeight(height);
+    GStorage().setStatusBarHeight(height);
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(

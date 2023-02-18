@@ -25,8 +25,7 @@ class ReplyListItem extends StatefulWidget {
     this.queryReplyList,
     this.totalPage,
     Key? key,
-  }): super(key: key);
-
+  }) : super(key: key);
 
   final ReplyItem reply;
   final String topicId;
@@ -98,8 +97,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
     // 无法忽略自己的回复
     var replyUserName = widget.reply.userName;
     var loginUserName = '';
-    if (Storage().getUserInfo().isNotEmpty) {
-      loginUserName = Storage().getUserInfo()['userName'];
+    if (GStorage().getUserInfo().isNotEmpty) {
+      loginUserName = GStorage().getUserInfo()['userName'];
     }
     if (replyUserName == loginUserName) {
       setState(() {
@@ -461,7 +460,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   style: textStyle,
                 ),
               ),
-            if (reply.userName != Storage().getUserInfo()['userName'])
+            if (reply.userName != GStorage().getUserInfo()['userName'])
               TextButton(
                 onPressed: thanksDialog,
                 child: Row(children: [
