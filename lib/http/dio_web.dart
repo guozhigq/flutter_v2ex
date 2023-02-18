@@ -38,6 +38,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/service/local_notice.dart';
 
 class DioRequestWeb {
   static dynamic _parseAndDecode(String response) {
@@ -1121,6 +1122,10 @@ class DioRequestWeb {
     var unRead =
         noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
     print('$unRead条未读消息');
+    if(int.parse(unRead) > 0){
+      print(AppLifecycleState.resumed);
+      LocalNoticeService().send();
+    }
 
     // 余额
     List balance = noticeNode.querySelector('div#money')!.text.split(' ');

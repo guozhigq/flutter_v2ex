@@ -162,8 +162,6 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   child: IconButton(
                       onPressed: () async {
                         LocalNoticeService().send(
-                          '您有新的消息提醒',
-                          "点击查看",
                           channel: 'message',
                           customSound: true,
                         );

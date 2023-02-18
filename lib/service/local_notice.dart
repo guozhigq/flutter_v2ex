@@ -55,7 +55,7 @@ class LocalNoticeService {
     }
 
     const AndroidInitializationSettings androidSetting =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('@drawable/ic_stat_name');
     const iosSetting = DarwinInitializationSettings(
       requestSoundPermission: true,
       requestBadgePermission: true,
@@ -138,9 +138,10 @@ class LocalNoticeService {
 
   // 下发消息
   void send(
-      String title, // 标题
-      String body, // 内容
-      {bool customSound = false, // 是否自定义通知声
+      {
+        String title = '您有新的消息提醒', // 标题
+        String body = '点击查看', // 内容
+        bool customSound = false, // 是否自定义通知声
       bool delayed = false, // 是否延长
       Duration endTime = const Duration(seconds: 1), // 默认延时1s
       String sound = 'slow_spring_board.mp3', // 自定义通知声文件

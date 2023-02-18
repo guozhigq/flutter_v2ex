@@ -114,27 +114,6 @@ flutter:
 
     # To add assets to your application, add an assets section, like this:
     assets:
-#        - assets/images/google.png
-#        - assets/images/social/Twitter.png
-#        - assets/images/social/Github.png
-#        - assets/images/social/Twitch.tv.png
-#        - assets/images/social/Telegram.png
-#        - assets/images/social/Steam.png
-#        - assets/images/social/Website.png
-#        - assets/images/social/Coding.net.png
-#        - assets/images/social/Dribbble.png
-#        - assets/images/social/About.me.png
-#        - assets/images/social/PS.png
-#        - assets/images/social/Goodreads.png
-#        - assets/images/social/Geo.png
-#        - assets/images/social/Last.fm.png
-#        - assets/images/social/Instagram.png
-#        - assets/images/social/Duolingo.png
-#        - assets/images/social/BattleTag.png
-#        - assets/images/social/Btc.png
-#        - assets/images/gold.png
-#        - assets/images/silver.png
-#        - assets/images/bronze.png
         - assets/sound/
         - assets/images/
         - assets/images/social/
