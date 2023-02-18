@@ -14,10 +14,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
 //   static AndroidDeviceInfo androidInfo;
+
+  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
 
   // // 获取设备系统版本号
   static deviceInfo() async {
@@ -61,6 +64,41 @@ class Utils {
     } else {
       SmartDialog.showToast('Could not launch $_url');
     }
+  }
+
+  static openURL(aUrl) async{
+    // 1. openWithSystemBrowser
+    // await InAppBrowser.openWithSystemBrowser(
+    //     url: WebUri(aUrl)
+    // );
+
+    // 2. openWithAppBrowser
+    await Utils().browser.open(
+      url: WebUri(aUrl),
+      settings: ChromeSafariBrowserSettings(
+          shareState: CustomTabsShareState.SHARE_STATE_OFF,
+          isSingleInstance: false,
+          isTrustedWebActivity: false,
+          keepAliveEnabled: true,
+          startAnimations: [
+            AndroidResource.anim(
+                name: "slide_in_left", defPackage: "android"),
+            AndroidResource.anim(
+                name: "slide_out_right", defPackage: "android")
+          ],
+          exitAnimations: [
+            AndroidResource.anim(
+                name: "abc_slide_in_top",
+                defPackage:
+                "com.pichillilorenzo.flutter_inappwebviewexample"),
+            AndroidResource.anim(
+                name: "abc_slide_out_top",
+                defPackage:
+                "com.pichillilorenzo.flutter_inappwebviewexample")
+          ],
+          dismissButtonStyle: DismissButtonStyle.CLOSE,
+          presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+    );
   }
 
   String? encodeQueryParameters(Map<String, String> params) {
@@ -262,5 +300,22 @@ class Utils {
         );
       },
     );
+  }
+}
+
+class MyChromeSafariBrowser extends ChromeSafariBrowser {
+  @override
+  void onOpened() {
+    print("ChromeSafari browser opened");
+  }
+
+  @override
+  void onCompletedInitialLoad(didLoadSuccessfully) {
+    print("ChromeSafari browser initial load completed");
+  }
+
+  @override
+  void onClosed() {
+    print("ChromeSafari browser closed");
   }
 }

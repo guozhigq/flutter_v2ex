@@ -16,7 +16,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/services.dart';
 
 // ignore: must_be_immutable
@@ -32,7 +31,6 @@ class HtmlRender extends StatefulWidget {
 }
 
 class _HtmlRenderState extends State<HtmlRender> {
-  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
 
   @override
   void initState() {
@@ -189,38 +187,7 @@ class _HtmlRenderState extends State<HtmlRender> {
         }
         Get.toNamed(tHref);
       } else {
-        // 1. openWithSystemBrowser
-        // await InAppBrowser.openWithSystemBrowser(
-        //     url: WebUri(aUrl)
-        // );
-
-        // 2. openWithAppBrowser
-        await browser.open(
-          url: WebUri(aUrl),
-          settings: ChromeSafariBrowserSettings(
-              shareState: CustomTabsShareState.SHARE_STATE_OFF,
-              isSingleInstance: false,
-              isTrustedWebActivity: false,
-              keepAliveEnabled: true,
-              startAnimations: [
-                AndroidResource.anim(
-                    name: "slide_in_left", defPackage: "android"),
-                AndroidResource.anim(
-                    name: "slide_out_right", defPackage: "android")
-              ],
-              exitAnimations: [
-                AndroidResource.anim(
-                    name: "abc_slide_in_top",
-                    defPackage:
-                        "com.pichillilorenzo.flutter_inappwebviewexample"),
-                AndroidResource.anim(
-                    name: "abc_slide_out_top",
-                    defPackage:
-                        "com.pichillilorenzo.flutter_inappwebviewexample")
-              ],
-              dismissButtonStyle: DismissButtonStyle.CLOSE,
-              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-        );
+        await Utils.openURL(aUrl);
       }
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||
@@ -248,23 +215,5 @@ class _HtmlRenderState extends State<HtmlRender> {
         throw Exception('Could not launch $aUrl');
       }
     }
-  }
-}
-
-// 初始化
-class MyChromeSafariBrowser extends ChromeSafariBrowser {
-  @override
-  void onOpened() {
-    print("ChromeSafari browser opened");
-  }
-
-  @override
-  void onCompletedInitialLoad(didLoadSuccessfully) {
-    print("ChromeSafari browser initial load completed");
-  }
-
-  @override
-  void onClosed() {
-    print("ChromeSafari browser closed");
   }
 }

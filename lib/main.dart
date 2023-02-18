@@ -110,8 +110,9 @@ class _MyAppState extends State<MyApp> {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         ColorScheme? lightColorScheme;
         ColorScheme? darkColorScheme;
-
+        print('dynamic取色失败，采用品牌色');
         if (lightDynamic != null && darkDynamic != null) {
+          print('dynamic取色成功');
           // dynamic取色成功
           lightColorScheme = lightDynamic.harmonized();
           darkColorScheme = darkDynamic.harmonized();
@@ -123,7 +124,6 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.dark,
           );
         }
-
         return GetMaterialApp(
           debugShowCheckedModeBanner: true,
           initialRoute: '/',
@@ -144,11 +144,15 @@ class _MyAppState extends State<MyApp> {
           ),
           home: WillPopScope(
             onWillPop: () async {
+              SmartDialog.showToast('再次返回退出vvex',
+                  displayTime: const Duration(seconds: 1));
               // 点击返回键的操作
-              if (DateTime.now().difference(lastPopTime!) >
-                  const Duration(seconds: 2)) {
+              if (lastPopTime == null ||
+                  DateTime.now().difference(lastPopTime!) >
+                      const Duration(seconds: 1)) {
+                // 1秒内连续按两次返回键退出
+                // 两次点击间隔超过1秒则重新计时
                 lastPopTime = DateTime.now();
-                SmartDialog.showToast('再按一次退出');
                 return false;
               }
               return true;

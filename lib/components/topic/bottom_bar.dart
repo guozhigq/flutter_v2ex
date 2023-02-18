@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DetailBottomBar extends StatefulWidget {
   final VoidCallback? onRefresh;
   final VoidCallback? onLoad;
   final bool? isVisible;
   final TopicDetailModel? detailModel;
+  final String? topicId;
 
   const DetailBottomBar({
     this.onRefresh,
     this.onLoad,
     this.isVisible,
     this.detailModel,
+    this.topicId,
     super.key,
   });
 
@@ -57,6 +61,17 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
     }
   }
 
+  Future<void> onShareTopic() async {
+    final box = context.findRenderObject() as RenderBox?;
+    var result = await Share.share(
+      'https://www.v2ex.com/t/${widget.topicId}',
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    ).whenComplete(() {
+      print("share completion block ");
+    });
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -84,12 +99,13 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
             IconButton(
               tooltip: '在浏览器中打开',
               icon: const Icon(Icons.language_rounded),
-              onPressed: () {},
+              onPressed: () => Utils.openURL('https://www.v2ex.com/t/${widget.topicId}'),
             ),
             IconButton(
               tooltip: '分享',
               icon: const Icon(Icons.share_outlined),
-              onPressed: () {},
+              onPressed: onShareTopic,
+
             ),
           ],
         ),

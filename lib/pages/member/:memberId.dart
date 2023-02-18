@@ -2,13 +2,13 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -25,7 +25,6 @@ class _MemberPageState extends State<MemberPage> {
   String memberAvatar = '';
   String heroTag = '';
   bool isOwner = false;
-  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
 
   @override
   void initState() {
@@ -455,32 +454,7 @@ class _MemberPageState extends State<MemberPage> {
                 padding: MaterialStateProperty.all(const EdgeInsets.only(
                     top: 7, right: 12, bottom: 7, left: 8))),
             onPressed: () async {
-              await browser.open(
-                url: WebUri(i.href),
-                settings: ChromeSafariBrowserSettings(
-                    shareState: CustomTabsShareState.SHARE_STATE_OFF,
-                    isSingleInstance: false,
-                    isTrustedWebActivity: false,
-                    keepAliveEnabled: true,
-                    startAnimations: [
-                      AndroidResource.anim(
-                          name: "slide_in_left", defPackage: "android"),
-                      AndroidResource.anim(
-                          name: "slide_out_right", defPackage: "android")
-                    ],
-                    exitAnimations: [
-                      AndroidResource.anim(
-                          name: "abc_slide_in_top",
-                          defPackage:
-                              "com.pichillilorenzo.flutter_inappwebviewexample"),
-                      AndroidResource.anim(
-                          name: "abc_slide_out_top",
-                          defPackage:
-                              "com.pichillilorenzo.flutter_inappwebviewexample")
-                    ],
-                    dismissButtonStyle: DismissButtonStyle.CLOSE,
-                    presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-              );
+              await Utils.openURL(i.href);
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,

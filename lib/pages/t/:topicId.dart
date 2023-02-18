@@ -22,6 +22,8 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'dart:math';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:share_plus/share_plus.dart';
+
 
 enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
 
@@ -111,6 +113,7 @@ class _TopicDetailState extends State<TopicDetail>
     });
 
     aStreamC = StreamController<bool>();
+
   }
 
   Future getDetailInit() async {
@@ -287,6 +290,17 @@ class _TopicDetailState extends State<TopicDetail>
     return res;
   }
 
+  Future<void> onShareTopic() async {
+    final box = context.findRenderObject() as RenderBox?;
+    var result = await Share.share(
+      'https://www.v2ex.com/t/$topicId',
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    ).whenComplete(() {
+      print("share completion block ");
+    });
+    return result;
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -344,6 +358,7 @@ class _TopicDetailState extends State<TopicDetail>
             onRefresh: onRefreshBtm,
             isVisible: _isVisible,
             detailModel: _detailModel,
+            topicId: topicId
           ),
           // bottomNavigationBar: StreamBuilder(
           //   stream: aStreamC.stream,
@@ -418,8 +433,9 @@ class _TopicDetailState extends State<TopicDetail>
             onTap: () => onIgnoreTopic(),
             child: const Text('忽略主题'),
           ),
-          const PopupMenuItem<SampleItem>(
+          PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
+            onTap: onShareTopic,
             child: Text('分享'),
           ),
           PopupMenuItem<SampleItem>(
@@ -432,8 +448,9 @@ class _TopicDetailState extends State<TopicDetail>
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem<SampleItem>(
+          PopupMenuItem<SampleItem>(
             value: SampleItem.itemThree,
+            onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
             child: Text('在浏览器中打开'),
           ),
         ],
