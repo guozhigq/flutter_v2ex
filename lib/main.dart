@@ -142,24 +142,7 @@ class _MyAppState extends State<MyApp> {
                 ? lightColorScheme
                 : darkColorScheme,
           ),
-          home: WillPopScope(
-            onWillPop: () async {
-              // SmartDialog.showToast('再次返回退出vvex',
-              //     displayTime: const Duration(seconds: 1));
-              // // 点击返回键的操作
-              // if (lastPopTime == null ||
-              //     DateTime.now().difference(lastPopTime!) >
-              //         const Duration(seconds: 1)) {
-              //   // 1秒内连续按两次返回键退出
-              //   // 两次点击间隔超过1秒则重新计时
-              //   lastPopTime = DateTime.now();
-              //   return false;
-              // }
-              return true;
-              // 退出app
-            },
-            child: const HomePage(),
-          ),
+          home: const HomePage(),
           navigatorKey: Routes.navigatorKey,
           routingCallback: (routing) {
             if (routing!.previous == '/login') {
