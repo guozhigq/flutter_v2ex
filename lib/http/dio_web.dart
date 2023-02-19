@@ -1499,10 +1499,14 @@ class DioRequestWeb {
         .xpath("/div[@class='header']/div/strong/text()")![0]
         .name!);
     // 总页数
-    memberNotices.totalPage = int.parse(mainNode[0]
-        .xpath("/div[@class='cell']/table/tr/td/input")!
-        .first
-        .attributes['max']);
+    if(mainNode[0]
+        .xpath("/div[@class='cell']/table/tr/td/input") != null){
+      memberNotices.totalPage = int.parse(mainNode[0]
+          .xpath("/div[@class='cell']/table/tr/td/input")!
+          .first
+          .attributes['max']);
+    }
+
     for (var i = 0; i < noticeCells.length; i++) {
       var aNode = noticeCells[i];
       MemberNoticeItem noticeItem = MemberNoticeItem();

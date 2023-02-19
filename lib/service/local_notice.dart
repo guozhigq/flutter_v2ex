@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
@@ -35,7 +35,7 @@ class LocalNoticeService {
     if (Platform.isAndroid) {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'high_importance_channel', // id
-        'High Importance Notifications', // title
+        '重要通知', // title
         importance: Importance.max,
       );
       await _localNotificationsPlugin
@@ -92,10 +92,10 @@ class LocalNoticeService {
     });
 
     //  Android 13 (API level 33)
-    _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()!
-        .requestPermission();
+    // _localNotificationsPlugin
+    //     .resolvePlatformSpecificImplementation<
+    //         AndroidFlutterLocalNotificationsPlugin>()!
+    //     .requestPermission();
 
     await _configureLocalTimeZone();
     await _isAndroidPermissionGranted();
@@ -174,10 +174,12 @@ class LocalNoticeService {
   // 默认展示
   Future<void> _showNotification() async {
     AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('your channel id', channel,
+        AndroidNotificationDetails('high_importance_channel', channel,
             channelDescription: 'your channel description',
             importance: Importance.max,
             priority: Priority.high,
+            icon: 'ic_stat_name',
+            largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_round'),
             ticker: 'ticker');
     NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
@@ -194,7 +196,7 @@ class LocalNoticeService {
   Future<void> _zonedScheduleNotification(endTime) async {
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'your channel id',
+      'high_importance_channel',
       channel,
       channelDescription: channelDescription,
     );
@@ -213,7 +215,7 @@ class LocalNoticeService {
     final soundFile = sound.replaceAll('.mp3', '');
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'your other channel id',
+      'high_importance_channel',
       channel,
       channelDescription: 'your other channel description',
       playSound: true,
@@ -232,7 +234,7 @@ class LocalNoticeService {
   }
 
   // 可回复通知
-  void showNotificationWithTextAction() async {
+  Future<void> _showNotificationWithTextAction() async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       'your channel id',
@@ -271,7 +273,7 @@ class LocalNoticeService {
   }
 
   // 定时消息
-  Future<void> repeatNotification() async {
+  Future<void> _repeatNotification() async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
             'repeating channel id', 'repeating channel name',
@@ -283,6 +285,27 @@ class LocalNoticeService {
         androidAllowWhileIdle: true);
   }
 
+  Future<void> _showNotificationCustomVibrationIconLed() async {
+    print(2222);
+    final AndroidNotificationDetails androidNotificationDetails =
+    AndroidNotificationDetails(
+        'high_importance_channel', channel,
+      channelDescription: 'Order related notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: 'ic_stat_name',
+      largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_foreground'),
+      // color: AppColors.green
+    );
+
+    final NotificationDetails notificationDetails =
+    NotificationDetails(android: androidNotificationDetails);
+    await _localNotificationsPlugin.show(
+        noticeId++,
+        'title of notification with custom vibration pattern, LED and icon',
+        'body of notification with custom vibration pattern, LED and icon',
+        notificationDetails);
+  }
   // 清除最近一条通知
   void cancelLast() {
     // 传入id

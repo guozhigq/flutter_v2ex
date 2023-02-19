@@ -162,8 +162,6 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   child: IconButton(
                       onPressed: () async {
                         LocalNoticeService().send(
-                          channel: 'message',
-                          customSound: true,
                         );
                       },
                       icon: Icon(Icons.notifications_none_rounded, color: Theme.of(context).colorScheme.onSurface)),

@@ -32,43 +32,22 @@ class CAvatar extends StatelessWidget {
         //   value: downloadProgress.progress,
         //   strokeWidth: 3,
         // ),
-        errorWidget: (context, url, error) => SizedBox(
-          width: size,
-          height: size,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-            ),
-            clipBehavior: Clip.antiAlias,
-            // margin: const EdgeInsets.only(right: 10),
-            child: Center(
-              child: Icon(
-                Icons.person,
-                size: size - 10,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ),
-        ),
-        placeholder: (context, url) => SizedBox(
-          width: size,
-          height: size,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-            ),
-            clipBehavior: Clip.antiAlias,
-            // margin: const EdgeInsets.only(right: 10),
-            child: Center(
-              child: Icon(
-                Icons.face,
-                size: size - 10,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
+        errorWidget: (context, url, error) => placeholder(context),
+        placeholder: (context, url) => placeholder(context),
       ),
+    );
+  }
+
+  Widget placeholder(context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: const CircleAvatar(
+          backgroundImage: AssetImage('assets/images/avatar.png')),
     );
   }
 }
