@@ -315,7 +315,7 @@ class DioRequestWeb {
     );
     var document = parse(response.data);
     var mainBox = document
-        .querySelector('#Wrapper > div.content > div.box:not(.box-title)');
+        .querySelector('#Main div.box:not(.box-title)');
     var totalPageNode =
         mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
@@ -1612,7 +1612,7 @@ class DioRequestWeb {
         .get('/my/following', data: {'p': p}, extra: {'ua': 'mob'});
     var document = parse(response.data);
     var mainBox = document
-        .querySelector('#Wrapper > div.content > div.box:not(.box-title)');
+        .querySelector('#Main > div.box:not(.box-title)');
     var totalPageNode =
         mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
