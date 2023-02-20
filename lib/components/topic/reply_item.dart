@@ -231,7 +231,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
     SmartDialog.showLoading(msg: '保存中');
     RenderRepaintBoundary boundary =
         repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
     final result = await ImageGallerySaver.saveImage(

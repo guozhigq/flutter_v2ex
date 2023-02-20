@@ -150,9 +150,14 @@ class _ReplyNewState extends State<ReplyNew> {
               padding: const EdgeInsets.only(
                   top: 0, right: 10, bottom: 20, left: 10),
               alignment: Alignment.topLeft,
-              child: HtmlRender(
-                htmlContent: widget.replyMemberList![0].contentRendered,
+              child: Container(
+                constraints: const BoxConstraints(
+                    maxHeight: 196),
+                child: HtmlRender(
+                  htmlContent: widget.replyMemberList![0].contentRendered,
+                ),
               ),
+              // child: Text(widget.replyMemberList![0].content, maxLines: 5),
             ),
           Expanded(
             child: Container(
