@@ -80,6 +80,7 @@ dependencies:
     flutter_native_timezone: ^2.0.0
     system_proxy: ^0.1.0
     share_plus: ^6.3.1
+    extended_tabs: ^4.0.2
 
 dev_dependencies:
     flutter_test:

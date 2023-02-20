@@ -122,12 +122,12 @@ class Request {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
-        return 'PROXY 192.168.1.60:7890';
+        // return 'PROXY 192.168.1.60:7890';
         // return 'PROXY 172.16.48.249:7890';
-        // return 'PROXY localhost:7890';
+        return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:7890';
         // 不设置代理 TODO 打包前关闭代理
-        return 'DIRECT';
+        // return 'DIRECT';
       };
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;

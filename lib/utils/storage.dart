@@ -11,7 +11,8 @@ enum StoreKeys {
   replyItem,
   statusBarHeight,
   themeType,
-  signStatus
+  signStatus,
+  nodes
 }
 
 class GStorage {
@@ -84,4 +85,10 @@ class GStorage {
 
   String getSignStatus() =>
       _box.read<String>(StoreKeys.signStatus.toString()) ?? '';
+
+  // 节点信息
+  setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
+  List getNodes() =>
+      _box.read<List>(StoreKeys.nodes.toString()) ?? [];
+
 }

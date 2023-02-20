@@ -281,6 +281,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.4.1"
+  extended_tabs:
+    dependency: "direct main"
+    description:
+      name: extended_tabs
+      sha256: a2648566eb6faf7d1dd748d4533260db67a09af1772355c59f48eb36db939101
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -940,6 +948,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.0"
+  sync_scroll_library:
+    dependency: transitive
+    description:
+      name: sync_scroll_library
+      sha256: aaee2de789bed8a0a63a84d5c722a757f57fda7e001a4c8c10129f6bf2247cc7
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   synchronized:
     dependency: transitive
     description:

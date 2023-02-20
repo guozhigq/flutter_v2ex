@@ -83,6 +83,7 @@ class DioRequestWeb {
         );
         break;
     }
+    DioRequestWeb().resolveNode(response, 'mob');
     var tree = ETree.fromString(response.data);
 
     // 用户信息解析 mob
@@ -94,7 +95,8 @@ class DioRequestWeb {
     GStorage().setOnce(once);
 
     var aRootNode = tree.xpath("//*[@class='cell item']");
-    for (var aNode in aRootNode!) {
+    if(aRootNode != null && aRootNode!.isNotEmpty) {
+    for (var aNode in aRootNode) {
       var item = TabTopicItem();
       item.memberId =
           aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
@@ -138,6 +140,7 @@ class DioRequestWeb {
           .attributes["href"]
           .split('/')[2];
       topics.add(item);
+    }
     }
     return topics;
   }
@@ -744,35 +747,15 @@ class DioRequestWeb {
     return detailModel;
   }
 
-  // 获取所有节点
+  // 获取所有节点 pc
   static Future getNodes() async {
-    List<Map<dynamic, dynamic>> nodesList = [];
     Response response;
     response = await Request().get(
       '/',
       cacheOptions: buildCacheOptions(const Duration(days: 7)),
       extra: {'ua': 'pc'},
     );
-    var document = parse(response.data);
-    var nodesBox = document.querySelector('#Main')!.children.last;
-    nodesBox.children.removeAt(0);
-    var nodeTd = nodesBox.children;
-    for (var i in nodeTd) {
-      Map nodeItem = {};
-      String fName = i.querySelector('span')!.text;
-      nodeItem['name'] = fName;
-      List<Map<String, String>> childs = [];
-      var cEl = i.querySelectorAll('a');
-      for (var j in cEl) {
-        Map<String, String> item = {};
-        item['id'] = j.attributes['href']!.split('/').last;
-        item['name'] = j.text;
-        childs.add(item);
-      }
-      nodeItem['childs'] = childs;
-      nodesList.add(nodeItem);
-    }
-    return nodesList;
+    return DioRequestWeb().resolveNode(response, 'pc');
   }
 
   // 获取登录字段
@@ -1695,4 +1678,38 @@ class DioRequestWeb {
 
     return followTopicModel;
   }
+
+  resolveNode(response, type) {
+    List<Map<dynamic, dynamic>> nodesList = [];
+    var document = parse(response.data);
+    var nodesBox;
+    if(type == 'mob') {
+     nodesBox = document.querySelector('#Wrapper > div.content')!.children.last;
+    }
+    if(type == 'pc'){
+      nodesBox = document.querySelector('#Main')!.children.last;
+    }
+    nodesBox.children.removeAt(0);
+    var nodeTd = nodesBox.children;
+    for (var i in nodeTd) {
+      Map nodeItem = {};
+      String fName = i.querySelector('span')!.text;
+      nodeItem['name'] = fName;
+      List<Map<String, String>> childs = [];
+      var cEl = i.querySelectorAll('a');
+      for (var j in cEl) {
+        Map<String, String> item = {};
+        item['id'] = j.attributes['href']!.split('/').last;
+        item['name'] = j.text;
+        childs.add(item);
+      }
+      nodeItem['childs'] = childs;
+      nodesList.add(nodeItem);
+    }
+    GStorage().setNodes(nodesList);
+    return nodesList;
+
+
+  }
+
 }
