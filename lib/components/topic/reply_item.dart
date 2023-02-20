@@ -252,27 +252,27 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Slidable(
-      key: ValueKey(int.parse(widget.reply.replyId)),
-      endActionPane: ActionPane(
-        extentRatio: 0.44,
-        openThreshold: 0.9,
-        closeThreshold: 0.4,
-        motion: const BehindMotion(),
-        children: [
-          SlidableAction(
-            onPressed: (BuildContext context) {
-              print('123');
-            },
-            autoClose: true,
-            spacing: 1,
-            backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-            foregroundColor: Theme.of(context).colorScheme.onInverseSurface,
-            icon: Icons.bluetooth_audio,
-          ),
-        ],
-      ),
-      child: Container(
+    // return Slidable(
+    //   key: ValueKey(int.parse(widget.reply.replyId)),
+    //   endActionPane: ActionPane(
+    //     extentRatio: 0.44,
+    //     openThreshold: 0.9,
+    //     closeThreshold: 0.4,
+    //     motion: const BehindMotion(),
+    //     children: [
+    //       SlidableAction(
+    //         onPressed: (BuildContext context) {
+    //           print('123');
+    //         },
+    //         autoClose: true,
+    //         spacing: 1,
+    //         backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+    //         foregroundColor: Theme.of(context).colorScheme.onInverseSurface,
+    //         icon: Icons.bluetooth_audio,
+    //       ),
+    //     ],
+    //   ),
+      return Container(
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -292,7 +292,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
             ),
           ),
         ),
-      ),
+      // ),
     );
   }
 

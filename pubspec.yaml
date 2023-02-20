@@ -75,7 +75,7 @@ dependencies:
     quick_actions: ^1.0.1
     # 通知
     flutter_local_notifications: ^13.0.0
-    flutter_slidable: ^2.0.0
+#    flutter_slidable: ^2.0.0
     timezone: ^0.9.1
     flutter_native_timezone: ^2.0.0
     system_proxy: ^0.1.0
