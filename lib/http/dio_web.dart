@@ -310,7 +310,7 @@ class DioRequestWeb {
       '/my/topics',
       data: {'p': p},
       extra: {
-        'ua': 'mob',
+        'ua': 'mobMoto',
       },
     );
     var document = parse(response.data);
@@ -1609,7 +1609,7 @@ class DioRequestWeb {
     List<TabTopicItem> topicList = [];
 
     Response response = await Request()
-        .get('/my/following', data: {'p': p}, extra: {'ua': 'mob'});
+        .get('/my/following', data: {'p': p}, extra: {'ua': 'mobMoto'});
     var document = parse(response.data);
     var mainBox = document
         .querySelector('#Main > div.box:not(.box-title)');
