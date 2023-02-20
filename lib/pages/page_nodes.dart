@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:developer';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
 import 'package:extended_tabs/extended_tabs.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_v2ex/models/web/model_node_fav.dart';
 
 class NodesPage extends StatefulWidget {
   const NodesPage({super.key});
@@ -14,7 +16,7 @@ class NodesPage extends StatefulWidget {
 }
 
 class _NodesPageState extends State<NodesPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   List nodesList =
       GStorage().getNodes().isNotEmpty ? GStorage().getNodes() : [];
   late final Axis scrollDirection;
@@ -25,6 +27,7 @@ class _NodesPageState extends State<NodesPage>
   void initState() {
     super.initState();
     if (nodesList.isEmpty) {
+      print('没有缓存数据');
       getNodes().then((res) {
         tabController =
             TabController(length: nodesList.toList().length, vsync: this);
@@ -35,6 +38,7 @@ class _NodesPageState extends State<NodesPage>
           TabController(length: nodesList.toList().length, vsync: this);
       getAllNodes(nodesList);
     }
+    getFavNodes();
   }
 
   Future getNodes() async {
@@ -47,7 +51,7 @@ class _NodesPageState extends State<NodesPage>
 
     for (var j in res) {
       for (var z in j['childs']) {
-        z = nodeInfo(z, result);
+        await nodeInfo(z, result);
       }
     }
     setState(() {
@@ -60,13 +64,30 @@ class _NodesPageState extends State<NodesPage>
   Future<Map> nodeInfo(nodeItem, result) async {
     for (var i in result) {
       String avatar = i.avatarLarge ?? i.avatar_normal ?? i.avatar_mini;
-      if (i.name == nodeItem['id']) {
+      if (i.name == nodeItem['nodeId']) {
         if (avatar != '/static/img/node_default_large.png' && avatar != '') {
-          nodeItem['avatar'] = avatar;
+          nodeItem['nodeCover'] = avatar;
         }
       }
     }
     return nodeItem;
+  }
+
+  Future getFavNodes() async {
+    var res = await DioRequestWeb.getFavNodes();
+    var list = [];
+    if(res.isNotEmpty){
+      for(var i in res){
+        list.add({
+          'nodeId': i.nodeId,
+          'nodeName': i.nodeName,
+          'nodeCover': i.nodeCover
+        });
+      }
+    }
+    setState(() {
+      nodesList[0]['childs'] = list;
+    });
   }
 
   allNodes(e) {
@@ -131,6 +152,7 @@ class _NodesPageState extends State<NodesPage>
                   tabs: nodesList.map((e) {
                     return ExtendedTab(
                       size: 85,
+                      iconMargin: const EdgeInsets.only(bottom: 0),
                       text: e['name'],
                     );
                   }).toList(),
@@ -140,6 +162,7 @@ class _NodesPageState extends State<NodesPage>
                   child: Container(
                     color: Theme.of(context).appBarTheme.backgroundColor,
                     child: ExtendedTabBarView(
+                      cacheExtent: 0,
                       controller: tabController,
                       scrollDirection: Axis.vertical,
                       children: nodesList.map((e) {
@@ -171,44 +194,52 @@ class _NodesPageState extends State<NodesPage>
 
   List<Widget> nodesChildList(child) {
     List<Widget>? list = [];
-    for (var i = 0; i < child.length; i++) {
-      var item = child[i];
-      if(i <= 18){
-        list.add(
-          InkWell(
-            onTap: () {
-              Get.toNamed('/go/${item['id']}');
-            },
-            borderRadius: BorderRadius.circular(10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                if (item['avatar'] != null) ...[
-                  CachedNetworkImage(
-                    imageUrl: item['avatar'],
-                    width: 38,
-                    height: 38,
-                  )
-                ] else ...[
-                  Image.asset(
-                    'assets/images/avatar.png',
-                    width: 38,
-                    height: 38,
-                  )
+    if(child.length > 0){
+      for (var i = 0; i < child.length; i++) {
+        var item = child[i];
+        if(i <= 18){
+          list.add(
+            InkWell(
+              onTap: () {
+                Get.toNamed('/go/${item['nodeId']}');
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  if (item['nodeCover'] != null && item['nodeCover'] != '') ...[
+                    CachedNetworkImage(
+                      imageUrl: item['nodeCover'],
+                      width: 38,
+                      height: 38,
+                    )
+                  ] else ...[
+                    Image.asset(
+                      'assets/images/avatar.png',
+                      width: 38,
+                      height: 38,
+                    )
+                  ],
+                  const SizedBox(height: 8),
+                  Text(item['nodeName'],
+                      style: Theme.of(context).textTheme.titleSmall,
+                      textAlign: TextAlign.center,
+                      maxLines: 1),
+                  const SizedBox(height: 2),
                 ],
-                const SizedBox(height: 8),
-                Text(item['name'],
-                    style: Theme.of(context).textTheme.titleSmall,
-                    textAlign: TextAlign.center,
-                    maxLines: 1),
-                const SizedBox(height: 2),
-              ],
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
+    }else{
+      list.add(
+          const Center(
+          child: Text('还没有收藏节点'),
+        )
+      );
     }
     return list;
   }

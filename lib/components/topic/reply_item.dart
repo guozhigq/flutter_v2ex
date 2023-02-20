@@ -451,7 +451,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
           children: [
             const SizedBox(width: 32),
             if (reply.replyMemberList.isNotEmpty &&
-                widget.queryReplyList != null)
+                widget.queryReplyList != null &&
+                reply.floorNumber != 1
+            )
               TextButton(
                 onPressed: () => widget.queryReplyList(
                     reply.replyMemberList, reply.floorNumber, [reply]),

@@ -100,29 +100,32 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
               }).toList(),
             ),
             Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(top: 8),
                 child: TabBarView(
-              controller: _tabController,
-              children: widget.replyMemberList.map((e) {
-                var i = widget.replyMemberList.indexOf(e);
-                print('104: ${widget.resultList[i]}');
-                // return Text(e);
-                return ListView.builder(
-                  physics: const ClampingScrollPhysics(), //重要
-                  itemCount: widget.resultList[i][e].length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: ReplyListItem(
-                        reply: widget.resultList[i][e][index],
-                        topicId: widget.topicId,
-                      ),
-                    )
-                      ;
-                    // return Text('123');
-                  },
-                );
-              }).toList(),
-            )),
+                  controller: _tabController,
+                  children: widget.replyMemberList.map((e) {
+                    var i = widget.replyMemberList.indexOf(e);
+                    print('104: ${widget.resultList[i]}');
+                    // return Text(e);
+                    return ListView.builder(
+                      physics: const ClampingScrollPhysics(), //重要
+                      itemCount: widget.resultList[i][e].length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: ReplyListItem(
+                            reply: widget.resultList[i][e][index],
+                            topicId: widget.topicId,
+                          ),
+                        );
+                        // return Text('123');
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
           ]
         ],
       ),

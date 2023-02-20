@@ -95,52 +95,54 @@ class DioRequestWeb {
     GStorage().setOnce(once);
 
     var aRootNode = tree.xpath("//*[@class='cell item']");
-    if(aRootNode != null && aRootNode!.isNotEmpty) {
-    for (var aNode in aRootNode) {
-      var item = TabTopicItem();
-      item.memberId =
-          aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
-      item.avatar = Uri.encodeFull(aNode
-          .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-          ?.first
-          .attributes["src"]);
-      String topicUrl = aNode
-          .xpath("/table/tr/td[3]/span[2]/a")
-          ?.first
-          .attributes["href"]; // 得到是 /t/522540#reply17
-      item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
-        item.replyCount =
-            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-        item.lastReplyTime = aNode
-            .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
-            .name!
-            .split(' &nbsp;')[0]
-            .replaceAll("/t/", "");
-        if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
-          item.lastReplyMId =
-              aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0].name!;
+    if (aRootNode != null && aRootNode!.isNotEmpty) {
+      for (var aNode in aRootNode) {
+        var item = TabTopicItem();
+        item.memberId =
+            aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
+        item.avatar = Uri.encodeFull(aNode
+            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
+            ?.first
+            .attributes["src"]);
+        String topicUrl = aNode
+            .xpath("/table/tr/td[3]/span[2]/a")
+            ?.first
+            .attributes["href"]; // 得到是 /t/522540#reply17
+        item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
+        if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
+          item.replyCount =
+              int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
+          item.lastReplyTime = aNode
+              .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
+              .name!
+              .split(' &nbsp;')[0]
+              .replaceAll("/t/", "");
+          if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
+            item.lastReplyMId = aNode
+                .xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0]
+                .name!;
+          }
+        } else {
+          item.lastReplyTime =
+              aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
         }
-      } else {
-        item.lastReplyTime =
-            aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
-      }
-      item.topicTitle = aNode
-          .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
-          .name!
-          .replaceAll('&quot;', '')
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>');
+        item.topicTitle = aNode
+            .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
+            .name!
+            .replaceAll('&quot;', '')
+            .replaceAll('&amp;', '&')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>');
 
-      item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
-      item.nodeId = aNode
-          .xpath("/table/tr/td[3]/span[1]/a")
-          ?.first
-          .attributes["href"]
-          .split('/')[2];
-      topics.add(item);
-    }
+        item.nodeName =
+            aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
+        item.nodeId = aNode
+            .xpath("/table/tr/td[3]/span[1]/a")
+            ?.first
+            .attributes["href"]
+            .split('/')[2];
+        topics.add(item);
+      }
     }
     return topics;
   }
@@ -282,7 +284,6 @@ class DioRequestWeb {
               .replaceAll("/t/", "")
               .split("#")[1]
               .replaceAll(RegExp(r'\D'), ''));
-          print('${item.topicId} : ${item.replyCount}');
         }
         if (aNode.querySelector('tr') != null) {
           var topicTd = aNode.querySelector('tr')!.children[2];
@@ -374,35 +375,25 @@ class DioRequestWeb {
     List<NodeFavModel> favNodeList = [];
     Response response;
     response = await Request().get('/my/nodes', extra: {'ua': 'mob'});
-    var tree = ETree.fromString(response.data);
-    var aRootNode = tree.xpath("//*[@class='fav-node']");
-    for (var aNode in aRootNode!) {
-      NodeFavModel item = NodeFavModel();
-      item.nodeCover = aNode.xpath("/img")?.first.attributes["src"];
-      item.nodeId = aNode.xpath("/img")?.first.attributes["alt"];
-      item.nodeName =
-          aNode.xpath("/span[@class='fav-node-name']/text()")![0].name!;
-      item.topicCount =
-          aNode.xpath("/span[@class='f12 fade']/text()")![0].name!;
-      favNodeList.add(item);
+    var bodyDom = parse(response.data).body;
+    var nodeListWrap = bodyDom!.querySelector('div[id="my-nodes"]');
+    List<dom.Element> nodeListDom = [];
+    if (nodeListWrap != null) {
+      nodeListDom = nodeListWrap.querySelectorAll('a');
+      for (var i in nodeListDom) {
+        NodeFavModel item = NodeFavModel();
+        if (i.querySelector('img') != null) {
+          item.nodeCover = i.querySelector('img')!.attributes['src']!;
+          if (item.nodeCover.contains('/static')) {
+            item.nodeCover = '';
+          }
+          item.nodeId = i.attributes['href']!.split('/')[2];
+        }
+        item.nodeName = i.querySelector('span.fav-node-name')!.text;
+        item.topicCount = i.querySelector('span.f12.fade')!.text;
+        favNodeList.add(item);
+      }
     }
-    // var bodyDom = parse(response.data).body;
-    // var nodeListWrap =
-    //     bodyDom!.querySelector('div.cell(not.tab-alt-container)');
-    // List<dom.Element> nodeListDom = [];
-    // if (nodeListWrap != null) {
-    //   nodeListDom = nodeListWrap.querySelectorAll('a');
-    // }
-    // for (var i in nodeListDom) {
-    //   NodeFavModel item = NodeFavModel();
-    //   if (i.querySelector('img') != null) {
-    //     item.nodeCover = i.querySelector('img')!.attributes['src']!;
-    //     item.nodeId = i.querySelector('img')!.attributes['alt']!;
-    //   }
-    //   item.nodeName = i.querySelector('span.fav-node-name')!.text;
-    //   item.topicCount = i.querySelector('span.f12.fade')!.text;
-    //   print(item.nodeCover);
-    // }
     return favNodeList;
   }
 
@@ -928,7 +919,6 @@ class DioRequestWeb {
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
       print('两步验证判断');
-      log(parse(response.data).body!.innerHtml);
       if (response.requestOptions.path == "/2fa") {
         print('需要两步验证');
         var tree = ETree.fromString(response.data);
@@ -1105,7 +1095,7 @@ class DioRequestWeb {
     var unRead =
         noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
     print('$unRead条未读消息');
-    if(int.parse(unRead) > 0){
+    if (int.parse(unRead) > 0) {
       print(AppLifecycleState.resumed);
       LocalNoticeService().send();
     }
@@ -1182,7 +1172,7 @@ class DioRequestWeb {
     var menuBodyNode =
         bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
     var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
-    if(loginOutNode.attributes['onclick'] != null){
+    if (loginOutNode.attributes['onclick'] != null) {
       // 登录状态
       var loginOutHref = loginOutNode.attributes['onclick']!;
       RegExp regExp = RegExp(r'\d{3,}');
@@ -1482,8 +1472,7 @@ class DioRequestWeb {
         .xpath("/div[@class='header']/div/strong/text()")![0]
         .name!);
     // 总页数
-    if(mainNode[0]
-        .xpath("/div[@class='cell']/table/tr/td/input") != null){
+    if (mainNode[0].xpath("/div[@class='cell']/table/tr/td/input") != null) {
       memberNotices.totalPage = int.parse(mainNode[0]
           .xpath("/div[@class='cell']/table/tr/td/input")!
           .first
@@ -1683,10 +1672,11 @@ class DioRequestWeb {
     List<Map<dynamic, dynamic>> nodesList = [];
     var document = parse(response.data);
     var nodesBox;
-    if(type == 'mob') {
-     nodesBox = document.querySelector('#Wrapper > div.content')!.children.last;
+    if (type == 'mob') {
+      nodesBox =
+          document.querySelector('#Wrapper > div.content')!.children.last;
     }
-    if(type == 'pc'){
+    if (type == 'pc') {
       nodesBox = document.querySelector('#Main')!.children.last;
     }
     nodesBox.children.removeAt(0);
@@ -1695,21 +1685,20 @@ class DioRequestWeb {
       Map nodeItem = {};
       String fName = i.querySelector('span')!.text;
       nodeItem['name'] = fName;
-      List<Map<String, String>> childs = [];
+      List<Map> childs = [];
       var cEl = i.querySelectorAll('a');
       for (var j in cEl) {
-        Map<String, String> item = {};
-        item['id'] = j.attributes['href']!.split('/').last;
-        item['name'] = j.text;
+        Map item = {};
+        item['nodeId'] = j.attributes['href']!.split('/').last;
+        item['nodeName'] = j.text;
         childs.add(item);
       }
       nodeItem['childs'] = childs;
+
       nodesList.add(nodeItem);
     }
+    nodesList.insert(0, {'name': '已收藏', 'childs': []});
     GStorage().setNodes(nodesList);
     return nodesList;
-
-
   }
-
 }
