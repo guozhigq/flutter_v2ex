@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -20,11 +19,11 @@ import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_v2ex/pages/page_search.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
 
-
 class AppPages {
   static final List<GetPage> getPages = [
     // 登录页面
-    GetPage(name: '/login', page: () => const LoginPage(), fullscreenDialog: true),
+    GetPage(
+        name: '/login', page: () => const LoginPage(), fullscreenDialog: true),
     // 话题详情
     GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
     // webView
@@ -40,14 +39,18 @@ class AppPages {
     // 用户主页
     GetPage(name: '/member/:memberId', page: () => const MemberPage()),
     // 用户发布的主题
-    GetPage(name: '/member/:memberId/topics', page: () => const MemberTopicsPage()),
+    GetPage(
+        name: '/member/:memberId/topics', page: () => const MemberTopicsPage()),
     // 用户发布的回复
-    GetPage(name: '/member/:memberId/replies', page: () => const MemberRepliesPage()),
+    GetPage(
+        name: '/member/:memberId/replies',
+        page: () => const MemberRepliesPage()),
 
     // 我收藏的节点
-    GetPage(name: '/my/nodes', page: () => const MyNodesPage(), middlewares: [
-      GetMiddleware()
-    ]),
+    GetPage(
+        name: '/my/nodes',
+        page: () => const MyNodesPage(),
+        middlewares: [GetMiddleware()]),
     // 我收藏的主题
     GetPage(name: '/my/topics', page: () => const MyTopicsPage()),
     // 我关注的主题、用户
@@ -56,7 +59,10 @@ class AppPages {
     // 消息提醒
     GetPage(name: '/notifications', page: () => const MessagePage()),
     // 图片预览
-    GetPage(name: '/imgPreview', page: () => ImagePreview(imgList: []), fullscreenDialog: true),
+    GetPage(
+        name: '/imgPreview',
+        page: () => ImagePreview(imgList: []),
+        fullscreenDialog: true),
     // 设置
     GetPage(name: '/setting', page: () => const SettingPage()),
     // 搜索
@@ -64,7 +70,4 @@ class AppPages {
     // 热议
     GetPage(name: '/hot', page: () => const HotPage()),
   ];
-
 }
-
-

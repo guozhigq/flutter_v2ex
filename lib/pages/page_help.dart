@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 
 class HelpPage extends StatefulWidget {

@@ -37,20 +37,21 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     }
 
     EventBus().on('login', (arg) {
-        if (arg == 'success') {
-          readUserInfo();
-        }
-        if (arg == 'fail') {
-          Utils.loginDialog('登录状态失效，请重新登录');
-          GStorage().setLoginStatus(false);
-          GStorage().setUserInfo({});
-          setState(() {
-            loginStatus = false;
-            userInfo = {};
-          });
-        }
-      });
-
+      if (arg == 'success') {
+        readUserInfo();
+      }
+      if (arg == 'fail' || arg == 'loginOut') {
+        GStorage().setLoginStatus(false);
+        GStorage().setUserInfo({});
+        setState(() {
+          loginStatus = false;
+          userInfo = {};
+        });
+      }
+      if (arg == 'fail') {
+        Utils.loginDialog('登录状态失效，请重新登录');
+      }
+    });
   }
 
   void readUserInfo() {
@@ -162,10 +163,10 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   top: 0,
                   child: IconButton(
                       onPressed: () async {
-                        LocalNoticeService().send(
-                        );
+                        LocalNoticeService().send();
                       },
-                      icon: Icon(Icons.notifications_none_rounded, color: Theme.of(context).colorScheme.onSurface)),
+                      icon: Icon(Icons.notifications_none_rounded,
+                          color: Theme.of(context).colorScheme.onSurface)),
                 )
               ],
             )),

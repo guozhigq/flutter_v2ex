@@ -52,8 +52,10 @@ class Request {
   ///设置cookie
   void _getLocalFile() async {
     var cookiePath = await Utils.getCookiePath();
-    var cookieJar =
-        PersistCookieJar(ignoreExpires: true, storage: FileStorage(cookiePath));
+    var cookieJar = PersistCookieJar(
+      ignoreExpires: true,
+      storage: FileStorage(cookiePath),
+    );
     dio.interceptors.add(CookieManager(cookieJar));
   }
 
@@ -93,45 +95,13 @@ class Request {
         InterceptorsWrapper(
           onRequest: (RequestOptions options, handler) {
             print("请求之前");
+            loginAuth(options.path, options.method);
             return handler.next(options);
           },
           onResponse: (Response response, handler) {
             // 更新用户信息 消息计数 ...
             print("响应之前");
-            print(response.realUri);
-            bool needLogin = !(GStorage().getLoginStatus());
-            print(needLogin);
-            print(response.realUri.toString().contains('/signin?'));
-            print("响应之前-----");
-            if(needLogin && response.realUri.toString().contains('/signin?')){
-              SmartDialog.dismiss();
-              SmartDialog.show(
-                useSystem: true,
-                animationType: SmartAnimationType.centerFade_otherSlide,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('权限不足'),
-                    content: const Text('该操作需要登录'),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            SmartDialog.dismiss();
-                          },
-                          child: const Text('返回')),
-                      TextButton(
-                        // TODO
-                          onPressed: () {
-                            SmartDialog.dismiss().then((res)=>{
-                              Navigator.of(context).pushNamed('/login')
-                            });
-                            },
-                          child: const Text('去登录'))
-                    ],
-                  );
-                },
-              );
-              throw ('该操作需要登录！');
-            }
+            loginAuth(response.realUri.toString(), response.requestOptions.method);
             return handler.next(response);
           },
           onError: (DioError e, handler) {
@@ -149,7 +119,7 @@ class Request {
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
         // return 'PROXY 192.168.1.60:7890';
-        // return 'PROXY 172.16.48.249:7890';
+        // return 'PROXY 172.16.32.186:7890';
         return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:7890';
         // 不设置代理 TODO 打包前关闭代理
@@ -197,11 +167,11 @@ class Request {
       return response;
     } on DioError catch (e, handler) {
       print('get error---------$e');
-      int statusCode = e.response!.statusCode!;
+      // int statusCode = e.response!.statusCode!;
       // if(statusCode == 503){
       //   return handleError(statusCode);
       // }else{
-        return Future.error(_dioError(e));
+      return Future.error(_dioError(e));
       // }
     }
   }
@@ -284,16 +254,17 @@ class Request {
       headerUa = Platform.isIOS
           ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
           : 'Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36';
-    } else if(ua == 'mobMoto') {
-      headerUa = "User-Agent: MOT-V9mm/00.62 UP.Browser/6.2.3.4.c.1.123 (GUI) MMP/2.0";
-    }else{
+    } else if (ua == 'mobMoto') {
+      headerUa =
+          "User-Agent: MOT-V9mm/00.62 UP.Browser/6.2.3.4.c.1.123 (GUI) MMP/2.0";
+    } else {
       headerUa =
           'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
     }
     return headerUa;
   }
 
-  handleError(error) async{
+  handleError(error) async {
     print('266： ${error.toString()}');
     Response response = await dio.get('https://www.v2ex.com/my/following?p=1');
     return response;
@@ -314,5 +285,38 @@ class Request {
     // } catch {
     // // empty
     // }
+  }
+
+  loginAuth(redirect, method) {
+    bool needLogin = !(GStorage().getLoginStatus());
+    bool authUrl = redirect.contains('/signin?') || redirect.contains('/thank');
+    if ((needLogin && authUrl) || method == 'POST') {
+      SmartDialog.dismiss();
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('权限不足'),
+            content: const Text('该操作需要登录'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    SmartDialog.dismiss();
+                  },
+                  child: const Text('返回')),
+              TextButton(
+                // TODO
+                  onPressed: () {
+                    SmartDialog.dismiss().then((res) =>
+                    {Navigator.of(context).pushNamed('/login')});
+                  },
+                  child: const Text('去登录'))
+            ],
+          );
+        },
+      );
+      throw ('该操作需要登录！');
+    }
   }
 }

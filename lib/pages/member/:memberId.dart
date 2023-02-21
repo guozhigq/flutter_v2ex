@@ -67,6 +67,7 @@ class _MemberPageState extends State<MemberPage> {
     setState(() {
       signDetail = res;
     });
+    print('70: ${signDetail}');
     return res;
   }
 

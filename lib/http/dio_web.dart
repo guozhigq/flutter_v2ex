@@ -1699,4 +1699,10 @@ class DioRequestWeb {
     GStorage().setNodes(nodesList);
     return nodesList;
   }
+
+  static loginOut() async{
+    Request().get('/signout', data: {
+      'once': GStorage().getOnce()
+    });
+  }
 }

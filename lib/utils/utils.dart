@@ -36,12 +36,13 @@ class Utils {
 
   static Future<String> getCookiePath() async {
     Directory tempDir = await getApplicationDocumentsDirectory();
-    String tempPath = "${tempDir.path}/.vvexCookie";
-    // Directory dir = Directory(tempPath);
-    // bool b = await dir.exists();
-    // if (!b) {
-    //   dir.createSync(recursive: true);
-    // }
+    String tempPath = tempDir.path + "/.vvexCookie";
+    print(tempPath);
+    Directory dir = Directory(tempPath);
+    bool b = await dir.exists();
+    if (!b) {
+      dir.createSync(recursive: true);
+    }
 
     return tempPath;
   }
