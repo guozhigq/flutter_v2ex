@@ -18,6 +18,7 @@ import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_v2ex/pages/page_search.dart';
+import 'package:flutter_v2ex/pages/page_hot.dart';
 
 
 class AppPages {
@@ -60,7 +61,8 @@ class AppPages {
     GetPage(name: '/setting', page: () => const SettingPage()),
     // 搜索
     GetPage(name: '/search', page: () => const SearchPage()),
-
+    // 热议
+    GetPage(name: '/hot', page: () => const HotPage()),
   ];
 
 }

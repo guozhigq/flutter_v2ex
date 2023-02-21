@@ -314,8 +314,7 @@ class DioRequestWeb {
       },
     );
     var document = parse(response.data);
-    var mainBox = document
-        .querySelector('#Main div.box:not(.box-title)');
+    var mainBox = document.querySelector('#Main div.box:not(.box-title)');
     var totalPageNode =
         mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
@@ -1611,8 +1610,7 @@ class DioRequestWeb {
     Response response = await Request()
         .get('/my/following', data: {'p': p}, extra: {'ua': 'mobMoto'});
     var document = parse(response.data);
-    var mainBox = document
-        .querySelector('#Main > div.box:not(.box-title)');
+    var mainBox = document.querySelector('#Main > div.box:not(.box-title)');
     var totalPageNode =
         mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {

@@ -26,33 +26,37 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   void onDestinationSelected(int index) {
     if (index == 0) {
+      // 热议主题
+      Get.toNamed('/hot');
+    }
+    if (index == 1) {
       // 我的关注
       Get.toNamed('/my/following');
     }
-    if (index == 1) {
+    if (index == 2) {
       // 我的收藏
       Get.toNamed('/my/topics');
     }
-    if (index == 2) {
+    if (index == 3) {
       // 消息提醒
       Get.toNamed('/notifications');
     }
-    if (index == 3) {
+    if (index == 4) {
       // 发布主题
       print('_character: $tempThemeValue');
     }
-    if (index == 5) {
+    if (index == 6) {
       // 选择主题
       setState(() {
         tempThemeValue = currentThemeValue;
       });
       themeDialog();
     }
-    if (index == 6) {
+    if (index == 7) {
       // 设置
       Get.toNamed('/setting');
     }
-    if (index == 7) {
+    if (index == 8) {
       // 帮助
       Get.toNamed('/help');
     }
@@ -168,6 +172,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   }
 
   List<Map<dynamic, dynamic>> listTitleMap = [
+    {'leading': const Icon(Icons.favorite_outline), 'title': '今日热议'},
     {'leading': const Icon(Icons.favorite_outline), 'title': '我的关注'},
     {'leading': const Icon(Icons.star_border_rounded), 'title': '我的收藏'},
     {'leading': const Icon(Icons.notifications_none), 'title': '消息提醒'},
