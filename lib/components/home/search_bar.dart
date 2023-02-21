@@ -74,34 +74,30 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 115,
-      padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(50),
-        child: Container(
-            width: double.infinity,
-            color: Theme.of(context).colorScheme.onInverseSurface,
-            padding: const EdgeInsets.only(right: 8, left: 4),
-            child: Stack(
-              children: [
-                GestureDetector(
-                  onTap: () => Get.toNamed('/search'),
-                  child: Row(
+    return GestureDetector(
+      onTap: () => Get.toNamed('/search'),
+      child: Container(
+        width: double.infinity,
+        height: 115,
+        padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: Container(
+              width: double.infinity,
+              color: Theme.of(context).colorScheme.onInverseSurface,
+              padding: const EdgeInsets.only(right: 8, left: 4),
+              child: Stack(
+                children: [
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       IconButton(
-                        onPressed: (() => {Scaffold.of(context).openDrawer()}),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
                         icon: const Icon(Icons.menu),
                       ),
-                      Expanded(
-                        child: SizedBox(
-                            child: Center(
-                          child: Text('搜索',
-                              style: Theme.of(context).textTheme.bodyMedium),
-                        )),
+                      Center(
+                        child: Text('搜索',
+                            style: Theme.of(context).textTheme.bodyMedium),
                       ),
                       GestureDetector(
                         onTap: () async {
@@ -157,19 +153,19 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       ),
                     ],
                   ),
-                ),
-                Positioned(
-                  right: 38,
-                  top: 0,
-                  child: IconButton(
-                      onPressed: () async {
-                        LocalNoticeService().send();
-                      },
-                      icon: Icon(Icons.notifications_none_rounded,
-                          color: Theme.of(context).colorScheme.onSurface)),
-                )
-              ],
-            )),
+                  Positioned(
+                    right: 38,
+                    top: 0,
+                    child: IconButton(
+                        onPressed: () async {
+                          LocalNoticeService().send();
+                        },
+                        icon: Icon(Icons.notifications_none_rounded,
+                            color: Theme.of(context).colorScheme.onSurface)),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }
