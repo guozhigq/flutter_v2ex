@@ -20,7 +20,7 @@ samples, guidance on mobile development, and a full API reference.
 + 话题、评论感谢功能 ✅
 + 多选评论
 + 评论保存为图片 ✅
-+ 话题分享
++ 话题分享 ✅
 + webview ✅
 + 关注列表 ✅ ua为pc时请求会503
 + 搜索  70%

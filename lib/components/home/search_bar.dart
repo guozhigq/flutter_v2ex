@@ -35,8 +35,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       });
       readUserInfo();
     }
-    {
-      EventBus().on('login', (arg) {
+
+    EventBus().on('login', (arg) {
         if (arg == 'success') {
           readUserInfo();
         }
@@ -50,7 +50,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
           });
         }
       });
-    }
+
   }
 
   void readUserInfo() {
@@ -59,6 +59,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       Map userInfoStorage = GStorage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
+        loginStatus = true;
       });
     }
   }

@@ -196,16 +196,18 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         //   child: Text('VVex', style: Theme.of(context).textTheme.titleLarge),
         // ),
         header(),
-        for (var i in listTitleMap)
-          NavigationDrawerDestination(
-            icon: i['leading'],
-            label: Text(i['title']),
+        if(loginStatus) ... [
+          for (var i in listTitleMap)
+            NavigationDrawerDestination(
+              icon: i['leading'],
+              label: Text(i['title']),
+            ),
+          Divider(
+            color: Theme.of(context).dividerColor.withOpacity(0.15),
+            indent: 20,
+            endIndent: 12,
           ),
-        Divider(
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
-          indent: 20,
-          endIndent: 12,
-        ),
+        ],
         for (var i in listTitleMap_2)
           NavigationDrawerDestination(
             icon: i['leading'],
@@ -261,7 +263,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                         size: 80,
                         url: userInfo.isNotEmpty
                             ? '${userInfo['avatar']}'
-                            : 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202106%2F05%2F20210605015054_1afb0.thumb.1000_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1676034634&t=a66f33b968f7f967882d40e0a3bc3055',
+                            : '',
                       ),
                     )),
                 // const SizedBox(height: 10),

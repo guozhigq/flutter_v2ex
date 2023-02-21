@@ -280,11 +280,12 @@ class Utils {
                       SmartDialog.showToast('登录成功');
                       GStorage().setLoginStatus(true);
                       EventBus().emit('login', 'success');
-                      // 关闭2fa dialog
+                      // 关闭loading
                       SmartDialog.dismiss();
-                      // Navigator.pop(context);
+                      // 关闭2fa dialog
+                      Navigator.pop(context);
                       // 关闭login page
-                      // Get.back();
+                      Get.back();
                     } else {
                       twoFACode = '';
                     }

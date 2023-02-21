@@ -3,9 +3,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:dio/adapter.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
@@ -84,19 +87,8 @@ class Request {
     _getLocalFile();
     //添加拦截器
     dio.interceptors
-      // ..add(CookieManager(cookieJar))
       ..add(LogInterceptor())
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
-      // ..add(RetryInterceptor(
-      //   dio: dio,
-      //   logPrint: print, // specify log function
-      //   retries: 3, // retry count
-      //   retryDelays: const [
-      //     Duration(seconds: 10), // wait 1 sec before first retry
-      //     Duration(seconds: 2), // wait 2 sec before second retry
-      //     Duration(seconds: 3), // wait 3 sec before third retry
-      //   ],
-      // ))
       ..add(
         InterceptorsWrapper(
           onRequest: (RequestOptions options, handler) {
@@ -106,6 +98,40 @@ class Request {
           onResponse: (Response response, handler) {
             // 更新用户信息 消息计数 ...
             print("响应之前");
+            print(response.realUri);
+            bool needLogin = !(GStorage().getLoginStatus());
+            print(needLogin);
+            print(response.realUri.toString().contains('/signin?'));
+            print("响应之前-----");
+            if(needLogin && response.realUri.toString().contains('/signin?')){
+              SmartDialog.dismiss();
+              SmartDialog.show(
+                useSystem: true,
+                animationType: SmartAnimationType.centerFade_otherSlide,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('权限不足'),
+                    content: const Text('该操作需要登录'),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            SmartDialog.dismiss();
+                          },
+                          child: const Text('返回')),
+                      TextButton(
+                        // TODO
+                          onPressed: () {
+                            SmartDialog.dismiss().then((res)=>{
+                              Navigator.of(context).pushNamed('/login')
+                            });
+                            },
+                          child: const Text('去登录'))
+                    ],
+                  );
+                },
+              );
+              throw ('该操作需要登录！');
+            }
             return handler.next(response);
           },
           onError: (DioError e, handler) {
@@ -122,12 +148,12 @@ class Request {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
-        // return 'PROXY 192.168.1.60:7890';
+        return 'PROXY 192.168.1.60:7890';
         // return 'PROXY 172.16.48.249:7890';
         // return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:7890';
         // 不设置代理 TODO 打包前关闭代理
-        return 'DIRECT';
+        // return 'DIRECT';
       };
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
@@ -148,26 +174,12 @@ class Request {
     Response response;
     Options options;
     String ua = 'mob';
-    bool cache = false;
     ResponseType resType = ResponseType.json;
     if (extra != null) {
       ua = extra!['ua'] ?? 'mob';
-      cache = extra!['cache'] ?? false;
       resType = extra!['resType'] ?? ResponseType.json;
     }
-    // String channel = extra['channel'] ?? 'web';
     if (cacheOptions != null) {
-      // Options cacheOptions = buildCacheOptions(const Duration(days: 7),
-      //     options: Options(
-      //       headers: {'user-agent': headerUa(ua)},
-      //     ));
-      // Options cacheOptions = buildCacheOptions(
-      //     customOptions,
-      //     options: Options(
-      //             headers: {'user-agent': headerUa(ua)},
-      //           )
-      // );
-      // options = cacheOptions;
       cacheOptions.headers = {'user-agent': headerUa(ua)};
       options = cacheOptions;
     } else {
