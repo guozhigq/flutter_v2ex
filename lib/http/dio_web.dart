@@ -401,7 +401,6 @@ class DioRequestWeb {
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
     // ignore: avoid_print
-    // print('line 228: 在请求第$p页面数据');
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
@@ -419,14 +418,6 @@ class DioRequestWeb {
 
     if (response.redirects.isNotEmpty ||
         document.querySelector('#Main > div.box > div.message') != null) {
-      // ignore: avoid_print
-      print('需要登录');
-      // Fluttertoast.showToast(
-      //     msg: '查看本主题需要先登录 😞',
-      //     gravity: ToastGravity.CENTER,
-      //     timeInSecForIosWeb: 2);
-      // Routes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      //     Routes.toHomePage, ModalRoute.withName("/"));
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -742,7 +733,7 @@ class DioRequestWeb {
     Response response;
     response = await Request().get(
       '/',
-      cacheOptions: buildCacheOptions(const Duration(days: 7)),
+      // cacheOptions: buildCacheOptions(const Duration(days: 7)),
       extra: {'ua': 'pc'},
     );
     return DioRequestWeb().resolveNode(response, 'pc');
@@ -1700,7 +1691,7 @@ class DioRequestWeb {
     return nodesList;
   }
 
-  static loginOut() async{
+  static Future loginOut() async{
     Request().get('/signout', data: {
       'once': GStorage().getOnce()
     });

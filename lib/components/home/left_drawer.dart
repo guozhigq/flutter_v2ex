@@ -143,20 +143,20 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       // readUserInfo();
       // queryDaily();
     }
-    // {
-    //   EventBus().on('login', (arg) {
-    //     if (arg == 'success') {
-    //       readUserInfo();
-    //     } else {
-    //       GStorage().setLoginStatus(false);
-    //       GStorage().setUserInfo({});
-    //       setState(() {
-    //         loginStatus = false;
-    //         userInfo = {};
-    //       });
-    //     }
-    //   });
-    // }
+    {
+      EventBus().on('login', (arg) {
+        if (arg == 'success') {
+          readUserInfo();
+        } else {
+          GStorage().setLoginStatus(false);
+          // GStorage().setUserInfo({});
+          setState(() {
+            loginStatus = false;
+            // userInfo = {};
+          });
+        }
+      });
+    }
     // 读取默认主题配置
     setState(() {
       currentThemeValue = GStorage().getSystemType();

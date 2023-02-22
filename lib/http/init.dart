@@ -101,7 +101,8 @@ class Request {
           onResponse: (Response response, handler) {
             // 更新用户信息 消息计数 ...
             print("响应之前");
-            loginAuth(response.realUri.toString(), response.requestOptions.method);
+            loginAuth(
+                response.realUri.toString(), response.requestOptions.method);
             return handler.next(response);
           },
           onError: (DioError e, handler) {
@@ -118,9 +119,9 @@ class Request {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
-        // return 'PROXY 192.168.1.60:7890';
+        return 'PROXY 192.168.1.60:7890';
         // return 'PROXY 172.16.32.186:7890';
-        return 'PROXY localhost:7890';
+        // return 'PROXY localhost:7890';
         // return 'PROXY 127.0.0.1:7890';
         // 不设置代理 TODO 打包前关闭代理
         // return 'DIRECT';
@@ -290,8 +291,12 @@ class Request {
   loginAuth(redirect, method) {
     bool needLogin = !(GStorage().getLoginStatus());
     print('redirect: $redirect');
-    bool authUrl = redirect.contains('/favorite') || redirect.contains('/thank') || redirect.contains('/ignore') || redirect.contains('/report');
-    if ((needLogin && authUrl) || (method == 'POST' && redirect.contains('/t'))) {
+    bool authUrl = redirect.contains('/favorite') ||
+        redirect.contains('/thank') ||
+        redirect.contains('/ignore') ||
+        redirect.contains('/report');
+    if ((needLogin && authUrl) ||
+        (method == 'POST' && redirect.contains('/t'))) {
       SmartDialog.dismiss();
       SmartDialog.show(
         useSystem: true,
@@ -307,10 +312,10 @@ class Request {
                   },
                   child: const Text('返回')),
               TextButton(
-                // TODO
+                  // TODO
                   onPressed: () {
-                    SmartDialog.dismiss().then((res) =>
-                    {Navigator.of(context).pushNamed('/login')});
+                    SmartDialog.dismiss().then(
+                        (res) => {Navigator.of(context).pushNamed('/login')});
                   },
                   child: const Text('去登录'))
             ],

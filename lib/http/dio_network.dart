@@ -14,10 +14,10 @@ class DioRequestNet {
   static Future<List<NodeItem>> getAllNodes() async {
     Response response = await Request().get(
       DioRequestNet().allNodes,
-      cacheOptions: buildCacheOptions(
-        const Duration(days: 4),
-        forceRefresh: true,
-      ),
+      // cacheOptions: buildCacheOptions(
+      //   const Duration(days: 4),
+      //   forceRefresh: true,
+      // ),
     );
     List<dynamic> list = response.data;
     return list.map((e) => NodeItem.fromJson(e)).toList();
@@ -27,10 +27,10 @@ class DioRequestNet {
   static Future<List<TopicItem>> getHotTopic() async {
     Response response = await Request().get(
       DioRequestNet().hotTopics,
-      cacheOptions: buildCacheOptions(
-        const Duration(days: 4),
-        forceRefresh: true,
-      ),
+      // cacheOptions: buildCacheOptions(
+      //   const Duration(days: 4),
+      //   forceRefresh: true,
+      // ),
     );
     List<dynamic> list = response.data;
     return list.map((e) => TopicItem.fromJson(e)).toList();

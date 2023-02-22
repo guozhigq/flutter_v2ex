@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get/get.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/cache.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -22,11 +22,21 @@ class _SettingPageState extends State<SettingPage> {
   bool materialColor = true; // 动态去色
   bool linkOpenInApp = GStorage().getLinkOpenInApp();
   bool loginStatus = GStorage().getLoginStatus();
+  String cacheSize = '';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    // 读取缓存占用
+    getCacheSize();
+  }
+
+  void getCacheSize() async {
+    var res = await CacheManage().loadApplicationCache();
+    setState(() {
+      cacheSize = res;
+    });
   }
 
   void onLogout() {
@@ -44,19 +54,20 @@ class _SettingPageState extends State<SettingPage> {
           TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                GStorage().setLoginStatus(false);
-                GStorage().setUserInfo({});
-                GStorage().setSignStatus('');
-                EventBus().emit('login', 'loginOut');
-                DioRequestWeb.loginOut();
-                SmartDialog.showToast('已退出登录');
-                PersistCookieJar().deleteAll();
-                PersistCookieJar().delete(Uri.parse(Strings.v2exHost), true);
-
                 /// 删除cookie目录
-                String path = await Utils.getCookiePath();
-                var cookieJar = PersistCookieJar(storage: FileStorage(path));
-                await cookieJar.deleteAll();
+                try {
+                  Directory directory = Directory(await Utils.getCookiePath());
+                  await CacheManage().deleteDirectory(directory);
+                  GStorage().setLoginStatus(false);
+                  GStorage().setUserInfo({});
+                  GStorage().setSignStatus('');
+                  EventBus().emit('login', 'loginOut');
+                  await DioRequestWeb.loginOut();
+                  SmartDialog.showToast('已退出登录 ✅');
+                  Request().get('/');
+                } catch (err) {
+                  SmartDialog.showToast(err.toString());
+                }
               },
               child: const Text('确定'))
         ],
@@ -145,12 +156,17 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
-            onTap: () {},
+            onTap: () async{
+              var cleanStatus =  await CacheManage().clearCacheAll();
+              if(cleanStatus){
+                getCacheSize();
+              }
+            },
             leading: Icon(Icons.cleaning_services_outlined, color: iconStyle),
             title: const Text('清除缓存'),
-            subtitle: Text('图片、数据缓存', style: subTitleStyle),
+            subtitle: Text('图片及网络缓存 $cacheSize', style: subTitleStyle),
           ),
-          if(loginStatus) ... [
+          if (loginStatus) ...[
             ListTile(
               onTap: onLogout,
               leading: Icon(Icons.logout_rounded, color: iconStyle),

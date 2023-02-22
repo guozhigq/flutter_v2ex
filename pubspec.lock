@@ -410,10 +410,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_local_notifications_linux
-      sha256: "8f6c1611e0c4a88a382691a97bb3c3feb24cc0c0b54152b8b5fb7ffb837f7fbf"
+      sha256: ccb08b93703aeedb58856e5637450bf3ffec899adb66dc325630b68994734b89
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.0+1"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
@@ -434,10 +434,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_smart_dialog
-      sha256: ab1dccf481ab0a353861e46a841fe47228cf4dc0c211d9cb8ebac007cfdcd29a
+      sha256: "2f2f3ed0dbd6c924b24e27b681bef44e36e7e5e3e78486706a7562088395f9fa"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.8.2+4"
+    version: "4.8.2+5"
   flutter_test:
     dependency: "direct dev"
     description: flutter
