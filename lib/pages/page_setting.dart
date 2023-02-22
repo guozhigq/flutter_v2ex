@@ -20,6 +20,8 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   bool autoSign = true; // 自动签到
   bool materialColor = true; // 动态去色
+  bool linkOpenInApp = GStorage().getLinkOpenInApp();
+  bool loginStatus = GStorage().getLoginStatus();
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _SettingPageState extends State<SettingPage> {
               },
               child: const Text('取消')),
           TextButton(
-              onPressed: () async{
+              onPressed: () async {
                 Navigator.pop(context);
                 GStorage().setLoginStatus(false);
                 GStorage().setUserInfo({});
@@ -55,7 +57,6 @@ class _SettingPageState extends State<SettingPage> {
                 String path = await Utils.getCookiePath();
                 var cookieJar = PersistCookieJar(storage: FileStorage(path));
                 await cookieJar.deleteAll();
-
               },
               child: const Text('确定'))
         ],
@@ -128,23 +129,42 @@ class _SettingPageState extends State<SettingPage> {
           // ),
           ListTile(
             onTap: () {},
+            leading: Icon(Icons.open_in_new_rounded, color: iconStyle),
+            title: const Text('使用应用内浏览器'),
+            subtitle: Text('在应用内查看外部链接', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.9,
+              child: Switch(
+                  value: linkOpenInApp,
+                  onChanged: (value) {
+                    setState(() {
+                      linkOpenInApp = !linkOpenInApp;
+                      GStorage().setLinkOpenInApp(linkOpenInApp);
+                    });
+                  }),
+            ),
+          ),
+          ListTile(
+            onTap: () {},
             leading: Icon(Icons.cleaning_services_outlined, color: iconStyle),
             title: const Text('清除缓存'),
             subtitle: Text('图片、数据缓存', style: subTitleStyle),
           ),
-          ListTile(
-            onTap: onLogout,
-            leading: Icon(Icons.logout_rounded, color: iconStyle),
-            title: const Text('退出登录'),
-            subtitle: Text('清除当前登录信息', style: subTitleStyle),
-          ),
+          if(loginStatus) ... [
+            ListTile(
+              onTap: onLogout,
+              leading: Icon(Icons.logout_rounded, color: iconStyle),
+              title: const Text('退出登录'),
+              subtitle: Text('清除当前登录信息', style: subTitleStyle),
+            ),
+          ],
           ListTile(
             onTap: () async {
               Get.toNamed('/help');
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('关于'),
-            subtitle: Text('版本、说明', style: subTitleStyle),
+            subtitle: Text('意见反馈、版本说明', style: subTitleStyle),
           )
         ],
       ),

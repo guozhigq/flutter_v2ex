@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 
 class HelpPage extends StatefulWidget {
@@ -21,31 +23,41 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
         children: [
           ListTile(
             onTap: () =>
-                Utils.launchURL('https://github.com/guozhigq/flutter_v2ex'),
+                Utils.openURL('https://github.com/guozhigq/flutter_v2ex'),
+            onLongPress: () {
+              Clipboard.setData( const ClipboardData(text:'https://github.com/guozhigq/flutter_v2ex'));
+              SmartDialog.showToast('已复制内容');
+            },
             leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
             subtitle: const Text('欢迎 star'),
           ),
           ListTile(
-            onTap: () {
-              final Uri smsLaunchUri = Uri(
-                scheme: 'sms',
-                path: '0118 999 881 999 119 7253',
-                queryParameters: <String, String>{
-                  'body': Uri.encodeComponent(
-                      'Example Subject & Symbols are allowed!'),
-                },
-              );
-              Utils.launchURL(smsLaunchUri, scheme: 'sms');
+            onTap: () => Utils.openURL('https://github.com/guozhigq/flutter_v2ex/issues/new'),
+            onLongPress: () {
+              Clipboard.setData( const ClipboardData(text:'https://github.com/guozhigq/flutter_v2ex/issues/new'));
+              SmartDialog.showToast('已复制内容');
             },
             leading: Icon(Icons.feedback_outlined, color: iconStyle),
             title: const Text('意见反馈'),
             subtitle: const Text('issues'),
           ),
           ListTile(
+            onTap: () {
+              final url = Uri.parse('mailto:guozhigq@outlook.com');
+              Utils.launchURL(url);
+            },
+            onLongPress: () {
+              Clipboard.setData( const ClipboardData(text:'guozhigq@outlook.com'));
+              SmartDialog.showToast('已复制内容');
+            },
+            leading: Icon(Icons.email_outlined, color: iconStyle),
+            title: const Text('邮箱联系'),
+          ),
+          ListTile(
             onTap: () async {
               final url = Uri.parse('mailto:5550101234');
-              Utils.launchURL(url, scheme: 'sms');
+              Utils.launchURL(url);
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('当前版本 v0.0.1'),

@@ -1,19 +1,16 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:flutter_v2ex/http/dio_web.dart';
+import 'event_bus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/pages/page_login.dart';
-import 'package:flutter_v2ex/utils/global.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-
-// import 'package:ovprogresshud/progresshud.dart';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'event_bus.dart';
+import 'package:flutter_v2ex/utils/global.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_v2ex/pages/page_login.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class Utils {
@@ -47,59 +44,51 @@ class Utils {
     return tempPath;
   }
 
-  // 外链跳转
-  static launchURL(url, {String scheme = 'https'}) async {
-    Uri _url;
-    if (scheme == 'https') {
-      if (url.startsWith('//')) {
-        // 处理有些链接是 //xxxx 形式
-        url = 'https:$url';
-      }
-      _url = Uri.parse(url);
+  // scheme 外链跳转
+  static launchURL(url) async {
+    if (await canLaunchUrl(url)) {
+      launchUrl(url);
     } else {
-      // sms email tel
-      _url = url;
-    }
-    if (await canLaunchUrl(_url)) {
-      launchUrl(_url);
-    } else {
-      SmartDialog.showToast('Could not launch $_url');
+      SmartDialog.showToast('无法打开scheme $url');
     }
   }
 
   static openURL(aUrl) async{
-    // 1. openWithSystemBrowser
-    // await InAppBrowser.openWithSystemBrowser(
-    //     url: WebUri(aUrl)
-    // );
-
-    // 2. openWithAppBrowser
-    await Utils().browser.open(
-      url: WebUri(aUrl),
-      settings: ChromeSafariBrowserSettings(
-          shareState: CustomTabsShareState.SHARE_STATE_OFF,
-          isSingleInstance: false,
-          isTrustedWebActivity: false,
-          keepAliveEnabled: true,
-          startAnimations: [
-            AndroidResource.anim(
-                name: "slide_in_left", defPackage: "android"),
-            AndroidResource.anim(
-                name: "slide_out_right", defPackage: "android")
-          ],
-          exitAnimations: [
-            AndroidResource.anim(
-                name: "abc_slide_in_top",
-                defPackage:
-                "com.pichillilorenzo.flutter_inappwebviewexample"),
-            AndroidResource.anim(
-                name: "abc_slide_out_top",
-                defPackage:
-                "com.pichillilorenzo.flutter_inappwebviewexample")
-          ],
-          dismissButtonStyle: DismissButtonStyle.CLOSE,
-          presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-    );
+    bool linkOpenType = GStorage().getLinkOpenInApp();
+    if(!linkOpenType) {
+      // 1. openWithSystemBrowser
+      await InAppBrowser.openWithSystemBrowser(
+          url: WebUri(aUrl)
+      );
+    }else {
+      // 2. openWithAppBrowser
+      await Utils().browser.open(
+        url: WebUri(aUrl),
+        settings: ChromeSafariBrowserSettings(
+            shareState: CustomTabsShareState.SHARE_STATE_OFF,
+            isSingleInstance: false,
+            isTrustedWebActivity: false,
+            keepAliveEnabled: true,
+            startAnimations: [
+              AndroidResource.anim(
+                  name: "slide_in_left", defPackage: "android"),
+              AndroidResource.anim(
+                  name: "slide_out_right", defPackage: "android")
+            ],
+            exitAnimations: [
+              AndroidResource.anim(
+                  name: "abc_slide_in_top",
+                  defPackage:
+                  "com.pichillilorenzo.flutter_inappwebviewexample"),
+              AndroidResource.anim(
+                  name: "abc_slide_out_top",
+                  defPackage:
+                  "com.pichillilorenzo.flutter_inappwebviewexample")
+            ],
+            dismissButtonStyle: DismissButtonStyle.CLOSE,
+            presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+      );
+    }
   }
 
   String? encodeQueryParameters(Map<String, String> params) {
@@ -308,21 +297,21 @@ class Utils {
 class MyChromeSafariBrowser extends ChromeSafariBrowser {
   @override
   void onOpened() {
-    print("😊flutter ChromeSafari browser opened");
+    // print("😊flutter ChromeSafari browser opened");
   }
 
   @override
   void onLoadStart() {
-    print('😊flutter flutter onloadStart');
+    // print('😊flutter flutter onloadStart');
   }
 
   // 加载完成
   @override
   void onCompletedInitialLoad(didLoadSuccessfully) async{
-    print("😊flutter ChromeSafari browser initial load completed");
-    final cookieManager = CookieManager.instance();
-    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com/signin')));
-    print('😊flutter: $cookies');
+    // print("😊flutter ChromeSafari browser initial load completed");
+    // final cookieManager = CookieManager.instance();
+    // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com/signin')));
+    // print('😊flutter: $cookies');
   }
 
   @override
@@ -331,9 +320,9 @@ class MyChromeSafariBrowser extends ChromeSafariBrowser {
   }
   @override
   void onClosed() async{
-    final cookieManager = CookieManager.instance();
-    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com')));
-    print('😊flutter: $cookies');
-    print("😊flutter ChromeSafari browser closed");
+    // final cookieManager = CookieManager.instance();
+    // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com')));
+    // print('😊flutter: $cookies');
+    // print("😊flutter ChromeSafari browser closed");
   }
 }

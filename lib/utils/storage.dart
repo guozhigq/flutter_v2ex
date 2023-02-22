@@ -12,7 +12,8 @@ enum StoreKeys {
   statusBarHeight,
   themeType,
   signStatus,
-  nodes
+  nodes,
+  linkOpenInApp,
 }
 
 class GStorage {
@@ -90,5 +91,10 @@ class GStorage {
   setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
   List getNodes() =>
       _box.read<List>(StoreKeys.nodes.toString()) ?? [];
+
+  // 链接打开方式 默认应用内打开
+  setLinkOpenInApp(bool value) => _box.write(StoreKeys.linkOpenInApp.toString(), value);
+  bool getLinkOpenInApp() =>
+      _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
 
 }

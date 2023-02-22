@@ -1,14 +1,17 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:flutter_v2ex/models/web/model_member_profile.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/components/member/reply_item.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_v2ex/models/web/model_member_profile.dart';
+
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -309,40 +312,31 @@ class _MemberPageState extends State<MemberPage> {
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 10),
-                      child: Row(
-                        children: [
-                          Text(signDetail['balance'][0],
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(width: 2),
-                          // const Icon(Icons.album, color: Colors.yellowAccent),
-                          Image.asset(
-                            'assets/images/gold.png',
-                            width: 15,
-                            height: 15,
+                      padding: const EdgeInsets.only(left: 15, right: 10),
+                      child: Html(
+                        data:  signDetail['balanceRender'],
+                        customRenders: {
+                          tagMatcher("img"): CustomRender.widget(
+                            widget: (htmlContext, buildChildren) {
+                              String? imgUrl = htmlContext.tree.element!.attributes['src'];
+                              imgUrl = Utils().imageUrl(imgUrl!);
+                              return SelectionContainer.disabled(
+                                  child: CachedNetworkImage(
+                                    imageUrl: imgUrl,
+                                    height: 20,
+                                    fadeOutDuration: const Duration(milliseconds: 100),
+                                  ),
+                              );
+                            },
                           ),
-                          const SizedBox(width: 5),
-                          Text(signDetail['balance'][1],
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(width: 2),
-                          Image.asset(
-                            'assets/images/silver.png',
-                            width: 15,
-                            height: 15,
+                        },
+                        style: {
+                          'a': Style(
+                            color:  Theme.of(context).colorScheme.onBackground,
+                            textDecoration: TextDecoration.none,
+                            margin: Margins.only(right: 2),
                           ),
-                          const SizedBox(width: 5),
-                          Text(signDetail['balance'][2],
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(width: 2),
-                          Image.asset(
-                            'assets/images/bronze.png',
-                            width: 15,
-                            height: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          // TextButton(
-                          //     onPressed: () => {}, child: const Text(' 查看明细 '))
-                        ],
+                        },
                       ),
                     ),
                   ),

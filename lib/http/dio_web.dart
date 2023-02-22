@@ -1071,7 +1071,7 @@ class DioRequestWeb {
     Map<dynamic, dynamic> signDetail = {
       'signStatus': false,
       'signDays': 0,
-      'balance': []
+      'balanceRender': ''
     };
     Response response;
     response = await Request().get('/mission/daily', extra: {'ua': 'pc'});
@@ -1100,11 +1100,11 @@ class DioRequestWeb {
     }
 
     // 余额
-    List balance = noticeNode.querySelector('div#money')!.text.split(' ');
-    balance.removeAt(1);
-    balance.removeAt(2);
-    signDetail['balance'] = balance;
-
+    // List balance = noticeNode.querySelector('div#money')!.text.split(' ');
+    // balance.removeAt(1);
+    // balance.removeAt(2);
+    // signDetail['balance'] = balance;
+    signDetail['balanceRender'] = noticeNode.querySelector('div#money')!.innerHtml;
     return signDetail;
   }
 
