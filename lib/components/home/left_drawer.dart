@@ -136,13 +136,13 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   void initState() {
     super.initState();
     // 获取登录状态
-    // if (GStorage().getLoginStatus()) {
-    //   setState(() {
-    //     loginStatus = true;
-    //   });
-    //   readUserInfo();
-    //   queryDaily();
-    // }
+    if (GStorage().getLoginStatus()) {
+      setState(() {
+        loginStatus = true;
+      });
+      // readUserInfo();
+      // queryDaily();
+    }
     // {
     //   EventBus().on('login', (arg) {
     //     if (arg == 'success') {
@@ -182,7 +182,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   List<Map<dynamic, dynamic>> listTitleMap = [
     {
-      'leading': const Icon(Icons.favorite_outline),
+      'leading': const Icon(Icons.whatshot_outlined),
       'title': '今日热议',
       'path': '/hot'
     },

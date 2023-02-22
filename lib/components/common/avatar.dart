@@ -46,8 +46,9 @@ class CAvatar extends StatelessWidget {
         color: Theme.of(context).colorScheme.onInverseSurface,
       ),
       clipBehavior: Clip.antiAlias,
-      child: const CircleAvatar(
-          backgroundImage: AssetImage('assets/images/avatar.png')),
+      child: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+          backgroundImage: const AssetImage('assets/images/avatar.png')),
     );
   }
 }

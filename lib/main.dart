@@ -67,7 +67,7 @@ void main() async {
 }
 
 // 主题色
-Color brandColor = const Color.fromRGBO(58, 105, 154, 100);
+Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

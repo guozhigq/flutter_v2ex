@@ -308,16 +308,32 @@ class Utils {
 class MyChromeSafariBrowser extends ChromeSafariBrowser {
   @override
   void onOpened() {
-    print("ChromeSafari browser opened");
+    print("😊flutter ChromeSafari browser opened");
   }
 
   @override
-  void onCompletedInitialLoad(didLoadSuccessfully) {
-    print("ChromeSafari browser initial load completed");
+  void onLoadStart() {
+    print('😊flutter flutter onloadStart');
+  }
+
+  // 加载完成
+  @override
+  void onCompletedInitialLoad(didLoadSuccessfully) async{
+    print("😊flutter ChromeSafari browser initial load completed");
+    final cookieManager = CookieManager.instance();
+    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com/signin')));
+    print('😊flutter: $cookies');
   }
 
   @override
-  void onClosed() {
-    print("ChromeSafari browser closed");
+  void onInitialLoadDidRedirect(WebUri? url) {
+
+  }
+  @override
+  void onClosed() async{
+    final cookieManager = CookieManager.instance();
+    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com')));
+    print('😊flutter: $cookies');
+    print("😊flutter ChromeSafari browser closed");
   }
 }

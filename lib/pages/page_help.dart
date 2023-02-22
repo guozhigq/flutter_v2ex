@@ -12,6 +12,7 @@ class HelpPage extends StatefulWidget {
 class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    Color iconStyle = Theme.of(context).colorScheme.onBackground;
     return Scaffold(
       appBar: AppBar(
         title: const Text('帮助'),
@@ -21,7 +22,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ListTile(
             onTap: () =>
                 Utils.launchURL('https://github.com/guozhigq/flutter_v2ex'),
-            leading: const Icon(Icons.settings_ethernet),
+            leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
             subtitle: const Text('欢迎 star'),
           ),
@@ -37,7 +38,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               );
               Utils.launchURL(smsLaunchUri, scheme: 'sms');
             },
-            leading: const Icon(Icons.feedback_outlined),
+            leading: Icon(Icons.feedback_outlined, color: iconStyle),
             title: const Text('意见反馈'),
             subtitle: const Text('issues'),
           ),
@@ -46,7 +47,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               final url = Uri.parse('mailto:5550101234');
               Utils.launchURL(url, scheme: 'sms');
             },
-            leading: const Icon(Icons.info_outline),
+            leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('当前版本 v0.0.1'),
             subtitle: const Text('检查更新'),
           )

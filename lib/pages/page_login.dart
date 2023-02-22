@@ -1,11 +1,10 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_v2ex/models/web/model_login_detail.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/models/web/model_login_detail.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,7 +18,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
-
 
   var codeImg = '';
   late String? _userName;
@@ -40,9 +38,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<LoginDetailModel> getSignKey() async {
     var res = await DioRequestWeb.getLoginKey();
-    if(res.twoFa){
+    if (res.twoFa) {
       Utils.twoFADialog();
-    }else{
+    } else {
       setState(() {
         loginKey = res;
       });
@@ -63,7 +61,12 @@ class _LoginPageState extends State<LoginPage> {
             );
           },
         ),
-        actions: [TextButton(onPressed: () => {}, child: const Text('注册账号')), const SizedBox(width: 12)],
+        actions: [
+          TextButton(
+              onPressed: () => Utils.openURL('https://www.v2ex.com/signup'),
+              child: const Text('注册账号')),
+          const SizedBox(width: 12)
+        ],
       ),
       body: Stack(
         alignment: AlignmentDirectional.bottomCenter,
@@ -169,7 +172,7 @@ class _LoginPageState extends State<LoginPage> {
                             clipBehavior: Clip.hardEdge,
                             decoration: const BoxDecoration(
                               borderRadius: BorderRadius.all(
-                               Radius.circular(6),
+                                Radius.circular(6),
                               ),
                             ),
                             child: GestureDetector(
@@ -213,28 +216,40 @@ class _LoginPageState extends State<LoginPage> {
                         if (result == 'true') {
                           // 登录成功
                           Get.back(result: {'loginStatus': 'success'});
-                        } else if(result == 'false'){
+                        } else if (result == 'false') {
                           // 登录失败
                           setState(() {
-                            _passwordController.value = const TextEditingValue(text: '');
-                            _codeController.value  = const TextEditingValue(text: '');
+                            _passwordController.value =
+                                const TextEditingValue(text: '');
+                            _codeController.value =
+                                const TextEditingValue(text: '');
                           });
                           Timer(const Duration(milliseconds: 500), () {
                             getSignKey();
                           });
-                        }else if(result == '2fa') {
+                        } else if (result == '2fa') {
                           Utils.twoFADialog();
                         }
                       }
                     },
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    '忘记密码？',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TextButton(onPressed: () => Utils.launchURL('https://www.v2ex.com/signin'), child: Text(
+                    //   '网页登录',
+                    //   style: TextStyle(color: Colors.grey[600]),
+                    // ),),
+                    // const SizedBox(width: 10),
+                    TextButton(
+                      onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
+                      child: Text(
+                        '忘记密码？',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -242,7 +257,16 @@ class _LoginPageState extends State<LoginPage> {
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 30,
             child: TextButton(
-              onPressed: () => {},
+              onPressed: () {
+                int once = GStorage().getOnce();
+                // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
+                Get.toNamed('/webView', parameters: {
+                  'aUrl': 'https://www.v2ex.com/auth/google?once=$once'
+                });
+              },
+              // onPressed: () {
+              //   DioRequestWeb.signByGoogle();
+              // },
               child: Row(children: [
                 Image.asset('assets/images/google.png', width: 25, height: 25),
                 const SizedBox(width: 10),

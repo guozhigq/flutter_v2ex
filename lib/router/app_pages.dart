@@ -27,7 +27,7 @@ class AppPages {
     // 话题详情
     GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
     // webView
-    GetPage(name: '/webView', page: () => WebView(aUrl: '')),
+    GetPage(name: '/webView', page: () => const WebView(), fullscreenDialog: true, transitionDuration: const Duration(milliseconds: 300)),
 
     // 节点主页
     GetPage(name: '/go/:nodeId', page: () => const GoPage()),

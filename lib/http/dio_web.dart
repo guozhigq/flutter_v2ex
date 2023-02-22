@@ -1705,4 +1705,11 @@ class DioRequestWeb {
       'once': GStorage().getOnce()
     });
   }
+
+  static signByGoogle() async {
+    Response response = await Request().get('/auth/google', data: {
+      'once': GStorage().getOnce()
+    });
+    print(response);
+  }
 }
