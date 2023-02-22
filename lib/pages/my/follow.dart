@@ -96,7 +96,9 @@ class _MyFollowPageState extends State<MyFollowPage> {
                           },
                           child: content(),
                         )
-                      : const Text('没有数据'),
+                      : Center(
+                child: Text('还没有关注用户', style: Theme.of(context).textTheme.titleMedium,),
+              ),
             ),
           ),
           Positioned(

@@ -96,7 +96,9 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
                           },
                           child: content(),
                         )
-                      : const Text('没有数据'),
+                      : Center(
+                child: Text('还没有收藏主题', style: Theme.of(context).textTheme.titleMedium,),
+              ),
             ),
           ),
           Positioned(

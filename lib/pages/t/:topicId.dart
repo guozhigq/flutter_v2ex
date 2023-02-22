@@ -24,8 +24,7 @@ import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:share_plus/share_plus.dart';
 
-
-enum SampleItem { itemOne, itemTwo, itemThree, itemFour }
+enum SampleItem { ignore, share, report, browse }
 
 class TopicDetail extends StatefulWidget {
   const TopicDetail({super.key});
@@ -113,7 +112,6 @@ class _TopicDetailState extends State<TopicDetail>
     });
 
     aStreamC = StreamController<bool>();
-
   }
 
   Future getDetailInit() async {
@@ -273,21 +271,66 @@ class _TopicDetailState extends State<TopicDetail>
     });
   }
 
-  Future<bool> onIgnoreTopic() async {
-    var res = await DioRequestWeb.onIgnoreTopic(topicId);
-    print('topic detail line 280:  $res');
-    SmartDialog.showToast(res ? '操作成功' : '操作失败');
-    if (res) {
-      EventBus().emit('ignoreTopic', topicId);
-    }
-    return res;
+  // 忽略主题
+  Future onIgnoreTopic() async {
+    Future.delayed(
+      const Duration(seconds: 0),
+      () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('操作提示'),
+          content: const Text('确认忽略该主题吗？'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消')),
+            TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  SmartDialog.showLoading();
+                  var res = await DioRequestWeb.onIgnoreTopic(topicId);
+                  SmartDialog.dismiss();
+                  SmartDialog.showToast(res ? '已忽略' : '操作失败');
+                  if (res) {
+                    EventBus().emit('ignoreTopic', topicId);
+                  }
+                },
+                child: const Text('确认'))
+          ],
+        ),
+      ),
+    );
   }
 
-  Future<bool> onReportTopic() async {
-    var res = await DioRequestWeb.onReportTopic(topicId);
-    print('topic detail line 286:  $res');
-    SmartDialog.showToast(res ? '操作成功' : '操作失败');
-    return res;
+  // 举报主题
+  Future onReportTopic() async {
+    Future.delayed(
+      const Duration(seconds: 0),
+          () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('操作提示'),
+          content: const Text('确认举报该主题吗？'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消')),
+            TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  SmartDialog.showLoading();
+                  var res = await DioRequestWeb.onReportTopic(topicId);
+                  SmartDialog.dismiss();
+                  SmartDialog.showToast(res ? '已举报' : '操作失败');
+                  if (res) {
+                    EventBus().emit('ignoreTopic', topicId);
+                  }
+                },
+                child: const Text('确认'))
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> onShareTopic() async {
@@ -355,11 +398,10 @@ class _TopicDetailState extends State<TopicDetail>
           ),
           floatingActionButtonLocation: _fabLocation,
           bottomNavigationBar: DetailBottomBar(
-            onRefresh: onRefreshBtm,
-            isVisible: _isVisible,
-            detailModel: _detailModel,
-            topicId: topicId
-          ),
+              onRefresh: onRefreshBtm,
+              isVisible: _isVisible,
+              detailModel: _detailModel,
+              topicId: topicId),
           // bottomNavigationBar: StreamBuilder(
           //   stream: aStreamC.stream,
           //   initialData: false,
@@ -409,38 +451,23 @@ class _TopicDetailState extends State<TopicDetail>
         isSelected: _detailModel!.isFavorite,
       ),
     );
-    // list.add(
-    //   IconButton(
-    //     onPressed: (() =>
-    //         Clipboard.setData(ClipboardData(text: _detailModel!.topicId))),
-    //     tooltip: '使用浏览器打开',
-    //     icon: const Icon(Icons.copy_rounded),
-    //   ),
-    // );
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
-        initialValue: selectedMenu,
-        // Callback that sets the selected popup menu item.
-        onSelected: (SampleItem item) {
-          setState(() {
-            selectedMenu = item;
-          });
-        },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
           PopupMenuItem<SampleItem>(
-            value: SampleItem.itemThree,
-            onTap: () => onIgnoreTopic(),
+            value: SampleItem.ignore,
+            onTap: onIgnoreTopic,
             child: const Text('忽略主题'),
           ),
           PopupMenuItem<SampleItem>(
-            value: SampleItem.itemThree,
+            value: SampleItem.share,
             onTap: onShareTopic,
-            child: Text('分享'),
+            child: const Text('分享'),
           ),
           PopupMenuItem<SampleItem>(
-            value: SampleItem.itemThree,
-            onTap: () => onReportTopic(),
+            value: SampleItem.report,
+            onTap: onReportTopic,
             child: Text(
               '举报',
               style: TextStyle(
@@ -449,9 +476,9 @@ class _TopicDetailState extends State<TopicDetail>
           ),
           const PopupMenuDivider(),
           PopupMenuItem<SampleItem>(
-            value: SampleItem.itemThree,
+            // value: SampleItem.browse,
             onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: Text('在浏览器中打开'),
+            child: const Text('在浏览器中打开'),
           ),
         ],
       ),

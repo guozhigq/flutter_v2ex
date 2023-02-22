@@ -184,6 +184,8 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
   }
 
   Widget noData() {
-    return const Text('没有数据');
+    return Center(
+      child: Text('没有数据', style: Theme.of(context).textTheme.titleMedium,),
+    );
   }
 }
