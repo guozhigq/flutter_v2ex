@@ -8,37 +8,76 @@ This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+-   [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+-   [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-## TODO
-+ 话题、评论图片查看&保存 ✅
-+ 话题、评论感谢功能 ✅
-+ 多选评论
-+ 评论保存为图片 ✅
-+ 话题分享 ✅
-+ webview ✅
-+ 关注列表 ✅ ua为pc时请求会503
-+ 搜索  70%
-+ 节点排序
-+ 节点展示 ✅
-+ 节点收藏 ✅
-+ 深浅色模式切换 ✅
-+ 话题已读标记
-+ 评论倒序渲染 ✅
-+ noData
-+ 话题详情页 视频iframe渲染 ✅
-+ 发布主题 default ✅
-+ 发布主题 markdown
-+ 编辑主题Action
-+ 移动主题节点
-+ google auth
+## 进度
 
-## Optimize
-+ 话题详情页BottomBar显隐导致widget重新渲染
-+ 自动签到逻辑
-+ 骨架屏
+### 已完成
+
+-   用户相关
+    -   模拟账号登录
+    -   2FA 登录
+    -   登录态失效处理
+    -   账号注册 webview
+    -   关注列表
+    -   收藏列表
+    -   消息列表
+    -   个人主页
+    -   签到
+    -   个人动态
+-   行为相关
+
+    -   用户
+        -   关注用户
+        -   屏蔽用户
+    -   主题
+        -   感谢主题
+        -   屏蔽主题
+        -   报告主题
+        -   收藏主题
+        -   分享
+        -   浏览器中查看
+    -   评论
+        -   感谢评论
+        -   忽略评论
+        -   评论保存
+
+-   主题相关
+
+    -   正文 html 渲染
+    -   发布主题 default
+    -   主楼回复
+    -   楼中楼回复
+    -   今日热议
+    -   评论倒序查看
+    -   内容搜索
+
+-   系统设置
+    -   深/浅色模式
+    -   缓存清理
+    -   浏览器选择
+
+### TODO
+
+-   发布主题 markdown
+-   编辑主题 Edit
+-   添加附言 Append
+-   移动主题节点 move
+-   google auth
+-   消息提醒
+-   多选评论
+-   搜索 70%
+-   节点排序
+-   话题已读标记
+-   noData
+
+### Optimize
+
+-   话题详情页 BottomBar 显隐导致 widget 重新渲染
+-   自动签到逻辑
+-   骨架屏
