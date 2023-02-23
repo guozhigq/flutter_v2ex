@@ -204,7 +204,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     {
       'leading': const Icon(Icons.edit_note_outlined),
       'title': '发布主题',
-      'path': '/new'
+      'path': '/write'
     },
     {
       'leading': const Icon(Icons.history_outlined),

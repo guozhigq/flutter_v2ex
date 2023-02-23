@@ -32,7 +32,10 @@ samples, guidance on mobile development, and a full API reference.
 + 评论倒序渲染 ✅
 + noData
 + 话题详情页 视频iframe渲染 ✅
-+ 发帖
++ 发布主题 default ✅
++ 发布主题 markdown
++ 编辑主题Action
++ 移动主题节点
 + google auth
 
 ## Optimize

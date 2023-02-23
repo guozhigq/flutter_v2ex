@@ -129,9 +129,7 @@ class _SearchPageState extends State<SearchPage> {
                                     : null,
                             child: wrap(),
                           )
-                        : Center(
-                      child: Text('没有搜索结果', style: Theme.of(context).textTheme.titleMedium,),
-                    ),
+                        : null
                   ),
           ),
           Positioned(

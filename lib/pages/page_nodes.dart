@@ -21,6 +21,7 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
   late final Axis scrollDirection;
   late TabController tabController;
   bool _isLoading = true;
+  bool _isLoadingFav = false;
 
   @override
   void initState() {
@@ -74,7 +75,13 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
   }
 
   Future getFavNodes() async {
+    setState(() {
+      _isLoadingFav = true;
+    });
     var res = await DioRequestWeb.getFavNodes();
+    setState(() {
+      _isLoadingFav = false;
+    });
     var list = [];
     if (res.isNotEmpty) {
       for (var i in res) {
@@ -124,7 +131,9 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
         title: const Text('节点'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.refresh_rounded)),
+          IconButton(onPressed: () {
+            getFavNodes();
+          }, icon: const Icon(Icons.refresh_rounded)),
           const SizedBox(width: 12)
         ],
       ),
@@ -141,10 +150,10 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
                       color: Theme.of(context).appBarTheme.backgroundColor,
                       border: Border(
                           left: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 4.0,
-                            style: BorderStyle.solid,
-                          )),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 4.0,
+                        style: BorderStyle.solid,
+                      )),
                     ),
                     unselectedLabelColor: Theme.of(context)
                         .colorScheme
@@ -161,42 +170,39 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
                       );
                     }).toList(),
                   ),
-                )
-                ,
+                ),
                 // const SizedBox(width: 4),
                 Expanded(
-                    child: ExtendedTabBarView(
-                      cacheExtent: 0,
-                      controller: tabController,
-                      scrollDirection: Axis.vertical,
-                      children: nodesList.map((e) {
-                        return e['childs'].length == 0
-                            ? const Center(
-                                child: Text('还没有收藏节点'),
-                              )
-                            : GridView.count(
-                                padding: EdgeInsets.zero,
-                                // 禁止滚动
-                                physics: e.length < 5
-                                    ? const NeverScrollableClampingScrollPhysics()
-                                    : const ScrollPhysics(),
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 6,
-                                children: [
-                                  ...nodesChildList(e['childs']),
-                                  if (e['childs'].length > 19)
-                                    IconButton(
-                                        onPressed: () {
-                                          allNodes(e['childs']);
-                                        },
-                                        icon: Icon(Icons.more_horiz,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary)),
-                                ],
-                              );
-                      }).toList(),
-                    ),
+                  child: ExtendedTabBarView(
+                    cacheExtent: 0,
+                    controller: tabController,
+                    scrollDirection: Axis.vertical,
+                    children: nodesList.map((e) {
+                      return e['name'] == '已收藏'
+                          ? FavNodes(_isLoadingFav, e)
+                          : GridView.count(
+                                  padding: EdgeInsets.zero,
+                                  // 禁止滚动
+                                  physics: e.length < 5
+                                      ? const NeverScrollableClampingScrollPhysics()
+                                      : const ScrollPhysics(),
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 6,
+                                  children: [
+                                    ...nodesChildList(e['childs']),
+                                    if (e['childs'].length > 19)
+                                      IconButton(
+                                          onPressed: () {
+                                            allNodes(e['childs']);
+                                          },
+                                          icon: Icon(Icons.more_horiz,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary)),
+                                  ],
+                                );
+                    }).toList(),
+                  ),
                 )
               ],
             ),
@@ -211,7 +217,7 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
         list.add(
           InkWell(
             onTap: () {
-              Get.toNamed('/go/${item['nodeId']}');
+                Get.toNamed('/go/${item['nodeId']}');
             },
             borderRadius: BorderRadius.circular(10),
             child: Column(
@@ -238,7 +244,6 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
                     style: Theme.of(context).textTheme.labelMedium,
                     textAlign: TextAlign.center,
                     maxLines: 1),
-                // const SizedBox(height: 2),
               ],
             ),
           ),
@@ -259,6 +264,40 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
           SizedBox(height: 10),
         ],
       ),
+    );
+  }
+
+  Widget FavNodes(loading, nodes) {
+    return loading
+        ? showLoading()
+        : nodes.isEmpty
+        ? const Text('没数据')
+        : nodes['childs'].length == 0
+        ? const Center(
+      child:  Center(
+        child: Text('还没有收藏节点'),
+      )
+    )
+        : GridView.count(
+      padding: EdgeInsets.zero,
+      // 禁止滚动
+      physics: nodes.length < 5
+          ? const NeverScrollableClampingScrollPhysics()
+          : const ScrollPhysics(),
+      crossAxisCount: 3,
+      mainAxisSpacing: 6,
+      children: [
+        ...nodesChildList(nodes['childs']),
+        if (nodes['childs'].length > 19)
+          IconButton(
+              onPressed: () {
+                allNodes(nodes['childs']);
+              },
+              icon: Icon(Icons.more_horiz,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary)),
+      ],
     );
   }
 }

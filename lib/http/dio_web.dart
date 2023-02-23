@@ -484,7 +484,20 @@ class DioRequestWeb {
     detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
     detailModel.visitorCount =
         pureStr.split('·')[1].replaceAll(RegExp(r'\D'), '');
-
+    // APPEND EIDT MOVE
+    var opActionNode = document
+        .querySelector('$headerQuery > small');
+    if(opActionNode!.querySelector('a.op') != null){
+        if(opActionNode!.querySelector('a.op')!.text.contains('APPEND')){
+          detailModel.isAPPEND = true;
+        }
+        if(opActionNode!.querySelector('a.op')!.text.contains('EDIT')){
+          detailModel.isEDIT = true;
+        }
+        if(opActionNode!.querySelector('a.op')!.text.contains('MOVE')){
+          detailModel.isMOVE = true;
+        }
+    }
     detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
 
     // [email_protected] 转码回到正确的邮件字符串
@@ -1702,5 +1715,184 @@ class DioRequestWeb {
       'once': GStorage().getOnce()
     });
     print(response);
+  }
+
+  // 发布主题
+  static postTopic(args) async {
+    SmartDialog.showLoading(msg: '发布中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Strings.v2exHost}/write?node=${args['node_name']}',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'title': args['title'], // 标题
+      'syntax': args['syntax'], // 语法 default markdown
+      'content': args['content'], // 内容
+      'content': args['content'], // 内容
+      'node_name': args['node_name'], // 节点名称 en
+      'once': GStorage().getOnce()
+    });
+
+    Response response =
+    await Request().post('/write', data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    if(document.querySelector('div.problem') != null ){
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Text(document.querySelector('div.problem')!.text),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('确定'))
+            ],
+          );
+        },
+      );
+      return false;
+    }else{
+      return true;
+    }
+  }
+
+  // 编辑主题 不可更改节点
+  static eidtTopic(args) async {
+    SmartDialog.showLoading(msg: '发布中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Strings.v2exHost}/edit/topic/${args.topicId}',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'title': args['title'], // 标题
+      'syntax': args['syntax'], // 语法 0: default 1: markdown
+      'content': args['content'], // 内容
+    });
+
+    Response response =
+    await Request().post('/edit/topic/${args.topicId}', data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    if(document.querySelector('div.problem') != null ){
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Text(document.querySelector('div.problem')!.text),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('确定'))
+            ],
+          );
+        },
+      );
+      return false;
+    }else{
+      return true;
+    }
+  }
+
+  // 移动主题节点
+  static moveTopicNode(topicId, nodeName) async {
+    SmartDialog.showLoading(msg: '移动中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Strings.v2exHost}/move/topic/$topicId',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'destination': nodeName, // 节点
+    });
+
+    Response response =
+    await Request().post('/move/topic/$topicId', data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    if(document.querySelector('div.problem') != null ){
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Text(document.querySelector('div.problem')!.text),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('确定'))
+            ],
+          );
+        },
+      );
+      return false;
+    }else{
+      return true;
+    }
+  }
+
+  // 查询主题状态 pc
+  static Future queryTopicStatus(topicId) async{
+    Map result = {};
+    Response response = await Request().get('/edit/topic/$topicId');
+    var document = parse(response.data);
+    var mainNode = document.querySelector('#Main');
+    if(mainNode!.querySelector('div.inner') != null){
+      // 不可编辑
+      result['status'] = false;
+    }else{
+      result['status'] = true;
+    }
+    // log(response.data);
+    return result;
+  }
+
+  // 增加附言
+  static Future appendContent(args) async {
+    SmartDialog.showLoading(msg: '发布中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Strings.v2exHost}/write?node=${args['node_name']}',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'content': args['content'], // 内容
+      'once': GStorage().getOnce()
+    });
+    Response response = await Request().post('/append/topic/${args.topicId}', data: formData, options: options);
+    print(response);
+
+
   }
 }

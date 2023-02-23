@@ -1,4 +1,4 @@
-import 'package:flutter_v2ex/models/item_node.dart';
+import 'package:flutter_v2ex/models/network/item_node.dart';
 
 class TopicItem {
     String? memberId = ''; // 发布人id

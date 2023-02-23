@@ -30,6 +30,11 @@ class TopicDetailModel {
   int favoriteCount = 0; // 收藏的人数
   bool isThank = false; // 是否已感谢
 
+  // op
+  bool isAPPEND = false; // 默认不可增加附言
+  bool isEDIT = false; // 默认不可编辑主题
+  bool isMOVE = false; // 默认不可移动节点
+
   int totalPage = 1; // 共有多少页数评论
 
   late List<ReplyItem> replyList;

@@ -306,7 +306,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future onReportTopic() async {
     Future.delayed(
       const Duration(seconds: 0),
-          () => showDialog(
+      () => showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作提示'),
@@ -358,15 +358,15 @@ class _TopicDetailState extends State<TopicDetail>
     return Stack(
       children: [
         Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            title: Text(
-              _detailModel != null ? _detailModel!.topicTitle : '',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            actions: _detailModel != null ? appBarAction() : [],
-          ),
-          backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
+          // appBar: AppBar(
+          //   centerTitle: false,
+          //   title: Text(
+          //     _detailModel != null ? _detailModel!.topicTitle : '',
+          //     style: Theme.of(context).textTheme.titleMedium,
+          //   ),
+          //   actions: _detailModel != null ? appBarAction() : [],
+          // ),
+          // backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
           body: _detailModel != null
               ? Scrollbar(
                   radius: const Radius.circular(10),
@@ -451,6 +451,14 @@ class _TopicDetailState extends State<TopicDetail>
         isSelected: _detailModel!.isFavorite,
       ),
     );
+    // list.add(
+    //   IconButton(onPressed: () {
+    //     Get.toNamed('/write', parameters: {
+    //       'source': 'edit',
+    //       'topicId': _detailModel!.topicId
+    //     });
+    //   }, icon: const Icon(Icons.edit_note_rounded))
+    // );
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
@@ -476,13 +484,15 @@ class _TopicDetailState extends State<TopicDetail>
           ),
           const PopupMenuDivider(),
           PopupMenuItem<SampleItem>(
-            // value: SampleItem.browse,
+            value: SampleItem.browse,
             onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
             child: const Text('在浏览器中打开'),
           ),
         ],
       ),
+
     );
+    list.add(const SizedBox(width: 12));
     return list;
   }
 
@@ -498,6 +508,28 @@ class _TopicDetailState extends State<TopicDetail>
         //   titleTextStyle: Theme.of(context).textTheme.titleMedium,
         //   actions: appBarAction(),
         // ),
+        SliverAppBar(
+          expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
+          automaticallyImplyLeading: false,
+          elevation: 1,
+          pinned: true,
+          floating: true,
+          primary: false,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Column(
+              children: [
+                AppBar(
+                  centerTitle: false,
+                  title: Text(
+                    _detailModel != null ? _detailModel!.topicTitle : '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  actions: _detailModel != null ? appBarAction() : [],
+                ),
+              ],
+            ),
+          ),
+        ),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

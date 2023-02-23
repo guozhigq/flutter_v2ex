@@ -18,6 +18,8 @@ import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_v2ex/pages/page_search.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
+import 'package:flutter_v2ex/pages/page_write.dart';
+import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 
 class AppPages {
   static final List<GetPage> getPages = [
@@ -69,5 +71,9 @@ class AppPages {
     GetPage(name: '/search', page: () => const SearchPage()),
     // 热议
     GetPage(name: '/hot', page: () => const HotPage()),
+    // 发布主题
+    GetPage(name: '/write', page: () => const WritePage()),
+    // 主题节点
+    GetPage(name: '/topicNodes', page: () => const TopicNodesPage()),
   ];
 }

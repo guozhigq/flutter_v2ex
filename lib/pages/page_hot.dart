@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
-import 'package:flutter_v2ex/models/item_topic.dart';
+import 'package:flutter_v2ex/models/network/item_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
