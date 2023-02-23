@@ -14,6 +14,7 @@ class HelpPage extends StatefulWidget {
 class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
     Color iconStyle = Theme.of(context).colorScheme.onBackground;
     return Scaffold(
       appBar: AppBar(
@@ -30,7 +31,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
-            subtitle: const Text('欢迎 star'),
+            subtitle: Text('欢迎 star', style: subTitleStyle),
           ),
           ListTile(
             onTap: () => Utils.openURL('https://github.com/guozhigq/flutter_v2ex/issues/new'),
@@ -40,19 +41,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.feedback_outlined, color: iconStyle),
             title: const Text('意见反馈'),
-            subtitle: const Text('issues'),
-          ),
-          ListTile(
-            onTap: () {
-              final url = Uri.parse('mailto:guozhigq@outlook.com');
-              Utils.launchURL(url);
-            },
-            onLongPress: () {
-              Clipboard.setData( const ClipboardData(text:'guozhigq@outlook.com'));
-              SmartDialog.showToast('已复制内容');
-            },
-            leading: Icon(Icons.email_outlined, color: iconStyle),
-            title: const Text('邮箱联系'),
+            subtitle: Text('issues', style: subTitleStyle),
           ),
           ListTile(
             onTap: () async {
@@ -61,7 +50,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('当前版本 v0.0.1'),
-            subtitle: const Text('检查更新'),
+            subtitle: Text('检查更新', style: subTitleStyle),
           )
         ],
       ),

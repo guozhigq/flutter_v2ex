@@ -23,6 +23,7 @@ class _SettingPageState extends State<SettingPage> {
   bool linkOpenInApp = GStorage().getLinkOpenInApp();
   bool loginStatus = GStorage().getLoginStatus();
   String cacheSize = '';
+  bool expendAppBar = GStorage().getExpendAppBar();
 
   @override
   void initState() {
@@ -144,13 +145,30 @@ class _SettingPageState extends State<SettingPage> {
             title: const Text('使用应用内浏览器'),
             subtitle: Text('在应用内查看外部链接', style: subTitleStyle),
             trailing: Transform.scale(
-              scale: 0.9,
+              scale: 0.8,
               child: Switch(
                   value: linkOpenInApp,
                   onChanged: (value) {
                     setState(() {
                       linkOpenInApp = !linkOpenInApp;
                       GStorage().setLinkOpenInApp(linkOpenInApp);
+                    });
+                  }),
+            ),
+          ),
+          ListTile(
+            onTap: () {},
+            leading: Icon(Icons.expand, color: iconStyle),
+            title: const Text('滑动时收起AppBar'),
+            subtitle: Text('在详情页收起顶部信息栏', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  value: expendAppBar,
+                  onChanged: (value) {
+                    setState(() {
+                      expendAppBar = !expendAppBar;
+                      GStorage().setExpendAppBar(expendAppBar);
                     });
                   }),
             ),

@@ -154,7 +154,7 @@ class DioRequestWeb {
     response = await Request().get(
       '/recent',
       data: {'p': p},
-      extra: {'ua': 'pc', 'channel': 'web'},
+      extra: {'ua': 'pc'},
     );
     var tree = ETree.fromString(response.data);
     var aRootNode = tree.xpath("//*[@class='cell item']");

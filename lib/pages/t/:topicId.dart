@@ -69,6 +69,7 @@ class _TopicDetailState extends State<TopicDetail>
       ? FloatingActionButtonLocation.endContained
       : FloatingActionButtonLocation.endFloat;
 
+  bool expendAppBar = GStorage().getExpendAppBar();
   @override
   void initState() {
     super.initState();
@@ -358,15 +359,14 @@ class _TopicDetailState extends State<TopicDetail>
     return Stack(
       children: [
         Scaffold(
-          // appBar: AppBar(
-          //   centerTitle: false,
-          //   title: Text(
-          //     _detailModel != null ? _detailModel!.topicTitle : '',
-          //     style: Theme.of(context).textTheme.titleMedium,
-          //   ),
-          //   actions: _detailModel != null ? appBarAction() : [],
-          // ),
-          // backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
+          appBar: !expendAppBar ?  AppBar(
+            centerTitle: false,
+            title: Text(
+              _detailModel != null ? _detailModel!.topicTitle : '',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            actions: _detailModel != null ? appBarAction() : [],
+          ) : null,
           body: _detailModel != null
               ? Scrollbar(
                   radius: const Radius.circular(10),
@@ -501,35 +501,30 @@ class _TopicDetailState extends State<TopicDetail>
       controller: _scrollController,
       key: listGlobalKey,
       slivers: [
-        // SliverAppBar(
-        //   pinned: false,
-        //   floating: true,
-        //   title: Text(_detailModel!.topicTitle),
-        //   titleTextStyle: Theme.of(context).textTheme.titleMedium,
-        //   actions: appBarAction(),
-        // ),
-        SliverAppBar(
-          expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
-          automaticallyImplyLeading: false,
-          elevation: 1,
-          pinned: true,
-          floating: true,
-          primary: false,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Column(
-              children: [
-                AppBar(
-                  centerTitle: false,
-                  title: Text(
-                    _detailModel != null ? _detailModel!.topicTitle : '',
-                    style: Theme.of(context).textTheme.titleMedium,
+        if(expendAppBar) ... [
+          SliverAppBar(
+            expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
+            automaticallyImplyLeading: false,
+            elevation: 1,
+            pinned: true,
+            floating: true,
+            primary: false,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Column(
+                children: [
+                  AppBar(
+                    centerTitle: false,
+                    title: Text(
+                      _detailModel != null ? _detailModel!.topicTitle : '',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    actions: _detailModel != null ? appBarAction() : [],
                   ),
-                  actions: _detailModel != null ? appBarAction() : [],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+        ],
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
