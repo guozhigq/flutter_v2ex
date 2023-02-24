@@ -24,6 +24,7 @@ class _SettingPageState extends State<SettingPage> {
   bool loginStatus = GStorage().getLoginStatus();
   String cacheSize = '';
   bool expendAppBar = GStorage().getExpendAppBar();
+  bool noticeOn = GStorage().getNoticeOn();
 
   @override
   void initState() {
@@ -169,6 +170,23 @@ class _SettingPageState extends State<SettingPage> {
                     setState(() {
                       expendAppBar = !expendAppBar;
                       GStorage().setExpendAppBar(expendAppBar);
+                    });
+                  }),
+            ),
+          ),
+          ListTile(
+            onTap: () {},
+            leading: Icon(Icons.expand, color: iconStyle),
+            title: const Text('接收消息通知'),
+            subtitle: Text('关闭后将不再接收回复、感谢、收藏\n等通知', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  value: noticeOn,
+                  onChanged: (value) {
+                    setState(() {
+                      noticeOn = !noticeOn;
+                      GStorage().setNoticeOn(noticeOn);
                     });
                   }),
             ),

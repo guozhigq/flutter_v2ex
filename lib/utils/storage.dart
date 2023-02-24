@@ -15,7 +15,8 @@ enum StoreKeys {
   signStatus,
   nodes,
   linkOpenInApp,
-  expendAppBar
+  expendAppBar,
+  noticeOn
 }
 
 class GStorage {
@@ -103,5 +104,10 @@ class GStorage {
   setExpendAppBar(bool value) => _box.write(StoreKeys.expendAppBar.toString(), value);
   bool getExpendAppBar() =>
       _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
+
+  // 消息通知
+  setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
+  bool getNoticeOn() =>
+      _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
 
 }

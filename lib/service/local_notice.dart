@@ -10,6 +10,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class LocalNoticeService {
   int noticeId = 0; //  通知id
@@ -154,6 +155,11 @@ class LocalNoticeService {
   }
 
   void show(count) async{
+    /// 消息通知开关
+    bool noticeOn = GStorage().getNoticeOn();
+    if(!noticeOn) {
+      print('local_notice 162 Line: 不接收消息通知');
+    }
     /// 发送通知前检查目前通知状态、数量
     print('local notice: $count');
     int noticeCount = await _getActive();

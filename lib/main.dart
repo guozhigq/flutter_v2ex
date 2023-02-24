@@ -97,7 +97,6 @@ class _MyAppState extends State<MyApp> {
         currentThemeValue = arg;
       });
     });
-
     eventBus.on('unRead', (arg) {
       LocalNoticeService().show(arg);
     });
