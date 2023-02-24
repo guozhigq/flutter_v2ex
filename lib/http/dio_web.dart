@@ -1111,10 +1111,12 @@ class DioRequestWeb {
 
   // 签到 北京时间8点之后
   static Future dailyMission() async {
-    String lastSignDate = GStorage().getSignStatus();
-    String currentDate = DateTime.now().toString().split(' ')[0];
-    if (lastSignDate == currentDate) {
-      // print('已签到');
+    String lastSignDate = GStorage().getSignStatus(); // 2 23
+    String currentDate = DateTime.now().toString().split(' ')[0]; // 2 24
+    // 当前时
+    int currentHour = DateTime.now().hour;
+    if (lastSignDate == currentDate || !GStorage().getAutoSign()) {
+      // print('已签到 / 不自动签到');
       return false;
     }
     try {
@@ -1138,13 +1140,15 @@ class DioRequestWeb {
             // EventBus().emit('login', 'fail');
           }
         }
+        /// 大于北京时间8点 签到状态为昨天，否则今天
         if (mainBox.querySelector('span.gray') != null) {
           var tipsText = mainBox.querySelector('span.gray')!.innerHtml;
-          if (tipsText.contains('已领取')) {
-            SmartDialog.showToast('今日已签到');
-            GStorage().setSignStatus(DateTime.now().toString().split(' ')[0]);
-
-            // EventBus().emit('login', 'fail');
+          if(currentHour >= 8) {
+            if (tipsText.contains('已领取')) {
+              SmartDialog.showToast('今日已签到');
+              GStorage().setSignStatus(DateTime.now().toString().split(' ')[0]);
+              // EventBus().emit('login', 'fail');
+            }
           }
         }
       }

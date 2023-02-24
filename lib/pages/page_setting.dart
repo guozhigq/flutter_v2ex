@@ -18,7 +18,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool autoSign = true; // 自动签到
+  bool autoSign = GStorage().getAutoSign(); // 自动签到
   bool materialColor = true; // 动态去色
   bool linkOpenInApp = GStorage().getLinkOpenInApp();
   bool loginStatus = GStorage().getLoginStatus();
@@ -94,26 +94,27 @@ class _SettingPageState extends State<SettingPage> {
       ),
       body: ListView(
         children: [
-          // ListTile(
-          //   onTap: () {
-          //     setState(() {
-          //       autoSign = !autoSign;
-          //     });
-          //   },
-          //   leading: Icon(Icons.task_alt, color: iconStyle),
-          //   title: const Text('自动签到'),
-          //   subtitle: Text('北京时间8点', style: subTitleStyle),
-          //   trailing: Transform.scale(
-          //     scale: 0.9,
-          //     child: Switch(
-          //         value: autoSign,
-          //         onChanged: (value) {
-          //           setState(() {
-          //             autoSign = value;
-          //           });
-          //         }),
-          //   ),
-          // ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                autoSign = !autoSign;
+              });
+            },
+            leading: Icon(Icons.task_alt, color: iconStyle),
+            title: const Text('自动签到'),
+            subtitle: Text('北京时间8点', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.9,
+              child: Switch(
+                  value: autoSign,
+                  onChanged: (value) {
+                    setState(() {
+                      autoSign = !autoSign;
+                      GStorage().setAutoSign(autoSign);
+                    });
+                  }),
+            ),
+          ),
           // ListTile(
           //   onTap: () {
           //     setState(() {
@@ -176,7 +177,7 @@ class _SettingPageState extends State<SettingPage> {
           ),
           ListTile(
             onTap: () {},
-            leading: Icon(Icons.expand, color: iconStyle),
+            leading: Icon(Icons.notifications_none, color: iconStyle),
             title: const Text('接收消息通知'),
             subtitle: Text('关闭后将不再接收回复、感谢、收藏\n等通知', style: subTitleStyle),
             trailing: Transform.scale(

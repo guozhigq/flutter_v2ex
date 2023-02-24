@@ -15,7 +15,8 @@ enum StoreKeys {
   nodes,
   linkOpenInApp,
   expendAppBar,
-  noticeOn
+  noticeOn,
+  autoSign
 }
 
 class GStorage {
@@ -108,5 +109,10 @@ class GStorage {
   setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
   bool getNoticeOn() =>
       _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
+
+  // 自动签到
+  setAutoSign(bool value) => _box.write(StoreKeys.autoSign.toString(), value);
+  bool getAutoSign() =>
+      _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
 
 }

@@ -5,6 +5,7 @@ import 'dart:async';
 import 'event_bus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -304,6 +307,14 @@ class Utils {
       result[keyValue[0]] = keyValue[1];
     }
     return result;
+  }
+
+  static Future<String> localTimeZone() async {
+    if (kIsWeb || Platform.isLinux) {
+      return '';
+    }
+    final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+    return timeZoneName;
   }
 }
 
