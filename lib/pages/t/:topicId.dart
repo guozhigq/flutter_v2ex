@@ -71,6 +71,7 @@ class _TopicDetailState extends State<TopicDetail>
       : FloatingActionButtonLocation.endFloat;
 
   bool expendAppBar = GStorage().getExpendAppBar();
+
   @override
   void initState() {
     super.initState();
@@ -230,21 +231,45 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 查看楼中楼回复
   void queryReplyList(replyMemberList, floorNumber, resultList) {
+    // replyMemberList 被@的用户
+    // resultList 当前楼层回复
+    // [
+    //  {'userName1': [ReplyItem, ReplyItem]},
+    //  {'userName2': [ReplyItem, ReplyItem]},
+    // ]
+    print('resultList: ${resultList[0].userName}');
+
+    // 获取之前楼层的所有回复
     List<ReplyItem> replyList =
         _replyList.where((e) => e.floorNumber < floorNumber).toList();
+    // 根据@的用户数 创建指定长度的列表
     List<Map> multipleReplyList = List.filled(replyMemberList.length, {});
+    // 循环评论列表
+    bool queryFlag = false;
     for (var i in replyList) {
       if (replyMemberList.contains(i.userName)) {
+        queryFlag = true;
+        print('查询到@用户');
+        // 取出被@用户的回复
+        // 插入指定位置
         int index = replyMemberList.indexOf(i.userName);
         Map replyListMap = {};
         List repliesList = [];
-        repliesList.add(i);
-        repliesList.add(_replyList
-            .where((value) => value.floorNumber == floorNumber)
-            .toList()[0]);
+        repliesList.add(i); //放入多个 ReplyItem
+        // repliesList.add(_replyList
+        //     .where((value) => value.floorNumber == floorNumber)
+        //     .toList()[0]);
+        repliesList.add(resultList[0]); // 最后放入当前楼层
         replyListMap[i.userName] = repliesList;
         multipleReplyList[index] = replyListMap;
       }
+    }
+    /// 没有查询到@用户 只添加本楼回复
+    if(!queryFlag) {
+      multipleReplyList = [];
+      Map replyListMap = {resultList[0].userName : [resultList[0]]};
+      multipleReplyList.add(replyListMap);
+      replyMemberList = [resultList[0].userName];
     }
     showfloorReply(multipleReplyList, replyMemberList);
   }
@@ -360,14 +385,16 @@ class _TopicDetailState extends State<TopicDetail>
     return Stack(
       children: [
         Scaffold(
-          appBar: !expendAppBar ?  AppBar(
-            centerTitle: false,
-            title: Text(
-              _detailModel != null ? _detailModel!.topicTitle : '',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            actions: _detailModel != null ? appBarAction() : [],
-          ) : null,
+          appBar: !expendAppBar
+              ? AppBar(
+                  centerTitle: false,
+                  title: Text(
+                    _detailModel != null ? _detailModel!.topicTitle : '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  actions: _detailModel != null ? appBarAction() : [],
+                )
+              : null,
           body: _detailModel != null
               ? Scrollbar(
                   radius: const Radius.circular(10),
@@ -452,14 +479,6 @@ class _TopicDetailState extends State<TopicDetail>
         isSelected: _detailModel!.isFavorite,
       ),
     );
-    // list.add(
-    //   IconButton(onPressed: () {
-    //     Get.toNamed('/write', parameters: {
-    //       'source': 'edit',
-    //       'topicId': _detailModel!.topicId
-    //     });
-    //   }, icon: const Icon(Icons.edit_note_rounded))
-    // );
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
@@ -491,7 +510,6 @@ class _TopicDetailState extends State<TopicDetail>
           ),
         ],
       ),
-
     );
     list.add(const SizedBox(width: 12));
     return list;
@@ -502,7 +520,7 @@ class _TopicDetailState extends State<TopicDetail>
       controller: _scrollController,
       key: listGlobalKey,
       slivers: [
-        if(expendAppBar) ... [
+        if (expendAppBar) ...[
           SliverAppBar(
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
             automaticallyImplyLeading: false,
@@ -526,6 +544,50 @@ class _TopicDetailState extends State<TopicDetail>
             ),
           ),
         ],
+        if(_detailModel != null && myUserName == _detailModel!.createdId && (_detailModel!.isAPPEND || _detailModel!.isEDIT || _detailModel!.isMOVE))
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const  EdgeInsets.symmetric(horizontal: 12),
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.person, size: 20, color: Theme.of(context).colorScheme.primary,),
+                    const SizedBox(width: 4),
+                    const Text('对主题进行操作'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    if(_detailModel!.isAPPEND)
+                    TextButton(onPressed: () {
+                      Get.toNamed('/write', parameters: {
+                        'source': 'append',
+                        'topicId': _detailModel!.topicId
+                      });
+                    }, child: const Text('增加附言')),
+                    if(_detailModel!.isEDIT)
+                    TextButton(onPressed: () {
+                          Get.toNamed('/write', parameters: {
+                            'source': 'edit',
+                            'topicId': _detailModel!.topicId
+                          });
+                    }, child: const Text('编辑主题')),
+                    if(_detailModel!.isMOVE)
+                    TextButton(onPressed: () {
+                          Get.toNamed('/topic/nodes', parameters: {
+                            'source': 'move',
+                            'topicId': _detailModel!.topicId
+                          });
+                    }, child: const Text('移动节点')),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

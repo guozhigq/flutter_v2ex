@@ -42,14 +42,16 @@ class _WritePageState extends State<WritePage> {
       // 查询编辑状态及内容
       queryTopicStatus();
     }
+    if (source == 'append') {
+      // 查询附言状态
+      queryAppendStatus();
+    }
   }
 
   // 是否可编辑
   void queryTopicStatus() async {
-    SmartDialog.showLoading();
     var res = await DioRequestWeb.queryTopicStatus(topicId);
     print(res);
-    SmartDialog.dismiss();
     if (res['status']) {
 
     } else {
@@ -77,60 +79,217 @@ class _WritePageState extends State<WritePage> {
     }
   }
 
+  // 是否可以增加附言
+  void queryAppendStatus() async {
+    var res = await DioRequestWeb.appendStatus(topicId);
+    if(!res) {
+      if(context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('提示'),
+              content: const Text('不可为该主题增加附言'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      // 关闭 dialog
+                      Navigator.pop(context);
+                      // 关闭 page
+                      Navigator.pop(context);
+                    },
+                    child: const Text('返回'))
+              ],
+            );
+          },
+        );
+      }
+
+    }
+  }
+
+  void appendDialog() {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text('关于为主题创建附言'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const[
+            Text('- 请在确有必要的情况下再使用此功能为原主题补充信息'),
+            Text('- 每个主题至多可以附加 3 条附言'),
+            Text('- 创建附言价格为每千字 20 铜币'),
+            // Text('- 每个主题至多可以附加 3 条附言'),
+            // Text('- 创建附言价格为每千字 20 铜币'),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('了解了'))
+        ],
+      );
+    });
+  }
+
+  void onSubmit() {
+    switch (source) {
+      case '':
+        onPost();
+        break;
+      case 'edit':
+        onEdit();
+        break;
+      case 'append':
+        onAppend();
+        break;
+      default:
+        onPost();
+    }
+  }
+
+  Future onPost() async{
+    if (currentNode == null) {
+      SmartDialog.showToast('请选择节点', alignment: Alignment.center);
+      return;
+    }
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'title': title,
+        'syntax': syntax,
+        'content': content,
+        'node_name': currentNode!.name,
+        'content': content
+      };
+      var result = await DioRequestWeb.postTopic(args);
+      if (result) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('发布成功'),
+                content: const Text('主题发布成功，是否前往查看'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('返回上一页')),
+                  TextButton(
+                      onPressed: () {
+
+                      },
+                      child: const Text('去查看'))
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
+  }
+
+  // 编辑主题
+  Future onEdit() async{
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'title': title,
+        'syntax': syntax == 'default' ? 0 : 1,
+        'content': content,
+        'topicId': topicId
+      };
+      var result = await DioRequestWeb.eidtTopic(args);
+      if (result) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('编辑成功'),
+                content: const Text('主题编辑成功，是否前往查看'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('返回上一页')),
+                  TextButton(
+                      onPressed: () {
+
+                      },
+                      child: const Text('去查看'))
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
+  }
+
+  // 添加附言
+  Future onAppend() async{
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'syntax': syntax == 'default' ? 0 : 1,
+        'content': content,
+        'topicId': topicId
+      };
+      var result = await DioRequestWeb.appendContent(args);
+      if (result) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('编辑成功'),
+                content: const Text('主题编辑成功，是否前往查看'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('返回上一页')),
+                  TextButton(
+                      onPressed: () {
+
+                      },
+                      child: const Text('去查看'))
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(source == 'edit' ? '编辑主题内容' : '创作新主题'),
+        title: Text(source == 'edit' ? '编辑主题内容' : source == 'append' ? '增加附言' : '创作新主题'),
         actions: [
           IconButton(
-              onPressed: () async {
-                if (currentNode == null) {
-                  SmartDialog.showToast('请选择节点', alignment: Alignment.center);
-                  return;
-                }
-                if ((_formKey.currentState as FormState).validate()) {
-                  //验证通过提交数据
-                  (_formKey.currentState as FormState).save();
-                  // 键盘收起
-                  contentTextFieldNode.unfocus();
-                  var args = {
-                    'title': title,
-                    'syntax': syntax,
-                    'content': content,
-                    'node_name': currentNode!.name,
-                    'content': content
-                  };
-                  var result = await DioRequestWeb.postTopic(args);
-                  if (result) {
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('发布成功'),
-                            content: const Text('主题发布成功，是否前往查看'),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('返回上一页')),
-                              TextButton(
-                                  onPressed: () {
-
-                                  },
-                                  child: const Text('去查看'))
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  }
-                }
-              },
+              onPressed: () => onSubmit(),
               icon: const Icon(Icons.send),
               tooltip: '发布'),
+          if(source == 'append')
+            IconButton(
+                onPressed: ()=> appendDialog(), icon: const Icon(Icons.info_outline_rounded)),
+            const SizedBox(width: 10),
+          if(source != 'append')
           PopupMenuButton<SampleItem>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'action',
@@ -204,6 +363,7 @@ class _WritePageState extends State<WritePage> {
                     )),
               ),
             ],
+            if(source != 'append')
             Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
               decoration: BoxDecoration(
@@ -239,8 +399,8 @@ class _WritePageState extends State<WritePage> {
                   controller: contentController,
                   minLines: 1,
                   maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: "输入正文内容", border: InputBorder.none),
+                  decoration: InputDecoration(
+                      hintText: source == 'append' ? '输入附言内容' : '输入正文内容', border: InputBorder.none),
                   style: Theme
                       .of(context)
                       .textTheme

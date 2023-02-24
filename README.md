@@ -43,9 +43,10 @@ samples, guidance on mobile development, and a full API reference.
         -   分享
         -   浏览器中查看
     -   评论
-        -   感谢评论
-        -   忽略评论
-        -   评论保存
+        - 感谢评论
+        - 忽略评论
+        - 评论保存
+        - 消息提醒
 
 -   主题相关
 
@@ -64,17 +65,19 @@ samples, guidance on mobile development, and a full API reference.
 
 ### TODO
 
--   发布主题 markdown
--   编辑主题 Edit
--   添加附言 Append
--   移动主题节点 move
--   google auth
--   消息提醒
--   多选评论
--   搜索 70%
--   节点排序
--   话题已读标记
--   noData
+- 发布主题 markdown
+- 
+- 编辑主题 Edit
+- 添加附言 Append
+- 移动主题节点 move
+
+- google auth
+
+- 多选评论
+- 搜索 70%
+- 节点排序
+- 话题已读标记
+- noData
 
 ### Optimize
 

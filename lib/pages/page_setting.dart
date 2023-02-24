@@ -8,6 +8,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get_storage/get_storage.dart';
 
 
 class SettingPage extends StatefulWidget {
@@ -104,8 +105,14 @@ class _SettingPageState extends State<SettingPage> {
             title: const Text('自动签到'),
             subtitle: Text('北京时间8点', style: subTitleStyle),
             trailing: Transform.scale(
-              scale: 0.9,
+              scale: 0.8,
               child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
+                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null; // All other states will use the default thumbIcon.
+                  }),
                   value: autoSign,
                   onChanged: (value) {
                     setState(() {
@@ -149,6 +156,12 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
+                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null; // All other states will use the default thumbIcon.
+                  }),
                   value: linkOpenInApp,
                   onChanged: (value) {
                     setState(() {
@@ -166,6 +179,12 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
+                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null; // All other states will use the default thumbIcon.
+                  }),
                   value: expendAppBar,
                   onChanged: (value) {
                     setState(() {
@@ -183,6 +202,12 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
+                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null; // All other states will use the default thumbIcon.
+                  }),
                   value: noticeOn,
                   onChanged: (value) {
                     setState(() {

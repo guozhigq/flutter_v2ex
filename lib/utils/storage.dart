@@ -16,7 +16,8 @@ enum StoreKeys {
   linkOpenInApp,
   expendAppBar,
   noticeOn,
-  autoSign
+  autoSign,
+  eightQuery
 }
 
 class GStorage {
@@ -114,5 +115,9 @@ class GStorage {
   setAutoSign(bool value) => _box.write(StoreKeys.autoSign.toString(), value);
   bool getAutoSign() =>
       _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
+
+  setEightQuery(bool value) => _box.write(StoreKeys.eightQuery.toString(), value);
+  bool getEightQuery() =>
+      _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
 
 }

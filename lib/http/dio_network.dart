@@ -35,7 +35,6 @@ class DioRequestNet {
   static Future<List<TopicItem>> getHotTopic() async {
     Response response = await Request().get(
       DioRequestNet().hotTopics,
-      cacheOptions: DioRequestNet().cacheOptions,
     );
     List<dynamic> list = response.data;
     return list.map((e) => TopicItem.fromJson(e)).toList();

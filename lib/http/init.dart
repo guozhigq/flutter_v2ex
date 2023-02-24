@@ -288,12 +288,12 @@ class Request {
 
   loginAuth(redirect, method) {
     bool needLogin = !(GStorage().getLoginStatus());
-    bool authUrl = redirect.contains('/favorite') ||
-        redirect.contains('/thank') ||
-        redirect.contains('/ignore') ||
-        redirect.contains('/report');
+    bool authUrl = redirect.startsWith('/favorite') ||
+        redirect.startsWith('/thank') ||
+        redirect.startsWith('/ignore') ||
+        redirect.startsWith('/report');
     if ((needLogin && authUrl) ||
-        (method == 'POST' && redirect.contains('/t'))) {
+        (method == 'POST' && redirect.startsWith('/t'))) {
       SmartDialog.dismiss();
       SmartDialog.show(
         useSystem: true,
