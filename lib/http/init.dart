@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart' hide Response;
+// import 'package:get/get.dart' hide Response;
 import 'package:dio/adapter.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/foundation.dart';
