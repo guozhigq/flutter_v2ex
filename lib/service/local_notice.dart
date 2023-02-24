@@ -1,10 +1,15 @@
 import 'dart:io';
 import 'package:get/get.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 
 class LocalNoticeService {
   int noticeId = 0; //  通知id
@@ -12,7 +17,7 @@ class LocalNoticeService {
   String body = ''; // 内容
   String channel = '';
   String channelDescription = 'your channel description'; // 渠道描述
-  var payload;
+  String payload = '';
 
   static final LocalNoticeService _notificationService =
       LocalNoticeService._internal();
@@ -72,16 +77,24 @@ class LocalNoticeService {
       initSettings,
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
-        switch (notificationResponse.notificationResponseType) {
-          case NotificationResponseType.selectedNotification:
-            Get.toNamed('/search');
-            break;
-          case NotificationResponseType.selectedNotificationAction:
-            // if (notificationResponse.actionId == navigationActionId) {
-            //   selectNotificationStream.add(notificationResponse.payload);
-            // }
-            break;
-        }
+        // switch (notificationResponse.notificationResponseType) {
+        //   case NotificationResponseType.selectedNotification:
+        //     Get.toNamed('/search');
+        //     break;
+        //   case NotificationResponseType.selectedNotificationAction:
+        //     // if (notificationResponse.actionId == navigationActionId) {
+        //     //   selectNotificationStream.add(notificationResponse.payload);
+        //     // }
+        //     break;
+        // }
+            /// 除了回复提醒，都跳转至消息列表页面
+            Map noticeQuery = Utils.stringToMap(notificationResponse.payload);
+            if(noticeQuery.isNotEmpty){
+              Get.toNamed('/t/${noticeQuery['topicId']}');
+            }else{
+              Get.toNamed('/notifications');
+            }
+
       },
       // 文本回复
       // onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
@@ -140,6 +153,45 @@ class LocalNoticeService {
     }
   }
 
+  void show(count) async{
+    /// 发送通知前检查目前通知状态、数量
+    print('local notice: $count');
+    int noticeCount = await _getActive();
+    print(noticeCount);
+    if(noticeCount >= count) {
+      return;
+    }else{
+      var res = await DioRequestWeb.queryNotice(1);
+      Iterable<MemberNoticeItem> noticeList = res.noticeList.take(count);
+      for(var i in noticeList){
+        var title = '你有新的消息提醒';
+        var body = '点击查看';
+        String payload = '';
+        if(i.noticeType == NoticeType.reply){
+          title = '${i.memberId}回复了你';
+          body = i.replyContent;
+          payload = 'noticeId:${noticeId+1}#topicId:${i.topicId}';
+        }
+        if(i.noticeType == NoticeType.favTopic) {
+          title = '${i.memberId}收藏了你发布的主题';
+          body = i.topicTitle;
+        }
+        if(i.noticeType == NoticeType.thanksTopic) {
+          title = '${i.memberId}感谢了你的主题';
+          body = i.topicTitle;
+        }
+        if(i.noticeType == NoticeType.thanksReply) {
+          title = '${i.memberId}感谢了你的回复';
+          body = i.replyContent;
+        }
+        send(
+            title: title,
+            body: body,
+            payload: payload
+        );
+      }
+    }
+  }
   // 下发消息
   void send(
       {String title = '您有新的消息提醒', // 标题
@@ -157,6 +209,7 @@ class LocalNoticeService {
     LocalNoticeService().channelDescription = channelDescription;
     LocalNoticeService().payload = payload;
 
+
     // 默认通知
     if (!customSound && !delayed) {
       _showNotification();
@@ -170,6 +223,7 @@ class LocalNoticeService {
       _showNotificationCustomSound(sound);
     }
   }
+
 
   // 默认展示
   Future<void> _showNotification() async {
@@ -286,7 +340,6 @@ class LocalNoticeService {
   }
 
   Future<void> _showNotificationCustomVibrationIconLed() async {
-    print(2222);
     final AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails(
         'high_importance_channel', channel,
@@ -324,10 +377,10 @@ class LocalNoticeService {
     print(pendingNotificationRequests.length);
   }
 
-  Future<void> getActive() async {
-    final List<ActiveNotification>? activeNotifications =
+  Future<int> _getActive() async {
+    final List<ActiveNotification> activeNotifications =
         await _localNotificationsPlugin.getActiveNotifications();
-    print(activeNotifications);
+    return activeNotifications.length;
   }
 
   // 当前时区

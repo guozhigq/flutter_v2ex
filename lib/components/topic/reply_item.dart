@@ -172,7 +172,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           if (value != null)
             {
               print('reply item EventBus'),
-              EventBus().emit('topicReply', value!['replyStatus'])
+              EventBus().emit('topicReply', value['replyStatus'])
             }
         });
   }
@@ -231,7 +231,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
     SmartDialog.showLoading(msg: '保存中');
     RenderRepaintBoundary boundary =
         repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
+    ui.Image image =
+        await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
     final result = await ImageGallerySaver.saveImage(
@@ -272,26 +273,26 @@ class _ReplyListItemState extends State<ReplyListItem> {
     //       ),
     //     ],
     //   ),
-      return Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-        decoration: BoxDecoration(
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: RepaintBoundary(
+        key: repaintKey,
+        child: Material(
           borderRadius: BorderRadius.circular(20),
-        ),
-        child: RepaintBoundary(
-          key: repaintKey,
-          child: Material(
+          // color: Theme.of(context).colorScheme.onInverseSurface,
+          child: InkWell(
+            onTap: replyComment,
             borderRadius: BorderRadius.circular(20),
-            // color: Theme.of(context).colorScheme.onInverseSurface,
-            child: InkWell(
-              onTap: replyComment,
-              borderRadius: BorderRadius.circular(20),
-              child: Ink(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
-                child: content(context),
-              ),
+            child: Ink(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
+              child: content(context),
             ),
           ),
         ),
+      ),
       // ),
     );
   }
@@ -452,8 +453,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
             const SizedBox(width: 32),
             if (reply.replyMemberList.isNotEmpty &&
                 widget.queryReplyList != null &&
-                reply.floorNumber != 1
-            )
+                reply.floorNumber != 1)
               TextButton(
                 onPressed: () => widget.queryReplyList(
                     reply.replyMemberList, reply.floorNumber, [reply]),

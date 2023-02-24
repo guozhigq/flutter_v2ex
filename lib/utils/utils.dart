@@ -292,6 +292,16 @@ class Utils {
       },
     );
   }
+
+  static stringToMap(str) {
+    Map result = {};
+    var strArr = str.split('#');
+    for(var i in strArr){
+      var keyValue = i.split(':');
+      result[keyValue[0]] = keyValue[1];
+    }
+    return result;
+  }
 }
 
 class MyChromeSafariBrowser extends ChromeSafariBrowser {

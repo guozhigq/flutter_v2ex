@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:get/get.dart';
 
@@ -95,6 +96,10 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         currentThemeValue = arg;
       });
+    });
+
+    eventBus.on('unRead', (arg) {
+      LocalNoticeService().show(arg);
     });
   }
 

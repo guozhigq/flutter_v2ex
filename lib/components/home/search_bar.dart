@@ -157,9 +157,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     right: 38,
                     top: 0,
                     child: IconButton(
-                        onPressed: () async {
-                          LocalNoticeService().send();
-                        },
+                        onPressed: () async { },
                         icon: Icon(Icons.notifications_none_rounded,
                             color: Theme.of(context).colorScheme.onSurface)),
                   )

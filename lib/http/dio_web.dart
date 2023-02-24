@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 // import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -1097,10 +1098,9 @@ class DioRequestWeb {
     // 未读消息
     var unRead =
         noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-    print('$unRead条未读消息');
-    if (int.parse(unRead) > 0) {
-      print(AppLifecycleState.resumed);
-      LocalNoticeService().send();
+    // print('$unRead条未读消息');
+    if(int.parse(unRead) > 0) {
+      EventBus().emit('unRead', int.parse(unRead));
     }
 
     // 余额
@@ -1500,8 +1500,22 @@ class DioRequestWeb {
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
 
-      noticeItem.replyContent = '';
+      var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
+      if(noticeTypeStr.text!.contains('在回复')){
+        noticeItem.noticeType = NoticeType.reply;
+      }
+      if(noticeTypeStr.text!.contains('收藏了你发布的主题')){
+        noticeItem.noticeType = NoticeType.favTopic;
+      }
+      if(noticeTypeStr.text!.contains('感谢了你发布的主题')){
+        noticeItem.noticeType = NoticeType.thanksTopic;
+      }
+      if(noticeTypeStr.text!.contains('感谢了你在主题')){
+        noticeItem.noticeType = NoticeType.thanksReply;
+      }
+
       if (td2Node.querySelector('div.payload') != null) {
+        noticeItem.replyContent = td2Node.querySelector('div.payload')!.text.trim();
         noticeItem.replyContentHtml =
             td2Node.querySelector('div.payload')!.innerHtml;
       } else {
