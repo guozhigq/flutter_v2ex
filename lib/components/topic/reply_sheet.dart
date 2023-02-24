@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 
 class ReplySheet extends StatefulWidget {
   double height = 0.0; // 容器高

@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:dio/adapter.dart';
@@ -9,15 +10,12 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
-// import 'package:dio_smart_retry/dio_smart_retry.dart'; // dio 重试
 
 String reqCookie = '';
 

@@ -23,7 +23,7 @@ samples, guidance on mobile development, and a full API reference.
     -   模拟账号登录
     -   2FA 登录
     -   登录态失效处理
-    -   账号注册 webview
+    -   账号注册 webView
     -   关注列表
     -   收藏列表
     -   消息列表

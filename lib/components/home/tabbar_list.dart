@@ -1,13 +1,12 @@
-import 'dart:async';
+// ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
-import 'package:flutter_v2ex/components/common/skeleton.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 
 class TabBarList extends StatefulWidget {

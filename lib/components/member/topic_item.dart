@@ -4,9 +4,9 @@ import 'package:flutter_v2ex/models/web/item_member_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 
 class TopicItem extends StatelessWidget {
-  MemberTopicItem topicItem;
+  final MemberTopicItem topicItem;
 
-  TopicItem({required this.topicItem, Key? key}) : super(key: key);
+  const TopicItem({required this.topicItem, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

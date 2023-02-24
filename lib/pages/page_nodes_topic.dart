@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter/cupertino.dart';
 
 class TopicNodesPage extends StatefulWidget {
   const TopicNodesPage({Key? key}) : super(key: key);

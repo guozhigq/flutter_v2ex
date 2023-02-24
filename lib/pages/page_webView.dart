@@ -1,15 +1,12 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-// import 'package:flutter_v2ex/utils/web_uri.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter/material.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WebView extends StatefulWidget {
-  const WebView({ super.key});
+  const WebView({super.key});
 
   @override
   State<WebView> createState() => _WebViewState();
@@ -38,18 +35,19 @@ class _WebViewState extends State<WebView> {
     super.initState();
     setUA();
     aUrl = Get.parameters['aUrl']!;
-
   }
 
-  setUA() async{
+  setUA() async {
     String? newUserAgent;
     final defaultUserAgent = await InAppWebViewController.getDefaultUserAgent();
-    if(Platform.isIOS){
+    if (Platform.isIOS) {
       // newUserAgent = "$defaultUserAgent Safari/604.1";
-      newUserAgent = "Mozilla/5.0 (Linux; Android 9.0; V2er Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36";
+      newUserAgent =
+          "Mozilla/5.0 (Linux; Android 9.0; V2er Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36";
     }
-    if(Platform.isAndroid) {
-      newUserAgent = "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
+    if (Platform.isAndroid) {
+      newUserAgent =
+          "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
     }
     webViewController?.setSettings(
         settings: InAppWebViewSettings(userAgent: newUserAgent));
@@ -66,8 +64,12 @@ class _WebViewState extends State<WebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('登录 - Google账号', style: Theme.of(context).textTheme.titleMedium,),
-        leading: IconButton(onPressed: closePage, icon: const Icon(Icons.close)),
+        title: Text(
+          '登录 - Google账号',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        leading:
+            IconButton(onPressed: closePage, icon: const Icon(Icons.close)),
         actions: [
           IconButton(onPressed: onShare, icon: const Icon(Icons.refresh)),
         ],
@@ -81,20 +83,21 @@ class _WebViewState extends State<WebView> {
                 InAppWebView(
                   // key: GlobalKey,
                   initialUrlRequest: URLRequest(url: WebUri(aUrl)),
-                  initialSettings: InAppWebViewSettings(
-                    allowContentAccess: true
-                  ),
+                  initialSettings:
+                      InAppWebViewSettings(allowContentAccess: true),
                   onWebViewCreated: (controller) async {
                     webViewController = controller;
                     // print(await controller.getHtml());
                   },
                   onLoadStart: (controller, url) async {
-                    List<Cookie> cookies = await cookieManager.getCookies(url: url!);
+                    List<Cookie> cookies =
+                        await cookieManager.getCookies(url: url!);
                     // print('😊😊😊😊😊: $cookies');
                     URLRequest(url: WebUri(aUrl));
                   },
-                  onCloseWindow: (controller ) async{
-                    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri(aUrl));
+                  onCloseWindow: (controller) async {
+                    List<Cookie> cookies =
+                        await cookieManager.getCookies(url: WebUri(aUrl));
                     print('😊: $cookies');
                   },
                 ),
@@ -117,12 +120,12 @@ class _WebViewState extends State<WebView> {
     print('onMore');
   }
 
-  void closePage() async{
+  void closePage() async {
     Navigator.pop(context);
     List<Cookie> cookies = await cookieManager.getCookies(url: WebUri(aUrl));
     String cookiePath = await Utils.getCookiePath();
-    PersistCookieJar cookieJar = PersistCookieJar(
-        ignoreExpires: true, storage: FileStorage(cookiePath));
+    PersistCookieJar cookieJar =
+        PersistCookieJar(ignoreExpires: true, storage: FileStorage(cookiePath));
     // cookieJar.saveFromResponse(
     //     Uri.parse("https://www.v2ex.com/"), cookies);
   }

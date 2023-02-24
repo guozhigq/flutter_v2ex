@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Skeleton extends StatefulWidget {
   final Widget child;
 
-  Skeleton({
+  const Skeleton({
     required this.child,
     super.key,
   });

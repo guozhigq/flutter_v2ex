@@ -1,12 +1,12 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
-// import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
@@ -14,7 +14,6 @@ import 'package:flutter_v2ex/http/init.dart';
 import 'package:html/dom.dart'
     as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-// import 'package:xpath/xpath.dart';
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
@@ -39,7 +38,6 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/service/local_notice.dart';
 
 class DioRequestWeb {
   static dynamic _parseAndDecode(String response) {
@@ -96,7 +94,7 @@ class DioRequestWeb {
     GStorage().setOnce(once);
 
     var aRootNode = tree.xpath("//*[@class='cell item']");
-    if (aRootNode != null && aRootNode!.isNotEmpty) {
+    if (aRootNode != null && aRootNode.isNotEmpty) {
       for (var aNode in aRootNode) {
         var item = TabTopicItem();
         item.memberId =
@@ -401,7 +399,6 @@ class DioRequestWeb {
 
   // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
-    // ignore: avoid_print
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
@@ -489,13 +486,13 @@ class DioRequestWeb {
     var opActionNode = document
         .querySelector('$headerQuery > small');
     if(opActionNode!.querySelector('a.op') != null){
-        if(opActionNode!.querySelector('a.op')!.text.contains('APPEND')){
+        if(opActionNode.querySelector('a.op')!.text.contains('APPEND')){
           detailModel.isAPPEND = true;
         }
-        if(opActionNode!.querySelector('a.op')!.text.contains('EDIT')){
+        if(opActionNode.querySelector('a.op')!.text.contains('EDIT')){
           detailModel.isEDIT = true;
         }
-        if(opActionNode!.querySelector('a.op')!.text.contains('MOVE')){
+        if(opActionNode.querySelector('a.op')!.text.contains('MOVE')){
           detailModel.isMOVE = true;
         }
     }
@@ -1540,9 +1537,8 @@ class DioRequestWeb {
   static Future<bool> onFollowMember(String followId, bool followStatus) async {
     SmartDialog.showLoading();
     int once = GStorage().getOnce();
-    Response response;
     var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
-    response = await Request().get(url, data: {'once': once});
+    Response response = await Request().get(url, data: {'once': once});
     SmartDialog.dismiss();
     // if(response.statusCode == 302){
     // 操作成功
@@ -1556,9 +1552,8 @@ class DioRequestWeb {
   static Future<bool> onBlockMember(String blockId, bool blockStatus) async {
     SmartDialog.showLoading();
     int once = GStorage().getOnce();
-    Response response;
     var url = blockStatus ? '/unblock/$blockId' : '/block/$blockId';
-    response = await Request().get(url, data: {'once': once});
+    Response response = await Request().get(url, data: {'once': once});
     SmartDialog.dismiss();
     // if(response.statusCode == 302){
     // 操作成功

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:async';
 import 'event_bus.dart';
@@ -33,8 +35,7 @@ class Utils {
 
   static Future<String> getCookiePath() async {
     Directory tempDir = await getApplicationDocumentsDirectory();
-    String tempPath = tempDir.path + "/.vvexCookie";
-    print(tempPath);
+    String tempPath = "${tempDir.path}/.vvexCookie";
     Directory dir = Directory(tempPath);
     bool b = await dir.exists();
     if (!b) {
@@ -273,7 +274,9 @@ class Utils {
                       // 关闭loading
                       SmartDialog.dismiss();
                       // 关闭2fa dialog
-                      Navigator.pop(context);
+                      if(context.mounted){
+                        Navigator.pop(context);
+                      }
                       // 关闭login page
                       Get.back();
                     } else {

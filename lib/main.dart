@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
@@ -18,12 +16,11 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:system_proxy/system_proxy.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
-  String _port;
-  String _host;
+  final String _port;
+  final String _host;
   ProxiedHttpOverrides(this._host, this._port);
 
   @override

@@ -12,7 +12,6 @@ import 'package:flutter_v2ex/pages/member/:memberId.dart';
 import 'package:flutter_v2ex/pages/member/:memberId/topics.dart';
 import 'package:flutter_v2ex/pages/member/:memberId/replies.dart';
 
-import 'package:flutter_v2ex/pages/my/nodes.dart';
 import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
@@ -48,11 +47,6 @@ class AppPages {
         name: '/member/:memberId/replies',
         page: () => const MemberRepliesPage()),
 
-    // 我收藏的节点
-    GetPage(
-        name: '/my/nodes',
-        page: () => const MyNodesPage(),
-        middlewares: [GetMiddleware()]),
     // 我收藏的主题
     GetPage(name: '/my/topics', page: () => const MyTopicsPage()),
     // 我关注的主题、用户

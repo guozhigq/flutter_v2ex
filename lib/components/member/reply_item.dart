@@ -4,9 +4,9 @@ import 'package:flutter_v2ex/models/web/item_member_reply.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 
 class ReplyItem extends StatelessWidget {
-  MemberReplyItem replyItem;
+  final MemberReplyItem replyItem;
 
-  ReplyItem({required this.replyItem, Key? key}) : super(key: key);
+  const ReplyItem({required this.replyItem, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

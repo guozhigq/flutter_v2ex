@@ -4,7 +4,6 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/web/model_member_notice.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
-import 'package:flutter_v2ex/components/message/notice_item.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
 
 class MessagePage extends StatefulWidget {

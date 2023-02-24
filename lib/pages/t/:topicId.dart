@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,6 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'dart:math';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:share_plus/share_plus.dart';
 
 enum SampleItem { ignore, share, report, browse }
@@ -223,7 +224,7 @@ class _TopicDetailState extends State<TopicDetail>
       },
     ).then((value) => {
           if (value != null)
-            {EventBus().emit('topicReply', value!['replyStatus'])}
+            {EventBus().emit('topicReply', value['replyStatus'])}
         });
   }
 

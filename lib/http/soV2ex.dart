@@ -25,14 +25,14 @@ class SoV2ex {
 
 class SoV2exRes {
   int took = 0;
-  bool timed_out = false;
+  bool timedOut = false;
   int total = 0;
   List<HitsList> hits = [];
 
   static SoV2exRes fromMap(Map<String, dynamic> map){
     SoV2exRes soV2exRes = SoV2exRes();
     soV2exRes.took = map['took'];
-    soV2exRes.timed_out = map['timed_out'];
+    soV2exRes.timedOut = map['timed_out'];
     soV2exRes.total = map['total'];
     soV2exRes.hits = HitsList.fromMapList(map['hits'], soV2exRes.total);
 

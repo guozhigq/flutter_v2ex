@@ -6,8 +6,8 @@ class CAvatar extends StatelessWidget {
   final String url;
   final double size;
   final int radius = 50;
-  final fadeOutDuration;
-  final fadeInDuration;
+  final Duration? fadeOutDuration;
+  final Duration? fadeInDuration;
 
   const CAvatar({
     Key? key,

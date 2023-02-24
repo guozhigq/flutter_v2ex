@@ -1,7 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/utils/string.dart';
-import 'package:path_provider/path_provider.dart';
 
 enum StoreKeys {
   token,

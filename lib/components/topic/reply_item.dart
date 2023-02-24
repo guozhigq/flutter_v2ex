@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
@@ -11,12 +10,9 @@ import 'package:flutter_v2ex/components/topic/reply_new.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-// import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ReplyListItem extends StatefulWidget {
   ReplyListItem({
@@ -151,7 +147,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 回复评论
   void replyComment() {
-    var statusHeight = MediaQuery.of(context).padding.top;
     var replyId = reply.replyId;
     if (replyId == '') {
       // 刚回复的楼层没有回复replyId
@@ -357,73 +352,71 @@ class _ReplyListItemState extends State<ReplyListItem> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // 头像、昵称
-        Container(
-          child: Row(
-            // 两端对齐
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  lfAvtar(),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
+        Row(
+          // 两端对齐
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                lfAvtar(),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          reply.userName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        const SizedBox(width: 4),
+                        if (reply.isOwner) ...[
+                          Icon(
+                            Icons.person,
+                            size: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        ]
+                      ],
+                    ),
+                    const SizedBox(height: 1.5),
+                    Row(
+                      children: [
+                        if (reply.lastReplyTime.isNotEmpty) ...[
                           Text(
-                            reply.userName,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.labelLarge,
+                            reply.lastReplyTime,
+                            style: Theme.of(context).textTheme.labelSmall,
                           ),
-                          const SizedBox(width: 4),
-                          if (reply.isOwner) ...[
-                            Icon(
-                              Icons.person,
-                              size: 15,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          ]
+                          const SizedBox(width: 2),
                         ],
-                      ),
-                      const SizedBox(height: 1.5),
-                      Row(
-                        children: [
-                          if (reply.lastReplyTime.isNotEmpty) ...[
-                            Text(
-                              reply.lastReplyTime,
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                            const SizedBox(width: 2),
-                          ],
-                          if (reply.platform == 'Android') ...[
-                            const Icon(
-                              Icons.android,
-                              size: 14,
-                            ),
-                          ],
-                          if (reply.platform == 'iPhone') ...[
-                            const Icon(Icons.apple, size: 16),
-                          ]
+                        if (reply.platform == 'Android') ...[
+                          const Icon(
+                            Icons.android,
+                            size: 14,
+                          ),
                         ],
-                      )
-                    ],
-                  )
-                ],
-              ),
-              IconButton(
-                padding: const EdgeInsets.all(2.0),
-                icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
-                onPressed: showBottomSheet,
-              ),
-              // Text(
-              //   '#${reply.floorNumber}',
-              //   style: Theme.of(context).textTheme.titleSmall,
-              // )
-            ],
-          ),
+                        if (reply.platform == 'iPhone') ...[
+                          const Icon(Icons.apple, size: 16),
+                        ]
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
+            IconButton(
+              padding: const EdgeInsets.all(2.0),
+              icon: const Icon(Icons.more_horiz_outlined, size: 18.0),
+              onPressed: showBottomSheet,
+            ),
+            // Text(
+            //   '#${reply.floorNumber}',
+            //   style: Theme.of(context).textTheme.titleSmall,
+            // )
+          ],
         ),
         // title
         Container(

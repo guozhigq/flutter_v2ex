@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/utils/string.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class CacheManage {

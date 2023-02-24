@@ -1,22 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_v2ex/pages/page_webView.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_highlight/flutter_highlight.dart';
-import 'package:flutter_highlight/themes/idea.dart';
-
-// import 'package:flutter_v2ex/pages/profile_page.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:extended_image/extended_image.dart';
-
-// import 'package:flutter_html_all/flutter_html_all.dart';
-// import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:flutter_v2ex/pages/page_preview.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_html_iframe/flutter_html_iframe.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_v2ex/pages/page_preview.dart';
+import 'package:flutter_html_iframe/flutter_html_iframe.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatefulWidget {
@@ -79,6 +69,7 @@ class _HtmlRenderState extends State<HtmlRender> {
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
             imgUrl = Utils().imageUrl(imgUrl!);
+            // ignore: avoid_print
             print(imgUrl);
             // todo 多张图片轮播
             return SelectionContainer.disabled(
@@ -111,7 +102,7 @@ class _HtmlRenderState extends State<HtmlRender> {
                           width: double.infinity,
                           height: 60,
                           color: Theme.of(context).colorScheme.onInverseSurface,
-                          child: Center(
+                          child: const Center(
                             child: Text('图片加载中...'),
                           ),
                         );
@@ -203,7 +194,7 @@ class _HtmlRenderState extends State<HtmlRender> {
           SnackBar(
               duration: const Duration(milliseconds: 3000),
             // showCloseIcon: true,
-            content: Text('🔗链接打开失败'),
+            content: const Text('🔗链接打开失败'),
             action: SnackBarAction(
               label: '复制',
               onPressed: () {

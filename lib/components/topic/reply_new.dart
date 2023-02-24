@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -30,7 +29,6 @@ class _ReplyNewState extends State<ReplyNew> {
   @override
   void initState() {
     // TODO: implement initState
-    print(Navigator.of(context).widget);
     super.initState();
   }
 
@@ -72,9 +70,13 @@ class _ReplyNewState extends State<ReplyNew> {
       var res = await DioRequestWeb.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res) {
-        Navigator.pop(context, {'replyStatus': 'success'});
+        if(context.mounted){
+          Navigator.pop(context, {'replyStatus': 'success'});
+        }
       } else {
-        Navigator.pop(context, {'replyStatus': 'fail'});
+        if(context.mounted){
+          Navigator.pop(context, {'replyStatus': 'fail'});
+        }
       }
     }
   }

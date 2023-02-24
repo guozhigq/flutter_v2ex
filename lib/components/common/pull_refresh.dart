@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
@@ -11,7 +13,7 @@ class PullRefresh extends StatefulWidget {
   final int? currentPage;
   final int? totalPage;
 
-   PullRefresh({
+   const PullRefresh({
     // this.ctr,
     this.child,
     this.onChildRefresh,
@@ -94,7 +96,6 @@ class _PullRefreshState extends State<PullRefresh> {
       onRefresh: widget.onChildRefresh != null
           ? () async {
               await widget.onChildRefresh();
-              // ignore: avoid_print
               print('onRefresh Finish');
               _controller.finishRefresh();
               _controller.resetFooter();
@@ -113,7 +114,6 @@ class _PullRefreshState extends State<PullRefresh> {
                 return IndicatorResult.noMore;
               }
               await widget.onChildLoad!();
-              // ignore: avoid_print
               print('onLoad Finish');
               print('widget.currentPage: ${widget.currentPage}');
               print('widget.totalPage: ${widget.totalPage}');

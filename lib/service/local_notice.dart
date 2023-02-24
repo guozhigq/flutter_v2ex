@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, avoid_print
+
 import 'dart:io';
 import 'package:get/get.dart';
 
