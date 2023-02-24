@@ -16,13 +16,19 @@ class TopicSkeleton extends StatelessWidget {
         itemCount: arr.length,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          return topicItemSkeleton(context);
+          return const TopicItemSkeleton();
         },
       ),
     );
   }
 
-  Widget topicItemSkeleton(context) {
+}
+
+class TopicItemSkeleton extends StatelessWidget {
+  const TopicItemSkeleton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     var commonColor = Theme.of(context).colorScheme.surfaceVariant;
     return Container(
       decoration: BoxDecoration(
@@ -103,5 +109,5 @@ class TopicSkeleton extends StatelessWidget {
       ),
     );
   }
-
 }
+
