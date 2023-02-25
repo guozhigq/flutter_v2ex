@@ -1,3 +1,4 @@
+import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -28,12 +29,22 @@ class AppPages {
     // 话题详情
     GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
     // webView
-    GetPage(name: '/webView', page: () => const WebView(), fullscreenDialog: true, transitionDuration: const Duration(milliseconds: 300)),
+    GetPage(
+        name: '/webView',
+        page: () => const WebView(),
+        fullscreenDialog: true,
+        transitionDuration: const Duration(milliseconds: 300)),
 
     // 节点主页
     GetPage(name: '/go/:nodeId', page: () => const GoPage()),
     // 所有节点
-    GetPage(name: '/nodes', page: () => const NodesPage(), fullscreenDialog: true),
+    GetPage(
+      name: '/nodes',
+      page: () => const NodesPage(),
+      fullscreenDialog: true,
+      transitionDuration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    ),
     // 帮助页面
     GetPage(name: '/help', page: () => const HelpPage()),
 
@@ -55,10 +66,7 @@ class AppPages {
     // 消息提醒
     GetPage(name: '/notifications', page: () => const MessagePage()),
     // 图片预览
-    GetPage(
-        name: '/imgPreview',
-        page: () => ImagePreview(imgList: []),
-        fullscreenDialog: true),
+    GetPage(name: '/imgPreview', page: () => ImagePreview()),
     // 设置
     GetPage(name: '/setting', page: () => const SettingPage()),
     // 搜索
