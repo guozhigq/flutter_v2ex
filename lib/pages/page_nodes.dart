@@ -126,12 +126,14 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         foregroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        title: const Text('节点'),
+        // title: const Text('节点'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
-          IconButton(onPressed: () {
-            getFavNodes();
-          }, icon: const Icon(Icons.refresh_rounded)),
+          TextButton(onPressed: () {
+            Get.toNamed('/topicNodes', parameters: {'source': 'nodes'});
+          }, child: const Text('全部节点')),
+          // IconButton(onPressed: () {
+          //   getFavNodes();
+          // }, icon: const Icon(Icons.refresh_rounded)),
           const SizedBox(width: 12)
         ],
       ),

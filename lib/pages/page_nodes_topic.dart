@@ -12,8 +12,10 @@ class TopicNodesPage extends StatefulWidget {
 
 class _TopicNodesPageState extends State<TopicNodesPage> {
   List topicNodesList = [];
+  List tempNodesList = [];
   List searchResList = [];
   bool _isLoading = false;
+  TextEditingController controller = TextEditingController();
 
   // 接收的参数
   String source = '';
@@ -24,8 +26,8 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
     // TODO: implement initState
     super.initState();
     if (Get.parameters.isNotEmpty) {
-      source = Get.parameters['source']!;
-      topicId = Get.parameters['topicId']!;
+      source = Get.parameters['source'] != null ? Get.parameters['source']! : '';
+      topicId = Get.parameters['topicId'] != null ? Get.parameters['topicId']! : '';
     }
     getTopicNodes();
   }
@@ -37,6 +39,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
     var res = await DioRequestNet.getAllNodesT();
     setState(() {
       topicNodesList = res;
+      tempNodesList = res;
       _isLoading = false;
     });
     return res;
@@ -45,7 +48,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   void search(searchKey) {
     if (searchKey == '') {
       setState(() {
-        searchResList = [];
+        topicNodesList = tempNodesList;
       });
       return;
     }
@@ -56,7 +59,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
       }
     }
     setState(() {
-      searchResList = resultList;
+      topicNodesList = resultList;
     });
   }
 
@@ -84,6 +87,12 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
@@ -92,7 +101,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
           slivers: [
             SliverAppBar(
               expandedHeight: 130,
-              title: Text(source == 'move' ? '移动节点' : '选择节点'),
+              title: Text(source == 'move' ? '移动节点' : source == 'nodes' ? '全部节点' : '选择节点'),
               elevation: 1,
               pinned: true,
               floating: true,
@@ -114,10 +123,21 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                               top: 0, right: 0, left: 20, bottom: 0),
                           child: Center(
                             child: TextField(
+                              controller: controller,
                               autofocus: true,
                               textInputAction: TextInputAction.search,
-                              decoration: const InputDecoration.collapsed(
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
                                 hintText: '搜索节点',
+                                suffixIcon: controller.text.isNotEmpty ?  IconButton(
+                                    icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.outline,),
+                                    onPressed: () {
+                                      controller.clear();
+                                      setState(() {
+                                        topicNodesList = tempNodesList;
+                                      });
+                                    }
+                                  ): null,
                               ),
                               onChanged: (String value) {
                                 search(value);
@@ -137,30 +157,24 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                   onTap: () {
                     if (source != '' && source == 'move') {
                       // 移动节点
-                      moveTopicNode(searchResList[index]);
+                      moveTopicNode(topicNodesList[index]);
+                    } else if(source == 'nodes') {
+                      Get.toNamed('/go/${topicNodesList[index].name}');
                     } else {
-                      Get.back(result: {'node': searchResList[index]});
+                      // 新建主题
+                      Get.back(result: {'node': topicNodesList[index]});
                     }
                   },
                   title: Text(
-                    searchResList[index].title,
+                    topicNodesList[index].title,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  subtitle: Text(searchResList[index].name),
+                  subtitle: Text(topicNodesList[index].name),
                   enableFeedback: true,
-                  trailing: Text('主题数：${searchResList[index].topics}'));
-            }, childCount: searchResList.length)),
+                  trailing: Text('主题数：${topicNodesList[index].topics}'));
+            }, childCount: topicNodesList.length)),
           ],
         ),
-        // AnimatedContainer(
-        //   alignment: Alignment.bottomCenter,
-        //   duration: const Duration(milliseconds: 300),
-        //     child: Container(
-        //       width: double.infinity,
-        //       height: 500,
-        //       color: Theme.of(context).colorScheme.background,
-        //     ),
-        // )
       ],
     ));
   }

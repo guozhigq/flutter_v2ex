@@ -28,7 +28,7 @@ class HomeStickyBar extends StatelessWidget {
             child: Center(
               child: IconButton(
                 onPressed: () => {Navigator.pushNamed(context, '/nodes')},
-                icon: const Icon(Icons.segment),
+                icon: const Icon(Icons.segment_rounded, size: 19),
               ),
             ),
           ),

@@ -1115,6 +1115,9 @@ class DioRequestWeb {
     String currentDate = DateTime.now().toString().split(' ')[0]; // 2 24
     // 当前时
     int currentHour = DateTime.now().hour;
+    if(currentHour > 8) {
+      GStorage().setEightQuery(false);
+    }
     if (lastSignDate == currentDate ||
         !GStorage().getAutoSign() ||
         GStorage().getEightQuery()) {

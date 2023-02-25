@@ -33,7 +33,7 @@ class AppPages {
     // 节点主页
     GetPage(name: '/go/:nodeId', page: () => const GoPage()),
     // 所有节点
-    GetPage(name: '/nodes', page: () => const NodesPage()),
+    GetPage(name: '/nodes', page: () => const NodesPage(), fullscreenDialog: true),
     // 帮助页面
     GetPage(name: '/help', page: () => const HelpPage()),
 
