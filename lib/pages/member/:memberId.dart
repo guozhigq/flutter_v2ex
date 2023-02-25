@@ -12,7 +12,6 @@ import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 
-
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
 
@@ -251,7 +250,11 @@ class _MemberPageState extends State<MemberPage> {
                           children: [
                             Hero(
                               tag: heroTag,
-                              child: CAvatar(url: memberAvatar, size: 80),
+                              child: CAvatar(
+                                url: memberAvatar,
+                                size: 80,
+                                quality: 'origin',
+                              ),
                             ),
                             Positioned(
                               bottom: 1,
@@ -314,25 +317,27 @@ class _MemberPageState extends State<MemberPage> {
                     child: Container(
                       padding: const EdgeInsets.only(left: 15, right: 10),
                       child: Html(
-                        data:  signDetail['balanceRender'],
+                        data: signDetail['balanceRender'],
                         customRenders: {
                           tagMatcher("img"): CustomRender.widget(
                             widget: (htmlContext, buildChildren) {
-                              String? imgUrl = htmlContext.tree.element!.attributes['src'];
+                              String? imgUrl =
+                                  htmlContext.tree.element!.attributes['src'];
                               imgUrl = Utils().imageUrl(imgUrl!);
                               return SelectionContainer.disabled(
-                                  child: CachedNetworkImage(
-                                    imageUrl: imgUrl,
-                                    height: 20,
-                                    fadeOutDuration: const Duration(milliseconds: 100),
-                                  ),
+                                child: CachedNetworkImage(
+                                  imageUrl: imgUrl,
+                                  height: 20,
+                                  fadeOutDuration:
+                                      const Duration(milliseconds: 100),
+                                ),
                               );
                             },
                           ),
                         },
                         style: {
                           'a': Style(
-                            color:  Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onBackground,
                             textDecoration: TextDecoration.none,
                             margin: Margins.only(right: 2),
                           ),
@@ -544,7 +549,11 @@ class _MemberPageState extends State<MemberPage> {
               children: [
                 Hero(
                   tag: heroTag,
-                  child: CAvatar(url: memberAvatar, size: 80),
+                  child: CAvatar(
+                    url: memberAvatar,
+                    size: 80,
+                    quality: 'origin',
+                  ),
                 ),
                 const SizedBox(width: 20),
                 Expanded(

@@ -264,10 +264,13 @@ class _TopicDetailState extends State<TopicDetail>
         multipleReplyList[index] = replyListMap;
       }
     }
+
     /// 没有查询到@用户 只添加本楼回复
-    if(!queryFlag) {
+    if (!queryFlag) {
       multipleReplyList = [];
-      Map replyListMap = {resultList[0].userName : [resultList[0]]};
+      Map replyListMap = {
+        resultList[0].userName: [resultList[0]]
+      };
       multipleReplyList.add(replyListMap);
       replyMemberList = [resultList[0].userName];
     }
@@ -544,50 +547,65 @@ class _TopicDetailState extends State<TopicDetail>
             ),
           ),
         ],
-        if(_detailModel != null && myUserName == _detailModel!.createdId && (_detailModel!.isAPPEND || _detailModel!.isEDIT || _detailModel!.isMOVE))
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const  EdgeInsets.symmetric(horizontal: 12),
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.person, size: 20, color: Theme.of(context).colorScheme.primary,),
-                    const SizedBox(width: 4),
-                    const Text('对主题进行操作'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    if(_detailModel!.isAPPEND)
-                    TextButton(onPressed: () {
-                      Get.toNamed('/write', parameters: {
-                        'source': 'append',
-                        'topicId': _detailModel!.topicId
-                      });
-                    }, child: const Text('增加附言')),
-                    if(_detailModel!.isEDIT)
-                    TextButton(onPressed: () {
-                          Get.toNamed('/write', parameters: {
-                            'source': 'edit',
-                            'topicId': _detailModel!.topicId
-                          });
-                    }, child: const Text('编辑主题')),
-                    if(_detailModel!.isMOVE)
-                    TextButton(onPressed: () {
-                          Get.toNamed('/topic/nodes', parameters: {
-                            'source': 'move',
-                            'topicId': _detailModel!.topicId
-                          });
-                    }, child: const Text('移动节点')),
-                  ],
-                ),
-              ],
+        if (_detailModel != null &&
+            myUserName == _detailModel!.createdId &&
+            (_detailModel!.isAPPEND ||
+                _detailModel!.isEDIT ||
+                _detailModel!.isMOVE))
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              color:
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      const Text('对主题进行操作'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      if (_detailModel!.isAPPEND)
+                        TextButton(
+                            onPressed: () {
+                              Get.toNamed('/write', parameters: {
+                                'source': 'append',
+                                'topicId': _detailModel!.topicId
+                              });
+                            },
+                            child: const Text('增加附言')),
+                      if (_detailModel!.isEDIT)
+                        TextButton(
+                            onPressed: () {
+                              Get.toNamed('/write', parameters: {
+                                'source': 'edit',
+                                'topicId': _detailModel!.topicId
+                              });
+                            },
+                            child: const Text('编辑主题')),
+                      if (_detailModel!.isMOVE)
+                        TextButton(
+                            onPressed: () {
+                              Get.toNamed('/topic/nodes', parameters: {
+                                'source': 'move',
+                                'topicId': _detailModel!.topicId
+                              });
+                            },
+                            child: const Text('移动节点')),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
         SliverToBoxAdapter(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -614,6 +632,7 @@ class _TopicDetailState extends State<TopicDetail>
                                 child: CAvatar(
                                   url: _detailModel!.avatar,
                                   size: 45,
+                                  quality: 'origin',
                                 ),
                               )),
                         ),

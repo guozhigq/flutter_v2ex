@@ -25,6 +25,7 @@ class _SearchPageState extends State<SearchPage> {
   bool _isLoading = true;
   bool _isBlock = false;
   String searchKeyWord = '';
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
@@ -91,10 +92,21 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title:  TextField(
+          controller: controller,
           autofocus: true,
           textInputAction: TextInputAction.search,
-          decoration: const InputDecoration.collapsed(
+          decoration: InputDecoration(
             hintText: '搜索功能由soV2ex提供',
+            border: InputBorder.none,
+            suffixIcon: controller.text.isNotEmpty ?  IconButton(
+                icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.outline,),
+                onPressed: () {
+                  controller.clear();
+                  setState(() {
+                    hitsList = [];
+                  });
+                }
+            ): null,
           ),
           onSubmitted: (String value) {
             setState(() {

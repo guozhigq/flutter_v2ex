@@ -1,47 +1,61 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/common/appbar.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+
+
+enum SampleItem { share, save, browser }
 
 class ImagePreview extends StatefulWidget {
-  List imgList = [];
-  int? initialPage;
-
-
-  ImagePreview({required this.imgList, this.initialPage, Key? key})
-      : super(key: key);
+  ImagePreview({Key? key}) : super(key: key);
 
   @override
   State<ImagePreview> createState() => _ImagePreviewState();
 }
 
-class _ImagePreviewState extends State<ImagePreview> {
+class _ImagePreviewState extends State<ImagePreview>
+    with SingleTickerProviderStateMixin {
   int initialPage = 0;
   List imgList = [];
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  late AnimationController animationController;
+  Animation<double>? _animationValue;
 
   bool storage = true;
   bool videos = true;
   bool photos = true;
+  bool visiable = true;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _requestPermission();
-    android();
-    setState(() {
-      initialPage = widget.initialPage!;
-      imgList = widget.imgList;
-    });
+    // android();
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
+    // setState(() {
+    //   initialPage = widget.initialPage!;
+    //   imgList = widget.imgList;
+    // });
+    if (Get.arguments != null) {
+      initialPage = Get.arguments['initialPage']!;
+      imgList = Get.arguments['imgList'];
+    }
   }
 
-  android () async{
+  android() async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     if (androidInfo.version.sdkInt >= 33) {
       videos = await Permission.videos.status.isGranted;
@@ -68,10 +82,9 @@ class _ImagePreviewState extends State<ImagePreview> {
 
     print('授权状态：$info');
     // print('相册授权状态：$photosInfo');
-
   }
 
-  void onSaveImg() async{
+  void onSaveImg() async {
     SmartDialog.showLoading(msg: '保存中');
     var response = await Dio().get(imgList[initialPage],
         options: Options(responseType: ResponseType.bytes));
@@ -80,118 +93,149 @@ class _ImagePreviewState extends State<ImagePreview> {
         quality: 100,
         name: "pic_vvex${DateTime.now().toString().split('-').join()}");
     SmartDialog.dismiss();
-    if(result != null){
-      if(result['isSuccess']){
+    if (result != null) {
+      if (result['isSuccess']) {
         SmartDialog.showToast('已保存到相册');
       }
     }
   }
 
+  void onShareImg() async {
+    // final Uri imgUrl = Uri.parse(imgList[initialPage]) ;
+    var response = await Dio().get(imgList[initialPage],
+        options: Options(responseType: ResponseType.bytes));
+
+    final temp = await getTemporaryDirectory();
+    String imgName = "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
+    var path = '${temp.path}/$imgName';
+    File(path).writeAsBytesSync(response.data);
+    Share.shareXFiles([XFile(path)], subject: imgList[initialPage]);
+  }
+
+  void onBrowserImg() async {
+      Utils.openURL(imgList[initialPage]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          // appBar: AppBar(
-          //   automaticallyImplyLeading: false,
-          //   centerTitle: true,
-          //   title: Text.rich(TextSpan(children: [
-          //     TextSpan(text: (initialPage + 1).toString()),
-          //     const TextSpan(text: ' / '),
-          //     TextSpan(text: imgList.length.toString()),
-          //   ])),
-          //   actions: const [
-          //     // IconButton(
-          //     //     onPressed: () => {},
-          //     //     icon: const Icon(Icons.file_download_outlined),
-          //     //     tooltip: '下载所有图片'),
-          //   ],
-          // ),
-          body: ExtendedImageGesturePageView.builder(
-            controller: ExtendedPageController(
-              initialPage: initialPage,
-              pageSpacing: 50,
+    return Scaffold(
+      // backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true,
+      appBar: AppBarWidget(
+        controller: animationController,
+        visible: visiable,
+        child: AppBar(
+          // backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.background],
+              ),
             ),
-            onPageChanged: (int index) => {
-              setState(() {
-                initialPage = index;
-              })
-            },
-            preloadPagesCount: 2,
-            itemCount: imgList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ExtendedImage.network(
-                imgList[index],
-                fit: BoxFit.contain,
-                mode: ExtendedImageMode.gesture,
-                loadStateChanged: (ExtendedImageState state) {
-                  if (state.extendedImageLoadState == LoadState.loading) {
-                    final ImageChunkEvent? loadingProgress =
-                        state.loadingProgress;
-                    final double? progress =
-                        loadingProgress?.expectedTotalBytes != null
-                            ? loadingProgress!.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null;
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 150.0,
-                            child: LinearProgressIndicator(value: progress),
-                          ),
-                          const SizedBox(height: 10.0),
-                          Text('${((progress ?? 0.0) * 100).toInt()}%'),
-                        ],
-                      ),
-                    );
-                  }
-                },
-                initGestureConfigHandler: (ExtendedImageState state) {
-                  return GestureConfig(
-                    //you must set inPageView true if you want to use ExtendedImageGesturePageView
-                    inPageView: true,
-                    initialScale: 1.0,
-                    maxScale: 5.0,
-                    animationMaxScale: 6.0,
-                    initialAlignment: InitialAlignment.center,
-                  );
-                },
-              );
-            },
           ),
+          elevation: 0,
+          centerTitle: false,
+          title: Text.rich(
+            TextSpan(children: [
+              TextSpan(text: (initialPage + 1).toString()),
+              const TextSpan(text: ' / '),
+              TextSpan(text: imgList.length.toString()),
+            ]),
+          ),
+          actions: [
+            PopupMenuButton<SampleItem>(
+              icon: const Icon(Icons.more_vert),
+              tooltip: 'action',
+              itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<SampleItem>>[
+                PopupMenuItem<SampleItem>(
+                  value: SampleItem.share,
+                  onTap: onShareImg,
+                  child: const Text('分享'),
+                ),
+                PopupMenuItem<SampleItem>(
+                  value: SampleItem.save,
+                  onTap: onSaveImg,
+                  child: const Text('保存'),
+                ),
+                PopupMenuItem<SampleItem>(
+                  value: SampleItem.browser,
+                  onTap: onBrowserImg,
+                  child: const Text('浏览器中查看'),
+                ),
+              ],
+            ),
+          ],
         ),
-        Positioned(
-          left: 20,
-          right: 20,
-          bottom: 30,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-            IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, size: 35),
-              ),
-              if(imgList.length > 1)
-              Text.rich(TextSpan(
-                style: Theme.of(context).textTheme.titleSmall,
-                  children: [
-                  TextSpan(text: (initialPage + 1).toString()),
-                  const TextSpan(text: ' / '),
-                  TextSpan(text: imgList.length.toString()),
-                ],),),
-              IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: () => onSaveImg(),
-                icon: const Icon(Icons.download_rounded, size: 35),
-              ),
-            ],
-          )
-        )
-      ],
+      ),
+      body: GestureDetector(
+        onTap: () {
+          setState(() {
+            visiable = !visiable;
+          });
+        },
+        child: ExtendedImageGesturePageView.builder(
+          controller: ExtendedPageController(
+            initialPage: initialPage,
+            pageSpacing: 50,
+          ),
+          onPageChanged: (int index) => {
+            setState(() {
+              initialPage = index;
+            })
+          },
+          preloadPagesCount: 2,
+          itemCount: imgList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ExtendedImage.network(
+              imgList[index],
+              fit: BoxFit.contain,
+              mode: ExtendedImageMode.gesture,
+              loadStateChanged: (ExtendedImageState state) {
+                if (state.extendedImageLoadState == LoadState.loading) {
+                  final ImageChunkEvent? loadingProgress =
+                      state.loadingProgress;
+                  final double? progress =
+                      loadingProgress?.expectedTotalBytes != null
+                          ? loadingProgress!.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null;
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          width: 150.0,
+                          child: LinearProgressIndicator(value: progress),
+                        ),
+                        const SizedBox(height: 10.0),
+                        Text('${((progress ?? 0.0) * 100).toInt()}%'),
+                      ],
+                    ),
+                  );
+                }
+              },
+              initGestureConfigHandler: (ExtendedImageState state) {
+                return GestureConfig(
+                  //you must set inPageView true if you want to use ExtendedImageGesturePageView
+                  inPageView: true,
+                  initialScale: 1.0,
+                  maxScale: 5.0,
+                  animationMaxScale: 6.0,
+                  initialAlignment: InitialAlignment.center,
+                );
+              },
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => onSaveImg(),
+        child: const Icon(Icons.save_alt_rounded),
+      ),
     );
   }
 }

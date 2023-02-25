@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_v2ex/components/common/image_loading.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatefulWidget {
@@ -21,39 +21,8 @@ class HtmlRender extends StatefulWidget {
 }
 
 class _HtmlRenderState extends State<HtmlRender> {
-
   @override
   void initState() {
-    // rootBundle.load('assets/images/flutter-logo.png').then((actionButtonIcon) {
-    //   browser.setActionButton(ChromeSafariBrowserActionButton(
-    //       id: 1,
-    //       description: 'Action Button description',
-    //       icon: actionButtonIcon.buffer.asUint8List(),
-    //       onClick: (url, title) {
-    //         print('Action Button 1 clicked!');
-    //         print(url);
-    //         print(title);
-    //       }));
-    // });
-
-    // browser.addMenuItem(ChromeSafariBrowserMenuItem(
-    //     id: 2,
-    //     label: 'Custom item menu 1',
-    //     image: UIImage(systemName: "sun.max"),
-    //     onClick: (url, title) {
-    //       print('Custom item menu 1 clicked!');
-    //       print(url);
-    //       print(title);
-    //     }));
-    // browser.addMenuItem(ChromeSafariBrowserMenuItem(
-    //     id: 3,
-    //     label: 'Custom item menu 2',
-    //     image: UIImage(systemName: "pencil"),
-    //     onClick: (url, title) {
-    //       print('Custom item menu 2 clicked!');
-    //       print(url);
-    //       print(title);
-    //     }));
     super.initState();
   }
 
@@ -75,39 +44,35 @@ class _HtmlRenderState extends State<HtmlRender> {
             return SelectionContainer.disabled(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ImagePreview(
-                          imgList: widget.imgList!,
-                          initialPage: widget.imgList!.indexOf(imgUrl)),
-                      fullscreenDialog: true,
-                    ),
-                  );
+                  Map<dynamic, dynamic> arguments = {
+                    "imgList": widget.imgList!,
+                    "initialPage": widget.imgList!.indexOf(imgUrl),
+                  };
+                  Get.toNamed('/imgPreview', arguments: arguments);
                 },
                 child: Container(
                   clipBehavior: Clip.hardEdge,
-                  margin: const EdgeInsets.only(top: 4, bottom: 4),
+                  // margin: const EdgeInsets.only(top: 4, bottom: 4),
                   decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(4)),
-                  child: Hero(
-                    tag: imgUrl,
-                    child: CachedNetworkImage(
-                      imageUrl: imgUrl,
-                      // width: double.infinity,
-                      // fit: BoxFit.fitHeight,
-                      fadeOutDuration: const Duration(milliseconds: 500),
-                      placeholder: (htmlContext, url) {
-                        return Container(
-                          width: double.infinity,
-                          height: 60,
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          child: const Center(
-                            child: Text('图片加载中...'),
-                          ),
-                        );
-                      },
-                    ),
+                  // child: CachedNetworkImage(
+                  //   imageUrl: imgUrl,
+                  //   // width: double.infinity,
+                  //   // fit: BoxFit.fitHeight,
+                  //   fadeOutDuration: const Duration(milliseconds: 500),
+                  //   placeholder: (htmlContext, url) {
+                  //     return Container(
+                  //       width: double.infinity,
+                  //       height: 60,
+                  //       color: Theme.of(context).colorScheme.onInverseSurface,
+                  //       child: const Center(
+                  //         child: Text('图片加载中...'),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
+                  child: ImageLoading(
+                    imgUrl: imgUrl,
                   ),
                 ),
               ),
@@ -163,7 +128,8 @@ class _HtmlRenderState extends State<HtmlRender> {
 
   // a标签webview跳转
   void openHrefByWebview(String? aUrl, BuildContext context) async {
-    RegExp exp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    RegExp exp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     bool isValidator = exp.hasMatch(aUrl!);
     if (isValidator) {
       // http(s) 网址
@@ -192,7 +158,7 @@ class _HtmlRenderState extends State<HtmlRender> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              duration: const Duration(milliseconds: 3000),
+            duration: const Duration(milliseconds: 3000),
             // showCloseIcon: true,
             content: const Text('🔗链接打开失败'),
             action: SnackBarAction(

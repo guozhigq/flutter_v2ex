@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+// import 'package:extended_image/extended_image.dart';
 
 class CacheManage {
   CacheManage._internal();
@@ -13,6 +14,12 @@ class CacheManage {
 
   // 获取缓存目录
   Future<String> loadApplicationCache() async {
+
+    /// clear all of image in memory
+    // clearMemoryImageCache();
+    /// get ImageCache
+    // var res = getMemoryImageCache();
+
     // 缓存大小
     double cacheSize = 0;
     // cached_network_image directory
