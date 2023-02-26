@@ -7,6 +7,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:flutter_v2ex/components/common/image_loading.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatefulWidget {
@@ -57,6 +58,11 @@ class _HtmlRenderState extends State<HtmlRender> {
                       BoxDecoration(borderRadius: BorderRadius.circular(4)),
                   // child: CachedNetworkImage(
                   //   imageUrl: imgUrl,
+                  //   httpHeaders: const {
+                  //     'Referrer-Policy': 'no-referrer',
+                  //     'sec-fetch-dest': 'image',
+                  //     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+                  //   },
                   //   // width: double.infinity,
                   //   // fit: BoxFit.fitHeight,
                   //   fadeOutDuration: const Duration(milliseconds: 500),

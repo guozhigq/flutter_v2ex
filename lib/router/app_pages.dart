@@ -25,7 +25,12 @@ class AppPages {
   static final List<GetPage> getPages = [
     // 登录页面
     GetPage(
-        name: '/login', page: () => const LoginPage(), fullscreenDialog: true),
+      name: '/login',
+      page: () => const LoginPage(),
+      fullscreenDialog: true,
+      transitionDuration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    ),
     // 话题详情
     GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
     // webView

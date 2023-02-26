@@ -98,13 +98,13 @@ SPEC CHECKSUMS:
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   image_gallery_saver: 259eab68fb271cfd57d599904f7acdc7832e7ef2
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
-  quick_actions_ios: d211ffc5d7619ace7e9fb1800540b14a1aafe940
+  quick_actions_ios: bb09d1c35b4a89f9dbb15487039fa1b983ca375e
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   system_proxy: bec1a5c5af67dd3e3ebf43979400a8756c04cc44
-  url_launcher_ios: fb12c43172927bb5cf75aeebd073f883801f1993
+  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
 PODFILE CHECKSUM: 26aa60f387c72a3d597dd63b41cc2c8f10de9706

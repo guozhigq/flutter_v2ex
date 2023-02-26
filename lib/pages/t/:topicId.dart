@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_print
-
+import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,6 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'dart:math';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -72,6 +71,8 @@ class _TopicDetailState extends State<TopicDetail>
 
   bool expendAppBar = GStorage().getExpendAppBar();
 
+  late AnimationController animationController;
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +116,9 @@ class _TopicDetailState extends State<TopicDetail>
     });
 
     aStreamC = StreamController<bool>();
+
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
   }
 
   Future getDetailInit() async {
@@ -192,17 +196,23 @@ class _TopicDetailState extends State<TopicDetail>
 
   void _show() {
     if (!_isVisible) {
-      // _isVisible = true;
-      // aStreamC.add(true);
-      setState(() => _isVisible = true);
+      // stream
+      _isVisible = true;
+      aStreamC.add(true);
+      animationController.forward();
+
+      // setState(() => _isVisible = true);
     }
   }
 
   void _hide() {
     if (_isVisible) {
-      // _isVisible = false;
-      // aStreamC.add(false);
-      setState(() => _isVisible = false);
+      // stream
+      _isVisible = false;
+      aStreamC.add(false);
+      animationController.reverse();
+
+      // setState(() => _isVisible = false);
     }
   }
 
@@ -374,6 +384,62 @@ class _TopicDetailState extends State<TopicDetail>
     return result;
   }
 
+  // 收藏
+  Future<void> onFavTopic() async {
+    var res = await DioRequestWeb.favoriteTopic(
+        _detailModel!.isFavorite, _detailModel!.topicId);
+    if (res) {
+      setState(() {
+        _detailModel!.isFavorite = !_detailModel!.isFavorite;
+        _detailModel!.favoriteCount = _detailModel!.isFavorite
+            ? _detailModel!.favoriteCount + 1
+            : _detailModel!.favoriteCount - 1;
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_detailModel!.isFavorite ? '已添加到收藏' : '已取消收藏'),
+          showCloseIcon: true,
+        ),
+      );
+    }
+  }
+
+  // 感谢
+  Future<void> onThankTopic() async {
+    if (_detailModel!.isThank) {
+      SmartDialog.showToast('这个主题已经被感谢过了');
+    } else {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('提示'),
+          content: const Text('确认向本主题创建者表示感谢吗？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('手误了'),
+            ),
+            TextButton(
+              onPressed: (() async {
+                Navigator.pop(context, 'OK');
+                var res = await DioRequestWeb.thankTopic(_detailModel!.topicId);
+                print('54: $res');
+                if (res) {
+                  setState(() {
+                    _detailModel!.isThank = true;
+                  });
+                  SmartDialog.showToast('感谢成功');
+                }
+              }),
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -417,33 +483,48 @@ class _TopicDetailState extends State<TopicDetail>
                   ),
                 )
               : showLoading(),
-          floatingActionButton: Badge(
-            isLabelVisible: false,
-            alignment: AlignmentDirectional.topStart,
-            label: const Text('1'),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: showReplySheet,
+          //   tooltip: '回复',
+          //   child: const Icon(Icons.edit),
+          // ),
+          // floatingActionButtonLocation: _fabLocation,
+          // bottomNavigationBar: DetailBottomBar(
+          //     onRefresh: onRefreshBtm,
+          //     isVisible: _isVisible,
+          //     detailModel: _detailModel,
+          //     topicId: topicId),
+          bottomNavigationBar: StreamBuilder(
+            stream: aStreamC.stream,
+            initialData: false,
+            builder: (context, AsyncSnapshot snapshot) {
+              return DetailBottomBar(
+                onRefresh: onRefreshBtm,
+                isVisible: snapshot.data,
+                detailModel: _detailModel,
+                topicId: topicId,
+              );
+            },
+          ),
+        ),
+        Positioned(
+          bottom: 25,
+          right: 20,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, -0.2),
+              end: const Offset(0, 0.05),
+            ).animate(CurvedAnimation(
+              parent: animationController,
+              curve: Curves.easeOutCubic,
+            )),
             child: FloatingActionButton(
+              elevation: 0,
               onPressed: showReplySheet,
               tooltip: '回复',
               child: const Icon(Icons.edit),
             ),
           ),
-          floatingActionButtonLocation: _fabLocation,
-          bottomNavigationBar: DetailBottomBar(
-              onRefresh: onRefreshBtm,
-              isVisible: _isVisible,
-              detailModel: _detailModel,
-              topicId: topicId),
-          // bottomNavigationBar: StreamBuilder(
-          //   stream: aStreamC.stream,
-          //   initialData: false,
-          //   builder: (context, AsyncSnapshot snapshot) {
-          //     return DetailBottomBar(
-          //       onRefresh: onRefreshBtm,
-          //       isVisible: snapshot.data,
-          //       detailModel: _detailModel,
-          //     );
-          //   },
-          // ),
         ),
       ],
     );
@@ -454,25 +535,7 @@ class _TopicDetailState extends State<TopicDetail>
     List<Widget>? list = [];
     list.add(
       IconButton(
-        onPressed: (() async {
-          var res = await DioRequestWeb.favoriteTopic(
-              _detailModel!.isFavorite, _detailModel!.topicId);
-          if (res) {
-            setState(() {
-              _detailModel!.isFavorite = !_detailModel!.isFavorite;
-              _detailModel!.favoriteCount = _detailModel!.isFavorite
-                  ? _detailModel!.favoriteCount + 1
-                  : _detailModel!.favoriteCount - 1;
-            });
-            // ignore: use_build_context_synchronously
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_detailModel!.isFavorite ? '已添加到收藏' : '已取消收藏'),
-                showCloseIcon: true,
-              ),
-            );
-          }
-        }),
+        onPressed: onFavTopic,
         tooltip: '收藏主题',
         icon: const Icon(Icons.star_border_rounded),
         selectedIcon: Icon(
@@ -751,13 +814,40 @@ class _TopicDetailState extends State<TopicDetail>
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
               //   children: [
-              //     SizedBox(width: 20),
-              //     IconButton(onPressed: () {}, icon: Icon(Icons.messenger_outline_rounded)),
-              //     IconButton(onPressed: () {}, icon: Icon(Icons.favorite_outline_rounded)),
-              //     IconButton(onPressed: () {}, icon: Icon(Icons.star_outline_rounded, size: 29,)),
-              //     IconButton(onPressed: () {}, icon: Icon(Icons.language_rounded)),
-              //     IconButton(onPressed: () {}, icon: Icon(Icons.share_outlined)),
-              //     SizedBox(width: 20),
+              //     const SizedBox(width: 20),
+              //     IconButton(
+              //         onPressed: showReplySheet,
+              //         icon: const Icon(Icons.messenger_outline_rounded)),
+              //     IconButton(
+              //         onPressed: onThankTopic,
+              //         icon: _detailModel != null && _detailModel!.isThank
+              //             ? Icon(
+              //                 Icons.favorite_rounded,
+              //                 color: Theme.of(context).colorScheme.primary,
+              //               )
+              //             : const Icon(Icons.favorite_border_rounded)),
+              //     IconButton(
+              //       onPressed: onFavTopic,
+              //       icon: !_detailModel!.isFavorite
+              //           ? const Icon(
+              //               Icons.star_outline_rounded,
+              //               size: 29,
+              //             )
+              //           : Icon(
+              //               Icons.star_rounded,
+              //               size: 29,
+              //               color: Theme.of(context).colorScheme.primary,
+              //             ),
+              //     ),
+              //     IconButton(
+              //         onPressed: () {
+              //           Utils.openURL('https://www.v2ex.com/t/$topicId');
+              //         },
+              //         icon: Icon(Icons.language_rounded)),
+              //     IconButton(
+              //         onPressed: onShareTopic,
+              //         icon: const Icon(Icons.share_outlined)),
+              //     const SizedBox(width: 20),
               //   ],
               // ),
               if (_detailModel!.content.isNotEmpty)

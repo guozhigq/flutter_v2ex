@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 class ImageLoading extends StatefulWidget {
-  ImageLoading({required this.imgUrl, this.width, this.height, this.type,Key? key}) : super(key: key);
+  ImageLoading(
+      {required this.imgUrl, this.width, this.height, this.type, Key? key})
+      : super(key: key);
 
   String imgUrl = '';
   double? width;
@@ -43,18 +46,21 @@ class _ImageLoadingState extends State<ImageLoading>
       height: widget.type == 'avatar' ? widget.height! : null,
       fit: BoxFit.cover,
       cache: true,
+      headers: const {'sec-fetch-dest': 'image'},
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             _controller.reset();
-            return widget.type == 'avatar' ? placeholder(context) :Container(
-              width: double.infinity,
-              height: 60,
-              color: Theme.of(context).colorScheme.onInverseSurface,
-              child: const Center(
-                child: Text('图片加载中...'),
-              ),
-            );
+            return widget.type == 'avatar'
+                ? placeholder(context)
+                : Container(
+                    width: double.infinity,
+                    height: 60,
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    child: const Center(
+                      child: Text('图片加载中...'),
+                    ),
+                  );
             break;
 
           ///if you don't want override completed widget
@@ -74,33 +80,23 @@ class _ImageLoadingState extends State<ImageLoading>
             break;
           case LoadState.failed:
             _controller.reset();
-            return widget.type == 'avatar' ? placeholder(context) : GestureDetector(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 60,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    child: const Center(
-                      child: Text('图片加载中...'),
+            return widget.type == 'avatar'
+                ? placeholder(context)
+                : InkWell(
+                    onTap: () {
+                      Utils.openURL(widget.imgUrl);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 60,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      child: Center(
+                        child: Text('加载失败 | 点击浏览器打开',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.error)),
+                      ),
                     ),
-                  ),
-                  const Positioned(
-                    bottom: 0.0,
-                    left: 0.0,
-                    right: 0.0,
-                    child: Text(
-                      "load image failed, click to reload",
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                ],
-              ),
-              onTap: () {
-                state.reLoadImage();
-              },
-            );
+                  );
             break;
         }
       },

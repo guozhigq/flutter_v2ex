@@ -75,11 +75,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
         size: 21,
       ),
     },
-    {
-      'id': 5,
-      'title': '查看主页',
-      'leading': const Icon(Icons.person, size: 21),
-    }
+    // {
+    //   'id': 5,
+    //   'title': '查看主页',
+    //   'leading': const Icon(Icons.person, size: 21),
+    // }
   ];
 
   ReplyItem reply = ReplyItem();
@@ -104,15 +104,15 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
-    if (reply.replyMemberList.isNotEmpty) {
-      setState(() {
-        sheetMenu.insert(1, {
-          'id': 2,
-          'title': '查看回复',
-          'leading': const Icon(Icons.messenger_outline_rounded, size: 21),
-        });
-      });
-    }
+    // if (reply.replyMemberList.isNotEmpty) {
+    //   setState(() {
+    //     sheetMenu.insert(1, {
+    //       'id': 2,
+    //       'title': '查看回复',
+    //       'leading': const Icon(Icons.messenger_outline_rounded, size: 21),
+    //     });
+    //   });
+    // }
   }
 
   void menuAction(id) {

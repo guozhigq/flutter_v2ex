@@ -77,7 +77,8 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 800),
       height: widget.isVisible! ? 96.0 : 0,
       child: BottomAppBar(
         elevation: 1,
