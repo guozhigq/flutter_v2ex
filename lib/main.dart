@@ -101,7 +101,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    EventBus().offAll();
+    eventBus.off('login');
+    eventBus.off('topicReply');
+    eventBus.off('ignoreTopic');
+    eventBus.off('unRead');
+    eventBus.off('themeChange');
     super.dispose();
   }
 

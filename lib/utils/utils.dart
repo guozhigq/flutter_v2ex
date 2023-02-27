@@ -21,7 +21,6 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
-
 class Utils {
 //   static IosDeviceInfo iosInfo;
 //   static AndroidDeviceInfo androidInfo;
@@ -61,41 +60,39 @@ class Utils {
     }
   }
 
-  static openURL(aUrl) async{
+  static openURL(aUrl) async {
     bool linkOpenType = GStorage().getLinkOpenInApp();
-    if(!linkOpenType) {
+    if (!linkOpenType) {
       // 1. openWithSystemBrowser
-      await InAppBrowser.openWithSystemBrowser(
-          url: WebUri(aUrl)
-      );
-    }else {
+      await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+    } else {
       // 2. openWithAppBrowser
       await Utils().browser.open(
-        url: WebUri(aUrl),
-        settings: ChromeSafariBrowserSettings(
-            shareState: CustomTabsShareState.SHARE_STATE_OFF,
-            isSingleInstance: false,
-            isTrustedWebActivity: false,
-            keepAliveEnabled: true,
-            startAnimations: [
-              AndroidResource.anim(
-                  name: "slide_in_left", defPackage: "android"),
-              AndroidResource.anim(
-                  name: "slide_out_right", defPackage: "android")
-            ],
-            exitAnimations: [
-              AndroidResource.anim(
-                  name: "abc_slide_in_top",
-                  defPackage:
-                  "com.pichillilorenzo.flutter_inappwebviewexample"),
-              AndroidResource.anim(
-                  name: "abc_slide_out_top",
-                  defPackage:
-                  "com.pichillilorenzo.flutter_inappwebviewexample")
-            ],
-            dismissButtonStyle: DismissButtonStyle.CLOSE,
-            presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-      );
+            url: WebUri(aUrl),
+            settings: ChromeSafariBrowserSettings(
+                shareState: CustomTabsShareState.SHARE_STATE_OFF,
+                isSingleInstance: false,
+                isTrustedWebActivity: false,
+                keepAliveEnabled: true,
+                startAnimations: [
+                  AndroidResource.anim(
+                      name: "slide_in_left", defPackage: "android"),
+                  AndroidResource.anim(
+                      name: "slide_out_right", defPackage: "android")
+                ],
+                exitAnimations: [
+                  AndroidResource.anim(
+                      name: "abc_slide_in_top",
+                      defPackage:
+                          "com.pichillilorenzo.flutter_inappwebviewexample"),
+                  AndroidResource.anim(
+                      name: "abc_slide_out_top",
+                      defPackage:
+                          "com.pichillilorenzo.flutter_inappwebviewexample")
+                ],
+                dismissButtonStyle: DismissButtonStyle.CLOSE,
+                presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+          );
     }
   }
 
@@ -193,9 +190,9 @@ class Utils {
     ).then(
       (value) => {
         if (value['loginStatus'] == 'cancel')
-          {SmartDialog.showToast('取消登录'), EventBus().emit('login', 'cancel')},
+          {SmartDialog.showToast('取消登录'), eventBus.emit('login', 'cancel')},
         if (value['loginStatus'] == 'success')
-          {SmartDialog.showToast('登录成功'), EventBus().emit('login', 'success')}
+          {SmartDialog.showToast('登录成功'), eventBus.emit('login', 'success')}
       },
     );
   }
@@ -277,11 +274,11 @@ class Utils {
                     if (res == 'true') {
                       SmartDialog.showToast('登录成功');
                       GStorage().setLoginStatus(true);
-                      EventBus().emit('login', 'success');
+                      eventBus.emit('login', 'success');
                       // 关闭loading
                       SmartDialog.dismiss();
                       // 关闭2fa dialog
-                      if(context.mounted){
+                      if (context.mounted) {
                         Navigator.pop(context);
                       }
                       // 关闭login page
@@ -306,7 +303,7 @@ class Utils {
   static stringToMap(str) {
     Map result = {};
     var strArr = str.split('#');
-    for(var i in strArr){
+    for (var i in strArr) {
       var keyValue = i.split(':');
       result[keyValue[0]] = keyValue[1];
     }
@@ -330,19 +327,16 @@ class Utils {
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {
-        if (!blacklist.contains(content) && i
-            .group(0)!
-            .trim()
-            .length % 4 == 0) {
+        if (!blacklist.contains(content) &&
+            i.group(0)!.trim().length % 4 == 0) {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         }
       }
       return wechat;
-    }catch(err) {
+    } catch (err) {
       print(err);
       return '';
     }
-
   }
 }
 
@@ -359,7 +353,7 @@ class MyChromeSafariBrowser extends ChromeSafariBrowser {
 
   // 加载完成
   @override
-  void onCompletedInitialLoad(didLoadSuccessfully) async{
+  void onCompletedInitialLoad(didLoadSuccessfully) async {
     // print("😊flutter ChromeSafari browser initial load completed");
     // final cookieManager = CookieManager.instance();
     // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com/signin')));
@@ -367,11 +361,10 @@ class MyChromeSafariBrowser extends ChromeSafariBrowser {
   }
 
   @override
-  void onInitialLoadDidRedirect(WebUri? url) {
+  void onInitialLoadDidRedirect(WebUri? url) {}
 
-  }
   @override
-  void onClosed() async{
+  void onClosed() async {
     // final cookieManager = CookieManager.instance();
     // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com')));
     // print('😊flutter: $cookies');

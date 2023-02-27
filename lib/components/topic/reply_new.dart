@@ -70,11 +70,11 @@ class _ReplyNewState extends State<ReplyNew> {
       var res = await DioRequestWeb.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res) {
-        if(context.mounted){
+        if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
         }
       } else {
-        if(context.mounted){
+        if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'fail'});
         }
       }
@@ -153,8 +153,7 @@ class _ReplyNewState extends State<ReplyNew> {
                   top: 0, right: 10, bottom: 20, left: 10),
               alignment: Alignment.topLeft,
               child: Container(
-                constraints: const BoxConstraints(
-                    maxHeight: 196),
+                constraints: const BoxConstraints(maxHeight: 196),
                 child: HtmlRender(
                   htmlContent: widget.replyMemberList![0].contentRendered,
                 ),

@@ -32,7 +32,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       readUserInfo();
     }
 
-    EventBus().on('login', (arg) {
+    eventBus.on('login', (arg) {
       if (arg == 'success') {
         readUserInfo();
       }
@@ -64,7 +64,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   @override
   void dispose() {
     // TODO: implement dispose
-    EventBus().off('login');
+    eventBus.off('login');
     super.dispose();
   }
 

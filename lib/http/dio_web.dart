@@ -483,18 +483,17 @@ class DioRequestWeb {
     detailModel.visitorCount =
         pureStr.split('·')[1].replaceAll(RegExp(r'\D'), '');
     // APPEND EIDT MOVE
-    var opActionNode = document
-        .querySelector('$headerQuery > small');
-    if(opActionNode!.querySelector('a.op') != null){
-        if(opActionNode.querySelector('a.op')!.text.contains('APPEND')){
-          detailModel.isAPPEND = true;
-        }
-        if(opActionNode.querySelector('a.op')!.text.contains('EDIT')){
-          detailModel.isEDIT = true;
-        }
-        if(opActionNode.querySelector('a.op')!.text.contains('MOVE')){
-          detailModel.isMOVE = true;
-        }
+    var opActionNode = document.querySelector('$headerQuery > small');
+    if (opActionNode!.querySelector('a.op') != null) {
+      if (opActionNode.querySelector('a.op')!.text.contains('APPEND')) {
+        detailModel.isAPPEND = true;
+      }
+      if (opActionNode.querySelector('a.op')!.text.contains('EDIT')) {
+        detailModel.isEDIT = true;
+      }
+      if (opActionNode.querySelector('a.op')!.text.contains('MOVE')) {
+        detailModel.isMOVE = true;
+      }
     }
     detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
 
@@ -520,14 +519,18 @@ class DioRequestWeb {
 
     // 判断是否有正文
     if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
-      var contentDom = document.querySelector('$mainBoxQuery > div.cell > div')!;
+      var contentDom =
+          document.querySelector('$mainBoxQuery > div.cell > div')!;
       detailModel.content = contentDom.text;
       var wechat = Utils.base64Decode(contentDom);
-      if(wechat != ''){
-        contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+      if (wechat != '') {
+        contentDom.nodes.insert(
+            1,
+            parseFragment(
+                '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
       }
       detailModel.contentRendered = contentDom.innerHtml;
-      if (contentDom .querySelector('img') !=  null) {
+      if (contentDom.querySelector('img') != null) {
         var imgNodes = contentDom.querySelectorAll('img');
         var imgLength = imgNodes.length;
         detailModel.imgCount += imgLength;
@@ -550,8 +553,11 @@ class DioRequestWeb {
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
         var contentDom = node.querySelector('div.topic_content')!;
         var wechat = Utils.base64Decode(contentDom);
-        if(wechat != ''){
-          contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+        if (wechat != '') {
+          contentDom.nodes.insert(
+              1,
+              parseFragment(
+                  '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
         }
         subtleItem.content = contentDom.innerHtml;
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
@@ -703,12 +709,14 @@ class DioRequestWeb {
         replyItem.floorNumber = int.parse(aNode
             .querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!
             .text);
-        var contentDom = aNode
-            .querySelector(
+        var contentDom = aNode.querySelector(
             '$replyTrQuery > td:nth-child(5) > div.reply_content')!;
         var wechat = Utils.base64Decode(contentDom);
-        if(wechat != ''){
-          contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+        if (wechat != '') {
+          contentDom.nodes.insert(
+              1,
+              parseFragment(
+                  '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
         }
         replyItem.contentRendered = contentDom.innerHtml;
         replyItem.content = aNode
@@ -1102,8 +1110,8 @@ class DioRequestWeb {
     var unRead =
         noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
     // print('$unRead条未读消息');
-    if(int.parse(unRead) > 0) {
-      EventBus().emit('unRead', int.parse(unRead));
+    if (int.parse(unRead) > 0) {
+      eventBus.emit('unRead', int.parse(unRead));
     }
 
     // 余额
@@ -1111,7 +1119,8 @@ class DioRequestWeb {
     // balance.removeAt(1);
     // balance.removeAt(2);
     // signDetail['balance'] = balance;
-    signDetail['balanceRender'] = noticeNode.querySelector('div#money')!.innerHtml;
+    signDetail['balanceRender'] =
+        noticeNode.querySelector('div#money')!.innerHtml;
     return signDetail;
   }
 
@@ -1121,7 +1130,7 @@ class DioRequestWeb {
     String currentDate = DateTime.now().toString().split(' ')[0]; // 2 24
     // 当前时
     int currentHour = DateTime.now().hour;
-    if(currentHour >= 8) {
+    if (currentHour >= 8) {
       GStorage().setEightQuery(false);
     }
     if (lastSignDate == currentDate ||
@@ -1148,20 +1157,21 @@ class DioRequestWeb {
           var tipsText = mainBox.querySelector('div.message')!.innerHtml;
           if (tipsText.contains('你要查看的页面需要先登录')) {
             SmartDialog.showToast('登录状态失效');
-            // EventBus().emit('login', 'fail');
+            // eventBus.emit('login', 'fail');
           }
         }
+
         /// 大于北京时间8点 签到状态为昨天，否则今天
         if (mainBox.querySelector('span.gray') != null) {
           var tipsText = mainBox.querySelector('span.gray')!.innerHtml;
-          if(currentHour >= 8) {
+          if (currentHour >= 8) {
             if (tipsText.contains('已领取')) {
               SmartDialog.showToast('今日已签到');
               GStorage().setSignStatus(DateTime.now().toString().split(' ')[0]);
-              // EventBus().emit('login', 'fail');
+              // eventBus.emit('login', 'fail');
               GStorage().setEightQuery(false);
             }
-          }else if(currentHour < 8){
+          } else if (currentHour < 8) {
             GStorage().setEightQuery(true);
             print("未到8点");
           }
@@ -1517,21 +1527,22 @@ class DioRequestWeb {
       noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
 
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
-      if(noticeTypeStr.text!.contains('在回复')){
+      if (noticeTypeStr.text!.contains('在回复')) {
         noticeItem.noticeType = NoticeType.reply;
       }
-      if(noticeTypeStr.text!.contains('收藏了你发布的主题')){
+      if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
         noticeItem.noticeType = NoticeType.favTopic;
       }
-      if(noticeTypeStr.text!.contains('感谢了你发布的主题')){
+      if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
         noticeItem.noticeType = NoticeType.thanksTopic;
       }
-      if(noticeTypeStr.text!.contains('感谢了你在主题')){
+      if (noticeTypeStr.text!.contains('感谢了你在主题')) {
         noticeItem.noticeType = NoticeType.thanksReply;
       }
 
       if (td2Node.querySelector('div.payload') != null) {
-        noticeItem.replyContent = td2Node.querySelector('div.payload')!.text.trim();
+        noticeItem.replyContent =
+            td2Node.querySelector('div.payload')!.text.trim();
         noticeItem.replyContentHtml =
             td2Node.querySelector('div.payload')!.innerHtml;
       } else {
@@ -1667,7 +1678,10 @@ class DioRequestWeb {
             .replaceAll('&lt;', '<')
             .replaceAll('&gt;', '>');
         item.topicId = aNode
-            .querySelector('td:nth-child(5) > span.item_title > a')!.attributes['href']!.replaceAll("/t/", "").split("#")[0];
+            .querySelector('td:nth-child(5) > span.item_title > a')!
+            .attributes['href']!
+            .replaceAll("/t/", "")
+            .split("#")[0];
       }
       if (aNode.querySelector('tr > td:last-child > a') != null) {
         String? topicUrl = aNode
@@ -1733,16 +1747,13 @@ class DioRequestWeb {
     return nodesList;
   }
 
-  static Future loginOut() async{
-    Request().get('/signout', data: {
-      'once': GStorage().getOnce()
-    });
+  static Future loginOut() async {
+    Request().get('/signout', data: {'once': GStorage().getOnce()});
   }
 
   static signByGoogle() async {
-    Response response = await Request().get('/auth/google', data: {
-      'once': GStorage().getOnce()
-    });
+    Response response = await Request()
+        .get('/auth/google', data: {'once': GStorage().getOnce()});
     print(response);
   }
 
@@ -1757,7 +1768,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/write?node=${args['node_name']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -1770,10 +1781,10 @@ class DioRequestWeb {
     });
 
     Response response =
-    await Request().post('/write', data: formData, options: options);
+        await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    if(document.querySelector('div.problem') != null ){
+    if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -1790,7 +1801,7 @@ class DioRequestWeb {
         },
       );
       return false;
-    }else{
+    } else {
       return true;
     }
   }
@@ -1806,7 +1817,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/edit/topic/${args['topicId']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -1815,11 +1826,11 @@ class DioRequestWeb {
       'content': args['content'], // 内容
     });
 
-    Response response =
-    await Request().post('/edit/topic/${args['topicId']}', data: formData, options: options);
+    Response response = await Request().post('/edit/topic/${args['topicId']}',
+        data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    if(document.querySelector('div.problem') != null ){
+    if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -1836,7 +1847,7 @@ class DioRequestWeb {
         },
       );
       return false;
-    }else{
+    } else {
       return true;
     }
   }
@@ -1852,18 +1863,18 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/move/topic/$topicId',
       'Origin': Strings.v2exHost,
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
       'destination': nodeName, // 节点
     });
 
-    Response response =
-    await Request().post('/move/topic/$topicId', data: formData, options: options);
+    Response response = await Request()
+        .post('/move/topic/$topicId', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    if(document.querySelector('div.problem') != null ){
+    if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -1880,46 +1891,44 @@ class DioRequestWeb {
         },
       );
       return false;
-    }else{
+    } else {
       return true;
     }
   }
 
   // 查询主题状态 pc
-  static Future queryTopicStatus(topicId) async{
+  static Future queryTopicStatus(topicId) async {
     SmartDialog.showLoading();
     Map result = {};
     Response response = await Request().get('/edit/topic/$topicId');
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if(mainNode!.querySelector('div.inner') != null){
+    if (mainNode!.querySelector('div.inner') != null) {
       // 不可编辑
       result['status'] = false;
-    }else{
+    } else {
       result['status'] = true;
     }
     return result;
   }
 
   // 查询是否可以增加附言
-  static Future appendStatus(topicId) async{
+  static Future appendStatus(topicId) async {
     SmartDialog.showLoading();
-    Response response = await Request().get('/append/topic/$topicId', extra: {
-      'ua': 'mob'
-    });
+    Response response =
+        await Request().get('/append/topic/$topicId', extra: {'ua': 'mob'});
     SmartDialog.dismiss();
     print(response);
     var document = parse(response.data);
-    if(document.querySelectorAll('input').length > 2){
+    if (document.querySelectorAll('input').length > 2) {
       var onceNode = document.querySelectorAll('input')[1];
       GStorage().setOnce(int.parse(onceNode.attributes['value']!));
       return true;
-    }else{
+    } else {
       return false;
     }
   }
-
 
   // 增加附言
   static Future appendContent(args) async {
@@ -1932,7 +1941,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/append/topic/${args['topicId']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -1941,11 +1950,12 @@ class DioRequestWeb {
       'once': GStorage().getOnce()
     });
     Response? response;
-    try{
-      response = await Request().post('/append/topic22/${args['topicId']}', data: formData, options: options);
+    try {
+      response = await Request().post('/append/topic22/${args['topicId']}',
+          data: formData, options: options);
       SmartDialog.dismiss();
       print(response);
-    }catch(err) {
+    } catch (err) {
       SmartDialog.dismiss();
     }
   }

@@ -167,7 +167,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           if (value != null)
             {
               print('reply item EventBus'),
-              EventBus().emit('topicReply', value['replyStatus'])
+              eventBus.emit('topicReply', value['replyStatus'])
             }
         });
   }

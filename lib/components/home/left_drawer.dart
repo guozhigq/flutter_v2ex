@@ -144,7 +144,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       // queryDaily();
     }
     {
-      EventBus().on('login', (arg) {
+      eventBus.on('login', (arg) {
         if (arg == 'success') {
           readUserInfo();
         } else {

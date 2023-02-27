@@ -10,7 +10,6 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get_storage/get_storage.dart';
 
-
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
 
@@ -57,6 +56,7 @@ class _SettingPageState extends State<SettingPage> {
           TextButton(
               onPressed: () async {
                 Navigator.pop(context);
+
                 /// 删除cookie目录
                 try {
                   Directory directory = Directory(await Utils.getCookiePath());
@@ -64,7 +64,7 @@ class _SettingPageState extends State<SettingPage> {
                   GStorage().setLoginStatus(false);
                   GStorage().setUserInfo({});
                   GStorage().setSignStatus('');
-                  EventBus().emit('login', 'loginOut');
+                  eventBus.emit('login', 'loginOut');
                   await DioRequestWeb.loginOut();
                   SmartDialog.showToast('已退出登录 ✅');
                   Request().get('/');
@@ -107,8 +107,10 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
-                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
                       return const Icon(Icons.done);
                     }
                     return null; // All other states will use the default thumbIcon.
@@ -156,8 +158,10 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
-                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
                       return const Icon(Icons.done);
                     }
                     return null; // All other states will use the default thumbIcon.
@@ -179,8 +183,10 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
-                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
                       return const Icon(Icons.done);
                     }
                     return null; // All other states will use the default thumbIcon.
@@ -202,8 +208,10 @@ class _SettingPageState extends State<SettingPage> {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
-                    if (states.isNotEmpty && states.first == MaterialState.selected) {
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
                       return const Icon(Icons.done);
                     }
                     return null; // All other states will use the default thumbIcon.
@@ -218,9 +226,9 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
-            onTap: () async{
-              var cleanStatus =  await CacheManage().clearCacheAll();
-              if(cleanStatus){
+            onTap: () async {
+              var cleanStatus = await CacheManage().clearCacheAll();
+              if (cleanStatus) {
                 getCacheSize();
               }
             },

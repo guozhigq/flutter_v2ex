@@ -92,8 +92,7 @@ class _TopicDetailState extends State<TopicDetail>
     // TODO build优化
     _scrollController.addListener(_listen);
     getDetailInit();
-
-    EventBus().on('topicReply', (status) {
+    eventBus.on('topicReply', (status) {
       print('eventON: $status');
       String msg = '回复成功';
       if (status == 'cancel') {
@@ -234,8 +233,8 @@ class _TopicDetailState extends State<TopicDetail>
         );
       },
     ).then((value) => {
-          if (value != null)
-            {EventBus().emit('topicReply', value['replyStatus'])}
+          // if (value != null)
+          //   {eventBus.emit('topicReply', value['replyStatus'])}
         });
   }
 
@@ -332,7 +331,7 @@ class _TopicDetailState extends State<TopicDetail>
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已忽略' : '操作失败');
                   if (res) {
-                    EventBus().emit('ignoreTopic', topicId);
+                    eventBus.emit('ignoreTopic', topicId);
                   }
                 },
                 child: const Text('确认'))
@@ -363,7 +362,7 @@ class _TopicDetailState extends State<TopicDetail>
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已举报' : '操作失败');
                   if (res) {
-                    EventBus().emit('ignoreTopic', topicId);
+                    eventBus.emit('ignoreTopic', topicId);
                   }
                 },
                 child: const Text('确认'))
@@ -445,7 +444,7 @@ class _TopicDetailState extends State<TopicDetail>
     _controller.dispose();
     _scrollController.removeListener(_listen);
     _scrollController.dispose();
-    EventBus().off('topicReply');
+    eventBus.off('topicReply');
     super.dispose();
   }
 
