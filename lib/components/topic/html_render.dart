@@ -134,6 +134,17 @@ class _HtmlRenderState extends State<HtmlRender> {
 
   // a标签webview跳转
   void openHrefByWebview(String? aUrl, BuildContext context) async {
+    if(aUrl!.contains('base64Wechat')){
+      Clipboard.setData(ClipboardData(text: aUrl.split(':')[1]));
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          duration: const Duration(milliseconds: 3000),
+          // showCloseIcon: true,
+          content: Text('已复制【${aUrl.split(':')[1]}】'),
+        ),
+      );
+      return;
+    }
     RegExp exp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     bool isValidator = exp.hasMatch(aUrl!);

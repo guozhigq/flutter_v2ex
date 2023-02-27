@@ -807,49 +807,6 @@ class _TopicDetailState extends State<TopicDetail>
               if (_detailModel!.subtleList.isNotEmpty) ...[
                 ...subList(_detailModel!.subtleList)
               ],
-              //
-              // Divider(
-              //   color: Theme.of(context).dividerColor.withOpacity(0.15),
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     const SizedBox(width: 20),
-              //     IconButton(
-              //         onPressed: showReplySheet,
-              //         icon: const Icon(Icons.messenger_outline_rounded)),
-              //     IconButton(
-              //         onPressed: onThankTopic,
-              //         icon: _detailModel != null && _detailModel!.isThank
-              //             ? Icon(
-              //                 Icons.favorite_rounded,
-              //                 color: Theme.of(context).colorScheme.primary,
-              //               )
-              //             : const Icon(Icons.favorite_border_rounded)),
-              //     IconButton(
-              //       onPressed: onFavTopic,
-              //       icon: !_detailModel!.isFavorite
-              //           ? const Icon(
-              //               Icons.star_outline_rounded,
-              //               size: 29,
-              //             )
-              //           : Icon(
-              //               Icons.star_rounded,
-              //               size: 29,
-              //               color: Theme.of(context).colorScheme.primary,
-              //             ),
-              //     ),
-              //     IconButton(
-              //         onPressed: () {
-              //           Utils.openURL('https://www.v2ex.com/t/$topicId');
-              //         },
-              //         icon: Icon(Icons.language_rounded)),
-              //     IconButton(
-              //         onPressed: onShareTopic,
-              //         icon: const Icon(Icons.share_outlined)),
-              //     const SizedBox(width: 20),
-              //   ],
-              // ),
               if (_detailModel!.content.isNotEmpty)
                 Divider(
                   color: Theme.of(context).dividerColor.withOpacity(0.15),

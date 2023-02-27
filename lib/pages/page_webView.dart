@@ -16,6 +16,7 @@ class _WebViewState extends State<WebView> {
   // final GlobalKey? webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
+
   // InAppWebViewSettings settings = InAppWebViewSettings(
   //     mediaPlaybackRequiresUserGesture: false,
   //     allowsInlineMediaPlayback: true,
@@ -83,8 +84,9 @@ class _WebViewState extends State<WebView> {
                 InAppWebView(
                   // key: GlobalKey,
                   initialUrlRequest: URLRequest(url: WebUri(aUrl)),
-                  initialSettings:
-                      InAppWebViewSettings(allowContentAccess: true),
+                  initialSettings: InAppWebViewSettings(
+                    allowContentAccess: true,
+                  ),
                   onWebViewCreated: (controller) async {
                     webViewController = controller;
                     // print(await controller.getHtml());

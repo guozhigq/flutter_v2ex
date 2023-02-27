@@ -397,7 +397,7 @@ class DioRequestWeb {
 
   // 获取关注的用户、主题
 
-  // 获取帖子详情及下面的评论信息 [html 解析的] todo 关注 html 库 nth-child
+  // 获取帖子详情及下面的评论信息 [html 解析的]
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
@@ -520,17 +520,15 @@ class DioRequestWeb {
 
     // 判断是否有正文
     if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
-      detailModel.content =
-          document.querySelector('$mainBoxQuery > div.cell > div')!.text;
-      detailModel.contentRendered =
-          document.querySelector('$mainBoxQuery > div.cell > div')!.innerHtml;
-      if (document
-              .querySelector('$mainBoxQuery > div.cell > div')!
-              .querySelector('img') !=
-          null) {
-        var imgNodes = document
-            .querySelector('$mainBoxQuery > div.cell > div')!
-            .querySelectorAll('img');
+      var contentDom = document.querySelector('$mainBoxQuery > div.cell > div')!;
+      detailModel.content = contentDom.text;
+      var wechat = Utils.base64Decode(contentDom);
+      if(wechat != ''){
+        contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+      }
+      detailModel.contentRendered = contentDom.innerHtml;
+      if (contentDom .querySelector('img') !=  null) {
+        var imgNodes = contentDom.querySelectorAll('img');
         var imgLength = imgNodes.length;
         detailModel.imgCount += imgLength;
         detailModel.imgList = [];
@@ -550,7 +548,12 @@ class DioRequestWeb {
             .querySelector('span.fade')!
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
-        subtleItem.content = node.querySelector('div.topic_content')!.innerHtml;
+        var contentDom = node.querySelector('div.topic_content')!;
+        var wechat = Utils.base64Decode(contentDom);
+        if(wechat != ''){
+          contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+        }
+        subtleItem.content = contentDom.innerHtml;
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
             null) {
           var subImgNodes =
@@ -700,11 +703,14 @@ class DioRequestWeb {
         replyItem.floorNumber = int.parse(aNode
             .querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!
             .text);
-        replyItem.contentRendered = aNode
+        var contentDom = aNode
             .querySelector(
-                '$replyTrQuery > td:nth-child(5) > div.reply_content')!
-            .innerHtml;
-
+            '$replyTrQuery > td:nth-child(5) > div.reply_content')!;
+        var wechat = Utils.base64Decode(contentDom);
+        if(wechat != ''){
+          contentDom.nodes.insert(1, parseFragment('<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
+        }
+        replyItem.contentRendered = contentDom.innerHtml;
         replyItem.content = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!

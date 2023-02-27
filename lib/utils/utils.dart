@@ -1,9 +1,13 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert' show utf8, base64;
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter_v2ex/utils/string.dart';
+
 import 'event_bus.dart';
 import 'package:get/get.dart';
+import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -315,6 +319,30 @@ class Utils {
     }
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     return timeZoneName;
+  }
+
+  // base64 解析 wechat
+  static base64Decode(contentDom) {
+    try {
+      var blacklist = Strings().base64BlackList;
+      String content = contentDom.text;
+      RegExp exp = RegExp(r'^[a-zA-Z][a-zA-Z\d]*={0,2}$');
+      var expMatch = exp.allMatches(content);
+      var wechat = '';
+      for (var i in expMatch) {
+        if (!blacklist.contains(content) && i
+            .group(0)!
+            .trim()
+            .length % 4 == 0) {
+          wechat = utf8.decode(base64.decode(i.group(0)!));
+        }
+      }
+      return wechat;
+    }catch(err) {
+      print(err);
+      return '';
+    }
+
   }
 }
 
