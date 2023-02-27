@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
+import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -557,35 +559,40 @@ class _MemberPageState extends State<MemberPage> {
                 ),
                 const SizedBox(width: 20),
                 Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      memberId,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(height: 5),
-                    Container(
-                      width: 170,
-                      height: 18,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(2))),
-                    ),
-                    const SizedBox(height: 3),
-                    Container(
-                      width: 120,
-                      height: 18,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(2))),
-                    ),
-                  ],
+                    child: Skeleton(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        memberId,
+                        style:
+                            Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        width: 170,
+                        height: 18,
+                        decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(2))),
+                      ),
+                      const SizedBox(height: 3),
+                      Container(
+                        width: 120,
+                        height: 18,
+                        decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(2))),
+                      ),
+                    ],
+                  ),
                 )),
               ],
             ),
@@ -595,31 +602,36 @@ class _MemberPageState extends State<MemberPage> {
           child: SizedBox(height: 20),
         ),
         SliverToBoxAdapter(
-          child: Column(
-            children: [
-              Container(
-                height: 18,
-                margin: const EdgeInsets.only(left: 20, right: 20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+          child: Skeleton(
+            child: Column(
+              children: [
+                Container(
+                  height: 18,
+                  margin: const EdgeInsets.only(left: 20, right: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 4,
-              ),
-              Container(
-                height: 18,
-                margin: const EdgeInsets.only(left: 20, right: 170),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+                const SizedBox(
+                  height: 4,
                 ),
-              ),
-            ],
+                Container(
+                  height: 18,
+                  margin: const EdgeInsets.only(left: 20, right: 170),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         titleLine('最近发布', ''),
+        const SliverToBoxAdapter(
+          child: Skeleton(child: TopicItemSkeleton()),
+        ),
         titleLine('最近回复', '')
       ],
       // ),
