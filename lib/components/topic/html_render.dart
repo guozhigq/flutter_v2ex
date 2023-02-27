@@ -153,13 +153,23 @@ class _HtmlRenderState extends State<HtmlRender> {
       if (aUrl.startsWith('www.v2ex.com/') ||
           aUrl.startsWith('https://v2ex.com') ||
           aUrl.startsWith('https://www.v2ex.com')) {
-        // v2ex 链接
+        // v2ex 链接 https://www.v2ex.com/t/919475#reply1
         List arr = aUrl.split('.com');
+        // 获得链接 /t/919475#reply1
         var tHref = arr[1];
-        if (arr[1].contains('#')) {
-          tHref = arr[1].split('#')[0];
+        if(tHref.startsWith('/t') ||
+            tHref.startsWith('/go') ||
+            tHref.startsWith('/member')
+        ){
+          if (tHref.contains('#')) {
+            // 去掉回复数  /t/919475#reply1
+            // 获得链接 /t/919475
+            tHref = arr[1].split('#')[0];
+          }
+          Get.toNamed(tHref);
+        }else{
+          Utils.openURL(aUrl);
         }
-        Get.toNamed(tHref);
       } else {
         await Utils.openURL(aUrl);
       }
