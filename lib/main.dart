@@ -146,7 +146,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
         return GetMaterialApp(
-          debugShowCheckedModeBanner: true,
+          debugShowCheckedModeBanner: false,
           initialRoute: '/',
           getPages: AppPages.getPages,
           theme: ThemeData(
