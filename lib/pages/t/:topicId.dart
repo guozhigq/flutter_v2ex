@@ -508,7 +508,7 @@ class _TopicDetailState extends State<TopicDetail>
           right: 20,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: const Offset(0, -0.2),
+              begin: const Offset(0, -0),
               end: const Offset(0, 0.05),
             ).animate(CurvedAnimation(
               parent: animationController,
@@ -516,7 +516,7 @@ class _TopicDetailState extends State<TopicDetail>
             )),
             child: FloatingActionButton(
               heroTag: null,
-              elevation: _isVisible ? 4 : 0,
+              elevation: 4,
               onPressed: showReplySheet,
               tooltip: '回复',
               child: const Icon(Icons.edit),

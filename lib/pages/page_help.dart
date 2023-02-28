@@ -49,7 +49,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('版本'),
-            subtitle: Text('v0.0.1', style: subTitleStyle),
+            subtitle: Text('v1.0.0', style: subTitleStyle),
           )
         ],
       ),

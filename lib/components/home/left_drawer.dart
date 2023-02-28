@@ -137,9 +137,9 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     super.initState();
     // 获取登录状态
     if (GStorage().getLoginStatus()) {
-      setState(() {
+      // setState(() {
         loginStatus = true;
-      });
+      // });
       // readUserInfo();
       // queryDaily();
     }
@@ -152,15 +152,13 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           // GStorage().setUserInfo({});
           setState(() {
             loginStatus = false;
-            // userInfo = {};
+            userInfo = {};
           });
         }
       });
     }
     // 读取默认主题配置
-    setState(() {
-      currentThemeValue = GStorage().getSystemType();
-    });
+    currentThemeValue = GStorage().getSystemType();
   }
 
   void readUserInfo() {
@@ -233,16 +231,17 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       onDestinationSelected: onDestinationSelected,
       selectedIndex: selectedIndex,
       children: [
-        // Container(
-        //   padding: EdgeInsets.only(
-        //     top: MediaQuery.of(context).padding.top,
-        //     left: 25,
-        //     bottom: 20,
-        //   ),
-        //   child: Text('VVex', style: Theme.of(context).textTheme.titleLarge),
-        // ),
+        Container(
+          padding: const EdgeInsets.only(
+            // top: MediaQuery.of(context).padding.top,
+            top: 10,
+            left: 35,
+            bottom: 20,
+          ),
+          child: Text('VVex', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1)),
+        ),
         // header(),
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
         if (loginStatus) ...[
           for (var i in listTitleMap)
             NavigationDrawerDestination(

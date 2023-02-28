@@ -69,7 +69,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   @override
   void dispose() {
     // TODO: implement dispose
-    eventBus.off('login');
+    // eventBus.off('login');
     eventBus.off('unRead');
     super.dispose();
   }
@@ -163,7 +163,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                           setState(() {
                             unRead = false;
                           });
-                          Get.toNamed('/notifications');
+                            Get.toNamed('/notifications');
                         },
                         icon: Icon(Icons.notifications_none_rounded,
                             color: !unRead ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.primary)),

@@ -29,7 +29,7 @@ class _MessagePageState extends State<MessagePage> {
     queryNotice();
     // 清除所有通知
     LocalNoticeService().cancelAll();
-    eventBus.emit('unRead', 0);
+    // eventBus.emit('unRead', 0);
     _controller.addListener(
       () {
         var screenHeight = MediaQuery.of(context).size.height;

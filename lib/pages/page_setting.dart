@@ -67,8 +67,12 @@ class _SettingPageState extends State<SettingPage> {
                   eventBus.emit('login', 'loginOut');
                   await DioRequestWeb.loginOut();
                   SmartDialog.showToast('已退出登录 ✅');
-                  Request().get('/');
+                  await Request().get('/');
+                  if(context.mounted){
+                    Navigator.pop(context);
+                  }
                 } catch (err) {
+                  print(err.toString());
                   SmartDialog.showToast(err.toString());
                 }
               },
