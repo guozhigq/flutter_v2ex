@@ -272,17 +272,21 @@ class Utils {
                   if (twoFACode.length == 6) {
                     var res = await DioRequestWeb.twoFALOgin(twoFACode);
                     if (res == 'true') {
-                      SmartDialog.showToast('登录成功');
                       GStorage().setLoginStatus(true);
                       eventBus.emit('login', 'success');
+                      // Navigator.pop(context);
+                      SmartDialog.showToast('登录成功', displayTime: const Duration(milliseconds: 500)).then((res) {
+                        SmartDialog.dismiss();
+                        Get.back();
+                      });
                       // 关闭loading
-                      SmartDialog.dismiss();
+                      // SmartDialog.dismiss();
                       // 关闭2fa dialog
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
+                      // if (context.mounted) {
+                      //   Navigator.pop(context);
+                      // }
                       // 关闭login page
-                      Get.back();
+                      // Get.back();
                     } else {
                       twoFACode = '';
                     }
@@ -323,7 +327,7 @@ class Utils {
     try {
       var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
-      RegExp exp = RegExp(r'^[a-zA-Z][a-zA-Z\d]*={0,2}$');
+      RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {

@@ -38,10 +38,10 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       if (arg == 'fail' || arg == 'loginOut') {
         GStorage().setLoginStatus(false);
         GStorage().setUserInfo({});
-        // setState(() {
+        setState(() {
           loginStatus = false;
           userInfo = {};
-        // });
+        });
       }
       if (arg == 'fail') {
         Utils.loginDialog('登录状态失效，请重新登录');

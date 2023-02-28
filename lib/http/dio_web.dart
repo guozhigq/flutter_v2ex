@@ -529,7 +529,7 @@ class DioRequestWeb {
       var wechat = Utils.base64Decode(contentDom);
       if (wechat != '') {
         contentDom.nodes.insert(
-            1,
+            contentDom.nodes.length,
             parseFragment(
                 '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
       }
@@ -559,7 +559,7 @@ class DioRequestWeb {
         var wechat = Utils.base64Decode(contentDom);
         if (wechat != '') {
           contentDom.nodes.insert(
-              1,
+              contentDom.nodes.length,
               parseFragment(
                   '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
         }
@@ -718,7 +718,7 @@ class DioRequestWeb {
         var wechat = Utils.base64Decode(contentDom);
         if (wechat != '') {
           contentDom.nodes.insert(
-              1,
+              contentDom.nodes.length,
               parseFragment(
                   '<p>base64解码：<a href="base64Wechat: $wechat" id="wechat">$wechat</a></p>'));
         }
@@ -970,7 +970,7 @@ class DioRequestWeb {
     });
     response = await Request().post('/2fa', data: formData);
     var document = parse(response.data);
-    log(document.body!.innerHtml);
+    // log(document.body!.innerHtml);
     // var menuBodyNode = document.querySelector("div[id='menu-body']");
     // var loginOutNode =
     // menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
