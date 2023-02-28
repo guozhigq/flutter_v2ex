@@ -1378,6 +1378,7 @@ class DioRequestWeb {
       }
       memberReply.replyList.add(item);
     }
+    memberReply.replyCount = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
     return memberReply;
   }
 
@@ -1423,6 +1424,7 @@ class DioRequestWeb {
       topicList.add(item);
     }
     memberTopic.topicList = topicList;
+    memberTopic.topicCount = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
     return memberTopic;
   }
 

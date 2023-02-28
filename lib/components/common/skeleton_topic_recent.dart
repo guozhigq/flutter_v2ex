@@ -13,19 +13,13 @@ class TopicItemSkeleton extends StatelessWidget {
         color: Theme.of(context).colorScheme.onInverseSurface,
       ),
       margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
-      padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
+      padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             width: 300,
-            height: 14,
-            margin: const EdgeInsets.only(top: 0, bottom: 6),
-            color: commonColor,
-          ),
-          Container(
-            width: 150,
-            height: 14,
+            height: 16,
             margin: const EdgeInsets.only(top: 0, bottom: 12),
             color: commonColor,
           ),
@@ -36,13 +30,13 @@ class TopicItemSkeleton extends StatelessWidget {
                         children: [
                           Container(
                             width: 135,
-                            height: 10,
+                            height: 14,
                             color: commonColor,
                           ),
                           const SizedBox(width: 4),
                           Container(
                             width: 30,
-                            height: 10,
+                            height: 14,
                             color: commonColor,
                           ),
                         ],

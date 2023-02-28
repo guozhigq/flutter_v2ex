@@ -16,6 +16,7 @@ class MemberRepliesPage extends StatefulWidget {
 class _MemberRepliesPageState extends State<MemberRepliesPage> {
   String memberId = '';
   final ScrollController _controller = ScrollController();
+  ModelMemberReply replyListData = ModelMemberReply();
   List<MemberReplyItem> replyList = [];
   int _currentPage = 0;
   int _totalPage = 1;
@@ -26,9 +27,7 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      memberId = Get.parameters['memberId'] ?? 'guozhigq';
-    });
+    memberId = Get.parameters['memberId'] ?? 'guozhigq';
 
     _controller.addListener(
       () {
@@ -60,6 +59,7 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
       _isLoading = false;
       _currentPage += 1;
       _totalPage = int.parse(res.totalPage);
+      replyListData = res;
     });
     return res;
   }
@@ -76,6 +76,11 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('最近回复'),
+        actions: [
+          if(replyListData.replyCount > 0)
+          Text('回复总数 ${replyListData.replyCount}', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(width: 12)
+        ],
       ),
       body: Stack(
         children: [

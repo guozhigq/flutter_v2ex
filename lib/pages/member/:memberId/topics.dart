@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/models/web/model_member_topic.dart';
 import 'package:flutter_v2ex/models/web/item_member_topic.dart';
+import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
 
 class MemberTopicsPage extends StatefulWidget {
   const MemberTopicsPage({Key? key}) : super(key: key);
@@ -28,9 +30,7 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      memberId = Get.parameters['memberId'] ?? 'guozhigq';
-    });
+    memberId = Get.parameters['memberId'] ?? 'guozhigq';
 
     _controller.addListener(
       () {
@@ -85,7 +85,12 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${memberId}的最近发布'),
+        title: const Text('最近发布'),
+        actions: [
+          if(topicListData.topicCount > 0)
+            Text('主题总数 ${topicListData.topicCount}', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(width: 12)
+        ],
       ),
       body: Stack(
         children: [
@@ -149,15 +154,16 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
   }
 
   Widget showLoading() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          CircularProgressIndicator(
-            strokeWidth: 3,
-          ),
-          SizedBox(height: 10),
-        ],
+    int count = MediaQuery.of(context).size.height ~/ 90;
+    var arr = List.filled(count, 1, growable: false);
+    return Skeleton(
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: arr.length,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          return const TopicItemSkeleton();
+        },
       ),
     );
   }
@@ -175,7 +181,7 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
           ),
           const SizedBox(height: 30),
           Text(
-            '根据 ${memberId} 的设置，主题列表被隐藏',
+            '根据 $memberId 的设置，主题列表被隐藏',
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ],

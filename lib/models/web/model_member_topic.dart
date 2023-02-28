@@ -4,5 +4,6 @@ class ModelMemberTopic {
   String totalPage = '1';
   bool isShow = true; // 是否设置隐私
   bool isEmpty = false; // 主题列表为空
+  int topicCount = 0;
   late List<MemberTopicItem> topicList;
 }

@@ -1,4 +1,3 @@
-import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -285,7 +285,7 @@ class _MemberPageState extends State<MemberPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${memberProfile.memberId}',
+                                memberProfile.memberId,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -326,13 +326,12 @@ class _MemberPageState extends State<MemberPage> {
                               String? imgUrl =
                                   htmlContext.tree.element!.attributes['src'];
                               imgUrl = Utils().imageUrl(imgUrl!);
-                              return SelectionContainer.disabled(
-                                child: CachedNetworkImage(
+                              return
+                                CachedNetworkImage(
                                   imageUrl: imgUrl,
                                   height: 20,
-                                  fadeOutDuration:
-                                      const Duration(milliseconds: 100),
-                                ),
+                                  fadeOutDuration:  const Duration(milliseconds: 100),
+                                  placeholder: (context, url) => Image.asset('assets/images/avatar.png', width: 20, height: 20,),
                               );
                             },
                           ),
@@ -629,8 +628,14 @@ class _MemberPageState extends State<MemberPage> {
           ),
         ),
         titleLine('最近发布', ''),
-        const SliverToBoxAdapter(
-          child: Skeleton(child: TopicItemSkeleton()),
+        SliverToBoxAdapter(
+          child: Skeleton(child: Column(
+            children: const[
+              TopicItemSkeleton(),
+              TopicItemSkeleton(),
+              TopicItemSkeleton(),
+            ],
+          )),
         ),
         titleLine('最近回复', '')
       ],
