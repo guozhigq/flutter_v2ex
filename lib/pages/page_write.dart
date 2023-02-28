@@ -294,29 +294,29 @@ class _WritePageState extends State<WritePage> {
             IconButton(
                 onPressed: ()=> appendDialog(), icon: const Icon(Icons.info_outline_rounded)),
             const SizedBox(width: 10),
-          if(source != 'append')
-          PopupMenuButton<SampleItem>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: 'action',
-            itemBuilder: (BuildContext context) =>
-            <PopupMenuEntry<SampleItem>>[
-              PopupMenuItem<SampleItem>(
-                value: SampleItem.draft,
-                onTap: () {},
-                child: const Text('保存草稿'),
-              ),
-              PopupMenuItem<SampleItem>(
-                value: SampleItem.cancel,
-                onTap: () {},
-                child: const Text('舍弃'),
-              ),
-              PopupMenuItem<SampleItem>(
-                value: SampleItem.tips,
-                onTap: () {},
-                child: const Text('发帖提示'),
-              ),
-            ],
-          ),
+          // if(source != 'append')
+          // PopupMenuButton<SampleItem>(
+          //   icon: const Icon(Icons.more_vert),
+          //   tooltip: 'action',
+          //   itemBuilder: (BuildContext context) =>
+          //   <PopupMenuEntry<SampleItem>>[
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.draft,
+          //       onTap: () {},
+          //       child: const Text('保存草稿'),
+          //     ),
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.cancel,
+          //       onTap: () {},
+          //       child: const Text('舍弃'),
+          //     ),
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.tips,
+          //       onTap: () {},
+          //       child: const Text('发帖提示'),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
       body: Form(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:get/get.dart';
 
@@ -17,6 +18,7 @@ import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
 import 'package:system_proxy/system_proxy.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -78,6 +80,7 @@ class _MyAppState extends State<MyApp> {
   ThemeType currentThemeValue = ThemeType.system;
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
+  var _timer;
 
   @override
   void initState() {
@@ -97,6 +100,15 @@ class _MyAppState extends State<MyApp> {
     eventBus.on('unRead', (arg) {
       LocalNoticeService().show(arg);
     });
+
+    // 轮询消息 30分钟
+    // if(GStorage().getLoginStatus()){
+    //   const timeInterval = Duration(minutes: 30);
+    //   _timer = Timer.periodic(timeInterval , (timer){
+    //     // 循环一定要记得设置取消条件，手动取消
+    //     DioRequestWeb.queryDaily();
+    //   });
+    // }
   }
 
   @override
@@ -106,6 +118,10 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('ignoreTopic');
     eventBus.off('unRead');
     eventBus.off('themeChange');
+    // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
+    if(_timer.isActive){
+      _timer.cancel();
+    }
     super.dispose();
   }
 

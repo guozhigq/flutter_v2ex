@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -258,11 +259,12 @@ class _LoginPageState extends State<LoginPage> {
             bottom: MediaQuery.of(context).padding.bottom + 30,
             child: TextButton(
               onPressed: () {
-                int once = GStorage().getOnce();
-                // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
-                Get.toNamed('/webView', parameters: {
-                  'aUrl': 'https://www.v2ex.com/auth/google?once=$once'
-                });
+                // int once = GStorage().getOnce();
+                // // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
+                // Get.toNamed('/webView', parameters: {
+                //   'aUrl': 'https://www.v2ex.com/auth/google?once=$once'
+                // });
+                SmartDialog.showToast('开发中 💪');
               },
               // onPressed: () {
               //   DioRequestWeb.signByGoogle();

@@ -49,11 +49,9 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     });
 
     eventBus.on('unRead', (arg) {
-      if(arg > 0) {
-        unRead = true;
-      }else{
-        unRead = false;
-      }
+      setState(() {
+        unRead = arg > 0;
+      });
     });
   }
 
@@ -161,7 +159,12 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     right: 38,
                     top: 0,
                     child: IconButton(
-                        onPressed: () async {},
+                        onPressed: () {
+                          setState(() {
+                            unRead = false;
+                          });
+                          Get.toNamed('/notifications');
+                        },
                         icon: Icon(Icons.notifications_none_rounded,
                             color: !unRead ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.primary)),
                   )

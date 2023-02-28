@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/models/web/model_member_notice.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -28,6 +29,7 @@ class _MessagePageState extends State<MessagePage> {
     queryNotice();
     // 清除所有通知
     LocalNoticeService().cancelAll();
+    eventBus.emit('unRead', 0);
     _controller.addListener(
       () {
         var screenHeight = MediaQuery.of(context).size.height;

@@ -296,6 +296,15 @@ class DioRequestWeb {
       }
     }
     detailModel.topicList = topics;
+
+    var noticeNode =
+    document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    // 未读消息
+    var unRead =
+    noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+    if (int.parse(unRead) > 0) {
+      eventBus.emit('unRead', int.parse(unRead));
+    }
     return detailModel;
   }
 
@@ -372,7 +381,7 @@ class DioRequestWeb {
   static Future<List<NodeFavModel>> getFavNodes() async {
     List<NodeFavModel> favNodeList = [];
     Response response;
-    response = await Request().get('/my/nodes', extra: {'ua': 'mob'});
+    response = await Request().get('/my/nodes', extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var nodeListWrap = bodyDom!.querySelector('div[id="my-nodes"]');
     List<dom.Element> nodeListDom = [];
@@ -392,6 +401,16 @@ class DioRequestWeb {
         favNodeList.add(item);
       }
     }
+
+    var noticeNode =
+    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    // 未读消息
+    var unRead =
+    noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+    if (int.parse(unRead) > 0) {
+      eventBus.emit('unRead', int.parse(unRead));
+    }
+
     return favNodeList;
   }
 
@@ -1097,8 +1116,6 @@ class DioRequestWeb {
     response = await Request().get('/mission/daily', extra: {'ua': 'pc'});
     var bodyDom = parse(response.data).body;
     var mainBox = bodyDom!.querySelector('#Main');
-    var noticeNode =
-        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (mainBox != null) {
       // 领取 X 铜币 表示未签到
       var signStatus = mainBox.querySelector('input')!.attributes['value'];
@@ -1110,6 +1127,8 @@ class DioRequestWeb {
       var day = cellDom.replaceAll(RegExp(r'\D'), '');
       signDetail['signDays'] = '已领取$day天';
     }
+    var noticeNode =
+    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     // 未读消息
     var unRead =
         noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');

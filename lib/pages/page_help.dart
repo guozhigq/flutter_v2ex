@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:animations/animations.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});
@@ -45,67 +44,15 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ),
           ListTile(
             onTap: () async {
-              final url = Uri.parse('mailto:5550101234');
-              Utils.launchURL(url);
+              // final url = Uri.parse('mailto:5550101234');
+              // Utils.launchURL(url);
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
-            title: const Text('当前版本 v0.0.1'),
-            subtitle: Text('检查更新', style: subTitleStyle),
+            title: const Text('版本'),
+            subtitle: Text('v0.0.1', style: subTitleStyle),
           )
         ],
       ),
-      backgroundColor: Theme.of(context).colorScheme.background,
-      floatingActionButton: const _ReplyFab(),
-    );
-  }
-}
-
-class _ReplyFab extends StatefulWidget {
-  const _ReplyFab();
-
-  @override
-  _ReplyFabState createState() => _ReplyFabState();
-}
-
-class _ReplyFabState extends State<_ReplyFab>
-    with SingleTickerProviderStateMixin {
-  // static final fabKey = UniqueKey();
-  static const double _mobileFabDimension = 56;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    const circleFabBorder = CircleBorder();
-
-    return OpenContainer(
-      openBuilder: (context, closedContainer) {
-        return const Text('123');
-      },
-      transitionDuration: const Duration(milliseconds: 350),
-      openColor: theme.cardColor,
-      // openColor: Theme.of(context).colorScheme.background,
-      closedShape: circleFabBorder,
-      closedColor: theme.colorScheme.secondary,
-      closedElevation: 6,
-      openElevation: 4,
-      closedBuilder: (context, openContainer) {
-        return Tooltip(
-          message: 'tooltip',
-          child: InkWell(
-            key: const ValueKey('ReplyFab'),
-            customBorder: circleFabBorder,
-            onTap: openContainer,
-            child: Ink(
-              height: _mobileFabDimension,
-              width: _mobileFabDimension,
-              child: const Center(
-                // child: fabSwitcher,
-                child: Icon(Icons.percent),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

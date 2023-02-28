@@ -33,8 +33,8 @@ class _MemberPageState extends State<MemberPage> {
   @override
   void initState() {
     super.initState();
+    var mapKey = Get.parameters.keys;
     setState(() {
-      var mapKey = Get.parameters.keys;
       memberId = mapKey.contains('memberId') ? Get.parameters['memberId']! : '';
       memberAvatar = mapKey.contains('memberAvatar')
           ? Get.parameters['memberAvatar']!
@@ -46,10 +46,10 @@ class _MemberPageState extends State<MemberPage> {
       if (memberId == GStorage().getUserInfo()['userName']) {
         setState(() {
           isOwner = true;
-          // 查询签到状态、余额
-          queryDaily();
         });
       }
+      // 查询签到状态、余额、消息提醒
+      queryDaily();
     }
 
     // 查询用户信息
