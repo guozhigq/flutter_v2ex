@@ -1,12 +1,15 @@
-# flutter_v2ex &nbsp; ![](https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter) ![](https://img.shields.io/badge/Dart-2.19.2-blue?style=flat) ![](https://img.shields.io/badge/Java-11.0.15-green?style=flat)
-
-<br/>
 <div align=center><img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/images/icon/icon_android.png" width="100" height="100"></img></div>
 <br/>
+
+# vvex &nbsp; ![](https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter) ![](https://img.shields.io/badge/Dart-2.19.2-blue?style=flat) ![](https://img.shields.io/badge/Java-11.0.15-green?style=flat)
+
+<br/>
+
 vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支持 Android 和 iOS。<br/>在 Android 12+的系统上支持 Material You 3 规范
 <br/>
 
 ## 预览
+<br/>
 
 ## 环境配置
 
@@ -40,7 +43,7 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
     -   打开 lib -> main.dart 文件
     -   确保底部状态栏显示正确的设备，点击顶部工具栏下箭头 -> Start Debugging
 
-    <br/>
+<br/>
 
 ## 额外功能
 
@@ -49,7 +52,7 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 -   回复保存为图片
 -   自动签到
 -   多类型消息提醒
-    <br/>
+<br/>
 
 ## 待完成
 
@@ -59,7 +62,7 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 -   节点排序
 -   话题已读标记
 -   部分页面骨架屏
-    <br/>
+<br/>
 
 ## 待优化
 
@@ -67,7 +70,7 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 -   数据缓存
 -   高级搜索
 -   dom 解析
-    <br/>
+<br/>
 
 ## 感谢
 
