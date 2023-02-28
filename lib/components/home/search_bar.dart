@@ -18,17 +18,16 @@ class HomeSearchBar extends StatefulWidget {
 class _HomeSearchBarState extends State<HomeSearchBar> {
   bool loginStatus = false;
   Map userInfo = {};
+  bool unRead = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    // 启动式读取用户信息
+    // 初始化时读取用户信息
     if (GStorage().getLoginStatus()) {
-      setState(() {
-        loginStatus = true;
-      });
+      loginStatus = true;
       readUserInfo();
     }
 
@@ -39,13 +38,21 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       if (arg == 'fail' || arg == 'loginOut') {
         GStorage().setLoginStatus(false);
         GStorage().setUserInfo({});
-        setState(() {
+        // setState(() {
           loginStatus = false;
           userInfo = {};
-        });
+        // });
       }
       if (arg == 'fail') {
         Utils.loginDialog('登录状态失效，请重新登录');
+      }
+    });
+
+    eventBus.on('unRead', (arg) {
+      if(arg > 0) {
+        unRead = true;
+      }else{
+        unRead = false;
       }
     });
   }
@@ -65,6 +72,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   void dispose() {
     // TODO: implement dispose
     eventBus.off('login');
+    eventBus.off('unRead');
     super.dispose();
   }
 
@@ -155,7 +163,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     child: IconButton(
                         onPressed: () async {},
                         icon: Icon(Icons.notifications_none_rounded,
-                            color: Theme.of(context).colorScheme.onSurface)),
+                            color: !unRead ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.primary)),
                   )
                 ],
               )),

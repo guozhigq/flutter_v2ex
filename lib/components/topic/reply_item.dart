@@ -35,14 +35,6 @@ class ReplyListItem extends StatefulWidget {
 class _ReplyListItemState extends State<ReplyListItem> {
   // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
-    // {
-    //   'id': 1,
-    //   'title': '添加回复',
-    //   'leading': const Icon(
-    //     Icons.reply,
-    //     size: 21,
-    //   ),
-    // },
     {
       'id': 3,
       'title': '复制内容',
@@ -75,11 +67,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
         size: 21,
       ),
     },
-    // {
-    //   'id': 5,
-    //   'title': '查看主页',
-    //   'leading': const Icon(Icons.person, size: 21),
-    // }
   ];
 
   ReplyItem reply = ReplyItem();
@@ -104,15 +91,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
-    // if (reply.replyMemberList.isNotEmpty) {
-    //   setState(() {
-    //     sheetMenu.insert(1, {
-    //       'id': 2,
-    //       'title': '查看回复',
-    //       'leading': const Icon(Icons.messenger_outline_rounded, size: 21),
-    //     });
-    //   });
-    // }
   }
 
   void menuAction(id) {
@@ -241,33 +219,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
         SmartDialog.showToast('已保存到相册');
       }
     }
-    // final directory = (await getApplicationDocumentsDirectory()).path;
-    // File imgFile = new File('$directory/photo.png');
-    // imgFile.writeAsBytes(pngBytes);
   }
 
   @override
   Widget build(BuildContext context) {
-    // return Slidable(
-    //   key: ValueKey(int.parse(widget.reply.replyId)),
-    //   endActionPane: ActionPane(
-    //     extentRatio: 0.44,
-    //     openThreshold: 0.9,
-    //     closeThreshold: 0.4,
-    //     motion: const BehindMotion(),
-    //     children: [
-    //       SlidableAction(
-    //         onPressed: (BuildContext context) {
-    //           print('123');
-    //         },
-    //         autoClose: true,
-    //         spacing: 1,
-    //         backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-    //         foregroundColor: Theme.of(context).colorScheme.onInverseSurface,
-    //         icon: Icons.bluetooth_audio,
-    //       ),
-    //     ],
-    //   ),
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       decoration: BoxDecoration(
@@ -277,7 +232,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         key: repaintKey,
         child: Material(
           borderRadius: BorderRadius.circular(20),
-          // color: Theme.of(context).colorScheme.onInverseSurface,
+          color: reply.isChoose ? Theme.of(context).colorScheme.onInverseSurface : null,
           child: InkWell(
             onTap: replyComment,
             borderRadius: BorderRadius.circular(20),
@@ -323,16 +278,21 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 Positioned(
                   top: 0,
                   left: 0,
-                  child: AnimatedOpacity(
-                    opacity: reply.isChoose ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 100),
+                  child: AnimatedScale(
+                    scale: reply.isChoose ? 1 : 0,
+                    curve: Curves.easeInOut,
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withOpacity(0.8),
+
                       width: 36,
                       height: 36,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primaryContainer
+                            .withOpacity(0.8),
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                      ),
                       child: Icon(Icons.done,
                           color: Theme.of(context).colorScheme.primary),
                     ),

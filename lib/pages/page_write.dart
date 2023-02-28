@@ -38,6 +38,7 @@ class _WritePageState extends State<WritePage> {
       source = Get.parameters['source']!;
       topicId = Get.parameters['topicId']!;
     }
+    print('source: $source');
     if (source == 'edit') {
       // 查询编辑状态及内容
       queryTopicStatus();
@@ -51,9 +52,17 @@ class _WritePageState extends State<WritePage> {
   // 是否可编辑
   void queryTopicStatus() async {
     var res = await DioRequestWeb.queryTopicStatus(topicId);
-    print(res);
     if (res['status']) {
-
+      // 可以编辑，渲染内容
+      Map topicDetail = res['topicDetail'];
+      String topicTitle = topicDetail['topicTitle'];
+      String topicContent = topicDetail['topicContent'];
+      String syntax = topicDetail['syntax'];
+      titleController.text = topicTitle;
+      contentController.text = topicContent;
+      setState(() {
+        syntax = syntax;
+      });
     } else {
       if (context.mounted) {
         showDialog(
@@ -61,14 +70,14 @@ class _WritePageState extends State<WritePage> {
           builder: (context) {
             return AlertDialog(
               title: const Text('提示'),
-              content: const Text('内容不可编辑'),
+              content: const Text('你不能编辑这个主题。'),
               actions: [
                 TextButton(
                     onPressed: () {
                       // 关闭 dialog
                       Navigator.pop(context);
                       // 关闭 page
-                      Navigator.pop(context);
+                      Navigator.pop(context, {'refresh': true});
                     },
                     child: const Text('返回'))
               ],
@@ -217,12 +226,8 @@ class _WritePageState extends State<WritePage> {
                 actions: [
                   TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('返回上一页')),
-                  TextButton(
-                      onPressed: () {
-
+                        // 返回主题详情页并刷新
+                        Navigator.pop(context, {'refresh', true});
                       },
                       child: const Text('去查看'))
                 ],
@@ -230,6 +235,22 @@ class _WritePageState extends State<WritePage> {
             },
           );
         }
+      }else{
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('提示'),
+              content: const Text('你不能编辑这个主题。'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('确定'))
+              ],
+            );
+          },
+        );
       }
     }
   }
@@ -249,28 +270,12 @@ class _WritePageState extends State<WritePage> {
       var result = await DioRequestWeb.appendContent(args);
       if (result) {
         if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('编辑成功'),
-                content: const Text('主题编辑成功，是否前往查看'),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('返回上一页')),
-                  TextButton(
-                      onPressed: () {
-
-                      },
-                      child: const Text('去查看'))
-                ],
-              );
-            },
-          );
+          SmartDialog.showToast('发布成功', displayTime: const Duration(milliseconds: 800)).then((value) {
+            Get.back(result: {'refresh': true});
+          });
         }
+      }else{
+
       }
     }
   }

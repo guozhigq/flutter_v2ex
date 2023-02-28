@@ -485,14 +485,18 @@ class DioRequestWeb {
     // APPEND EIDT MOVE
     var opActionNode = document.querySelector('$headerQuery > small');
     if (opActionNode!.querySelector('a.op') != null) {
-      if (opActionNode.querySelector('a.op')!.text.contains('APPEND')) {
-        detailModel.isAPPEND = true;
-      }
-      if (opActionNode.querySelector('a.op')!.text.contains('EDIT')) {
-        detailModel.isEDIT = true;
-      }
-      if (opActionNode.querySelector('a.op')!.text.contains('MOVE')) {
-        detailModel.isMOVE = true;
+      var opNodes = opActionNode.querySelectorAll('a.op');
+      for(var i in opNodes){
+        print(i.text);
+        if(i.text.contains('APPEND')){
+          detailModel.isAPPEND = true;
+        }
+        if(i.text.contains('EDIT')){
+          detailModel.isEDIT = true;
+        }
+        if(i.text.contains('MOVE')){
+          detailModel.isMOVE = true;
+        }
       }
     }
     detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
@@ -1784,6 +1788,7 @@ class DioRequestWeb {
         await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
+    print(response.headers);
     if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
@@ -1819,7 +1824,6 @@ class DioRequestWeb {
       'user-agent':
           'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
-
     FormData formData = FormData.fromMap({
       'title': args['title'], // 标题
       'syntax': args['syntax'], // 语法 0: default 1: markdown
@@ -1830,22 +1834,8 @@ class DioRequestWeb {
         data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    if (document.querySelector('div.problem') != null) {
-      SmartDialog.show(
-        useSystem: true,
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提示'),
-            content: Text(document.querySelector('div.problem')!.text),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('确定'))
-            ],
-          );
-        },
-      );
+    var mainNode = document.querySelector('#Main');
+    if (mainNode!.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       return false;
     } else {
       return true;
@@ -1874,22 +1864,8 @@ class DioRequestWeb {
         .post('/move/topic/$topicId', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    if (document.querySelector('div.problem') != null) {
-      SmartDialog.show(
-        useSystem: true,
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提示'),
-            content: Text(document.querySelector('div.problem')!.text),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('确定'))
-            ],
-          );
-        },
-      );
+    var mainNode = document.querySelector('#Main');
+    if (mainNode!.querySelector('div.inner') != null && mainNode!.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
       return false;
     } else {
       return true;
@@ -1900,14 +1876,31 @@ class DioRequestWeb {
   static Future queryTopicStatus(topicId) async {
     SmartDialog.showLoading();
     Map result = {};
-    Response response = await Request().get('/edit/topic/$topicId');
+    Response response = await Request().get('/edit/topic/$topicId', extra: {'ua': 'pc'});
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode!.querySelector('div.inner') != null) {
+    if (mainNode!.querySelector('div.inner') != null && mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       // 不可编辑
       result['status'] = false;
-    } else {
+    } else
+    {
+      Map topicDetail = {};
+      print(mainNode!.innerHtml);
+      var topicTitle = mainNode.querySelector('#topic_title');
+      topicDetail['topicTitle'] = topicTitle;
+      var topicContent= mainNode.querySelector('#topic_content');
+      topicDetail['topicContent'] = topicContent;
+      var select = mainNode.querySelector('#select_syntax');
+      var syntaxs = select!.querySelectorAll('option');
+      var selectSyntax = '';
+      for(var i in syntaxs) {
+        if(i.attributes['selected'] != null){
+          selectSyntax = i.attributes['value']!;
+        }
+      }
+      topicDetail['syntax'] = selectSyntax;
+      result['topicDetail'] = topicDetail;
       result['status'] = true;
     }
     return result;
@@ -1951,10 +1944,12 @@ class DioRequestWeb {
     });
     Response? response;
     try {
-      response = await Request().post('/append/topic22/${args['topicId']}',
+      response = await Request().post('/append/topic/${args['topicId']}',
           data: formData, options: options);
       SmartDialog.dismiss();
-      print(response);
+      var document = parse(response!.data);
+      print(document);
+      return true;
     } catch (err) {
       SmartDialog.dismiss();
     }

@@ -129,24 +129,28 @@ class _ReplyNewState extends State<ReplyNew> {
           const SizedBox(height: 20),
           if (widget.replyMemberList!.isNotEmpty)
             if (widget.replyMemberList!.length > 1)
-              Row(
-                children: [
-                  Expanded(
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      runSpacing: 2,
-                      spacing: 10,
-                      children: [
-                        Text(
-                          ' 回复：',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        ...replyList(widget.replyMemberList)
-                      ],
+              Container(
+                padding: const EdgeInsets.only(left: 12, bottom: 15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runSpacing: 2,
+                        spacing: 10,
+                        children: [
+                          Text(
+                            ' 回复：',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          ...replyList(widget.replyMemberList)
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              )
+              ,
           if (widget.replyMemberList!.length == 1)
             Container(
               padding: const EdgeInsets.only(

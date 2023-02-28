@@ -65,9 +65,9 @@ class _TopicDetailState extends State<TopicDetail>
 
   SampleItem? selectedMenu;
 
-  FloatingActionButtonLocation get _fabLocation => _isVisible
-      ? FloatingActionButtonLocation.endContained
-      : FloatingActionButtonLocation.endFloat;
+  // FloatingActionButtonLocation get _fabLocation => _isVisible
+  //     ? FloatingActionButtonLocation.endContained
+  //     : FloatingActionButtonLocation.endFloat;
 
   bool expendAppBar = GStorage().getExpendAppBar();
 
@@ -126,6 +126,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   Future getDetail({type}) async {
     if (type == 'init') {
+      // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
       });
@@ -232,10 +233,17 @@ class _TopicDetailState extends State<TopicDetail>
           totalPage: _totalPage,
         );
       },
-    ).then((value) => {
-          // if (value != null)
-          //   {eventBus.emit('topicReply', value['replyStatus'])}
-        });
+    ).then((value) {
+      // 回复成功取消回复取消选中状态
+      var list = _replyList;
+      for (var item in _replyList) {
+        item.isChoose = false;
+      }
+      setState(() {
+        _replyList = list;
+      });
+      //   eventBus.emit('topicReply', value['replyStatus'])
+    });
   }
 
   // 查看楼中楼回复
@@ -482,17 +490,6 @@ class _TopicDetailState extends State<TopicDetail>
                   ),
                 )
               : showLoading(),
-          // floatingActionButton: FloatingActionButton(
-          //   onPressed: showReplySheet,
-          //   tooltip: '回复',
-          //   child: const Icon(Icons.edit),
-          // ),
-          // floatingActionButtonLocation: _fabLocation,
-          // bottomNavigationBar: DetailBottomBar(
-          //     onRefresh: onRefreshBtm,
-          //     isVisible: _isVisible,
-          //     detailModel: _detailModel,
-          //     topicId: topicId),
           bottomNavigationBar: StreamBuilder(
             stream: aStreamC.stream,
             initialData: false,
@@ -515,10 +512,11 @@ class _TopicDetailState extends State<TopicDetail>
               end: const Offset(0, 0.05),
             ).animate(CurvedAnimation(
               parent: animationController,
-              curve: Curves.easeOutCubic,
+              curve: Curves.easeInOut,
             )),
             child: FloatingActionButton(
-              elevation: 0,
+              heroTag: null,
+              elevation: _isVisible ? 4 : 0,
               onPressed: showReplySheet,
               tooltip: '回复',
               child: const Icon(Icons.edit),
@@ -622,44 +620,48 @@ class _TopicDetailState extends State<TopicDetail>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('对主题进行操作'),
-                    ],
-                  ),
+                  const Text(' 对主题进行操作'),
                   Row(
                     children: [
                       if (_detailModel!.isAPPEND)
                         TextButton(
-                            onPressed: () {
-                              Get.toNamed('/write', parameters: {
+                            onPressed: () async{
+                              var res = await Get.toNamed('/write', parameters: {
                                 'source': 'append',
                                 'topicId': _detailModel!.topicId
                               });
+                              if (res != null && res['refresh']) {
+                                SmartDialog.showLoading(msg: '刷新中...');
+                                getDetailInit();
+                              }
                             },
                             child: const Text('增加附言')),
                       if (_detailModel!.isEDIT)
                         TextButton(
-                            onPressed: () {
-                              Get.toNamed('/write', parameters: {
+                            onPressed: () async{
+                              var res = await Get.toNamed('/write', parameters: {
                                 'source': 'edit',
                                 'topicId': _detailModel!.topicId
                               });
+                              if (res != null && res['refresh']) {
+                                SmartDialog.showLoading(msg: '刷新中...');
+                                getDetailInit();
+                              }
                             },
                             child: const Text('编辑主题')),
                       if (_detailModel!.isMOVE)
                         TextButton(
-                            onPressed: () {
-                              Get.toNamed('/topic/nodes', parameters: {
+                            onPressed: () async{
+                              var res = await Get.toNamed('/topicNodes', parameters: {
                                 'source': 'move',
                                 'topicId': _detailModel!.topicId
                               });
+                              if (res != null && res['nodeDetail'].isNotEmpty) {
+                                setState(() {
+                                  _detailModel!.nodeName = res['nodeDetail']['nodeName'];
+                                  _detailModel!.nodeId = res['nodeDetail']['nodeId'];
+                                });
+                              }
                             },
                             child: const Text('移动节点')),
                     ],

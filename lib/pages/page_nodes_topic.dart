@@ -1,3 +1,4 @@
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
@@ -26,8 +27,10 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
     // TODO: implement initState
     super.initState();
     if (Get.parameters.isNotEmpty) {
-      source = Get.parameters['source'] != null ? Get.parameters['source']! : '';
-      topicId = Get.parameters['topicId'] != null ? Get.parameters['topicId']! : '';
+      source =
+          Get.parameters['source'] != null ? Get.parameters['source']! : '';
+      topicId =
+          Get.parameters['topicId'] != null ? Get.parameters['topicId']! : '';
     }
     getTopicNodes();
   }
@@ -63,27 +66,43 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
     });
   }
 
-  Future moveTopicNode(node) async {
-    var res = await DioRequestWeb.moveTopicNode(topicId, node.name);
-    if (res) {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('提示'),
-              content: Text('成功将主题移动到「${node.title}」节点'),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('返回'))
-              ],
-            );
-          },
-        );
-      }
-    }
-    return res;
+  moveTopicNode(node) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Text('确定将主题移动到「${node.title}」节点吗？'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('取消')),
+              TextButton(
+                child: const Text('确定'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  var res =
+                      await DioRequestWeb.moveTopicNode(topicId, node.name);
+                  if (res) {
+                    SmartDialog.showToast(
+                      '移动成功',
+                      displayTime: const Duration(milliseconds: 800),
+                    ).then((res) {
+                      Get.back(result: {
+                        'nodeDetail': {
+                          'nodeName': node.title,
+                          'nodeId': node.name
+                        }
+                      });
+                    });
+                  } else {
+                    SmartDialog.showToast('操作失败');
+                  }
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -101,7 +120,11 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
           slivers: [
             SliverAppBar(
               expandedHeight: 130,
-              title: Text(source == 'move' ? '移动节点' : source == 'nodes' ? '全部节点' : '选择节点'),
+              title: Text(source == 'move'
+                  ? '移动节点'
+                  : source == 'nodes'
+                      ? '全部节点'
+                      : '选择节点'),
               elevation: 1,
               pinned: true,
               floating: true,
@@ -129,15 +152,21 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '搜索节点',
-                                suffixIcon: controller.text.isNotEmpty ?  IconButton(
-                                    icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.outline,),
-                                    onPressed: () {
-                                      controller.clear();
-                                      setState(() {
-                                        topicNodesList = tempNodesList;
-                                      });
-                                    }
-                                  ): null,
+                                suffixIcon: controller.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(
+                                          Icons.clear,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline,
+                                        ),
+                                        onPressed: () {
+                                          controller.clear();
+                                          setState(() {
+                                            topicNodesList = tempNodesList;
+                                          });
+                                        })
+                                    : null,
                               ),
                               onChanged: (String value) {
                                 search(value);
@@ -158,7 +187,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                     if (source != '' && source == 'move') {
                       // 移动节点
                       moveTopicNode(topicNodesList[index]);
-                    } else if(source == 'nodes') {
+                    } else if (source == 'nodes') {
                       Get.toNamed('/go/${topicNodesList[index].name}');
                     } else {
                       // 新建主题

@@ -74,6 +74,10 @@ class _TabBarListState extends State<TabBarList>
   }
 
   Future getTopics() async {
+    if(_currentPage == 0 && topicList.isEmpty) {
+      // 没有数据时下拉，显示骨架屏
+      _isLoading = true;
+    }
     var id = widget.tabItem['id'] ?? 'all';
     var type = widget.tabItem['type'] ?? 'all';
     var res = await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
@@ -259,9 +263,28 @@ class _TabBarListState extends State<TabBarList>
     );
   }
 
+  // Widget emptyData() {
+  //   return const Center(
+  //     child: Text('没有数据，看看其他节点吧'),
+  //   );
+  // }
   Widget emptyData() {
-    return const Center(
-      child: Text('没有数据，看看其他节点吧'),
+    return RefreshIndicator(
+      onRefresh: () {
+        setState(() {
+          _currentPage = 0;
+        });
+        return getTopics();
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: const [
+          SizedBox(height: 150),
+          Center(
+            child: Text('没有数据，下拉刷新看看'),
+          )
+        ],
+      ),
     );
   }
 }
