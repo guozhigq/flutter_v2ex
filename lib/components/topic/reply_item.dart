@@ -72,6 +72,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   ReplyItem reply = ReplyItem();
   String heroTag = Random().nextInt(999).toString();
   final GlobalKey repaintKey = GlobalKey();
+  bool ignoreStatus = false; // 对当前主题的忽略状态 默认false
 
   @override
   void initState() {
@@ -158,32 +159,38 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 忽略回复
   void ignoreComment() {
-    SmartDialog.show(
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('忽略回复'),
-          content: Row(
-            children: [
-              const Text('确定不再显示来自 '),
-              Text(
-                '@${reply.userName}',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const Text(' 的这条回复？'),
-            ],
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text('忽略回复'),
+        content: Text.rich(TextSpan(children: [
+          const TextSpan(text: '确认不再显示来自 '),
+          TextSpan(
+            text: '@${reply.userName}',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(color: Theme.of(context).colorScheme.primary),
           ),
-          actions: [
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('取消')),
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('确定')),
-          ],
-        );
-      },
-    );
+          const TextSpan(text: ' 的这条回复？')
+        ])),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消')),
+          TextButton(
+              onPressed: () async{
+                var res = await DioRequestWeb.ignoreReply(reply.replyId);
+                if(res) {
+                  setState(() {
+                    ignoreStatus = true;
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('确定')),
+        ],
+      );
+    });
   }
 
   // 感谢回复 request
@@ -223,27 +230,34 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: RepaintBoundary(
-        key: repaintKey,
-        child: Material(
-          borderRadius: BorderRadius.circular(20),
-          color: reply.isChoose ? Theme.of(context).colorScheme.onInverseSurface : null,
-          child: InkWell(
-            onTap: replyComment,
+    return AnimatedSize(
+      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 450),
+      child: SizedBox(
+        height: ignoreStatus ? 0 : null,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            child: Ink(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
-              child: content(context),
+          ),
+          child: RepaintBoundary(
+            key: repaintKey,
+            child: Material(
+              borderRadius: BorderRadius.circular(20),
+              color: reply.isChoose ? Theme.of(context).colorScheme.onInverseSurface : null,
+              child: InkWell(
+                onTap: replyComment,
+                borderRadius: BorderRadius.circular(20),
+                child: Ink(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
+                  child: content(context),
+                ),
+              ),
             ),
           ),
+          // ),
         ),
       ),
-      // ),
     );
   }
 

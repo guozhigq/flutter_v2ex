@@ -1090,19 +1090,13 @@ class DioRequestWeb {
     }
   }
 
-  // 忽略主题
-  static Future<bool> ignoreTopic(String topicId) async {
-    // String once = await getOnce();
-    // print("ignoreTopic：" + once);
-    // if (once == null || once.isEmpty) {
-    //   return false;
-    // }
-    var response = await Request().get("/ignore/topic/$topicId?once=28900");
-    if (response.statusCode == 200 || response.statusCode == 302) {
-      // 操作成功
-      return true;
-    }
-    return false;
+  // 忽略回复
+  static Future<bool> ignoreReply(String replyId) async {
+    // https://www.v2ex.com/ignore/reply/12751760?once=90371
+    int once = GStorage().getOnce();
+    await Request().post("/ignore/reply/$replyId?once=$once");
+    // 操作成功
+    return true;
   }
 
   // 查看每日奖励
