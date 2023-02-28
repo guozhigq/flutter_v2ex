@@ -39,7 +39,15 @@
   - 打开 lib -> main.dart 文件 
   - 确保底部状态栏显示正确的设备，点击顶部工具栏下箭头 -> Start Debugging 
 
-### 待完成
+## 功能
+
+- material You取色（Android 12+）
+- base64 解码，一键复制
+- 回复保存为图片
+- 自动签到
+- 多类型（感谢、收藏、回复）消息提醒
+
+## 待完成
 
 - markdown格式发布主题 
 - 图片上传
@@ -48,13 +56,14 @@
 - 话题已读标记
 - 部分页面骨架屏
 
-### 待优化
+## 待优化
 
 - 回复多人
 - 数据缓存
 - 高级搜索
+- dom解析
 
-### 感谢
+## 感谢
 
 - 搜索功能使用 [Sov2ex](https://github.com/Bynil/sov2ex)
 - [V2LF](https://github.com/w4mxl/V2LF)
