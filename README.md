@@ -8,6 +8,11 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 <br/>
 
 ## 预览
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="500"></img>
+
 <br/>
 
 ## 环境配置
