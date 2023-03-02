@@ -4,10 +4,16 @@
 # vvex &nbsp; ![](https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter) ![](https://img.shields.io/badge/Dart-2.19.2-blue?style=flat) ![](https://img.shields.io/badge/Java-11.0.15-green?style=flat)
 
 vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支持 Android 和 iOS。<br/>在 Android 12+的系统上支持 Material You 3 规范
-
+<br/>
+[前往下载](https://github.com/guozhigq/flutter_v2ex/releases/)
 <br/>
 
 ## 预览
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="500"></img>
+<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="500"></img>
+
 <br/>
 
 ## 环境配置
@@ -46,11 +52,13 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 
 ## 额外功能
 
--   material You 取色（Android 12+）
--   base64 解码，一键复制
--   回复保存为图片
+
 -   自动签到
+-   回复保存为图片
 -   多类型消息提醒
+-   长按头像回复多人
+-   base64 解码，一键复制
+-   material You 取色（Android 12+）
 <br/>
 
 ## 待完成
