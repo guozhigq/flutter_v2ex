@@ -27,17 +27,21 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   void onDestinationSelected(int index) {
     if (!loginStatus) {
       if (index == 0) {
+        // 设置
+        Get.toNamed(listTitleMap_0[index]['path']);
+      }
+      if (index == 1) {
         // 选择主题
         setState(() {
           tempThemeValue = currentThemeValue;
         });
         themeDialog();
       }
-      if (index == 1) {
+      if (index == 2) {
         // 设置
         Get.toNamed('/setting');
       }
-      if (index == 2) {
+      if (index == 3) {
         // 帮助
         Get.toNamed('/help');
       }
@@ -178,12 +182,14 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     });
   }
 
-  List<Map<dynamic, dynamic>> listTitleMap = [
+  List<Map<dynamic, dynamic>> listTitleMap_0 = [
     {
       'leading': const Icon(Icons.whatshot_outlined),
       'title': '今日热议',
       'path': '/hot'
     },
+  ];
+  List<Map<dynamic, dynamic>> listTitleMap = [
     {
       'leading': const Icon(Icons.favorite_outline),
       'title': '我的关注',
@@ -242,18 +248,23 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         ),
         // header(),
         // const SizedBox(height: 20),
+        for (var i in listTitleMap_0)
+          NavigationDrawerDestination(
+            icon: i['leading'],
+            label: Text(i['title']),
+          ),
         if (loginStatus) ...[
           for (var i in listTitleMap)
             NavigationDrawerDestination(
               icon: i['leading'],
               label: Text(i['title']),
             ),
-          Divider(
-            color: Theme.of(context).dividerColor.withOpacity(0.15),
-            indent: 20,
-            endIndent: 12,
-          ),
         ],
+        Divider(
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          indent: 20,
+          endIndent: 12,
+        ),
         for (var i in listTitleMap_2)
           NavigationDrawerDestination(
             icon: i['leading'],
