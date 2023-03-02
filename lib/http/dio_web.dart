@@ -1969,4 +1969,24 @@ class DioRequestWeb {
       SmartDialog.dismiss();
     }
   }
+
+  // 删除消息
+  static Future<bool> onDelNotice(String noticeId, String once) async {
+      // https://www.v2ex.com/delete/notification/19134720?once=22730
+      Options options = Options();
+      // options.contentType = Headers.textPlainContentType;
+      options.headers = {
+        // 必须字段
+        'Referer': '${Strings.v2exHost}/notifications',
+        'Origin': Strings.v2exHost,
+        'user-agent':
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      };
+      FormData formData = FormData.fromMap({
+        'once': once
+      });
+      var res = await Request().post('/delete/notification/$noticeId?once=$once', data: formData, options: options);
+      log(res.data);
+      return true;
+  }
 }

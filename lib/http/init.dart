@@ -288,12 +288,16 @@ class Request {
 
   loginAuth(redirect, method) {
     bool needLogin = !(GStorage().getLoginStatus());
+    if(method == 'GET' && redirect == '/2fa'){
+      Utils.twoFADialog(scene: 'check');
+      throw ('2fa验证');
+    }
     bool authUrl = redirect.startsWith('/favorite') ||
         redirect.startsWith('/thank') ||
         redirect.startsWith('/ignore') ||
         redirect.startsWith('/report');
     if ((needLogin && authUrl) ||
-        (method == 'POST' && redirect.startsWith('/t'))) {
+        (needLogin && method == 'POST' && redirect.startsWith('/t'))) {
       SmartDialog.dismiss();
       SmartDialog.show(
         useSystem: true,

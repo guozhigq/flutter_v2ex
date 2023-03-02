@@ -235,7 +235,7 @@ class Utils {
     );
   }
 
-  static void twoFADialog() {
+  static void twoFADialog({String scene = 'login'}) {
     var twoFACode = '';
     SmartDialog.show(
       useSystem: true,
@@ -264,7 +264,7 @@ class Utils {
           actions: [
             TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  SmartDialog.dismiss();
                 },
                 child: const Text('取消')),
             TextButton(
@@ -274,19 +274,13 @@ class Utils {
                     if (res == 'true') {
                       GStorage().setLoginStatus(true);
                       eventBus.emit('login', 'success');
-                      // Navigator.pop(context);
                       SmartDialog.showToast('登录成功', displayTime: const Duration(milliseconds: 500)).then((res) {
+                        // 登录页面需要关闭当前页面，其余情况只关闭dialog
                         SmartDialog.dismiss();
-                        Get.back();
+                        if(scene == 'login') {
+                          Get.back();
+                        }
                       });
-                      // 关闭loading
-                      // SmartDialog.dismiss();
-                      // 关闭2fa dialog
-                      // if (context.mounted) {
-                      //   Navigator.pop(context);
-                      // }
-                      // 关闭login page
-                      // Get.back();
                     } else {
                       twoFACode = '';
                     }
