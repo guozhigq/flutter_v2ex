@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_v2ex/http/init.dart';
 
 class SoV2ex {
-  static Future onSearch(String q, int from, int size, {String sort  = 'sumup', int order = 0 } ) async {
+  static Future onSearch(String q, int from, int size, {String sort  = 'created', int order = 0 } ) async {
     // sort 排序方式 （默认 sumup) ｜ sumup（权重）created（发帖时间）
     // order 升降序，sort 不为 sumup 时有效（默认 降序）｜ 0（降序）, 1（升序）
     Response response;
@@ -61,7 +61,7 @@ class HitsList {
     hitsList.index = map['_index'];
     hitsList.type = map['_type'];
     hitsList.id = map['_id'];
-    hitsList.score = map['_score'];
+    hitsList.score = map['_score'] ?? 0.0;
     hitsList.source = SourceMap.fromMap(map['_source']);
     hitsList.highlight = HighlightList.fromMap(map['highlight']);
     return hitsList;
