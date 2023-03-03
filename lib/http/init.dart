@@ -87,7 +87,6 @@ class Request {
     _getLocalFile();
     //添加拦截器
     dio.interceptors
-      ..add(LogInterceptor())
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
       ..add(
         InterceptorsWrapper(
@@ -110,8 +109,10 @@ class Request {
             return handler.next(e);
           },
         ),
-      );
-    // (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+      )
+      // 日志拦截器 输出请求、响应内容
+      ..add(LogInterceptor());
+    (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         (HttpClient client) {
       // config the http client
