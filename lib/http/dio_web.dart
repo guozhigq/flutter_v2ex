@@ -299,12 +299,15 @@ class DioRequestWeb {
 
     var noticeNode =
     document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    // 未读消息
-    var unRead =
-    noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-    if (int.parse(unRead) > 0) {
-      eventBus.emit('unRead', int.parse(unRead));
+    if(noticeNode != null){
+      // 未读消息
+      var unRead =
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      if (int.parse(unRead) > 0) {
+        eventBus.emit('unRead', int.parse(unRead));
+      }
     }
+
     return detailModel;
   }
 
@@ -404,13 +407,14 @@ class DioRequestWeb {
 
     var noticeNode =
     bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    // 未读消息
-    var unRead =
-    noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-    if (int.parse(unRead) > 0) {
-      eventBus.emit('unRead', int.parse(unRead));
+    if(noticeNode != null){
+      // 未读消息
+      var unRead =
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      if (int.parse(unRead) > 0) {
+        eventBus.emit('unRead', int.parse(unRead));
+      }
     }
-
     return favNodeList;
   }
 
@@ -1124,21 +1128,23 @@ class DioRequestWeb {
     }
     var noticeNode =
     bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    // 未读消息
-    var unRead =
-        noticeNode!.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-    // print('$unRead条未读消息');
-    if (int.parse(unRead) > 0) {
-      eventBus.emit('unRead', int.parse(unRead));
-    }
+    if(noticeNode != null){
+      // 未读消息
+      var unRead =
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      // print('$unRead条未读消息');
+      if (int.parse(unRead) > 0) {
+        eventBus.emit('unRead', int.parse(unRead));
+      }
 
-    // 余额
-    // List balance = noticeNode.querySelector('div#money')!.text.split(' ');
-    // balance.removeAt(1);
-    // balance.removeAt(2);
-    // signDetail['balance'] = balance;
-    signDetail['balanceRender'] =
-        noticeNode.querySelector('div#money')!.innerHtml;
+      // 余额
+      // List balance = noticeNode.querySelector('div#money')!.text.split(' ');
+      // balance.removeAt(1);
+      // balance.removeAt(2);
+      // signDetail['balance'] = balance;
+      signDetail['balanceRender'] =
+          noticeNode.querySelector('div#money')!.innerHtml;
+    }
     return signDetail;
   }
 
