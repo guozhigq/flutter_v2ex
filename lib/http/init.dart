@@ -99,7 +99,7 @@ class Request {
       ))
       // 日志拦截器 输出请求、响应内容
       ..add(LogInterceptor());
-    (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+    // (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         (HttpClient client) {
       // config the http client
