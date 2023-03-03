@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_v2ex/utils/cookie.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -25,7 +26,6 @@ class _WebViewState extends State<WebView> {
 
   PullToRefreshController? pullToRefreshController;
 
-  late ContextMenu contextMenu;
   String aUrl = "";
   double progress = 0;
   var cookieManager = CookieManager.instance();
@@ -35,19 +35,24 @@ class _WebViewState extends State<WebView> {
     super.initState();
     aUrl = Get.parameters['aUrl']!;
 
-    // pullToRefreshController = kIsWeb ? null : PullToRefreshController(
-    //   settings: PullToRefreshSettings(
-    //     color: Theme.of(context).colorScheme.primary,
-    //   ),
-    //   onRefresh: () async {
-    //     if (defaultTargetPlatform == TargetPlatform.android) {
-    //       webViewController?.reload();
-    //     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-    //       webViewController?.loadUrl(
-    //           urlRequest: URLRequest(url: await webViewController?.getUrl()));
-    //     }
-    //   },
-    // );
+    pullToRefreshController = kIsWeb || ![TargetPlatform.iOS, TargetPlatform.android].contains(defaultTargetPlatform)
+        ? null
+        : PullToRefreshController(
+      settings: PullToRefreshSettings(
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      onRefresh: () async {
+        if (defaultTargetPlatform == TargetPlatform.android) {
+          webViewController?.reload();
+        } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS) {
+          webViewController?.loadUrl(
+              urlRequest:
+              URLRequest(url: await webViewController?.getUrl()));
+        }
+      },
+    );
+
   }
 
   @override
@@ -89,13 +94,17 @@ class _WebViewState extends State<WebView> {
                   },
                   // 触发多次 页面内可能会有跳转
                   onLoadStop: (controller, url) async {
+                    pullToRefreshController?.endRefreshing();
                     print('🔥🔥 👋🌲');
                     // google登录完成
                     // ignore: unrelated_type_equality_checks
                     String strUrl = url.toString();
                     if (strUrl == 'https://www.v2ex.com/#' ||
                         // ignore: unrelated_type_equality_checks
-                        strUrl == 'https://www.v2ex.com/') {
+                        strUrl == 'https://www.v2ex.com/' ||
+                        strUrl == 'https://www.v2ex.com/2fa#' ||
+                        strUrl == 'https://www.v2ex.com/2fa'
+                    ) {
                       // 使用cookieJar保存cookie
                       List<Cookie> cookies =
                           await cookieManager.getCookies(url: url!);
@@ -119,15 +128,15 @@ class _WebViewState extends State<WebView> {
                     ? LinearProgressIndicator(value: progress)
                     : Container(),
               ],
-            ))
+            ),)
           ],
         ),
       ),
     );
   }
 
-  void reFresh() {
-    print('reFresh');
+  void reFresh() async{
+    webViewController?.reload();
   }
 
   void closePage() async {

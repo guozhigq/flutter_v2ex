@@ -266,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                   'aUrl': '${Strings.v2exHost}/auth/google?once=$once'
                 });
                 if(result != null && result['signInGoogle'] == 'success'){
-                  SmartDialog.showLoading(msg: '获取信息...');
+                  // SmartDialog.showLoading(msg: '获取信息...');
                   // 登录成功 获取用户信息 / 2FA
                   var signResult = await DioRequestWeb.getUserInfo();
                   if (signResult == 'true') {
