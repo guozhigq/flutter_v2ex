@@ -4,20 +4,18 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-// import 'package:get/get.dart' hide Response;
 import 'package:dio/adapter.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-String reqCookie = '';
 
 class Request {
   static final Request _instance = Request._internal();
@@ -33,12 +31,6 @@ class Request {
       ),
     );
 
-  // final CancelToken _cancelToken = CancelToken();
-  // static Request getInstance() {
-  //   _instance ??= Request();
-  //   return _instance;
-  // }
-
   dynamic _parseAndDecode(String response) {
     return jsonDecode(response);
   }
@@ -47,8 +39,8 @@ class Request {
     return compute(_parseAndDecode, text);
   }
 
-  ///设置cookie
-  void _getLocalFile() async {
+  /// 设置cookie
+  void _setCookie() async {
     var cookiePath = await Utils.getCookiePath();
     var cookieJar = PersistCookieJar(
       ignoreExpires: true,
@@ -70,12 +62,9 @@ class Request {
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
       receiveTimeout: 12000,
       //Http请求头.
-      headers: {
-        'cookie': reqCookie,
-        // 'user-agent': Platform.isIOS
-        //     ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
-        //     : 'User-Agent: MOT-V9mm/00.62 UP.Browser/6.2.3.4.c.1.123 (GUI) MMP/2.0'
-      },
+      // headers: {
+      //   'cookie': '',
+      // },
       //请求的Content-Type，默认值是"application/json; charset=utf-8",Headers.formUrlEncodedContentType会自动编码请求体.
       // contentType: Headers.formUrlEncodedContentType,
       //表示期望以那种格式(方式)接受响应数据。接受四种类型 `json`, `stream`, `plain`, `bytes`. 默认值是 `json`,
@@ -84,32 +73,30 @@ class Request {
 
     dio = Dio(options);
 
-    _getLocalFile();
+    _setCookie();
     //添加拦截器
     dio.interceptors
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
-      ..add(
-        InterceptorsWrapper(
-          onRequest: (RequestOptions options, handler) {
-            print("请求之前");
-            loginAuth(options.path, options.method);
-            return handler.next(options);
-          },
-          onResponse: (Response response, handler) {
-            // 更新用户信息 消息计数 ...
-            print("响应之前");
-            loginAuth(
-                response.realUri.toString(), response.requestOptions.method);
-            return handler.next(response);
-          },
-          onError: (DioError e, handler) {
-            // print("错误之前");
-            SmartDialog.showToast(e.message,
-                displayTime: const Duration(seconds: 3));
-            return handler.next(e);
-          },
-        ),
-      )
+      ..add(InterceptorsWrapper(
+        onRequest: (RequestOptions options, handler) {
+          print("请求之前");
+          loginAuth(options.path, options.method);
+          return handler.next(options);
+        },
+        onResponse: (Response response, handler) {
+          // 更新用户信息 消息计数 ...
+          print("响应之前");
+          loginAuth(
+              response.realUri.toString(), response.requestOptions.method);
+          return handler.next(response);
+        },
+        onError: (DioError e, handler) {
+          // print("错误之前");
+          SmartDialog.showToast(e.message,
+              displayTime: const Duration(seconds: 3));
+          return handler.next(e);
+        },
+      ))
       // 日志拦截器 输出请求、响应内容
       ..add(LogInterceptor());
     (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
@@ -167,12 +154,7 @@ class Request {
       return response;
     } on DioError catch (e, handler) {
       print('get error---------$e');
-      // int statusCode = e.response!.statusCode!;
-      // if(statusCode == 503){
-      //   return handleError(statusCode);
-      // }else{
       return Future.error(_dioError(e));
-      // }
     }
   }
 
@@ -264,32 +246,10 @@ class Request {
     return headerUa;
   }
 
-  handleError(error) async {
-    print('266： ${error.toString()}');
-    Response response = await dio.get('https://www.v2ex.com/my/following?p=1');
-    return response;
-    // try {
-    // if (
-    // isObjectLike(error) &&
-    // isObjectLike(error.config) &&
-    // error.message.includes(`503`) &&
-    // error.config.method === 'get' &&
-    // !error.config.url.startsWith('http')
-    // ) {
-    // const open503UrlTime = await store.get(open503UrlTimeAtom)
-    // if (dayjs().diff(open503UrlTime, 'hour') > 8) {
-    // store.set(open503UrlTimeAtom, Date.now())
-    // openURL(`${baseURL}${error.config.url}`)
-    // }
-    // }
-    // } catch {
-    // // empty
-    // }
-  }
-
+  // 登录验证
   loginAuth(redirect, method) {
     bool needLogin = !(GStorage().getLoginStatus());
-    if(method == 'GET' && redirect == '/2fa'){
+    if (method == 'GET' && redirect == '/2fa') {
       Utils.twoFADialog(scene: 'check');
       throw ('2fa验证');
     }
