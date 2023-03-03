@@ -1,11 +1,9 @@
 
-import 'dart:developer';
 import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/http/init.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class setCookie {
   static onSet(List cookiesList, String url) async {
@@ -13,9 +11,6 @@ class setCookie {
     // domain url
     List<Cookie> jarCookies = [];
     for(var i in cookiesList) {
-      print('🔥🔥: $i');
-      print('🔥🔥🌲：${i.value}');
-      print('🔥🔥🌲🌲：${i.name}');
       Cookie jarCookie = Cookie(
         i.name,
         i.value
@@ -29,8 +24,8 @@ class setCookie {
     );
     await cookieJar.saveFromResponse(
         Uri.parse("https://www.v2ex.com/"), jarCookies);
-    print(await cookieJar.loadForRequest(Uri.parse("https://www.v2ex.com/")));
-    // Response result = await  Request().get('https://www.v2ex.com/');
-    // log(result.data);
+    // 重新设置 cookie
+    Request().dio.interceptors.add(CookieManager(cookieJar));
+    return true;
   }
 }

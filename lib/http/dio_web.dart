@@ -949,7 +949,8 @@ class DioRequestWeb {
     }
     var tree = ETree.fromString(response.data);
     var elementOfAvatarImg = tree.xpath("//*[@id='menu-entry']/img")?.first;
-    if (elementOfAvatarImg != null) {
+    if (elementOfAvatarImg != null &&
+        elementOfAvatarImg.attributes['class'].contains('avatar')) {
       // 获取用户头像
       String avatar = elementOfAvatarImg.attributes["src"];
       String userName = elementOfAvatarImg.attributes["alt"];

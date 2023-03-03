@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -258,17 +259,29 @@ class _LoginPageState extends State<LoginPage> {
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 30,
             child: TextButton(
-              onPressed: () {
+              onPressed: () async{
                 int once = GStorage().getOnce();
                 // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
-                Get.toNamed('/webView', parameters: {
-                  'aUrl': 'https://www.v2ex.com/auth/google?once=$once'
+                var result = await Get.toNamed('/webView', parameters: {
+                  'aUrl': '${Strings.v2exHost}/auth/google?once=$once'
                 });
-                // SmartDialog.showToast('开发中 💪');
+                if(result != null && result['signInGoogle'] == 'success'){
+                  SmartDialog.showLoading(msg: '获取信息...');
+                  // 登录成功 获取用户信息 / 2FA
+                  var signResult = await DioRequestWeb.getUserInfo();
+                  if (signResult == 'true') {
+                    // 登录成功
+                    Get.back(result: {'loginStatus': 'success'});
+                  } else if (signResult == 'false') {
+                    // 登录失败
+                    SmartDialog.showToast('登录失败了');
+                  } else if (result == '2fa') {
+                    Utils.twoFADialog();
+                  }
+                }else{
+                  SmartDialog.showToast('取消登录');
+                }
               },
-              // onPressed: () {
-              //   DioRequestWeb.signByGoogle();
-              // },
               child: Row(children: [
                 Image.asset('assets/images/google.png', width: 25, height: 25),
                 const SizedBox(width: 10),

@@ -1,10 +1,5 @@
-import 'dart:developer';
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:cookie_jar/cookie_jar.dart' ;
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/cookie.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -16,8 +11,6 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> {
-  // final GlobalKey? webViewKey = GlobalKey();
-
   InAppWebViewController? webViewController;
 
   InAppWebViewSettings settings = InAppWebViewSettings(
@@ -40,7 +33,6 @@ class _WebViewState extends State<WebView> {
   @override
   void initState() {
     super.initState();
-    setUA();
     aUrl = Get.parameters['aUrl']!;
 
     // pullToRefreshController = kIsWeb ? null : PullToRefreshController(
@@ -56,24 +48,6 @@ class _WebViewState extends State<WebView> {
     //     }
     //   },
     // );
-  }
-
-  setUA() async {
-    String? newUserAgent;
-    final defaultUserAgent = await InAppWebViewController.getDefaultUserAgent();
-    if (Platform.isIOS) {
-      newUserAgent = "$defaultUserAgent Safari/604.1";
-      // newUserAgent =
-      //     "Mozilla/5.0 (Linux; Android 9.0; V2er Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36";
-    }
-    if (Platform.isAndroid) {
-      newUserAgent =
-          "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
-    }
-    webViewController?.setSettings(
-        settings: InAppWebViewSettings(userAgent: newUserAgent));
-    await webViewController?.setSettings(
-        settings: InAppWebViewSettings(userAgent: newUserAgent));
   }
 
   @override
@@ -92,7 +66,7 @@ class _WebViewState extends State<WebView> {
         leading:
             IconButton(onPressed: closePage, icon: const Icon(Icons.close)),
         actions: [
-          IconButton(onPressed: onShare, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: reFresh, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: SafeArea(
@@ -102,7 +76,6 @@ class _WebViewState extends State<WebView> {
                 child: Stack(
               children: [
                 InAppWebView(
-                  // key: GlobalKey,
                   initialUrlRequest: URLRequest(url: WebUri(aUrl)),
                   pullToRefreshController: pullToRefreshController,
                   initialSettings: settings,
@@ -112,14 +85,11 @@ class _WebViewState extends State<WebView> {
                   },
                   // 加载url时触发
                   onLoadStart: (controller, url) async {
-                    // List<Cookie> cookies =
-                    //     await cookieManager.getCookies(url: url!);
                     URLRequest(url: WebUri(aUrl));
                   },
                   // 触发多次 页面内可能会有跳转
                   onLoadStop: (controller, url) async {
-                    log('🔥🔥 👋🌲');
-                    // log(url.toString());
+                    print('🔥🔥 👋🌲');
                     // google登录完成
                     // ignore: unrelated_type_equality_checks
                     String strUrl = url.toString();
@@ -129,7 +99,10 @@ class _WebViewState extends State<WebView> {
                       // 使用cookieJar保存cookie
                       List<Cookie> cookies =
                           await cookieManager.getCookies(url: url!);
-                      setCookie.onSet(cookies, strUrl);
+                      var res = await setCookie.onSet(cookies, strUrl);
+                      if(res) {
+                        Get.back(result: {'signInGoogle': 'success'});
+                      }
                     }
                   },
                   onProgressChanged: (controller, progress) async {
@@ -140,11 +113,7 @@ class _WebViewState extends State<WebView> {
                       this.progress = progress / 100;
                     });
                   },
-                  onCloseWindow: (controller) async {
-                    // List<Cookie> cookies =
-                    //     await cookieManager.getCookies(url: WebUri(aUrl));
-                    // print('😊: $cookies');
-                  },
+                  onCloseWindow: (controller) { },
                 ),
                 progress < 1.0
                     ? LinearProgressIndicator(value: progress)
@@ -157,21 +126,11 @@ class _WebViewState extends State<WebView> {
     );
   }
 
-  void onShare() {
-    print('share');
-  }
-
-  void onMore() {
-    print('onMore');
+  void reFresh() {
+    print('reFresh');
   }
 
   void closePage() async {
-    Navigator.pop(context);
-    // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri(aUrl));
-    // String cookiePath = await Utils.getCookiePath();
-    // PersistCookieJar cookieJar =
-    //     PersistCookieJar(ignoreExpires: true, storage: FileStorage(cookiePath));
-    // cookieJar.saveFromResponse(
-    //     Uri.parse("https://www.v2ex.com/"), cookies);
+    Get.back(result: {'signInGoogle': 'cancel'});
   }
 }
