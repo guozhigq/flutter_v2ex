@@ -1,18 +1,12 @@
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:flutter_v2ex/components/home/search_bar.dart';
-// import 'package:flutter_v2ex/http/dio_web.dart';
-
-// import 'package:flutter_v2ex/components/home/search_bar.dart';
 import 'package:flutter_v2ex/components/home/sticky_bar.dart';
 import 'package:flutter_v2ex/components/home/tabbar_list.dart';
 import 'package:flutter_v2ex/components/home/left_drawer.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
-
-// import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-
-// plugin fix https://github.com/flutter/flutter/issues/36419
-// import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:quick_actions/quick_actions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,23 +42,31 @@ class _HomePageState extends State<HomePage>
 
     const QuickActions quickActions = QuickActions();
     quickActions.initialize((String shortcutType) {
-      setState(() {
-        if (shortcutType != null) {
-          shortcut = shortcutType;
-        }
-      });
+      switch(shortcutType) {
+        case 'hot':
+          // 今日热议
+          Get.toNamed('/hot');
+          return;
+        case 'sign':
+          // 签到
+          DioRequestWeb.dailyMission();
+          return;
+        case 'search':
+          // 搜索
+          Get.toNamed('/search');
+      }
     });
 
     quickActions.setShortcutItems(<ShortcutItem>[
       // NOTE: This first action icon will only work on iOS.
       // In a real world project keep the same file name for both platforms.
       const ShortcutItem(
-        type: 'event',
+        type: 'hot',
         localizedTitle: '今日热门',
         icon: 'icon_hot',
       ),
       const ShortcutItem(
-        type: 'message',
+        type: 'sign',
         localizedTitle: '签到',
         icon: 'icon_sign',
       ),
