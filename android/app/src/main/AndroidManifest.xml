@@ -25,7 +25,7 @@
     </queries>
 
     <application
-        android:label="vvex"
+        android:label="VVEX"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="true"
