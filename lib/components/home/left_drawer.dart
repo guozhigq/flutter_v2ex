@@ -1,13 +1,8 @@
-import 'dart:math';
-import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class HomeLeftDrawer extends StatefulWidget {
   const HomeLeftDrawer({super.key});
@@ -18,17 +13,15 @@ class HomeLeftDrawer extends StatefulWidget {
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   bool loginStatus = false;
-  Map userInfo = {};
   int selectedIndex = 99;
-  Map<dynamic, dynamic>? signDetail;
   ThemeType? tempThemeValue = ThemeType.system;
   ThemeType? currentThemeValue = ThemeType.system;
 
-  void onDestinationSelected(int index) {
+  void onDestinationSelected(int index) async{
     if (!loginStatus) {
       if (index == 0) {
-        // 设置
-        Get.toNamed(listTitleMap_0[index]['path']);
+        // 热议
+        Get.toNamed(listTitleMap_0[0]['path']);
       }
       if (index == 1) {
         // 选择主题
@@ -46,9 +39,12 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
         Get.toNamed('/help');
       }
     } else {
-      if (index < 6) {
-        // 热议主题
-        Get.toNamed(listTitleMap[index]['path']);
+      if(index == 0) {
+        Get.toNamed(listTitleMap_0[0]['path']);
+      }else
+      if (index < 6 ) {
+        // 用户权限
+        Get.toNamed(listTitleMap[index-1]['path']);
       }
       if (index == 6) {
         // 选择主题
@@ -140,46 +136,17 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   void initState() {
     super.initState();
     // 获取登录状态
-    if (GStorage().getLoginStatus()) {
-      // setState(() {
-        loginStatus = true;
-      // });
-      // readUserInfo();
-      // queryDaily();
-    }
-    {
-      eventBus.on('login', (arg) {
-        if (arg == 'success') {
-          readUserInfo();
-        } else {
-          GStorage().setLoginStatus(false);
-          // GStorage().setUserInfo({});
-          setState(() {
-            loginStatus = false;
-            userInfo = {};
-          });
-        }
-      });
-    }
+    loginStatus = GStorage().getLoginStatus();
+    eventBus.on('login', (arg) {
+      if (arg != null && arg != 'success') {
+        GStorage().setLoginStatus(false);
+        setState(() {
+          loginStatus = false;
+        });
+      }
+    });
     // 读取默认主题配置
     currentThemeValue = GStorage().getSystemType();
-  }
-
-  void readUserInfo() {
-    if (GStorage().getUserInfo().isNotEmpty) {
-      Map userInfoStorage = GStorage().getUserInfo();
-      setState(() {
-        userInfo = userInfoStorage;
-      });
-    }
-  }
-
-  // 查询签到状态
-  Future queryDaily() async {
-    var res = await DioRequestWeb.queryDaily();
-    setState(() {
-      signDetail = res;
-    });
   }
 
   List<Map<dynamic, dynamic>> listTitleMap_0 = [
@@ -239,15 +206,12 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       children: [
         Container(
           padding: const EdgeInsets.only(
-            // top: MediaQuery.of(context).padding.top,
             top: 10,
             left: 35,
             bottom: 20,
           ),
-          child: Text('VVex', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1)),
+          child: Text('VVEX', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
         ),
-        // header(),
-        // const SizedBox(height: 20),
         for (var i in listTitleMap_0)
           NavigationDrawerDestination(
             icon: i['leading'],
@@ -272,132 +236,5 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           ),
       ],
     );
-  }
-
-  Widget header() {
-    var herotag = '';
-    if (userInfo.isNotEmpty) {
-      herotag = userInfo['userName'] + Random().nextInt(999).toString();
-    }
-    return DrawerHeader(
-      curve: Curves.bounceInOut,
-      child: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(left: 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (userInfo.isNotEmpty) {
-                      Get.toNamed('/member/${userInfo['userName']}',
-                          parameters: {
-                            'memberAvatar': userInfo['avatar'],
-                            'heroTag': herotag,
-                          });
-                    } else {
-                      Get.toNamed('/login')!.then((res) {
-                        if (res['loginStatus'] == 'cancel') {
-                          SmartDialog.showToast('取消登录');
-                        } else {
-                          SmartDialog.showToast('登录成功');
-                          if (GStorage().getLoginStatus()) {
-                            setState(() {
-                              loginStatus = true;
-                            });
-                            readUserInfo();
-                          }
-                        }
-                      });
-                    }
-                  },
-                  child: Hero(
-                    tag: herotag,
-                    child: CAvatar(
-                      size: 80,
-                      url: userInfo.isNotEmpty ? '${userInfo['avatar']}' : '',
-                    ),
-                  ),
-                ),
-                // const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      userInfo.isNotEmpty
-                          ? '${userInfo['userName']}'
-                          : '点击头像登录',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    if (loginStatus) sign()
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget sign() {
-    return signDetail != null
-        ? TextButton(
-            onPressed: () => !signDetail!['signStatus']
-                ? DioRequestWeb.dailyMission()
-                : null,
-            child: Row(
-              children: [
-                Icon(
-                  !signDetail!['signStatus']
-                      ? Icons.auto_fix_high
-                      : Icons.done_all,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  !signDetail!['signStatus']
-                      ? '领取登陆奖励'
-                      : signDetail!['signDays'],
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium!
-                      .copyWith(color: Theme.of(context).colorScheme.primary),
-                ),
-              ],
-            ),
-          )
-        : TextButton(
-            onPressed: () => {},
-            child: Row(
-              children: [
-                Icon(
-                  Icons.cached_sharp,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  '稍等',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .copyWith(color: Theme.of(context).colorScheme.primary),
-                ),
-              ],
-            ),
-          );
   }
 }
