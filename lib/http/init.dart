@@ -5,17 +5,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/utils/login.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/http/interceptor.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class Request {
   static final Request _instance = Request._internal();
@@ -77,26 +74,7 @@ class Request {
     //添加拦截器
     dio.interceptors
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
-      ..add(InterceptorsWrapper(
-        onRequest: (RequestOptions options, handler) {
-          print("请求之前");
-          loginAuth(options.path, options.method);
-          return handler.next(options);
-        },
-        onResponse: (Response response, handler) {
-          // 更新用户信息 消息计数 ...
-          print("响应之前");
-          loginAuth(
-              response.realUri.toString(), response.requestOptions.method);
-          return handler.next(response);
-        },
-        onError: (DioError e, handler) {
-          // print("错误之前");
-          SmartDialog.showToast(e.message,
-              displayTime: const Duration(seconds: 3));
-          return handler.next(e);
-        },
-      ))
+      ..add(ApiInterceptor())
       // 日志拦截器 输出请求、响应内容
       ..add(LogInterceptor());
     // (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
@@ -201,7 +179,6 @@ class Request {
 
   // 处理 Dio 异常
   static String _dioError(DioError error) {
-    print(error);
     switch (error.type) {
       case DioErrorType.connectTimeout:
         return "网络连接超时，请检查网络设置";
@@ -246,46 +223,4 @@ class Request {
     return headerUa;
   }
 
-  // 登录验证
-  loginAuth(redirect, method) {
-    bool needLogin = !(GStorage().getLoginStatus());
-    if (method == 'GET' && redirect == '/2fa') {
-      SmartDialog.dismiss();
-      Login.twoFADialog();
-      throw ('2fa验证');
-    }
-    bool authUrl = redirect.startsWith('/favorite') ||
-        redirect.startsWith('/thank') ||
-        redirect.startsWith('/ignore') ||
-        redirect.startsWith('/report');
-    if ((needLogin && authUrl) ||
-        (needLogin && method == 'POST' && redirect.startsWith('/t'))) {
-      SmartDialog.dismiss();
-      SmartDialog.show(
-        useSystem: true,
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('权限不足'),
-            content: const Text('该操作需要登录'),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    SmartDialog.dismiss();
-                  },
-                  child: const Text('返回')),
-              TextButton(
-                  // TODO
-                  onPressed: () {
-                    SmartDialog.dismiss().then(
-                        (res) => {Navigator.of(context).pushNamed('/login')});
-                  },
-                  child: const Text('去登录'))
-            ],
-          );
-        },
-      );
-      throw ('该操作需要登录！');
-    }
-  }
 }

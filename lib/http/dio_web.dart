@@ -67,7 +67,7 @@ class DioRequestWeb {
         response = await Request().get(
           '/',
           data: {'tab': id},
-          extra: {'ua': 'mob', 'channel': 'web'},
+          extra: {'ua': 'mob'},
         );
         break;
       case 'recent':
@@ -78,7 +78,7 @@ class DioRequestWeb {
         response = await Request().get(
           '/',
           data: {'tab': 'all'},
-          extra: {'ua': 'mob', 'channel': 'web'},
+          extra: {'ua': 'mob'},
         );
         break;
     }
@@ -149,50 +149,56 @@ class DioRequestWeb {
   // 获取最新的主题
   static Future<List<TabTopicItem>> getTopicsRecent(int p) async {
     var topics = <TabTopicItem>[];
-    Response response;
-    response = await Request().get(
-      '/recent',
-      data: {'p': p},
-      extra: {'ua': 'pc'},
-    );
-    var tree = ETree.fromString(response.data);
-    var aRootNode = tree.xpath("//*[@class='cell item']");
-    for (var aNode in aRootNode!) {
-      var item = TabTopicItem();
-      item.memberId =
-          aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
-      item.avatar = Uri.encodeFull(aNode
-          .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-          ?.first
-          .attributes["src"]);
-      String topicUrl = aNode
-          .xpath("/table/tr/td[3]/span[1]/a")
-          ?.first
-          .attributes["href"]; // 得到是 /t/522540#reply17
-      item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
-        item.replyCount =
-            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-      }
-      item.lastReplyTime =
-          aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
-      item.nodeName = aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
-
-      item.topicTitle = aNode
-          .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
-          .name!
-          .replaceAll('&quot;', '"')
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>');
-      item.nodeId = aNode
-          .xpath("/table/tr/td[3]/span[2]/a")
-          ?.first
-          .attributes["href"]
-          .split('/')[2];
-      topics.add(item);
+    var response;
+    try {
+      response = await Request().get(
+        '/recent',
+        data: {'p': p},
+        extra: {'ua': 'pc'},
+      );
+    } catch (err) {
+      throw(err);
     }
-    return topics;
+      var tree = ETree.fromString(response.data);
+      var aRootNode = tree.xpath("//*[@class='cell item']");
+      for (var aNode in aRootNode!) {
+        var item = TabTopicItem();
+        item.memberId =
+            aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
+        item.avatar = Uri.encodeFull(aNode
+            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
+            ?.first
+            .attributes["src"]);
+        String topicUrl = aNode
+            .xpath("/table/tr/td[3]/span[1]/a")
+            ?.first
+            .attributes["href"]; // 得到是 /t/522540#reply17
+        item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
+        if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
+          item.replyCount =
+              int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
+        }
+        item.lastReplyTime =
+            aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
+        item.nodeName =
+            aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
+
+        item.topicTitle = aNode
+            .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
+            .name!
+            .replaceAll('&quot;', '"')
+            .replaceAll('&amp;', '&')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>');
+        item.nodeId = aNode
+            .xpath("/table/tr/td[3]/span[2]/a")
+            ?.first
+            .attributes["href"]
+            .split('/')[2];
+        topics.add(item);
+      }
+      return topics;
+
   }
 
   // 获取节点下的主题
@@ -298,11 +304,11 @@ class DioRequestWeb {
     detailModel.topicList = topics;
 
     var noticeNode =
-    document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    if(noticeNode != null){
+        document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -406,11 +412,11 @@ class DioRequestWeb {
     }
 
     var noticeNode =
-    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    if(noticeNode != null){
+        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -509,15 +515,15 @@ class DioRequestWeb {
     var opActionNode = document.querySelector('$headerQuery > small');
     if (opActionNode!.querySelector('a.op') != null) {
       var opNodes = opActionNode.querySelectorAll('a.op');
-      for(var i in opNodes){
+      for (var i in opNodes) {
         print(i.text);
-        if(i.text.contains('APPEND')){
+        if (i.text.contains('APPEND')) {
           detailModel.isAPPEND = true;
         }
-        if(i.text.contains('EDIT')){
+        if (i.text.contains('EDIT')) {
           detailModel.isEDIT = true;
         }
-        if(i.text.contains('MOVE')){
+        if (i.text.contains('MOVE')) {
           detailModel.isMOVE = true;
         }
       }
@@ -1127,11 +1133,11 @@ class DioRequestWeb {
       signDetail['signDays'] = '已领取$day天';
     }
     var noticeNode =
-    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    if(noticeNode != null){
+        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       // print('$unRead条未读消息');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
@@ -1398,7 +1404,10 @@ class DioRequestWeb {
       }
       memberReply.replyList.add(item);
     }
-    memberReply.replyCount = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+    memberReply.replyCount = int.parse(contentDom
+        .querySelector('div.header > div')!
+        .innerHtml
+        .replaceAll(RegExp(r'\D'), ''));
     return memberReply;
   }
 
@@ -1444,7 +1453,10 @@ class DioRequestWeb {
       topicList.add(item);
     }
     memberTopic.topicList = topicList;
-    memberTopic.topicCount = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+    memberTopic.topicCount = int.parse(contentDom
+        .querySelector('div.header > div')!
+        .innerHtml
+        .replaceAll(RegExp(r'\D'), ''));
     return memberTopic;
   }
 
@@ -1888,7 +1900,8 @@ class DioRequestWeb {
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode!.querySelector('div.inner') != null && mainNode!.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
+    if (mainNode!.querySelector('div.inner') != null &&
+        mainNode!.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
       return false;
     } else {
       return true;
@@ -1899,26 +1912,27 @@ class DioRequestWeb {
   static Future queryTopicStatus(topicId) async {
     SmartDialog.showLoading();
     Map result = {};
-    Response response = await Request().get('/edit/topic/$topicId', extra: {'ua': 'pc'});
+    Response response =
+        await Request().get('/edit/topic/$topicId', extra: {'ua': 'pc'});
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode!.querySelector('div.inner') != null && mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode!.querySelector('div.inner') != null &&
+        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       // 不可编辑
       result['status'] = false;
-    } else
-    {
+    } else {
       Map topicDetail = {};
       print(mainNode!.innerHtml);
       var topicTitle = mainNode.querySelector('#topic_title');
       topicDetail['topicTitle'] = topicTitle;
-      var topicContent= mainNode.querySelector('#topic_content');
+      var topicContent = mainNode.querySelector('#topic_content');
       topicDetail['topicContent'] = topicContent;
       var select = mainNode.querySelector('#select_syntax');
       var syntaxs = select!.querySelectorAll('option');
       var selectSyntax = '';
-      for(var i in syntaxs) {
-        if(i.attributes['selected'] != null){
+      for (var i in syntaxs) {
+        if (i.attributes['selected'] != null) {
           selectSyntax = i.attributes['value']!;
         }
       }
@@ -1980,21 +1994,20 @@ class DioRequestWeb {
 
   // 删除消息
   static Future<bool> onDelNotice(String noticeId, String once) async {
-      // https://www.v2ex.com/delete/notification/19134720?once=22730
-      Options options = Options();
-      // options.contentType = Headers.textPlainContentType;
-      options.headers = {
-        // 必须字段
-        'Referer': '${Strings.v2exHost}/notifications',
-        'Origin': Strings.v2exHost,
-        'user-agent':
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
-      };
-      FormData formData = FormData.fromMap({
-        'once': once
-      });
-      var res = await Request().post('/delete/notification/$noticeId?once=$once', data: formData, options: options);
-      log(res.data);
-      return true;
+    // https://www.v2ex.com/delete/notification/19134720?once=22730
+    Options options = Options();
+    // options.contentType = Headers.textPlainContentType;
+    options.headers = {
+      // 必须字段
+      'Referer': '${Strings.v2exHost}/notifications',
+      'Origin': Strings.v2exHost,
+      'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+    FormData formData = FormData.fromMap({'once': once});
+    var res = await Request().post('/delete/notification/$noticeId?once=$once',
+        data: formData, options: options);
+    log(res.data);
+    return true;
   }
 }
