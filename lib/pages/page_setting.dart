@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +20,13 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool autoSign = GStorage().getAutoSign(); // 自动签到
-  bool materialColor = true; // 动态去色
-  bool linkOpenInApp = GStorage().getLinkOpenInApp();
-  bool loginStatus = GStorage().getLoginStatus();
-  String cacheSize = '';
-  bool expendAppBar = GStorage().getExpendAppBar();
-  bool noticeOn = GStorage().getNoticeOn();
+  late bool autoSign = GStorage().getAutoSign(); // 自动签到
+  late bool materialColor = true; // 动态去色
+  late bool linkOpenInApp = GStorage().getLinkOpenInApp();
+  late bool loginStatus = GStorage().getLoginStatus();
+  late String cacheSize = '';
+  late bool expendAppBar = GStorage().getExpendAppBar();
+  late bool noticeOn = GStorage().getNoticeOn();
 
   @override
   void initState() {
@@ -35,11 +36,9 @@ class _SettingPageState extends State<SettingPage> {
     getCacheSize();
   }
 
-  void getCacheSize() async {
-    var res = await CacheManage().loadApplicationCache();
-    setState(() {
-      cacheSize = res;
-    });
+  Future<void> getCacheSize() async {
+    final res = await CacheManage().loadApplicationCache();
+    setState(() => cacheSize = res);
   }
 
   void onLogout() {
@@ -57,24 +56,16 @@ class _SettingPageState extends State<SettingPage> {
           TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-
                 /// 删除cookie目录
                 try {
-                  // Directory directory = Directory(await Utils.getCookiePath());
-                  // await CacheManage().deleteDirectory(directory);
-                  // GStorage().setLoginStatus(false);
-                  // GStorage().setUserInfo({});
-                  // GStorage().setSignStatus('');
-                  // eventBus.emit('login', 'loginOut');
                   await Login.signOut();
-                  await DioRequestWeb.loginOut();
                   SmartDialog.showToast('已退出登录 ✅');
-                  await Request().get('/');
-                  if(context.mounted){
-                    Navigator.pop(context);
-                  }
+                  // await Request().get('/');
+                  // if(context.mounted){
+                  //   Navigator.pop(context);
+                  // }
+                  Get.offAll(const HomePage());
                 } catch (err) {
-                  print(err.toString());
                   SmartDialog.showToast(err.toString());
                 }
               },
@@ -157,7 +148,11 @@ class _SettingPageState extends State<SettingPage> {
           //   subtitle: Text('选择应用主题色', style: subTitleStyle),
           // ),
           ListTile(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                linkOpenInApp = !linkOpenInApp;
+              });
+            },
             leading: Icon(Icons.open_in_new_rounded, color: iconStyle),
             title: const Text('使用应用内浏览器'),
             subtitle: Text('在应用内查看外部链接', style: subTitleStyle),
@@ -182,7 +177,11 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                expendAppBar = !expendAppBar;
+              });
+            },
             leading: Icon(Icons.expand, color: iconStyle),
             title: const Text('滑动时收起AppBar'),
             subtitle: Text('在详情页收起顶部信息栏', style: subTitleStyle),
@@ -207,10 +206,14 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
-            onTap: () {},
+            onTap: () {
+              setState(() {
+                noticeOn = !noticeOn;
+              });
+            },
             leading: Icon(Icons.notifications_none, color: iconStyle),
             title: const Text('接收消息通知'),
-            subtitle: Text('关闭后将不再接收回复、感谢、收藏\n等通知', style: subTitleStyle),
+            subtitle: Text('关闭后收到通知将不再提醒', style: subTitleStyle),
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
