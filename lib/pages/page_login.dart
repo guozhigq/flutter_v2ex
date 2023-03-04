@@ -218,6 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                         var result = await DioRequestWeb.onLogin(loginKey);
                         if (result == 'true') {
                           // 登录成功
+                          GStorage().setLoginStatus(true);
                           Get.back(result: {'loginStatus': 'success'});
                         } else if (result == 'false') {
                           // 登录失败
