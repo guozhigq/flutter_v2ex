@@ -47,7 +47,9 @@ class _ListItemState extends State<ListItem>
         color: Theme.of(context).colorScheme.onInverseSurface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: () {
+          onTap: () async{
+            /// 增加200毫秒延迟 水波纹动画
+            await Future.delayed(const Duration(milliseconds: 200));
             var arguments = <String, TabTopicItem>{"topic": widget.topic};
             Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
           },
