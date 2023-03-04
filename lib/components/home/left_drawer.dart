@@ -12,151 +12,19 @@ class HomeLeftDrawer extends StatefulWidget {
 }
 
 class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
-  bool loginStatus = false;
+  bool _loginStatus = false;
   int selectedIndex = 99;
-  ThemeType? tempThemeValue = ThemeType.system;
-  ThemeType? currentThemeValue = ThemeType.system;
+  ThemeType? _tempThemeValue = ThemeType.system;
+  ThemeType? _currentThemeValue = ThemeType.system;
 
-  void onDestinationSelected(int index) async{
-    if (!loginStatus) {
-      if (index == 0) {
-        // 热议
-        Get.toNamed(listTitleMap_0[0]['path']);
-      }
-      if (index == 1) {
-        // 选择主题
-        setState(() {
-          tempThemeValue = currentThemeValue;
-        });
-        themeDialog();
-      }
-      if (index == 2) {
-        // 设置
-        Get.toNamed('/setting');
-      }
-      if (index == 3) {
-        // 帮助
-        Get.toNamed('/help');
-      }
-    } else {
-      if(index == 0) {
-        Get.toNamed(listTitleMap_0[0]['path']);
-      }else
-      if (index < 6 ) {
-        // 用户权限
-        Get.toNamed(listTitleMap[index-1]['path']);
-      }
-      if (index == 6) {
-        // 选择主题
-        setState(() {
-          tempThemeValue = currentThemeValue;
-        });
-        themeDialog();
-      }
-      if (index == 7) {
-        // 设置
-        Get.toNamed('/setting');
-      }
-      if (index == 8) {
-        // 帮助
-        Get.toNamed('/help');
-      }
-    }
-  }
-
-  void themeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('选择主题'),
-          contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-          content: StatefulBuilder(builder: (context, StateSetter setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                RadioListTile(
-                  value: ThemeType.light,
-                  title: Text('浅色',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  groupValue: tempThemeValue,
-                  onChanged: (ThemeType? value) {
-                    setState(() {
-                      tempThemeValue = value;
-                    });
-                  },
-                ),
-                RadioListTile(
-                  value: ThemeType.dark,
-                  title: Text('深色',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  groupValue: tempThemeValue,
-                  onChanged: (ThemeType? value) {
-                    setState(() {
-                      tempThemeValue = value;
-                    });
-                  },
-                ),
-                RadioListTile(
-                  value: ThemeType.system,
-                  title: Text('系统默认设置',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  groupValue: tempThemeValue,
-                  onChanged: (ThemeType? value) {
-                    setState(() {
-                      tempThemeValue = value;
-                    });
-                  },
-                ),
-              ],
-            );
-          }),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('取消')),
-            TextButton(
-                onPressed: () {
-                  setState(() {
-                    currentThemeValue = tempThemeValue;
-                  });
-                  eventBus.emit('themeChange', currentThemeValue);
-                  Navigator.pop(context);
-                },
-                child: const Text('确定'))
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // 获取登录状态
-    loginStatus = GStorage().getLoginStatus();
-    eventBus.on('login', (arg) {
-      if (arg != null && arg != 'success') {
-        GStorage().setLoginStatus(false);
-        setState(() {
-          loginStatus = false;
-        });
-      }
-    });
-    // 读取默认主题配置
-    currentThemeValue = GStorage().getSystemType();
-  }
-
-  List<Map<dynamic, dynamic>> listTitleMap_0 = [
+  final List<Map<dynamic, dynamic>> _listTitleMap_0 = [
     {
       'leading': const Icon(Icons.whatshot_outlined),
       'title': '今日热议',
       'path': '/hot'
     },
   ];
-  List<Map<dynamic, dynamic>> listTitleMap = [
+  final List<Map<dynamic, dynamic>> _listTitleMap = [
     {
       'leading': const Icon(Icons.favorite_outline),
       'title': '我的关注',
@@ -183,8 +51,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       'path': '/history'
     },
   ];
-
-  List<Map<dynamic, dynamic>> listTitleMap_2 = [
+  final List<Map<dynamic, dynamic>> _listTitleMap_2 = [
     {'leading': const Icon(Icons.brightness_medium_rounded), 'title': '选择主题'},
     {
       'leading': const Icon(Icons.tune_outlined),
@@ -198,43 +65,173 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     },
   ];
 
+  void onDestinationSelected(int index) async {
+    if (!_loginStatus) {
+      if (index == 0) {
+        // 热议
+        Get.toNamed(_listTitleMap_0[0]['path']);
+      }
+      if (index == 1) {
+        // 选择主题
+        setState(() {
+          _tempThemeValue = _currentThemeValue;
+        });
+        _showThemeDialog();
+      }
+      if (index == 2) {
+        // 设置
+        Get.toNamed('/setting');
+      }
+      if (index == 3) {
+        // 帮助
+        Get.toNamed('/help');
+      }
+    } else {
+      if (index == 0) {
+        Get.toNamed(_listTitleMap_0[0]['path']);
+      } else if (index < 6) {
+        // 用户权限
+        Get.toNamed(_listTitleMap[index - 1]['path']);
+      }
+      if (index == 6) {
+        // 选择主题
+        setState(() {
+          _tempThemeValue = _currentThemeValue;
+        });
+        _showThemeDialog();
+      }
+      if (index == 7) {
+        // 设置
+        Get.toNamed('/setting');
+      }
+      if (index == 8) {
+        // 帮助
+        Get.toNamed('/help');
+      }
+    }
+  }
+
+  void _showThemeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('选择主题'),
+          contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+          content: StatefulBuilder(builder: (context, StateSetter setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile(
+                  value: ThemeType.light,
+                  title: Text('浅色',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  groupValue: _tempThemeValue,
+                  onChanged: (ThemeType? value) {
+                    setState(() {
+                      _tempThemeValue = value;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: ThemeType.dark,
+                  title: Text('深色',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  groupValue: _tempThemeValue,
+                  onChanged: (ThemeType? value) {
+                    setState(() {
+                      _tempThemeValue = value;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: ThemeType.system,
+                  title: Text('系统默认设置',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  groupValue: _tempThemeValue,
+                  onChanged: (ThemeType? value) {
+                    setState(() {
+                      _tempThemeValue = value;
+                    });
+                  },
+                ),
+              ],
+            );
+          }),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消')),
+            TextButton(
+                onPressed: () {
+                  setState(() => _currentThemeValue = _tempThemeValue);
+                  eventBus.emit('themeChange', _currentThemeValue);
+                  Navigator.pop(context);
+                },
+                child: const Text('确定'))
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // 获取登录状态
+    _loginStatus = GStorage().getLoginStatus();
+    eventBus.on('login', (arg) {
+      if (arg != null && arg != 'success') {
+        GStorage().setLoginStatus(false);
+        setState(() => _loginStatus = false);
+      }
+    });
+    // 读取默认主题配置
+    _currentThemeValue = GStorage().getSystemType();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NavigationDrawer(
-      onDestinationSelected: onDestinationSelected,
-      selectedIndex: selectedIndex,
-      children: [
-        Container(
-          padding: const EdgeInsets.only(
-            top: 10,
-            left: 35,
-            bottom: 20,
-          ),
-          child: Text('VVEX', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+    final _drawerItems = [
+      Container(
+        padding: const EdgeInsets.only(
+          top: 10,
+          left: 35,
+          bottom: 20,
         ),
-        for (var i in listTitleMap_0)
-          NavigationDrawerDestination(
-            icon: i['leading'],
-            label: Text(i['title']),
-          ),
-        if (loginStatus) ...[
-          for (var i in listTitleMap)
-            NavigationDrawerDestination(
-              icon: i['leading'],
-              label: Text(i['title']),
-            ),
-        ],
-        Divider(
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
-          indent: 20,
-          endIndent: 12,
+        child: Text('VVEX',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge!
+                .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+      ),
+      for (var i in _listTitleMap_0)
+        NavigationDrawerDestination(
+          icon: i['leading'],
+          label: Text(i['title']),
         ),
-        for (var i in listTitleMap_2)
+      if (_loginStatus) ...[
+        for (var i in _listTitleMap)
           NavigationDrawerDestination(
             icon: i['leading'],
             label: Text(i['title']),
           ),
       ],
+      Divider(
+        color: Theme.of(context).dividerColor.withOpacity(0.15),
+        indent: 20,
+        endIndent: 12,
+      ),
+      for (var i in _listTitleMap_2)
+        NavigationDrawerDestination(
+          icon: i['leading'],
+          label: Text(i['title']),
+        ),
+    ];
+    return NavigationDrawer(
+      onDestinationSelected: onDestinationSelected,
+      selectedIndex: selectedIndex,
+      children: _drawerItems,
     );
   }
 }
