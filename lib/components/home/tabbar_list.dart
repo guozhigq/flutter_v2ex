@@ -8,6 +8,7 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
+import 'package:flutter_v2ex/components/common/network_error.dart';
 
 class TabBarList extends StatefulWidget {
   final Map<dynamic, dynamic> tabItem;
@@ -27,6 +28,8 @@ class _TabBarListState extends State<TabBarList>
   bool _isLoadingMore = false; // 请求状态
   int _currentPage = 0;
   bool showBackTopBtn = false;
+  bool _dioError = false;
+  String _dioErrorMsg = '';
 
   @override
   bool get wantKeepAlive => true;
@@ -74,44 +77,58 @@ class _TabBarListState extends State<TabBarList>
   }
 
   Future getTopics() async {
+    print(_currentPage);
+    print(topicList);
     if(_currentPage == 0 && topicList.isEmpty) {
       // 没有数据时下拉，显示骨架屏
-      _isLoading = true;
+      setState(() {
+        _isLoading = true;
+      });
     }
     var id = widget.tabItem['id'] ?? 'all';
     var type = widget.tabItem['type'] ?? 'all';
-    var res = await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
-    setState(() {
-      if (_currentPage == 0) {
-        topicList = res;
-        tempTopicList = res;
-      } else {
-        // 去除重复数据
-        List<TabTopicItem> result = List.from(res);
-        for (var i in tempTopicList) {
-          for (var j in res) {
-            if (j.topicId == i.topicId) {
-              result.removeAt(res.indexOf(j));
+    try{
+      var res = await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
+      setState(() {
+        if (_currentPage == 0) {
+          topicList = res;
+          tempTopicList = res;
+        } else {
+          // 去除重复数据
+          List<TabTopicItem> result = List.from(res);
+          for (var i in tempTopicList) {
+            for (var j in res) {
+              if (j.topicId == i.topicId) {
+                result.removeAt(res.indexOf(j));
+              }
             }
           }
+          print(result[0]);
+          topicList.addAll(result);
+          tempTopicList = result;
         }
-        print(result[0]);
-        topicList.addAll(result);
-        tempTopicList = result;
-      }
-      _isLoading = false;
-      Timer(const Duration(milliseconds: 500), () {
-        _isLoadingMore = false;
-      });
-      _currentPage += 1;
+        _isLoading = false;
+        Timer(const Duration(milliseconds: 500), () {
+          _isLoadingMore = false;
+        });
+        _currentPage += 1;
 
-      var userInfo = GStorage().getUserInfo();
-      if (userInfo.isNotEmpty) {
-        // 确保dio完成了初始化
-        // 登录状态自动签到
-        DioRequestWeb.dailyMission();
+        var userInfo = GStorage().getUserInfo();
+        if (userInfo.isNotEmpty) {
+          // 确保dio完成了初始化
+          // 登录状态自动签到
+          DioRequestWeb.dailyMission();
+        }
+      });
+    }catch(err) {
+      if(_currentPage == 0){
+        setState(() {
+          _dioErrorMsg = err.toString();
+          _dioError = true;
+          _isLoading = false;
+        });
       }
-    });
+    }
   }
 
   Future<List<TabTopicItem>> dateFormat(
@@ -132,7 +149,7 @@ class _TabBarListState extends State<TabBarList>
     super.build(context);
     return _isLoading
         ? const TopicSkeleton()
-        : topicList.isNotEmpty
+        : _dioError ? NetworkErrorPage(message: _dioErrorMsg, onRetry: () => getTopics()) : topicList.isNotEmpty
             ? showRes()
             : emptyData();
   }
