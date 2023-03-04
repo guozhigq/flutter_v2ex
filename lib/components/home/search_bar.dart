@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -44,7 +45,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
         });
       }
       if (arg == 'fail') {
-        Utils.loginDialog('登录状态失效，请重新登录');
+        Login.loginDialog('登录状态失效，请重新登录');
       }
     });
 
@@ -111,6 +112,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 });
                           } else {
                             var res = await Get.toNamed('/login');
+                            print('search_bar: $res');
                             if (res['loginStatus'] == 'cancel') {
                               SmartDialog.showToast('取消登录');
                             } else {
