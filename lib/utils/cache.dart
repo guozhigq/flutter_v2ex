@@ -33,7 +33,7 @@ class CacheManage {
       cacheSize += value;
     }
 
-    // 获取缓存大小 dioCache
+    /// 获取缓存大小 dioCache
     if (docDirectory.existsSync()) {
       double value = 0;
       String dioCacheFileName =
@@ -42,7 +42,8 @@ class CacheManage {
       if(dioCacheFile.existsSync()){
         value = await getTotalSizeOfFilesInDir(dioCacheFile);
       }
-      cacheSize += value;
+      print('dioCache size：$value');
+      // cacheSize += value;
     }
 
     return formatSize(cacheSize);
@@ -96,7 +97,9 @@ class CacheManage {
                   SmartDialog.dismiss();
                   SmartDialog.showLoading(msg: '正在清除...');
                   try {
-                    await CacheManage().clearApplicationCache();
+                    // 清除dio Cache
+                    // await CacheManage().clearApplicationCache();
+                    // 清除缓存 图片缓存
                     await CacheManage().clearLibraryCache();
                     Timer(const Duration(milliseconds: 500), () {
                       SmartDialog.dismiss().then((res) {
@@ -118,7 +121,7 @@ class CacheManage {
     return cleanStatus;
   }
 
-  // 清除 Documents 目录下的 DioCache.db
+  /// 清除 Documents 目录下的 DioCache.db
   Future clearApplicationCache() async {
     /// 无效
     // await DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).clearAll();
