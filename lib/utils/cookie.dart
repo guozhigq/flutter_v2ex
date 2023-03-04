@@ -10,12 +10,14 @@ class setCookie {
     // 接收 flutter_inappwebview Cookie List
     // domain url
     List<Cookie> jarCookies = [];
-    for(var i in cookiesList) {
-      Cookie jarCookie = Cookie(
-        i.name,
-        i.value
-      );
-      jarCookies.add(jarCookie);
+    if(cookiesList.isNotEmpty){
+      for(var i in cookiesList) {
+        Cookie jarCookie = Cookie(
+            i.name,
+            i.value
+        );
+        jarCookies.add(jarCookie);
+      }
     }
     String cookiePath = await Utils.getCookiePath();
     PersistCookieJar cookieJar = PersistCookieJar(

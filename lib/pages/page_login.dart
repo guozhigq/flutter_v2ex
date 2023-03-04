@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<LoginDetailModel> getSignKey() async {
     var res = await DioRequestWeb.getLoginKey();
     if (res.twoFa) {
-      Utils.twoFADialog();
+      Login.twoFADialog();
     } else {
       setState(() {
         loginKey = res;
@@ -230,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                             getSignKey();
                           });
                         } else if (result == '2fa') {
-                          Utils.twoFADialog();
+                          Login.twoFADialog();
                         }
                       }
                     },
@@ -276,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                     // 登录失败
                     SmartDialog.showToast('登录失败了');
                   } else if (result == '2fa') {
-                    Utils.twoFADialog();
+                    Login.twoFADialog();
                   }
                 }else{
                   SmartDialog.showToast('取消登录');

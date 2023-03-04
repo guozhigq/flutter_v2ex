@@ -35,23 +35,23 @@ class _WebViewState extends State<WebView> {
     super.initState();
     aUrl = Get.parameters['aUrl']!;
 
-    pullToRefreshController = kIsWeb || ![TargetPlatform.iOS, TargetPlatform.android].contains(defaultTargetPlatform)
-        ? null
-        : PullToRefreshController(
-      settings: PullToRefreshSettings(
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      onRefresh: () async {
-        if (defaultTargetPlatform == TargetPlatform.android) {
-          webViewController?.reload();
-        } else if (defaultTargetPlatform == TargetPlatform.iOS ||
-            defaultTargetPlatform == TargetPlatform.macOS) {
-          webViewController?.loadUrl(
-              urlRequest:
-              URLRequest(url: await webViewController?.getUrl()));
-        }
-      },
-    );
+    // pullToRefreshController = kIsWeb || ![TargetPlatform.iOS, TargetPlatform.android].contains(defaultTargetPlatform)
+    //     ? null
+    //     : PullToRefreshController(
+    //   settings: PullToRefreshSettings(
+    //     color: Theme.of(context).colorScheme.primary,
+    //   ),
+    //   onRefresh: () async {
+    //     if (defaultTargetPlatform == TargetPlatform.android) {
+    //       webViewController?.reload();
+    //     } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+    //         defaultTargetPlatform == TargetPlatform.macOS) {
+    //       webViewController?.loadUrl(
+    //           urlRequest:
+    //           URLRequest(url: await webViewController?.getUrl()));
+    //     }
+    //   },
+    // );
 
   }
 

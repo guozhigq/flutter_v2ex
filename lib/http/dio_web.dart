@@ -1768,7 +1768,8 @@ class DioRequestWeb {
   }
 
   static Future loginOut() async {
-    Request().get('/signout', data: {'once': GStorage().getOnce()});
+    int once = GStorage().getOnce();
+    Request().get('/signout?once=$once');
   }
 
   static signByGoogle() async {

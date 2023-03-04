@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 // import 'package:get/get.dart' hide Response;
 import 'package:dio/adapter.dart';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -289,7 +290,8 @@ class Request {
   loginAuth(redirect, method) {
     bool needLogin = !(GStorage().getLoginStatus());
     if(method == 'GET' && redirect == '/2fa'){
-      Utils.twoFADialog(scene: 'check');
+      SmartDialog.dismiss();
+      Login.twoFADialog();
       throw ('2fa验证');
     }
     bool authUrl = redirect.startsWith('/favorite') ||

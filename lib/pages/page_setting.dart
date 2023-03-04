@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/init.dart';
@@ -59,12 +60,13 @@ class _SettingPageState extends State<SettingPage> {
 
                 /// 删除cookie目录
                 try {
-                  Directory directory = Directory(await Utils.getCookiePath());
-                  await CacheManage().deleteDirectory(directory);
-                  GStorage().setLoginStatus(false);
-                  GStorage().setUserInfo({});
-                  GStorage().setSignStatus('');
-                  eventBus.emit('login', 'loginOut');
+                  // Directory directory = Directory(await Utils.getCookiePath());
+                  // await CacheManage().deleteDirectory(directory);
+                  // GStorage().setLoginStatus(false);
+                  // GStorage().setUserInfo({});
+                  // GStorage().setSignStatus('');
+                  // eventBus.emit('login', 'loginOut');
+                  await Login.signOut();
                   await DioRequestWeb.loginOut();
                   SmartDialog.showToast('已退出登录 ✅');
                   await Request().get('/');
