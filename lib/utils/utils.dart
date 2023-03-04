@@ -205,7 +205,8 @@ class Utils {
     try {
       var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
-      RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
+      // RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
+      RegExp exp = RegExp(r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {
@@ -214,9 +215,13 @@ class Utils {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         }
       }
-      return wechat;
+      RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
+      if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat)){
+        return wechat;
+      }
+      return '';
     } catch (err) {
-      print(err);
+      // print(err);
       return '';
     }
   }
