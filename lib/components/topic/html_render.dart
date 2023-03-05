@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,17 +15,24 @@ class HtmlRender extends StatefulWidget {
   String? htmlContent;
   final int? imgCount;
   final List? imgList;
+  final double? fs;
 
-  HtmlRender({this.htmlContent, this.imgCount, this.imgList, super.key});
+  HtmlRender({this.htmlContent, this.imgCount, this.imgList, this.fs ,super.key});
 
   @override
   _HtmlRenderState createState() => _HtmlRenderState();
 }
 
 class _HtmlRenderState extends State<HtmlRender> {
+  double? htmlFs;
+
   @override
   void initState() {
     super.initState();
+    if(widget.fs != null){
+      htmlFs = widget.fs;
+      print('htmlFs: $htmlFs');
+    }
   }
 
   @override
@@ -99,7 +107,7 @@ class _HtmlRenderState extends State<HtmlRender> {
         "html": Style(
           // fontSize: FontSize(
           //     Theme.of(context).textTheme.bodyLarge!.fontSize!),
-          fontSize: FontSize.medium,
+          fontSize: htmlFs != null ? FontSize(htmlFs!) : FontSize.medium,
           lineHeight: LineHeight.percent(140),
         ),
         "body": Style(margin: Margins.zero, padding: EdgeInsets.zero),

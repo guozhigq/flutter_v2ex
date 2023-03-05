@@ -17,7 +17,10 @@ enum StoreKeys {
   expendAppBar,
   noticeOn,
   autoSign,
-  eightQuery
+  eightQuery,
+  globalFs,
+  htmlFs,
+  replyFs
 }
 
 class GStorage {
@@ -119,5 +122,20 @@ class GStorage {
   setEightQuery(bool value) => _box.write(StoreKeys.eightQuery.toString(), value);
   bool getEightQuery() =>
       _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
+
+  // 全局字体大小
+  setGlobalFs(double value) => _box.write(StoreKeys.globalFs.toString(), value);
+  double getGlobalFs() =>
+      _box.read<double>(StoreKeys.globalFs.toString()) ?? 14;
+
+  // html字体大小
+  setHtmlFs(double value) => _box.write(StoreKeys.htmlFs.toString(), value);
+  double getHtmlFs() =>
+      _box.read<double>(StoreKeys.htmlFs.toString()) ?? 15;
+
+  // 回复字体
+  setReplyFs(double value) => _box.write(StoreKeys.replyFs.toString(), value);
+  double getReplyFs() =>
+      _box.read<double>(StoreKeys.replyFs.toString()) ?? 15;
 
 }

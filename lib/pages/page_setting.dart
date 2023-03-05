@@ -235,6 +235,12 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
+            onTap: () => Get.toNamed('/setFont'),
+            leading: Icon(Icons.font_download_outlined, color: iconStyle),
+            title: const Text('字体设置'),
+            subtitle: Text('设置字体大小', style: subTitleStyle),
+          ),
+          ListTile(
             onTap: () async {
               var cleanStatus = await CacheManage().clearCacheAll();
               if (cleanStatus) {

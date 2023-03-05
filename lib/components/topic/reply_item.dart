@@ -398,6 +398,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           child: HtmlRender(
             htmlContent: reply.contentRendered,
             imgList: reply.imgList,
+            fs: GStorage().getReplyFs()
           ),
         ),
         // Divider(indent: 0, endIndent: 10, height: 1, color: Theme.of(context).dividerColor.withOpacity(0.15),),
