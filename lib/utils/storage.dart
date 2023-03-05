@@ -136,6 +136,6 @@ class GStorage {
   // 回复字体
   setReplyFs(double value) => _box.write(StoreKeys.replyFs.toString(), value);
   double getReplyFs() =>
-      _box.read<double>(StoreKeys.replyFs.toString()) ?? 15;
+      _box.read<double>(StoreKeys.replyFs.toString()) ?? 14;
 
 }

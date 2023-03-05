@@ -803,7 +803,9 @@ class _TopicDetailState extends State<TopicDetail>
                   child: HtmlRender(
                       htmlContent: _detailModel!.contentRendered,
                       imgCount: _detailModel!.imgCount,
-                      imgList: _detailModel!.imgList),
+                      imgList: _detailModel!.imgList,
+                      fs: GStorage().getHtmlFs(),
+                  ),
                 ),
               ),
               // 附言
