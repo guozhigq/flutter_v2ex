@@ -146,7 +146,9 @@ class _TopicDetailState extends State<TopicDetail>
       }
       _currentPage += 1;
     });
-    SmartDialog.dismiss();
+    if(!topicDetailModel.isAuth){
+      SmartDialog.dismiss();
+    }
   }
 
   // todo 下拉刷新逻辑优化  正倒序排列数据复用
