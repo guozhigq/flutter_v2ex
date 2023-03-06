@@ -117,9 +117,9 @@ class _ReplyNewState extends State<ReplyNew> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
-                tooltip: '清空内容',
+                tooltip: '发送',
                 onPressed: onCleanInput,
-                icon: const Icon(Icons.clear_all_rounded),
+                icon: const Icon(Icons.send_outlined),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
                     backgroundColor: Theme.of(context).colorScheme.background),
@@ -203,27 +203,9 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
             ),
           ),
-          Container(
+          SizedBox(
             width: double.infinity,
-            height: 60,
-            clipBehavior: Clip.hardEdge,
-            margin: EdgeInsets.only(
-                top: 10, bottom: MediaQuery.of(context).padding.bottom + 10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: ElevatedButton(
-              onPressed: onSubmit,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.send),
-                  SizedBox(width: 10),
-                  Text('发送')
-                ],
-              ),
-            ),
+            height: MediaQuery.of(context).padding.bottom,
           )
         ],
       ),

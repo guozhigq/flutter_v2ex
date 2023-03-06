@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
@@ -23,9 +25,9 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
         children: [
           ListTile(
             onTap: () =>
-                Utils.openURL('https://github.com/guozhigq/flutter_v2ex'),
+                Utils.openURL(Strings.remoteUrl),
             onLongPress: () {
-              Clipboard.setData( const ClipboardData(text:'https://github.com/guozhigq/flutter_v2ex'));
+              Clipboard.setData( ClipboardData(text: Strings.remoteUrl));
               SmartDialog.showToast('已复制内容');
             },
             leading: Icon(Icons.settings_ethernet, color: iconStyle,),
@@ -33,9 +35,9 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             subtitle: Text('欢迎 star', style: subTitleStyle),
           ),
           ListTile(
-            onTap: () => Utils.openURL('https://github.com/guozhigq/flutter_v2ex/issues/new'),
+            onTap: () => Utils.openURL('${Strings.remoteUrl}/issues/new'),
             onLongPress: () {
-              Clipboard.setData( const ClipboardData(text:'https://github.com/guozhigq/flutter_v2ex/issues/new'));
+              Clipboard.setData( ClipboardData(text:'${Strings.remoteUrl}/issues/new'));
               SmartDialog.showToast('已复制内容');
             },
             leading: Icon(Icons.feedback_outlined, color: iconStyle),
@@ -44,12 +46,38 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ),
           ListTile(
             onTap: () async {
-              // final url = Uri.parse('mailto:5550101234');
-              // Utils.launchURL(url);
+              SmartDialog.showLoading(msg: '正在检查更新');
+              Map update = await DioRequestWeb.checkUpdate();
+              SmartDialog.dismiss();
+              var needUpdate = Utils.needUpdate('v1.1.1', update['lastVersion']);
+              if(needUpdate && context.mounted) {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('提示'),
+                    content: Text('检测到有新版本 ${update['lastVersion']}，是否更新？'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: const Text('稍后'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          Utils.openURL(Strings.remoteUrl);
+                        },
+                        child: const Text('前往更新'),
+                      ),
+                    ],
+                  ),
+                );
+              }else {
+                SmartDialog.showToast('已经是最新版了 😊');
+              }
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('版本'),
-            subtitle: Text('v1.0.0', style: subTitleStyle),
+            subtitle: Text('v1.1.1', style: subTitleStyle),
           )
         ],
       ),

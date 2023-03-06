@@ -2010,4 +2010,26 @@ class DioRequestWeb {
     log(res.data);
     return true;
   }
+
+  // 检测更新
+  static  Future<Map> checkUpdate() async {
+    Map updata = {
+      'lastVersion': '',
+      'downloadHref': '',
+    };
+    String res = '';
+    Response response = await Request().get('${Strings.remoteUrl}/releases', extra: {
+      'ua': 'mob'
+    });
+    var document = parse(response.data).body;
+    var boxNodes = document!.querySelectorAll('div.col-md-9');
+    if(boxNodes.isNotEmpty){
+      var versionNode = boxNodes[0].querySelector("span[class='f1 text-bold d-inline mr-3'] > a");
+      var version = versionNode!.text;
+      res = version;
+      updata['lastVersion'] = version;
+      updata['downloadHref'] = '${Strings.remoteUrl}/releases/download/$version/app-release.apk';
+    }
+    return updata;
+  }
 }

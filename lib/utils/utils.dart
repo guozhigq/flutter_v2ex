@@ -225,6 +225,22 @@ class Utils {
       return '';
     }
   }
+
+  // 版本比较
+  static bool needUpdate(localVersion, _emoteVersion) {
+    List<String> localVersionList = localVersion.split('v')[1].split('.');
+    List<String> remoteVersionList = _emoteVersion.split('v')[1].split('.');
+    for (int i = 0; i < localVersionList.length; i++) {
+      int localVersion = int.parse(localVersionList[i]);
+      int remoteVersion = int.parse(remoteVersionList[i]);
+      if (remoteVersion > localVersion) {
+        return true;
+      } else if (remoteVersion < localVersion) {
+        return false;
+      }
+    }
+    return false;
+  }
 }
 
 class MyChromeSafariBrowser extends ChromeSafariBrowser {
