@@ -66,10 +66,13 @@ class _WebViewState extends State<WebView> {
       appBar: AppBar(
         title: Text(
           '登录 - Google账号',
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme
+              .of(context)
+              .textTheme
+              .titleMedium,
         ),
         leading:
-            IconButton(onPressed: closePage, icon: const Icon(Icons.close)),
+        IconButton(onPressed: closePage, icon: const Icon(Icons.close)),
         actions: [
           IconButton(onPressed: reFresh, icon: const Icon(Icons.refresh)),
         ],
@@ -106,32 +109,35 @@ class _WebViewState extends State<WebView> {
                           strUrl == 'https://www.v2ex.com/2fa') {
                         // 使用cookieJar保存cookie
                         List<Cookie> cookies =
-                            await cookieManager.getCookies(url: url!);
+                        await cookieManager.getCookies(url: url!);
                         var res = await setCookie.onSet(cookies, strUrl);
                         if (res && strUrl.contains('/2fa')) {
                           SmartDialog.show(
                             useSystem: true,
                             animationType:
-                                SmartAnimationType.centerFade_otherSlide,
+                            SmartAnimationType.centerFade_otherSlide,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('系统提示'),
-                                content: const Text('登录成功，是否继续当前账号的2FA认证 ?'),
+                                content: const Text('已登录，是否继续当前账号的2FA认证 ?'),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
                                     child: const Text('取消'),
                                   ),
                                   TextButton(
-                                    onPressed: () => Get.back(
-                                        result: {'signInGoogle': 'success'}),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Get.back(
+                                          result: {'signInGoogle': 'success'});
+                                    },
                                     child: const Text('继续'),
                                   )
                                 ],
                               );
                             },
                           );
-                        }else{
+                        } else {
                           Get.back(result: {'signInGoogle': 'success'});
                         }
                       }
