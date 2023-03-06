@@ -67,7 +67,7 @@ class DioRequestWeb {
         response = await Request().get(
           '/',
           data: {'tab': id},
-          extra: {'ua': 'mob'},
+          extra: {'ua': 'pc'},
         );
         break;
       case 'recent':
@@ -82,64 +82,56 @@ class DioRequestWeb {
         );
         break;
     }
-    DioRequestWeb().resolveNode(response, 'mob');
-    var tree = ETree.fromString(response.data);
-
+    DioRequestWeb().resolveNode(response, 'pc');
     // 用户信息解析 mob
     var rootDom = parse(response.data);
-    var userCellWrap = rootDom
-        .querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
-    var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
-    int once = int.parse(onceHref!.split('once=')[1]);
-    GStorage().setOnce(once);
 
-    var aRootNode = tree.xpath("//*[@class='cell item']");
-    if (aRootNode != null && aRootNode.isNotEmpty) {
+    var userCellWrap = rootDom
+        .querySelectorAll('div.tools > a');
+    if(userCellWrap.length >= 6){
+      var onceHref = userCellWrap.last.attributes['onclick'];
+      final RegExp regex = RegExp(r"once=(\d+)");
+      final RegExpMatch match = regex.firstMatch(onceHref!)!;
+      GStorage().setOnce(int.parse(match.group(1)!));
+    }
+
+    var noticeNode =
+    rootDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    if (noticeNode != null) {
+      // 未读消息
+      var unRead =
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      if (int.parse(unRead) > 0) {
+        eventBus.emit('unRead', int.parse(unRead));
+      }
+    }
+    var aRootNode = rootDom.querySelectorAll("div[class='cell item']");
+    if (aRootNode.isNotEmpty) {
       for (var aNode in aRootNode) {
         var item = TabTopicItem();
-        item.memberId =
-            aNode.xpath("/table/tr/td[3]/span[1]/strong/a/text()")![0].name!;
-        item.avatar = Uri.encodeFull(aNode
-            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-            ?.first
-            .attributes["src"]);
-        String topicUrl = aNode
-            .xpath("/table/tr/td[3]/span[2]/a")
-            ?.first
-            .attributes["href"]; // 得到是 /t/522540#reply17
-        item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-        if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
-          item.replyCount =
-              int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-          item.lastReplyTime = aNode
-              .xpath("/table/tr/td[3]/span[3]/text()[1]")![0]
-              .name!
-              .split(' &nbsp;')[0]
-              .replaceAll("/t/", "");
-          if (aNode.xpath("/table/tr/td[3]/span[3]/strong/a/text()") != null) {
-            item.lastReplyMId = aNode
-                .xpath("/table/tr/td[3]/span[3]/strong/a/text()")![0]
-                .name!;
-          }
-        } else {
-          item.lastReplyTime =
-              aNode.xpath("/table/tr/td[3]/span[3]/text()")![0].name!;
+        var titleInfo = aNode.querySelector("span[class='item_title'] > a");
+        item.topicTitle = titleInfo!.text;
+        var titleInfoUrl = titleInfo.attributes['href'];
+        final match = RegExp(r'(\d+)').allMatches(titleInfoUrl!);
+        final result = match.map((m) => m.group(0)).toList();
+        item.topicId = result[0]!;
+        item.replyCount = int.parse(result[1]!);
+        item.avatar = aNode.querySelector('img')!.attributes['src']!;
+        var topicInfo = aNode.querySelector('span[class="topic_info"]');
+        if(topicInfo!.querySelector('span') != null){
+          item.lastReplyTime = topicInfo.querySelector('span')!.text;
         }
-        item.topicTitle = aNode
-            .xpath("/table/tr/td[3]/span[2]/a/text()")![0]
-            .name!
-            .replaceAll('&quot;', '')
-            .replaceAll('&amp;', '&')
-            .replaceAll('&lt;', '<')
-            .replaceAll('&gt;', '>');
-
-        item.nodeName =
-            aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
-        item.nodeId = aNode
-            .xpath("/table/tr/td[3]/span[1]/a")
-            ?.first
-            .attributes["href"]
-            .split('/')[2];
+        var tagANodes = topicInfo.querySelectorAll('a');
+        if(tagANodes[0].attributes['class'] == 'node'){
+          item.nodeName = tagANodes[0].text;
+          item.nodeId  = tagANodes[0].attributes['href']!.replaceFirst('/go/', '');
+        }
+        if(tagANodes[1].attributes['href'] != null) {
+          item.memberId  = tagANodes[1].attributes['href']!.replaceFirst('/member/', '');
+        }
+        if(tagANodes.length >= 3 && tagANodes[2].attributes['href'] != null){
+          item.lastReplyMId = tagANodes[2].attributes['href']!.replaceFirst('/member/', '');
+        }
         topics.add(item);
       }
     }
@@ -1148,8 +1140,12 @@ class DioRequestWeb {
       // balance.removeAt(1);
       // balance.removeAt(2);
       // signDetail['balance'] = balance;
-      signDetail['balanceRender'] =
-          noticeNode.querySelector('div#money')!.innerHtml;
+      if(noticeNode.querySelector('div#money') != null){
+        signDetail['balanceRender'] =
+            noticeNode.querySelector('div#money')!.innerHtml;
+      }else{
+        signDetail['balanceRender'] = null;
+      }
     }
     return signDetail;
   }
@@ -1756,33 +1752,40 @@ class DioRequestWeb {
     var document = parse(response.data);
     var nodesBox;
     if (type == 'mob') {
-      nodesBox =
-          document.querySelector('#Wrapper > div.content')!.children.last;
+      // 【设置】中可能关闭【首页显示节点导航】
+      if(document.querySelector('#Wrapper > div.content')!.children.length >= 4) {
+        nodesBox = document.querySelector('#Main')!.children.last;
+      }
     }
     if (type == 'pc') {
-      nodesBox = document.querySelector('#Main')!.children.last;
-    }
-    nodesBox.children.removeAt(0);
-    var nodeTd = nodesBox.children;
-    for (var i in nodeTd) {
-      Map nodeItem = {};
-      String fName = i.querySelector('span')!.text;
-      nodeItem['name'] = fName;
-      List<Map> childs = [];
-      var cEl = i.querySelectorAll('a');
-      for (var j in cEl) {
-        Map item = {};
-        item['nodeId'] = j.attributes['href']!.split('/').last;
-        item['nodeName'] = j.text;
-        childs.add(item);
+      // 【设置】中可能关闭【首页显示节点导航】
+      if(document.querySelector('#Main')!.children.length >= 4) {
+        nodesBox = document.querySelector('#Main')!.children.last;
       }
-      nodeItem['childs'] = childs;
-
-      nodesList.add(nodeItem);
     }
-    nodesList.insert(0, {'name': '已收藏', 'childs': []});
-    GStorage().setNodes(nodesList);
-    return nodesList;
+    if(nodesBox != null){
+      nodesBox.children.removeAt(0);
+      var nodeTd = nodesBox.children;
+      for (var i in nodeTd) {
+        Map nodeItem = {};
+        String fName = i.querySelector('span')!.text;
+        nodeItem['name'] = fName;
+        List<Map> childs = [];
+        var cEl = i.querySelectorAll('a');
+        for (var j in cEl) {
+          Map item = {};
+          item['nodeId'] = j.attributes['href']!.split('/').last;
+          item['nodeName'] = j.text;
+          childs.add(item);
+        }
+        nodeItem['childs'] = childs;
+
+        nodesList.add(nodeItem);
+      }
+      nodesList.insert(0, {'name': '已收藏', 'childs': []});
+      GStorage().setNodes(nodesList);
+      return nodesList;
+    }
   }
 
   static Future loginOut() async {
