@@ -948,7 +948,7 @@ class DioRequestWeb {
   // 获取当前用户信息
   static Future<String> getUserInfo() async {
     print('getUserInfo');
-    var response = await Request().get('/', extra: {'ua': 'mob'});
+    var response = await Request().get('/write', extra: {'ua': 'mob'});
     // SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
       print('getUserInfo 2fa');

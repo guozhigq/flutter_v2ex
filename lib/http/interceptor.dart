@@ -4,7 +4,6 @@ import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-
 class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -20,7 +19,11 @@ class ApiInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     // print("响应之前");
     loginAuth(
-        response.realUri.toString(), response.requestOptions.method);
+      // response.realUri.toString(),
+      response.requestOptions.path,
+      response.requestOptions.method,
+      redirtct: response.realUri.toString(),
+    );
     handler.next(response);
   }
 
@@ -52,19 +55,19 @@ class ApiInterceptor extends Interceptor {
     }
   }
   // 登录验证
-  loginAuth(redirect, method) {
+  loginAuth(reqPath, method, {redirtct}) {
     bool needLogin = !(GStorage().getLoginStatus());
-    if (method == 'GET' && redirect == '/2fa') {
+    if (reqPath != '/write' && method == 'GET' && redirtct == '/2fa') {
       SmartDialog.dismiss();
       Login.twoFADialog();
       throw ('2fa验证');
     }
-    bool authUrl = redirect.startsWith('/favorite') ||
-        redirect.startsWith('/thank') ||
-        redirect.startsWith('/ignore') ||
-        redirect.startsWith('/report');
+    bool authUrl = reqPath.startsWith('/favorite') ||
+        reqPath.startsWith('/thank') ||
+        reqPath.startsWith('/ignore') ||
+        reqPath.startsWith('/report');
     if ((needLogin && authUrl) ||
-        (needLogin && method == 'POST' && redirect.startsWith('/t'))) {
+        (needLogin && method == 'POST' && reqPath.startsWith('/t'))) {
       SmartDialog.dismiss();
       SmartDialog.show(
         useSystem: true,
@@ -80,10 +83,10 @@ class ApiInterceptor extends Interceptor {
                   },
                   child: const Text('返回')),
               TextButton(
-                // TODO
+                  // TODO
                   onPressed: () {
                     SmartDialog.dismiss().then(
-                            (res) => {Navigator.of(context).pushNamed('/login')});
+                        (res) => {Navigator.of(context).pushNamed('/login')});
                   },
                   child: const Text('去登录'))
             ],

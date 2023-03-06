@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/utils/login.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
 
 class LoginPage extends StatefulWidget {
@@ -247,7 +248,8 @@ class _LoginPageState extends State<LoginPage> {
                     // ),),
                     // const SizedBox(width: 10),
                     TextButton(
-                      onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
+                      onPressed: () =>
+                          Utils.openURL('https://www.v2ex.com/forgot'),
                       child: Text(
                         '忘记密码？',
                         style: TextStyle(color: Colors.grey[600]),
@@ -261,26 +263,28 @@ class _LoginPageState extends State<LoginPage> {
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 30,
             child: TextButton(
-              onPressed: () async{
+              onPressed: () async {
                 int once = GStorage().getOnce();
                 // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
                 var result = await Get.toNamed('/webView', parameters: {
                   'aUrl': '${Strings.v2exHost}/auth/google?once=$once'
                 });
-                if(result != null && result['signInGoogle'] == 'success'){
-                  // SmartDialog.showLoading(msg: '获取信息...');
+                if (result != null && result['signInGoogle'] == 'success') {
+                  SmartDialog.showLoading(msg: '获取信息...');
                   // 登录成功 获取用户信息 / 2FA
                   var signResult = await DioRequestWeb.getUserInfo();
                   if (signResult == 'true') {
                     // 登录成功
+                    eventBus.emit('login', 'success');
                     Get.back(result: {'loginStatus': 'success'});
                   } else if (signResult == 'false') {
                     // 登录失败
                     SmartDialog.showToast('登录失败了');
                   } else if (result == '2fa') {
+                    print('login 需要两步验证 $result');
                     Login.twoFADialog();
                   }
-                }else{
+                } else {
                   SmartDialog.showToast('取消登录');
                 }
               },
