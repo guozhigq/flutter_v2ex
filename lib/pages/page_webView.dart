@@ -108,7 +108,7 @@ class _WebViewState extends State<WebView> {
                         List<Cookie> cookies =
                             await cookieManager.getCookies(url: url!);
                         var res = await setCookie.onSet(cookies, strUrl);
-                        if (res) {
+                        if (res && strUrl.contains('/2fa')) {
                           SmartDialog.show(
                             useSystem: true,
                             animationType:
@@ -131,7 +131,8 @@ class _WebViewState extends State<WebView> {
                               );
                             },
                           );
-                          // Get.back(result: {'signInGoogle': 'success'});
+                        }else{
+                          Get.back(result: {'signInGoogle': 'success'});
                         }
                       }
                     },
