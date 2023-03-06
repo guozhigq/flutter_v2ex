@@ -66,35 +66,43 @@ class Utils {
     bool linkOpenType = GStorage().getLinkOpenInApp();
     if (!linkOpenType) {
       // 1. openWithSystemBrowser
-      await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+      try{
+        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+      }catch(err) {
+        SmartDialog.showToast(err.toString());
+      }
     } else {
       // 2. openWithAppBrowser
-      await Utils().browser.open(
-            url: WebUri(aUrl),
-            settings: ChromeSafariBrowserSettings(
-                shareState: CustomTabsShareState.SHARE_STATE_OFF,
-                isSingleInstance: false,
-                isTrustedWebActivity: false,
-                keepAliveEnabled: true,
-                startAnimations: [
-                  AndroidResource.anim(
-                      name: "slide_in_left", defPackage: "android"),
-                  AndroidResource.anim(
-                      name: "slide_out_right", defPackage: "android")
-                ],
-                exitAnimations: [
-                  AndroidResource.anim(
-                      name: "abc_slide_in_top",
-                      defPackage:
-                          "com.pichillilorenzo.flutter_inappwebviewexample"),
-                  AndroidResource.anim(
-                      name: "abc_slide_out_top",
-                      defPackage:
-                          "com.pichillilorenzo.flutter_inappwebviewexample")
-                ],
-                dismissButtonStyle: DismissButtonStyle.CLOSE,
-                presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-          );
+      try{
+        await Utils().browser.open(
+          url: WebUri(aUrl),
+          settings: ChromeSafariBrowserSettings(
+              shareState: CustomTabsShareState.SHARE_STATE_OFF,
+              isSingleInstance: false,
+              isTrustedWebActivity: false,
+              keepAliveEnabled: true,
+              startAnimations: [
+                AndroidResource.anim(
+                    name: "slide_in_left", defPackage: "android"),
+                AndroidResource.anim(
+                    name: "slide_out_right", defPackage: "android")
+              ],
+              exitAnimations: [
+                AndroidResource.anim(
+                    name: "abc_slide_in_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample"),
+                AndroidResource.anim(
+                    name: "abc_slide_out_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample")
+              ],
+              dismissButtonStyle: DismissButtonStyle.CLOSE,
+              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+        );
+      }catch(err) {
+        SmartDialog.showToast(err.toString());
+      }
     }
   }
 

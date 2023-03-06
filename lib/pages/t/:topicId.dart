@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_print
+import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
@@ -64,6 +65,7 @@ class _TopicDetailState extends State<TopicDetail>
   String myUserName = '';
 
   SampleItem? selectedMenu;
+  String platform = '';
 
   // FloatingActionButtonLocation get _fabLocation => _isVisible
   //     ? FloatingActionButtonLocation.endContained
@@ -118,6 +120,12 @@ class _TopicDetailState extends State<TopicDetail>
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
+
+    if (Platform.isAndroid) {
+     platform = 'android';
+    } else if (Platform.isIOS) {
+      platform = 'ios';
+    }
   }
 
   Future getDetailInit() async {
@@ -587,6 +595,7 @@ class _TopicDetailState extends State<TopicDetail>
       slivers: [
         if (expendAppBar) ...[
           SliverAppBar(
+            toolbarHeight: platform == 'android' ? (MediaQuery.of(context).padding.top + 6) : MediaQuery.of(context).padding.top - 2,
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
             automaticallyImplyLeading: false,
             elevation: 1,
