@@ -20,6 +20,7 @@ class ReplyListItem extends StatefulWidget {
     required this.topicId,
     this.queryReplyList,
     this.totalPage,
+    this.source,
     Key? key,
   }) : super(key: key);
 
@@ -27,6 +28,7 @@ class ReplyListItem extends StatefulWidget {
   final String topicId;
   final queryReplyList;
   int? totalPage;
+  String? source;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -159,38 +161,40 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   // 忽略回复
   void ignoreComment() {
-    showDialog(context: context, builder: (context) {
-      return AlertDialog(
-        title: const Text('忽略回复'),
-        content: Text.rich(TextSpan(children: [
-          const TextSpan(text: '确认不再显示来自 '),
-          TextSpan(
-            text: '@${reply.userName}',
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall!
-                .copyWith(color: Theme.of(context).colorScheme.primary),
-          ),
-          const TextSpan(text: ' 的这条回复？')
-        ])),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('取消')),
-          TextButton(
-              onPressed: () async{
-                var res = await DioRequestWeb.ignoreReply(reply.replyId);
-                if(res) {
-                  setState(() {
-                    ignoreStatus = true;
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('确定')),
-        ],
-      );
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('忽略回复'),
+            content: Text.rich(TextSpan(children: [
+              const TextSpan(text: '确认不再显示来自 '),
+              TextSpan(
+                text: '@${reply.userName}',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall!
+                    .copyWith(color: Theme.of(context).colorScheme.primary),
+              ),
+              const TextSpan(text: ' 的这条回复？')
+            ])),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('取消')),
+              TextButton(
+                  onPressed: () async {
+                    var res = await DioRequestWeb.ignoreReply(reply.replyId);
+                    if (res) {
+                      setState(() {
+                        ignoreStatus = true;
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('确定')),
+            ],
+          );
+        });
   }
 
   // 感谢回复 request
@@ -235,27 +239,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
       duration: const Duration(milliseconds: 450),
       child: SizedBox(
         height: ignoreStatus ? 0 : null,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: RepaintBoundary(
-            key: repaintKey,
-            child: Material(
-              borderRadius: BorderRadius.circular(20),
-              color: reply.isChoose ? Theme.of(context).colorScheme.onInverseSurface : null,
-              child: InkWell(
-                onTap: replyComment,
-                borderRadius: BorderRadius.circular(20),
-                child: Ink(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
-                  child: content(context),
-                ),
-              ),
-            ),
-          ),
-          // ),
+        child: widget.source == 'topic' ?  replyItemTopic(
+          context,
+          content(context),
+        ) : replyItemSheet(
+          context,
+          content(context),
         ),
       ),
     );
@@ -263,11 +252,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
 
   Widget lfAvtar() {
     return GestureDetector(
-      onLongPress: () {
-        setState(() {
-          reply.isChoose = !reply.isChoose;
-        });
-      },
       onTap: () => Get.toNamed('/member/${reply.userName}', parameters: {
         'memberAvatar': reply.avatar,
         'heroTag': reply.userName + heroTag,
@@ -286,30 +270,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   child: CAvatar(
                     url: reply.avatar,
                     size: 34,
-                  ),
-                ),
-                // if (reply.isChoose)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: AnimatedScale(
-                    scale: reply.isChoose ? 1 : 0,
-                    curve: Curves.easeInOut,
-                    duration: const Duration(milliseconds: 300),
-                    child: Container(
-
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withOpacity(0.8),
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
-                      ),
-                      child: Icon(Icons.done,
-                          color: Theme.of(context).colorScheme.primary),
-                    ),
                   ),
                 ),
               ],
@@ -356,13 +316,16 @@ class _ReplyListItemState extends State<ReplyListItem> {
                         ]
                       ],
                     ),
-                    const SizedBox(height: 1.5),
                     Row(
                       children: [
                         if (reply.lastReplyTime.isNotEmpty) ...[
                           Text(
                             reply.lastReplyTime,
-                            style: Theme.of(context).textTheme.labelSmall,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                            ),
                           ),
                           const SizedBox(width: 2),
                         ],
@@ -396,22 +359,82 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 0),
           child: HtmlRender(
-            htmlContent: reply.contentRendered,
-            imgList: reply.imgList,
-            fs: GStorage().getReplyFs()
+              htmlContent: reply.contentRendered,
+              imgList: reply.imgList,
+              fs: GStorage().getReplyFs()),
+        ),
+        bottonAction(),
+      ],
+    );
+  }
+
+  Widget replyItemTopic(context, child) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.onInverseSurface,
+            width: 1.0,
           ),
         ),
-        // Divider(indent: 0, endIndent: 10, height: 1, color: Theme.of(context).dividerColor.withOpacity(0.15),),
-        bottonAction()
-      ],
+      ),
+      child: RepaintBoundary(
+        key: repaintKey,
+        child: Material(
+          color: reply.isChoose
+              ? Theme.of(context).colorScheme.onInverseSurface
+              : null,
+          child: InkWell(
+            onTap: replyComment,
+            onLongPress: () {
+              setState(() {
+                reply.isChoose = !reply.isChoose;
+              });
+            },
+            child: Ink(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+      // ),
+    );
+  }
+
+  Widget replyItemSheet(context, child) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: RepaintBoundary(
+        key: repaintKey,
+        child: Material(
+          borderRadius: BorderRadius.circular(20),
+          color: reply.isChoose
+              ? Theme.of(context).colorScheme.onInverseSurface
+              : null,
+          child: InkWell(
+            onTap: replyComment,
+            onLongPress: () {},
+            borderRadius: BorderRadius.circular(20),
+            child: Ink(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+      // ),
     );
   }
 
   // 感谢、回复、复制
   Widget bottonAction() {
-    var color = Theme.of(context).colorScheme.onBackground.withOpacity(0.8);
+    var color = Theme.of(context).colorScheme.outline;
     var textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.outline,
         );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -464,7 +487,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Row(
           children: [
             Text('${reply.floorNumber}楼',
-                style: Theme.of(context).textTheme.labelSmall),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                ),),
             const SizedBox(width: 14)
           ],
         )
@@ -477,26 +504,29 @@ class _ReplyListItemState extends State<ReplyListItem> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          //重要
-          itemCount: sheetMenu.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              onTap: () {
-                Navigator.pop(context);
-                menuAction(sheetMenu[index]['id']);
-              },
-              minLeadingWidth: 0,
-              iconColor: Theme.of(context).colorScheme.onSurface,
-              leading: sheetMenu[index]['leading'],
-              title: Text(
-                sheetMenu[index]['title'],
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-            );
-          },
+        return Container(
+          padding: const EdgeInsets.only(top: 14),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            //重要
+            itemCount: sheetMenu.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                  menuAction(sheetMenu[index]['id']);
+                },
+                minLeadingWidth: 0,
+                iconColor: Theme.of(context).colorScheme.onSurface,
+                leading: sheetMenu[index]['leading'],
+                title: Text(
+                  sheetMenu[index]['title'],
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              );
+            },
+          ),
         );
       },
     );

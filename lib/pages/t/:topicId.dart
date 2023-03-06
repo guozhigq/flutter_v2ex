@@ -74,6 +74,7 @@ class _TopicDetailState extends State<TopicDetail>
   bool expendAppBar = GStorage().getExpendAppBar();
 
   late AnimationController animationController;
+  bool _visibleTitle = false;
 
   @override
   void initState() {
@@ -201,6 +202,16 @@ class _TopicDetailState extends State<TopicDetail>
       _show();
     } else if (direction == ScrollDirection.reverse) {
       _hide();
+    }
+
+    if (_scrollController.offset > 150 && !_visibleTitle) {
+      setState(() {
+        _visibleTitle = true;
+      });
+    } else if (_scrollController.offset <= 150 && _visibleTitle) {
+      setState(() {
+        _visibleTitle = false;
+      });
     }
   }
 
@@ -474,9 +485,13 @@ class _TopicDetailState extends State<TopicDetail>
           appBar: !expendAppBar
               ? AppBar(
                   centerTitle: false,
-                  title: Text(
-                    _detailModel != null ? _detailModel!.topicTitle : '',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  title: AnimatedOpacity(
+                    opacity: _visibleTitle ? 0 : 1,
+                    duration: const Duration(milliseconds: 500),
+                    child: Text(
+                        _detailModel != null ? _detailModel!.topicTitle : '',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                   ),
                   actions: _detailModel != null ? appBarAction() : [],
                 )
@@ -607,9 +622,14 @@ class _TopicDetailState extends State<TopicDetail>
                 children: [
                   AppBar(
                     centerTitle: false,
-                    title: Text(
-                      _detailModel != null ? _detailModel!.topicTitle : '',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    title: AnimatedOpacity(
+                      opacity: _visibleTitle ? 1 : 0,
+                      duration: const Duration(milliseconds: 300),
+                      child:
+                      Text(
+                        _detailModel != null ? _detailModel!.topicTitle : '',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
                     actions: _detailModel != null ? appBarAction() : [],
                   ),
@@ -781,19 +801,31 @@ class _TopicDetailState extends State<TopicDetail>
                 children: [
                   if (_detailModel!.favoriteCount > 0) ...[
                     Text(
-                      '${_detailModel!.favoriteCount}人收藏',
-                      style: Theme.of(context).textTheme.labelMedium,
+                      '${_detailModel!.favoriteCount}收藏',
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                      ),
                     ),
                     const SizedBox(width: 16),
                   ],
                   Text(
-                    '${_detailModel!.visitorCount}次查看',
-                    style: Theme.of(context).textTheme.labelMedium,
+                    '${_detailModel!.visitorCount}查看',
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    '${_detailModel!.replyCount}条回复',
-                    style: Theme.of(context).textTheme.labelMedium,
+                    '${_detailModel!.replyCount}回复',
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                    ),
                   ),
                   const SizedBox(width: 20)
                 ],
@@ -888,7 +920,9 @@ class _TopicDetailState extends State<TopicDetail>
                   totalPage: _totalPage,
                   key: UniqueKey(),
                   queryReplyList: (replyMemberList, floorNumber, resultList) =>
-                      queryReplyList(replyMemberList, floorNumber, resultList));
+                      queryReplyList(replyMemberList, floorNumber, resultList),
+                source: 'topic'
+              );
             },
             childCount: _replyList.length,
           ),

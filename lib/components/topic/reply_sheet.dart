@@ -6,11 +6,13 @@ class ReplySheet extends StatefulWidget {
   List resultList = []; // 回复列表
   String topicId = ''; // 主题id
   List replyMemberList = []; // user列表
+  int? totalPage;
   ReplySheet(
       {required this.height,
       required this.resultList,
       required this.topicId,
       required this.replyMemberList,
+      this.totalPage,
       Key? key})
       : super(key: key);
 
@@ -81,6 +83,8 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
                       reply: widget.resultList[0][widget.replyMemberList[0]]
                           [index],
                       topicId: widget.topicId,
+                      totalPage: widget.totalPage,
+                      source: 'sheet',
                     );
                   },
                 ),
@@ -116,6 +120,8 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
                           child: ReplyListItem(
                             reply: widget.resultList[i][e][index],
                             topicId: widget.topicId,
+                            totalPage: widget.totalPage,
+                            source: 'sheet',
                           ),
                         );
                         // return Text('123');
