@@ -96,6 +96,7 @@ class _SettingPageState extends State<SettingPage> {
             onTap: () {
               setState(() {
                 autoSign = !autoSign;
+                GStorage().setAutoSign(autoSign);
               });
             },
             leading: Icon(Icons.task_alt, color: iconStyle),
@@ -151,6 +152,7 @@ class _SettingPageState extends State<SettingPage> {
             onTap: () {
               setState(() {
                 linkOpenInApp = !linkOpenInApp;
+                GStorage().setLinkOpenInApp(linkOpenInApp);
               });
             },
             leading: Icon(Icons.open_in_new_rounded, color: iconStyle),
@@ -180,6 +182,7 @@ class _SettingPageState extends State<SettingPage> {
             onTap: () {
               setState(() {
                 expendAppBar = !expendAppBar;
+                GStorage().setExpendAppBar(expendAppBar);
               });
             },
             leading: Icon(Icons.expand, color: iconStyle),
@@ -209,6 +212,7 @@ class _SettingPageState extends State<SettingPage> {
             onTap: () {
               setState(() {
                 noticeOn = !noticeOn;
+                GStorage().setNoticeOn(noticeOn);
               });
             },
             leading: Icon(Icons.notifications_none, color: iconStyle),

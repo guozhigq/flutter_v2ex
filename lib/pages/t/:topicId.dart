@@ -506,7 +506,7 @@ class _TopicDetailState extends State<TopicDetail>
           ),
         ),
         Positioned(
-          bottom: 25,
+          bottom: 18,
           right: 20,
           child: SlideTransition(
             position: Tween<Offset>(
