@@ -32,29 +32,6 @@ class _ReplyNewState extends State<ReplyNew> {
     super.initState();
   }
 
-  void onCleanInput() {
-    SmartDialog.show(
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('清空内容'),
-          // content: Text(
-          //   '确定不再显示@${widget.reply.userName}来自的这条回复？',
-          // ),
-          content: const Text('该操作将清空所输入的内容，请确认。'),
-          actions: [
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('手误了')),
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('确认清空'))
-          ],
-        );
-      },
-    );
-  }
-
   Future<dynamic> onSubmit() async {
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
@@ -118,7 +95,7 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
               IconButton(
                 tooltip: '发送',
-                onPressed: onCleanInput,
+                onPressed: onSubmit,
                 icon: const Icon(Icons.send_outlined),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
