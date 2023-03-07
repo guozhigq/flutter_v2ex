@@ -100,52 +100,61 @@ class GStorage {
 
   // 节点信息
   setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
+
   List getNodes() => _box.read<List>(StoreKeys.nodes.toString()) ?? [];
 
   // 链接打开方式 默认应用内打开
   setLinkOpenInApp(bool value) =>
       _box.write(StoreKeys.linkOpenInApp.toString(), value);
+
   bool getLinkOpenInApp() =>
       _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
 
   // 拓展 appBar
   setExpendAppBar(bool value) =>
       _box.write(StoreKeys.expendAppBar.toString(), value);
+
   bool getExpendAppBar() =>
       _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
 
   // 消息通知
   setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
+
   bool getNoticeOn() => _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
 
   // 自动签到
   setAutoSign(bool value) => _box.write(StoreKeys.autoSign.toString(), value);
+
   bool getAutoSign() => _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
 
   setEightQuery(bool value) =>
       _box.write(StoreKeys.eightQuery.toString(), value);
+
   bool getEightQuery() =>
       _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
 
   // 全局字体大小
   setGlobalFs(double value) => _box.write(StoreKeys.globalFs.toString(), value);
+
   double getGlobalFs() =>
       _box.read<double>(StoreKeys.globalFs.toString()) ?? 14;
 
   // html字体大小
   setHtmlFs(double value) => _box.write(StoreKeys.htmlFs.toString(), value);
+
   double getHtmlFs() => _box.read<double>(StoreKeys.htmlFs.toString()) ?? 15;
 
   // 回复字体
   setReplyFs(double value) => _box.write(StoreKeys.replyFs.toString(), value);
+
   double getReplyFs() => _box.read<double>(StoreKeys.replyFs.toString()) ?? 14;
 
   // 首页tabs
-  setTabs(List<TabModel> value) =>
-      _box.write(StoreKeys.replyFs.toString(), value);
+  setTabs(List<TabModel> value) => _box.write(StoreKeys.tabs.toString(), value);
+
   List<TabModel> getTabs() {
-     List tabs = _box.read<List>(StoreKeys.replyFs.toString()) ?? Strings.tabs;
-     List<TabModel> list = [];
+    List tabs = _box.read<List>(StoreKeys.tabs.toString()) ?? Strings.tabs;
+    List<TabModel> list = [];
     for (var i in tabs) {
       list.add(i is TabModel ? i : TabModel.fromJson(i));
     }

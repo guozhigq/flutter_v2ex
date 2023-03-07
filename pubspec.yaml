@@ -120,16 +120,16 @@ flutter:
     # "family" key with the font family name, and a "fonts" key with a
     # list giving the asset and other descriptors for the font. For
     # example:
-#    fonts:
-#        - family: NotoSansSC
-#          fonts:
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Black.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Light.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Medium.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Thin.otf
-#                style: italic
+    fonts:
+        - family: NotoSansSC
+          fonts:
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Black.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Light.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Medium.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Thin.otf
+                style: italic
 
     # For details regarding fonts from package dependencies,
     # see https://flutter.dev/custom-fonts/#from-packages

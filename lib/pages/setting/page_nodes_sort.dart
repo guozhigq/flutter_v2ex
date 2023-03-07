@@ -14,7 +14,7 @@ class NodesSortPage extends StatefulWidget {
 
 class _NodesSortPageState extends State<NodesSortPage>
     with SingleTickerProviderStateMixin {
-  List<TabModel> tabs = GStorage().getTabs().toList();
+  List<TabModel> tabs = GStorage().getTabs();
   TabModel firstTab = GStorage().getTabs()[0];
 
   @override
@@ -85,8 +85,8 @@ class _NodesSortPageState extends State<NodesSortPage>
       appBar: AppBar(
         title: const Text('节点排序'),
         actions: [
+          TextButton(onPressed: () => reset(), child: const Text('还原')),
           TextButton(onPressed: () => saveEdit(), child: const Text('保存')),
-          TextButton(onPressed: () => reset(), child: const Text('恢复默认')),
           const SizedBox(width: 12)
         ],
       ),
