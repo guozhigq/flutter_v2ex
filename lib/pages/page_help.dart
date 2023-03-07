@@ -49,7 +49,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               SmartDialog.showLoading(msg: '正在检查更新');
               Map update = await DioRequestWeb.checkUpdate();
               SmartDialog.dismiss();
-              var needUpdate = Utils.needUpdate('v1.1.2', update['lastVersion']);
+              var needUpdate = Utils.needUpdate(Strings.currentVersion, update['lastVersion']);
               if(needUpdate && context.mounted) {
                 showDialog<String>(
                   context: context,
@@ -77,7 +77,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('版本'),
-            subtitle: Text('v1.1.2', style: subTitleStyle),
+            subtitle: Text(Strings.currentVersion, style: subTitleStyle),
           )
         ],
       ),
