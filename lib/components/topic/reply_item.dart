@@ -357,7 +357,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         // title
         Container(
-          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 0),
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 7),
           child: HtmlRender(
               htmlContent: reply.contentRendered,
               imgList: reply.imgList,

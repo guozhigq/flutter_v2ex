@@ -773,7 +773,7 @@ class _TopicDetailState extends State<TopicDetail>
                                 _detailModel!.createdId,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.titleSmall,
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
                             SizedBox(
