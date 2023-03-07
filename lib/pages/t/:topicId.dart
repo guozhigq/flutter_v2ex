@@ -53,6 +53,7 @@ class _TopicDetailState extends State<TopicDetail>
   final GlobalKey _globalKey = GlobalKey();
   GlobalKey listGlobalKey = GlobalKey();
   late StreamController<bool> aStreamC;
+  late StreamController<bool> titleStreamC;
 
   // action
   bool reverseSort = false; // 倒序
@@ -118,12 +119,13 @@ class _TopicDetailState extends State<TopicDetail>
     });
 
     aStreamC = StreamController<bool>();
+    titleStreamC = StreamController<bool>();
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
 
     if (Platform.isAndroid) {
-     platform = 'android';
+      platform = 'android';
     } else if (Platform.isIOS) {
       platform = 'ios';
     }
@@ -155,7 +157,7 @@ class _TopicDetailState extends State<TopicDetail>
       }
       _currentPage += 1;
     });
-    if(!topicDetailModel.isAuth){
+    if (!topicDetailModel.isAuth) {
       SmartDialog.dismiss();
     }
   }
@@ -205,13 +207,11 @@ class _TopicDetailState extends State<TopicDetail>
     }
 
     if (_scrollController.offset > 150 && !_visibleTitle) {
-      setState(() {
         _visibleTitle = true;
-      });
+      titleStreamC.add(true);
     } else if (_scrollController.offset <= 150 && _visibleTitle) {
-      setState(() {
         _visibleTitle = false;
-      });
+      titleStreamC.add(false);
     }
   }
 
@@ -485,13 +485,20 @@ class _TopicDetailState extends State<TopicDetail>
           appBar: !expendAppBar
               ? AppBar(
                   centerTitle: false,
-                  title: AnimatedOpacity(
-                    opacity: _visibleTitle ? 0 : 1,
-                    duration: const Duration(milliseconds: 500),
-                    child: Text(
-                        _detailModel != null ? _detailModel!.topicTitle : '',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                  title: StreamBuilder(
+                    stream: titleStreamC.stream,
+                    initialData: false,
+                    builder: (context, AsyncSnapshot snapshot) {
+                      return AnimatedOpacity(
+                        opacity: snapshot.data ? 1 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child:
+                        Text(
+                          _detailModel != null ? _detailModel!.topicTitle : '',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      );
+                    },
                   ),
                   actions: _detailModel != null ? appBarAction() : [],
                 )
@@ -610,7 +617,9 @@ class _TopicDetailState extends State<TopicDetail>
       slivers: [
         if (expendAppBar) ...[
           SliverAppBar(
-            toolbarHeight: platform == 'android' ? (MediaQuery.of(context).padding.top + 6) : MediaQuery.of(context).padding.top - 2,
+            toolbarHeight: platform == 'android'
+                ? (MediaQuery.of(context).padding.top + 6)
+                : MediaQuery.of(context).padding.top - 2,
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
             automaticallyImplyLeading: false,
             elevation: 1,
@@ -622,14 +631,20 @@ class _TopicDetailState extends State<TopicDetail>
                 children: [
                   AppBar(
                     centerTitle: false,
-                    title: AnimatedOpacity(
-                      opacity: _visibleTitle ? 1 : 0,
-                      duration: const Duration(milliseconds: 300),
-                      child:
-                      Text(
-                        _detailModel != null ? _detailModel!.topicTitle : '',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                    title: StreamBuilder(
+                      stream: titleStreamC.stream,
+                      initialData: false,
+                      builder: (context, AsyncSnapshot snapshot) {
+                        return AnimatedOpacity(
+                          opacity: snapshot.data ? 1 : 0,
+                          duration: const Duration(milliseconds: 300),
+                          child:
+                          Text(
+                            _detailModel != null ? _detailModel!.topicTitle : '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        );
+                      },
                     ),
                     actions: _detailModel != null ? appBarAction() : [],
                   ),
@@ -656,11 +671,12 @@ class _TopicDetailState extends State<TopicDetail>
                     children: [
                       if (_detailModel!.isAPPEND)
                         TextButton(
-                            onPressed: () async{
-                              var res = await Get.toNamed('/write', parameters: {
-                                'source': 'append',
-                                'topicId': _detailModel!.topicId
-                              });
+                            onPressed: () async {
+                              var res = await Get.toNamed('/write',
+                                  parameters: {
+                                    'source': 'append',
+                                    'topicId': _detailModel!.topicId
+                                  });
                               if (res != null && res['refresh']) {
                                 SmartDialog.showLoading(msg: '刷新中...');
                                 getDetailInit();
@@ -669,11 +685,12 @@ class _TopicDetailState extends State<TopicDetail>
                             child: const Text('增加附言')),
                       if (_detailModel!.isEDIT)
                         TextButton(
-                            onPressed: () async{
-                              var res = await Get.toNamed('/write', parameters: {
-                                'source': 'edit',
-                                'topicId': _detailModel!.topicId
-                              });
+                            onPressed: () async {
+                              var res = await Get.toNamed('/write',
+                                  parameters: {
+                                    'source': 'edit',
+                                    'topicId': _detailModel!.topicId
+                                  });
                               if (res != null && res['refresh']) {
                                 SmartDialog.showLoading(msg: '刷新中...');
                                 getDetailInit();
@@ -682,15 +699,18 @@ class _TopicDetailState extends State<TopicDetail>
                             child: const Text('编辑主题')),
                       if (_detailModel!.isMOVE)
                         TextButton(
-                            onPressed: () async{
-                              var res = await Get.toNamed('/topicNodes', parameters: {
-                                'source': 'move',
-                                'topicId': _detailModel!.topicId
-                              });
+                            onPressed: () async {
+                              var res = await Get.toNamed('/topicNodes',
+                                  parameters: {
+                                    'source': 'move',
+                                    'topicId': _detailModel!.topicId
+                                  });
                               if (res != null && res['nodeDetail'].isNotEmpty) {
                                 setState(() {
-                                  _detailModel!.nodeName = res['nodeDetail']['nodeName'];
-                                  _detailModel!.nodeId = res['nodeDetail']['nodeId'];
+                                  _detailModel!.nodeName =
+                                      res['nodeDetail']['nodeName'];
+                                  _detailModel!.nodeId =
+                                      res['nodeDetail']['nodeId'];
                                 });
                               }
                             },
@@ -790,7 +810,7 @@ class _TopicDetailState extends State<TopicDetail>
                   _detailModel!.topicTitle,
                   style: Theme.of(context)
                       .textTheme
-                      .titleMedium!
+                      .titleLarge!
                       .copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
@@ -803,29 +823,24 @@ class _TopicDetailState extends State<TopicDetail>
                     Text(
                       '${_detailModel!.favoriteCount}收藏',
                       style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outline
-                      ),
+                          color: Theme.of(context).colorScheme.outline),
                     ),
                     const SizedBox(width: 16),
                   ],
                   Text(
                     '${_detailModel!.visitorCount}查看',
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outline
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium!
+                        .copyWith(color: Theme.of(context).colorScheme.outline),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     '${_detailModel!.replyCount}回复',
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outline
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium!
+                        .copyWith(color: Theme.of(context).colorScheme.outline),
                   ),
                   const SizedBox(width: 20)
                 ],
@@ -842,10 +857,10 @@ class _TopicDetailState extends State<TopicDetail>
                     top: 5, right: 18, bottom: 10, left: 18),
                 child: SelectionArea(
                   child: HtmlRender(
-                      htmlContent: _detailModel!.contentRendered,
-                      imgCount: _detailModel!.imgCount,
-                      imgList: _detailModel!.imgList,
-                      fs: GStorage().getHtmlFs(),
+                    htmlContent: _detailModel!.contentRendered,
+                    imgCount: _detailModel!.imgCount,
+                    imgList: _detailModel!.imgList,
+                    fs: GStorage().getHtmlFs(),
                   ),
                 ),
               ),
@@ -921,8 +936,7 @@ class _TopicDetailState extends State<TopicDetail>
                   key: UniqueKey(),
                   queryReplyList: (replyMemberList, floorNumber, resultList) =>
                       queryReplyList(replyMemberList, floorNumber, resultList),
-                source: 'topic'
-              );
+                  source: 'topic');
             },
             childCount: _replyList.length,
           ),

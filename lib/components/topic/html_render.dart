@@ -31,7 +31,6 @@ class _HtmlRenderState extends State<HtmlRender> {
     super.initState();
     if(widget.fs != null){
       htmlFs = widget.fs;
-      print('htmlFs: $htmlFs');
     }
   }
 

@@ -433,7 +433,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // 感谢、回复、复制
   Widget bottonAction() {
     var color = Theme.of(context).colorScheme.outline;
-    var textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+    var textStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
           color: Theme.of(context).colorScheme.outline,
         );
     return Row(
@@ -460,9 +460,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   // 感谢状态
                   if (reply.favoritesStatus) ...[
                     Icon(Icons.favorite,
-                        size: 17, color: Theme.of(context).colorScheme.primary),
+                        size: 15, color: Theme.of(context).colorScheme.primary),
                   ] else ...[
-                    Icon(Icons.favorite_border, size: 17, color: color),
+                    Icon(Icons.favorite_border, size: 15, color: color),
                   ],
                   const SizedBox(width: 2),
                   reply.favorites > 0
@@ -505,7 +505,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
-          padding: const EdgeInsets.only(top: 14),
+          padding: const EdgeInsets.only(top: 10),
           child: ListView.builder(
             shrinkWrap: true,
             physics: const ClampingScrollPhysics(),
