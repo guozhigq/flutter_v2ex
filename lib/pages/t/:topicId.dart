@@ -115,6 +115,8 @@ class _TopicDetailState extends State<TopicDetail>
         setState(() {
           _replyList.add(item);
         });
+        // print('118: item: ${item.content}');
+        // print('118 topic: ${_replyList.length}');
       }
     });
 
@@ -256,14 +258,16 @@ class _TopicDetailState extends State<TopicDetail>
       },
     ).then((value) {
       // 回复成功取消回复取消选中状态
-      var list = _replyList;
-      for (var item in _replyList) {
-        item.isChoose = false;
+      if (value != null){
+        var list = _replyList;
+        for (var item in _replyList) {
+          item.isChoose = false;
+        }
+        setState(() {
+          _replyList = list;
+        });
+          eventBus.emit('topicReply', value['replyStatus']);
       }
-      setState(() {
-        _replyList = list;
-      });
-      //   eventBus.emit('topicReply', value['replyStatus'])
     });
   }
 

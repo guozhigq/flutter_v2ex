@@ -55,6 +55,7 @@ class _WritePageState extends State<WritePage> {
     if (res['status']) {
       // 可以编辑，渲染内容
       Map topicDetail = res['topicDetail'];
+      print("😊topicDetail: ${topicDetail['topicTitle']}");
       String topicTitle = topicDetail['topicTitle'];
       String topicContent = topicDetail['topicContent'];
       String syntax = topicDetail['syntax'];
@@ -173,7 +174,7 @@ class _WritePageState extends State<WritePage> {
         'content': content
       };
       var result = await DioRequestWeb.postTopic(args);
-      if (result) {
+      if (result != false) {
         if (context.mounted) {
           showDialog(
             context: context,
@@ -182,14 +183,15 @@ class _WritePageState extends State<WritePage> {
                 title: const Text('发布成功'),
                 content: const Text('主题发布成功，是否前往查看'),
                 actions: [
+                  // TextButton(
+                  //     onPressed: () {
+                  //       Navigator.pop(context);
+                  //       Get.back();
+                  //     },
+                  //     child: const Text('返回上一页')),
                   TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('返回上一页')),
-                  TextButton(
-                      onPressed: () {
-
+                        Get.offAndToNamed(result);
                       },
                       child: const Text('去查看'))
                 ],
@@ -245,7 +247,10 @@ class _WritePageState extends State<WritePage> {
               content: const Text('你不能编辑这个主题。'),
               actions: [
                 TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Get.back();
+                    },
                     child: const Text('确定'))
               ],
             );

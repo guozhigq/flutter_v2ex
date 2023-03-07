@@ -46,14 +46,32 @@ class _ReplyNewState extends State<ReplyNew> {
 
       var res = await DioRequestWeb.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
-      if (res) {
+      if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
         }
-      } else {
+      } else if(res == 'success'){
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'fail'});
         }
+      }else{
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('系统提示'),
+              content: Text(res),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('确定'))
+              ],
+            );
+          },
+        );
       }
     }
   }

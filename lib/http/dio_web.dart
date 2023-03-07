@@ -1457,7 +1457,7 @@ class DioRequestWeb {
   }
 
   // 回复主题
-  static Future<bool> onSubmitReplyTopic(
+  static Future<String> onSubmitReplyTopic(
       String topicId, String replyContent, int totalPage) async {
     SmartDialog.showLoading(msg: '回复中...');
     int once = GStorage().getOnce();
@@ -1473,44 +1473,28 @@ class DioRequestWeb {
     Response response;
     response = await Request().post('/t/$topicId',
         data: formData, extra: {'ua': 'mob'}, options: options);
+    SmartDialog.dismiss();
     var bodyDom = parse(response.data).body;
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
       // 获取最后一页最近一条
-      var replyList = await getTopicDetail(topicId, totalPage + 1);
-      GStorage().setReplyItem(replyList.replyList.last);
-      SmartDialog.dismiss();
-      return true;
+      var replyDetail = await getTopicDetail(topicId, totalPage + 1);
+      var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.userName == GStorage().getUserInfo()['userName']);
+      GStorage().setReplyItem(lastReply);
+      return 'true';
     } else if (response.statusCode == 200) {
-      var contentDom = bodyDom!.querySelector('#Wrapper');
-      if (contentDom!.querySelector('div.content > div.box > div.problem') !=
+      String responseText = '回复失败了';
+      var contentDom = bodyDom!.querySelector('#Main');
+      if (contentDom!.querySelector('div.problem') !=
           null) {
-        String responseText = contentDom
-            .querySelector('div.content > div.box > div.problem')!
+        responseText = contentDom
+            .querySelector('div.problem')!
             .text;
-        SmartDialog.show(
-          useSystem: true,
-          animationType: SmartAnimationType.centerFade_otherSlide,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('系统提示'),
-              content: Text(responseText),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('重新输入'))
-              ],
-            );
-          },
-        );
       }
-      SmartDialog.showToast('回复失败了');
-      return false;
+      return responseText;
     } else {
       SmartDialog.dismiss();
-      return false;
+      return 'false';
     }
   }
 
@@ -1826,7 +1810,8 @@ class DioRequestWeb {
         await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    print(response.headers);
+    log('1083 line : ${response}');
+    print('1830：${response.headers["location"]}');
     if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
@@ -1845,7 +1830,7 @@ class DioRequestWeb {
       );
       return false;
     } else {
-      return true;
+      return response.headers["location"];
     }
   }
 
@@ -1873,7 +1858,7 @@ class DioRequestWeb {
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode!.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode != null && mainNode!.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       return false;
     } else {
       return true;
@@ -1928,9 +1913,9 @@ class DioRequestWeb {
       Map topicDetail = {};
       print(mainNode!.innerHtml);
       var topicTitle = mainNode.querySelector('#topic_title');
-      topicDetail['topicTitle'] = topicTitle;
+      topicDetail['topicTitle'] = topicTitle!.text;
       var topicContent = mainNode.querySelector('#topic_content');
-      topicDetail['topicContent'] = topicContent;
+      topicDetail['topicContent'] = topicContent!.text;
       var select = mainNode.querySelector('#select_syntax');
       var syntaxs = select!.querySelectorAll('option');
       var selectSyntax = '';
