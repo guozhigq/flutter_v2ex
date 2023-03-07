@@ -806,16 +806,18 @@ class _TopicDetailState extends State<TopicDetail>
               ),
 
               /// 主题标题
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(
-                    top: 0, right: 18, bottom: 15, left: 18),
-                child: Text(
-                  _detailModel!.topicTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge!
-                      .copyWith(fontWeight: FontWeight.w500),
+              SelectionArea(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                      top: 0, right: 18, bottom: 15, left: 18),
+                  child: Text(
+                    _detailModel!.topicTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(fontWeight: FontWeight.w500),
+                  ),
                 ),
               ),
 

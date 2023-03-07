@@ -45,14 +45,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
         size: 21,
       ),
     },
-    {
-      'id': 6,
-      'title': '自由复制',
-      'leading': const Icon(
-        Icons.copy_all,
-        size: 21,
-      ),
-    },
+    // {
+    //   'id': 6,
+    //   'title': '自由复制',
+    //   'leading': const Icon(
+    //     Icons.copy_all,
+    //     size: 21,
+    //   ),
+    // },
     {
       'id': 7,
       'title': '本地保存',
@@ -239,13 +239,15 @@ class _ReplyListItemState extends State<ReplyListItem> {
       duration: const Duration(milliseconds: 450),
       child: SizedBox(
         height: ignoreStatus ? 0 : null,
-        child: widget.source == 'topic' ?  replyItemTopic(
-          context,
-          content(context),
-        ) : replyItemSheet(
-          context,
-          content(context),
-        ),
+        child: widget.source == 'topic'
+            ? replyItemTopic(
+                context,
+                content(context),
+              )
+            : replyItemSheet(
+                context,
+                content(context),
+              ),
       ),
     );
   }
@@ -321,11 +323,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
                         if (reply.lastReplyTime.isNotEmpty) ...[
                           Text(
                             reply.lastReplyTime,
-                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
                           ),
                           const SizedBox(width: 2),
                         ],
@@ -358,10 +361,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
         // title
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 7),
-          child: HtmlRender(
-              htmlContent: reply.contentRendered,
-              imgList: reply.imgList,
-              fs: GStorage().getReplyFs()),
+          child: SelectionArea(
+            child: HtmlRender(
+                htmlContent: reply.contentRendered,
+                imgList: reply.imgList,
+                fs: GStorage().getReplyFs()),
+          ),
         ),
         bottonAction(),
       ],
@@ -386,11 +391,12 @@ class _ReplyListItemState extends State<ReplyListItem> {
               : null,
           child: InkWell(
             onTap: replyComment,
-            onLongPress: () {
-              setState(() {
-                reply.isChoose = !reply.isChoose;
-              });
-            },
+            // onLongPress: () {
+            //   setState(() {
+            //     reply.isChoose = !reply.isChoose;
+            //   });
+            // },
+            onLongPress: () {},
             child: Ink(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
               child: child,
@@ -486,12 +492,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         Row(
           children: [
-            Text('${reply.floorNumber}楼',
-                style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                ),),
+            Text(
+              '${reply.floorNumber}楼',
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.outline),
+            ),
             const SizedBox(width: 14)
           ],
         )
