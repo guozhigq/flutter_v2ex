@@ -245,6 +245,12 @@ class _SettingPageState extends State<SettingPage> {
             subtitle: Text('设置字体大小', style: subTitleStyle),
           ),
           ListTile(
+            onTap: () => Get.toNamed('/nodesSort'),
+            leading: Icon(Icons.drag_indicator_rounded, color: iconStyle),
+            title: const Text('节点设置'),
+            subtitle: Text('调整节点顺序', style: subTitleStyle),
+          ),
+          ListTile(
             onTap: () async {
               var cleanStatus = await CacheManage().clearCacheAll();
               if (cleanStatus) {

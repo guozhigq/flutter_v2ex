@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:get_storage/get_storage.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/models/tabs.dart';
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 
 enum StoreKeys {
   token,
@@ -20,7 +23,8 @@ enum StoreKeys {
   eightQuery,
   globalFs,
   htmlFs,
-  replyFs
+  replyFs,
+  tabs
 }
 
 class GStorage {
@@ -96,30 +100,30 @@ class GStorage {
 
   // 节点信息
   setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
-  List getNodes() =>
-      _box.read<List>(StoreKeys.nodes.toString()) ?? [];
+  List getNodes() => _box.read<List>(StoreKeys.nodes.toString()) ?? [];
 
   // 链接打开方式 默认应用内打开
-  setLinkOpenInApp(bool value) => _box.write(StoreKeys.linkOpenInApp.toString(), value);
+  setLinkOpenInApp(bool value) =>
+      _box.write(StoreKeys.linkOpenInApp.toString(), value);
   bool getLinkOpenInApp() =>
       _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
 
   // 拓展 appBar
-  setExpendAppBar(bool value) => _box.write(StoreKeys.expendAppBar.toString(), value);
+  setExpendAppBar(bool value) =>
+      _box.write(StoreKeys.expendAppBar.toString(), value);
   bool getExpendAppBar() =>
       _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
 
   // 消息通知
   setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
-  bool getNoticeOn() =>
-      _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
+  bool getNoticeOn() => _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
 
   // 自动签到
   setAutoSign(bool value) => _box.write(StoreKeys.autoSign.toString(), value);
-  bool getAutoSign() =>
-      _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
+  bool getAutoSign() => _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
 
-  setEightQuery(bool value) => _box.write(StoreKeys.eightQuery.toString(), value);
+  setEightQuery(bool value) =>
+      _box.write(StoreKeys.eightQuery.toString(), value);
   bool getEightQuery() =>
       _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
 
@@ -130,12 +134,21 @@ class GStorage {
 
   // html字体大小
   setHtmlFs(double value) => _box.write(StoreKeys.htmlFs.toString(), value);
-  double getHtmlFs() =>
-      _box.read<double>(StoreKeys.htmlFs.toString()) ?? 15;
+  double getHtmlFs() => _box.read<double>(StoreKeys.htmlFs.toString()) ?? 15;
 
   // 回复字体
   setReplyFs(double value) => _box.write(StoreKeys.replyFs.toString(), value);
-  double getReplyFs() =>
-      _box.read<double>(StoreKeys.replyFs.toString()) ?? 14;
+  double getReplyFs() => _box.read<double>(StoreKeys.replyFs.toString()) ?? 14;
 
+  // 首页tabs
+  setTabs(List<TabModel> value) =>
+      _box.write(StoreKeys.replyFs.toString(), value);
+  List<TabModel> getTabs() {
+     List tabs = _box.read<List>(StoreKeys.replyFs.toString()) ?? Strings.tabs;
+     List<TabModel> list = [];
+    for (var i in tabs) {
+      list.add(i is TabModel ? i : TabModel.fromJson(i));
+    }
+    return list;
+  }
 }

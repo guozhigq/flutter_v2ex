@@ -130,6 +130,7 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('ignoreTopic');
     eventBus.off('unRead');
     eventBus.off('themeChange');
+    eventBus.off('editTabs');
     // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
     if(_timer.isActive){
       _timer.cancel();
