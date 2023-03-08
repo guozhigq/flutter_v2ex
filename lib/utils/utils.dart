@@ -3,6 +3,7 @@
 import 'dart:convert' show utf8, base64;
 import 'dart:io';
 import 'dart:async';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
 import 'event_bus.dart';
@@ -20,6 +21,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_v2ex/http/init.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -64,35 +66,43 @@ class Utils {
     bool linkOpenType = GStorage().getLinkOpenInApp();
     if (!linkOpenType) {
       // 1. openWithSystemBrowser
-      await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+      try{
+        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+      }catch(err) {
+        SmartDialog.showToast(err.toString());
+      }
     } else {
       // 2. openWithAppBrowser
-      await Utils().browser.open(
-            url: WebUri(aUrl),
-            settings: ChromeSafariBrowserSettings(
-                shareState: CustomTabsShareState.SHARE_STATE_OFF,
-                isSingleInstance: false,
-                isTrustedWebActivity: false,
-                keepAliveEnabled: true,
-                startAnimations: [
-                  AndroidResource.anim(
-                      name: "slide_in_left", defPackage: "android"),
-                  AndroidResource.anim(
-                      name: "slide_out_right", defPackage: "android")
-                ],
-                exitAnimations: [
-                  AndroidResource.anim(
-                      name: "abc_slide_in_top",
-                      defPackage:
-                          "com.pichillilorenzo.flutter_inappwebviewexample"),
-                  AndroidResource.anim(
-                      name: "abc_slide_out_top",
-                      defPackage:
-                          "com.pichillilorenzo.flutter_inappwebviewexample")
-                ],
-                dismissButtonStyle: DismissButtonStyle.CLOSE,
-                presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-          );
+      try{
+        await Utils().browser.open(
+          url: WebUri(aUrl),
+          settings: ChromeSafariBrowserSettings(
+              shareState: CustomTabsShareState.SHARE_STATE_OFF,
+              isSingleInstance: false,
+              isTrustedWebActivity: false,
+              keepAliveEnabled: true,
+              startAnimations: [
+                AndroidResource.anim(
+                    name: "slide_in_left", defPackage: "android"),
+                AndroidResource.anim(
+                    name: "slide_out_right", defPackage: "android")
+              ],
+              exitAnimations: [
+                AndroidResource.anim(
+                    name: "abc_slide_in_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample"),
+                AndroidResource.anim(
+                    name: "abc_slide_out_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample")
+              ],
+              dismissButtonStyle: DismissButtonStyle.CLOSE,
+              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+        );
+      }catch(err) {
+        SmartDialog.showToast(err.toString());
+      }
     }
   }
 
@@ -180,124 +190,6 @@ class Utils {
     return target;
   }
 
-  static void onLogin() {
-    Navigator.push(
-      Routes.navigatorKey.currentContext!,
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-        fullscreenDialog: true,
-      ),
-    ).then(
-      (value) => {
-        if (value['loginStatus'] == 'cancel')
-          {SmartDialog.showToast('取消登录'), eventBus.emit('login', 'cancel')},
-        if (value['loginStatus'] == 'success')
-          {SmartDialog.showToast('登录成功'), eventBus.emit('login', 'success')}
-      },
-    );
-  }
-
-  static void loginDialog(
-    String content, {
-    String title = '提示',
-    String cancelText = '取消',
-    String confirmText = '去登录',
-    bool isPopContext = false,
-    bool isPopDialog = true,
-  }) {
-    SmartDialog.show(
-      useSystem: true,
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  SmartDialog.dismiss();
-                  isPopContext ? Navigator.pop(context) : null;
-                },
-                child: Text(cancelText)),
-            TextButton(
-                onPressed: () async {
-                  if (isPopDialog) {
-                    SmartDialog.dismiss()
-                        .then((value) => Get.toNamed('/login'));
-                  } else {
-                    Get.toNamed('/login');
-                  }
-                },
-                child: Text(confirmText))
-          ],
-        );
-      },
-    );
-  }
-
-  static void twoFADialog({String scene = 'login'}) {
-    var twoFACode = '';
-    SmartDialog.show(
-      useSystem: true,
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('2FA 验证'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('你的 V2EX 账号已经开启了两步验证，请输入验证码继续'),
-              const SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: '验证码',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                  ),
-                ),
-                onChanged: (e) {
-                  twoFACode = e;
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  SmartDialog.dismiss();
-                },
-                child: const Text('取消')),
-            TextButton(
-                onPressed: () async {
-                  if (twoFACode.length == 6) {
-                    var res = await DioRequestWeb.twoFALOgin(twoFACode);
-                    if (res == 'true') {
-                      GStorage().setLoginStatus(true);
-                      eventBus.emit('login', 'success');
-                      SmartDialog.showToast('登录成功', displayTime: const Duration(milliseconds: 500)).then((res) {
-                        // 登录页面需要关闭当前页面，其余情况只关闭dialog
-                        SmartDialog.dismiss();
-                        if(scene == 'login') {
-                          Get.back();
-                        }
-                      });
-                    } else {
-                      twoFACode = '';
-                    }
-                  } else {
-                    SmartDialog.showToast(
-                      '验证码有误',
-                      displayTime: const Duration(milliseconds: 500),
-                    );
-                  }
-                },
-                child: const Text('登录'))
-          ],
-        );
-      },
-    );
-  }
-
   static stringToMap(str) {
     Map result = {};
     var strArr = str.split('#');
@@ -322,6 +214,7 @@ class Utils {
       var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
       RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
+      RegExp exp2 = RegExp(r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {
@@ -330,11 +223,32 @@ class Utils {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         }
       }
-      return wechat;
+      RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
+      RegExp emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+      if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat) || emailRegExp.hasMatch(wechat)){
+        return wechat;
+      }
+      return '';
     } catch (err) {
-      print(err);
+      // print(err);
       return '';
     }
+  }
+
+  // 版本比较
+  static bool needUpdate(localVersion, _emoteVersion) {
+    List<String> localVersionList = localVersion.split('v')[1].split('.');
+    List<String> remoteVersionList = _emoteVersion.split('v')[1].split('.');
+    for (int i = 0; i < localVersionList.length; i++) {
+      int localVersion = int.parse(localVersionList[i]);
+      int remoteVersion = int.parse(remoteVersionList[i]);
+      if (remoteVersion > localVersion) {
+        return true;
+      } else if (remoteVersion < localVersion) {
+        return false;
+      }
+    }
+    return false;
   }
 }
 

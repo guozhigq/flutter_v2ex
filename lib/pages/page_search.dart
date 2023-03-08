@@ -215,18 +215,16 @@ class _SearchPageState extends State<SearchPage> {
                 .titleSmall!
                 .copyWith(height: 1.6, fontWeight: FontWeight.w500),
           ),
-          // child: HtmlRender(
-          //     htmlContent: source.title
-          // ),
         ),
         if(source.content != null && source.content.isNotEmpty)
         Container(
           alignment: Alignment.centerLeft,
           margin: const EdgeInsets.only(top: 0, bottom: 12),
           height: 20,
-          child: HtmlRender(
-              htmlContent: source.content
-          ),
+          // child: HtmlRender(
+          //     htmlContent: source.content
+          // ),
+          child: Text(source.content),
         ),
         // 头像、昵称
         Row(
@@ -270,30 +268,36 @@ class _SearchPageState extends State<SearchPage> {
                                     color:
                                         Theme.of(context).colorScheme.outline),
                           ),
-                        if (source.replies > 0) ...[
-                          const SizedBox(width: 10),
-                          Text(
-                            '${source.replies} 回复',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                          ),
-                        ]
                       ],
                     )
                   ],
                 )
               ],
             ),
-
-              NodeTag(
-                  nodeId: source.node.toString(),
-                  nodeName: source.node.toString(),
-                  route: 'home')
-
+            if(source.replies > 0)
+            Material(
+              borderRadius: BorderRadius.circular(50),
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(50),
+                child: Ink(
+                  padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        source.replies.toString(),
+                        style: const TextStyle(
+                          fontSize: 11.0,
+                          textBaseline: TextBaseline.ideographic,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ],

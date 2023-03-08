@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -32,19 +33,21 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     }
 
     eventBus.on('login', (arg) {
-      if (arg == 'success') {
-        readUserInfo();
-      }
-      if (arg == 'fail' || arg == 'loginOut') {
-        GStorage().setLoginStatus(false);
-        GStorage().setUserInfo({});
-        setState(() {
-          loginStatus = false;
-          userInfo = {};
-        });
-      }
-      if (arg == 'fail') {
-        Utils.loginDialog('登录状态失效，请重新登录');
+      if (arg != null) {
+        if (arg == 'success') {
+          readUserInfo();
+        }
+        if (arg == 'fail' || arg == 'loginOut') {
+          // GStorage().setLoginStatus(false);
+          // GStorage().setUserInfo({});
+          setState(() {
+            loginStatus = false;
+            userInfo = {};
+          });
+        }
+        if (arg == 'fail') {
+          Login.loginDialog('登录状态失效，请重新登录');
+        }
       }
     });
 
@@ -111,15 +114,18 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 });
                           } else {
                             var res = await Get.toNamed('/login');
-                            if (res['loginStatus'] == 'cancel') {
-                              SmartDialog.showToast('取消登录');
-                            } else {
-                              SmartDialog.showToast('登录成功');
-                              if (GStorage().getLoginStatus()) {
-                                setState(() {
-                                  loginStatus = true;
-                                });
-                                readUserInfo();
+                            print('search_bar: $res');
+                            if (res != null) {
+                              if (res['loginStatus'] == 'cancel') {
+                                SmartDialog.showToast('取消登录');
+                              } else {
+                                SmartDialog.showToast('登录成功');
+                                if (GStorage().getLoginStatus()) {
+                                  setState(() {
+                                    loginStatus = true;
+                                  });
+                                  readUserInfo();
+                                }
                               }
                             }
                           }
@@ -163,10 +169,12 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                           setState(() {
                             unRead = false;
                           });
-                            Get.toNamed('/notifications');
+                          Get.toNamed('/notifications');
                         },
                         icon: Icon(Icons.notifications_none_rounded,
-                            color: !unRead ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.primary)),
+                            color: !unRead
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.primary)),
                   )
                 ],
               )),

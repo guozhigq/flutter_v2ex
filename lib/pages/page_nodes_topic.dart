@@ -119,7 +119,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
         CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 130,
+              expandedHeight: kToolbarHeight + 70,
               title: Text(source == 'move'
                   ? '移动节点'
                   : source == 'nodes'
@@ -131,7 +131,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
               flexibleSpace: FlexibleSpaceBar(
                 background: Column(
                   children: [
-                    const SizedBox(height: 120.0),
+                    const SizedBox(height: kToolbarHeight + 70),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.only(

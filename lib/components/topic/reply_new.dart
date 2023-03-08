@@ -32,29 +32,6 @@ class _ReplyNewState extends State<ReplyNew> {
     super.initState();
   }
 
-  void onCleanInput() {
-    SmartDialog.show(
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('清空内容'),
-          // content: Text(
-          //   '确定不再显示@${widget.reply.userName}来自的这条回复？',
-          // ),
-          content: const Text('该操作将清空所输入的内容，请确认。'),
-          actions: [
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('手误了')),
-            TextButton(
-                onPressed: (() => {SmartDialog.dismiss()}),
-                child: const Text('确认清空'))
-          ],
-        );
-      },
-    );
-  }
-
   Future<dynamic> onSubmit() async {
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
@@ -69,14 +46,32 @@ class _ReplyNewState extends State<ReplyNew> {
 
       var res = await DioRequestWeb.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
-      if (res) {
+      if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
         }
-      } else {
+      } else if(res == 'success'){
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'fail'});
         }
+      }else{
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('系统提示'),
+              content: Text(res),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('确定'))
+              ],
+            );
+          },
+        );
       }
     }
   }
@@ -117,9 +112,9 @@ class _ReplyNewState extends State<ReplyNew> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
-                tooltip: '清空内容',
-                onPressed: onCleanInput,
-                icon: const Icon(Icons.clear_all_rounded),
+                tooltip: '发送',
+                onPressed: onSubmit,
+                icon: const Icon(Icons.send_outlined),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
                     backgroundColor: Theme.of(context).colorScheme.background),
@@ -203,27 +198,9 @@ class _ReplyNewState extends State<ReplyNew> {
               ),
             ),
           ),
-          Container(
+          SizedBox(
             width: double.infinity,
-            height: 60,
-            clipBehavior: Clip.hardEdge,
-            margin: EdgeInsets.only(
-                top: 10, bottom: MediaQuery.of(context).padding.bottom + 10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: ElevatedButton(
-              onPressed: onSubmit,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.send),
-                  SizedBox(width: 10),
-                  Text('发送')
-                ],
-              ),
-            ),
+            height: MediaQuery.of(context).padding.bottom,
           )
         ],
       ),

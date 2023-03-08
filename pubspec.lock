@@ -25,14 +25,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.7"
-  archive:
-    dependency: transitive
-    description:
-      name: archive
-      sha256: d6347d54a2d8028e0437e3c099f66fdb8ae02c4720c1e7534c9f24c10351f85d
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.3.6"
   args:
     dependency: transitive
     description:
@@ -177,14 +169,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.17.2"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.5"
   dart_style:
     dependency: transitive
     description:
@@ -366,14 +350,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  flutter_launcher_icons:
-    dependency: "direct dev"
-    description:
-      name: flutter_launcher_icons
-      sha256: "559c600f056e7c704bd843723c21e01b5fba47e8824bd02422165bcc02a5de1d"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.9.3"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -411,14 +387,6 @@ packages:
     description:
       name: flutter_native_timezone
       sha256: ed7bfb982f036243de1c068e269182a877100c994f05143c8b26a325e28c1b02
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.0"
-  flutter_slidable:
-    dependency: "direct main"
-    description:
-      name: flutter_slidable
-      sha256: "6c68e1fad129b4b807b2218ef4cf7f7f6f61c5ec8861c990dc2278d9d03cb09f"
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
@@ -504,14 +472,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.2"
-  image:
-    dependency: transitive
-    description:
-      name: image
-      sha256: "8e9d133755c3e84c73288363e6343157c383a0c6c56fc51afcc5d4d7180306d6"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.3.0"
   image_gallery_saver:
     dependency: "direct main"
     description:
@@ -640,13 +600,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
-  path_pro:
-    dependency: "direct main"
-    description:
-      path: "lib/package/xpath"
-      relative: true
-    source: path
-    version: "0.1.0"
   path_provider:
     dependency: "direct main"
     description:
@@ -767,14 +720,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.4"
-  pointycastle:
-    dependency: transitive
-    description:
-      name: pointycastle
-      sha256: db7306cf0249f838d1a24af52b5a5887c5bf7f31d8bb4e827d071dc0939ad346
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.6.2"
   process:
     dependency: transitive
     description:
@@ -1124,14 +1069,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.2.2"
-  xpath:
-    dependency: "direct main"
-    description:
-      name: xpath
-      sha256: "0da828d86f01f9f26e5ede42eca2e57bcf41d1e6900ba45793abafe2e38b0e08"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.0"
   yaml:
     dependency: transitive
     description:

@@ -1,10 +1,13 @@
 import 'dart:async';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<LoginDetailModel> getSignKey() async {
     var res = await DioRequestWeb.getLoginKey();
     if (res.twoFa) {
-      Utils.twoFADialog();
+      Login.twoFADialog();
     } else {
       setState(() {
         loginKey = res;
@@ -216,6 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                         var result = await DioRequestWeb.onLogin(loginKey);
                         if (result == 'true') {
                           // 登录成功
+                          GStorage().setLoginStatus(true);
                           Get.back(result: {'loginStatus': 'success'});
                         } else if (result == 'false') {
                           // 登录失败
@@ -229,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                             getSignKey();
                           });
                         } else if (result == '2fa') {
-                          Utils.twoFADialog();
+                          Login.twoFADialog();
                         }
                       }
                     },
@@ -244,7 +248,8 @@ class _LoginPageState extends State<LoginPage> {
                     // ),),
                     // const SizedBox(width: 10),
                     TextButton(
-                      onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
+                      onPressed: () =>
+                          Utils.openURL('https://www.v2ex.com/forgot'),
                       child: Text(
                         '忘记密码？',
                         style: TextStyle(color: Colors.grey[600]),
@@ -258,17 +263,31 @@ class _LoginPageState extends State<LoginPage> {
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 30,
             child: TextButton(
-              onPressed: () {
-                // int once = GStorage().getOnce();
-                // // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
-                // Get.toNamed('/webView', parameters: {
-                //   'aUrl': 'https://www.v2ex.com/auth/google?once=$once'
-                // });
-                SmartDialog.showToast('开发中 💪');
+              onPressed: () async {
+                int once = GStorage().getOnce();
+                // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
+                var result = await Get.toNamed('/webView', parameters: {
+                  'aUrl': '${Strings.v2exHost}/auth/google?once=$once'
+                });
+                if (result != null && result['signInGoogle'] == 'success') {
+                  SmartDialog.showLoading(msg: '获取信息...');
+                  // 登录成功 获取用户信息 / 2FA
+                  var signResult = await DioRequestWeb.getUserInfo();
+                  if (signResult == 'true') {
+                    // 登录成功
+                    eventBus.emit('login', 'success');
+                    Get.back(result: {'loginStatus': 'success'});
+                  } else if (signResult == 'false') {
+                    // 登录失败
+                    SmartDialog.showToast('登录失败了');
+                  } else if (result == '2fa') {
+                    print('login 需要两步验证 $result');
+                    Login.twoFADialog();
+                  }
+                } else {
+                  SmartDialog.showToast('取消登录');
+                }
               },
-              // onPressed: () {
-              //   DioRequestWeb.signByGoogle();
-              // },
               child: Row(children: [
                 Image.asset('assets/images/google.png', width: 25, height: 25),
                 const SizedBox(width: 10),

@@ -199,8 +199,11 @@ class _MemberPageState extends State<MemberPage> {
                   actions: isOwner
                       ? [
                           TextButton(
-                            onPressed: () =>
-                                {if (!signDetail['signStatus']) {}},
+                            onPressed: ()  {
+                              if (!signDetail['signStatus']) {
+                                  DioRequestWeb.dailyMission();
+                                }
+                              },
                             child: Text(signDetail.isNotEmpty &&
                                     signDetail['signStatus']
                                 ? '已领取奖励'
@@ -305,7 +308,7 @@ class _MemberPageState extends State<MemberPage> {
                     ),
                   ),
                 ),
-                if (signDetail.isNotEmpty && isOwner) ...[
+                if (signDetail.isNotEmpty && isOwner && signDetail['balanceRender'] != null) ...[
                   SliverToBoxAdapter(
                     child: Container(
                       margin:

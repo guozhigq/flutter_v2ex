@@ -21,6 +21,9 @@ import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/page_write.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 
+import 'package:flutter_v2ex/pages/setting/page_font.dart';
+import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
+
 class AppPages {
   static final List<GetPage> getPages = [
     // 登录页面
@@ -82,5 +85,9 @@ class AppPages {
     GetPage(name: '/write', page: () => const WritePage()),
     // 主题节点
     GetPage(name: '/topicNodes', page: () => const TopicNodesPage()),
+    // 主题设置
+    GetPage(name: '/setFont', page: () => const SetFontPage()),
+    // 节点排序
+    GetPage(name: '/nodesSort', page: () => const NodesSortPage()),
   ];
 }

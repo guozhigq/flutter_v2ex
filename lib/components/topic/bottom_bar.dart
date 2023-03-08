@@ -79,7 +79,7 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
     return AnimatedContainer(
       curve: Curves.easeInOut,
       duration: const Duration(milliseconds: 600),
-      height: widget.isVisible! ? 96.0 : 0,
+      height: widget.isVisible! ? 80.0 : 0,
       child: BottomAppBar(
         elevation: 1,
         child: Row(

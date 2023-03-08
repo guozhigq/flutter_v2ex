@@ -19,6 +19,8 @@ import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
 import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/app_theme.dart';
+import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -38,17 +40,25 @@ class ProxiedHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // 消息通知初始化
-  await LocalNoticeService().init();
-
+  try{
+    await LocalNoticeService().init();
+  }catch(err){
+    print('LocalNoticeService err: ${err.toString()}');
+  }
+  // 代理设置
   Map<String, String>? proxy = await SystemProxy.getProxySettings();
   if (proxy != null) {
     HttpOverrides.global = ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
   }
-
   // 本地存储初始化
-  await GetStorage.init();
+  try{
+    await GetStorage.init();
+  }catch(err) {
+    print('GetStorage err: ${err.toString()}');
+  }
+  // 入口
   runApp(const MyApp());
-
+  // 配置状态栏
   if (Platform.isAndroid) {
     SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
@@ -80,6 +90,7 @@ class _MyAppState extends State<MyApp> {
   ThemeType currentThemeValue = ThemeType.system;
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
+  double globalFs = GStorage().getGlobalFs();
   var _timer;
 
   @override
@@ -97,6 +108,7 @@ class _MyAppState extends State<MyApp> {
         currentThemeValue = arg;
       });
     });
+    // 未读消息
     eventBus.on('unRead', (arg) {
       LocalNoticeService().show(arg);
     });
@@ -118,6 +130,7 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('ignoreTopic');
     eventBus.off('unRead');
     eventBus.off('themeChange');
+    eventBus.off('editTabs');
     // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
     if(_timer.isActive){
       _timer.cancel();
@@ -127,6 +140,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final FontSizeController? fontSizeController
+    = Get.put(FontSizeController());
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         ColorScheme? lightColorScheme;
@@ -145,12 +160,14 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.dark,
           );
         }
-        return GetMaterialApp(
+        return  GetMaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
           getPages: AppPages.getPages,
           theme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // textTheme: CustomTheme(Theme.of(context).textTheme).customFsTheme(fontSize: globalFs),
+            textTheme: fontSizeController!.getFontSize,
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.dark
                 ? darkColorScheme
@@ -158,6 +175,7 @@ class _MyAppState extends State<MyApp> {
           ),
           darkTheme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // textTheme: CustomTheme(Theme.of(context).textTheme).customFsTheme(fontSize: globalFs),
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.light
                 ? lightColorScheme
@@ -170,14 +188,18 @@ class _MyAppState extends State<MyApp> {
               return;
             }
           },
-          // here
           navigatorObservers: [FlutterSmartDialog.observer],
-          // here
-          builder: FlutterSmartDialog.init(
-            //default loading widget
-            loadingBuilder: (String msg) => CustomLoading(msg: msg),
-            toastBuilder: (String msg) => CustomToast(msg: msg),
-          ),
+          builder: (BuildContext context, Widget? child) {
+            return FlutterSmartDialog(
+                loadingBuilder: (String msg) => CustomLoading(msg: msg),
+                toastBuilder: (String msg) => CustomToast(msg: msg),
+                /// 设置文字大小不跟随系统更改
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                  child: child!,
+                )
+            );
+          },
         );
       },
     );

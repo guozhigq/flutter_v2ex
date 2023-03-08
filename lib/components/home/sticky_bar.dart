@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/models/tabs.dart';
 
 class HomeStickyBar extends StatelessWidget {
   const HomeStickyBar({super.key, required this.tabs});
-  final List<Map<dynamic, dynamic>> tabs;
+  final List<TabModel> tabs;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -18,7 +19,7 @@ class HomeStickyBar extends StatelessWidget {
               enableFeedback: true,
               splashBorderRadius: BorderRadius.circular(6),
               tabs: tabs.map((item) {
-                return Tab(text: item['name']);
+                return Tab(text: item.name);
               }).toList(),
             ),
           ),
