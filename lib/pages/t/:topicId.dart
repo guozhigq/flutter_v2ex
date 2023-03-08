@@ -209,10 +209,10 @@ class _TopicDetailState extends State<TopicDetail>
     }
 
     if (_scrollController.offset > 150 && !_visibleTitle) {
-        _visibleTitle = true;
+      _visibleTitle = true;
       titleStreamC.add(true);
     } else if (_scrollController.offset <= 150 && _visibleTitle) {
-        _visibleTitle = false;
+      _visibleTitle = false;
       titleStreamC.add(false);
     }
   }
@@ -259,7 +259,7 @@ class _TopicDetailState extends State<TopicDetail>
       },
     ).then((value) {
       // 回复成功取消回复取消选中状态
-      if (value != null){
+      if (value != null) {
         var list = _replyList;
         for (var item in _replyList) {
           item.isChoose = false;
@@ -267,13 +267,13 @@ class _TopicDetailState extends State<TopicDetail>
         setState(() {
           _replyList = list;
         });
-          eventBus.emit('topicReply', value['replyStatus']);
+        eventBus.emit('topicReply', value['replyStatus']);
       }
     });
   }
 
   // 查看楼中楼回复
-  void queryReplyList(replyMemberList, floorNumber, resultList) {
+  void queryReplyList(replyMemberList, floorNumber, resultList, totalPage) {
     // replyMemberList 被@的用户
     // resultList 当前楼层回复
     // [
@@ -317,10 +317,10 @@ class _TopicDetailState extends State<TopicDetail>
       multipleReplyList.add(replyListMap);
       replyMemberList = [resultList[0].userName];
     }
-    showfloorReply(multipleReplyList, replyMemberList);
+    showfloorReply(multipleReplyList, replyMemberList, totalPage);
   }
 
-  void showfloorReply(multipleReplyList, replyMemberList) {
+  void showfloorReply(multipleReplyList, replyMemberList, totalPage) {
     setState(() {
       floorReplyVisible = true;
     });
@@ -331,11 +331,11 @@ class _TopicDetailState extends State<TopicDetail>
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplySheet(
-          height: height,
-          replyMemberList: replyMemberList,
-          resultList: multipleReplyList,
-          topicId: _detailModel!.topicId,
-        );
+            height: height,
+            replyMemberList: replyMemberList,
+            resultList: multipleReplyList,
+            topicId: _detailModel!.topicId,
+            totalPage: totalPage);
       },
     ).then((value) {
       setState(() {
@@ -497,8 +497,7 @@ class _TopicDetailState extends State<TopicDetail>
                       return AnimatedOpacity(
                         opacity: snapshot.data ? 1 : 0,
                         duration: const Duration(milliseconds: 300),
-                        child:
-                        Text(
+                        child: Text(
                           _detailModel != null ? _detailModel!.topicTitle : '',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -643,9 +642,10 @@ class _TopicDetailState extends State<TopicDetail>
                         return AnimatedOpacity(
                           opacity: snapshot.data ? 1 : 0,
                           duration: const Duration(milliseconds: 300),
-                          child:
-                          Text(
-                            _detailModel != null ? _detailModel!.topicTitle : '',
+                          child: Text(
+                            _detailModel != null
+                                ? _detailModel!.topicTitle
+                                : '',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         );
@@ -937,13 +937,13 @@ class _TopicDetailState extends State<TopicDetail>
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               return ReplyListItem(
-                  reply: _replyList[index],
-                  topicId: _detailModel!.topicId,
-                  totalPage: _totalPage,
-                  key: UniqueKey(),
-                  queryReplyList: (replyMemberList, floorNumber, resultList) =>
-                      queryReplyList(replyMemberList, floorNumber, resultList),
-                  source: 'topic',
+                reply: _replyList[index],
+                topicId: _detailModel!.topicId,
+                totalPage: _totalPage,
+                key: UniqueKey(),
+                queryReplyList: (replyMemberList, floorNumber, resultList, totalPage) =>
+                    queryReplyList(replyMemberList, floorNumber, resultList, _totalPage),
+                source: 'topic',
                 replyList: _replyList,
               );
             },

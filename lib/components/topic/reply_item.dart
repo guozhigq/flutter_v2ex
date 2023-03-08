@@ -77,6 +77,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   String heroTag = Random().nextInt(999).toString();
   final GlobalKey repaintKey = GlobalKey();
   bool ignoreStatus = false; // 对当前主题的忽略状态 默认false
+  String? loginUserName;
 
   @override
   void initState() {
@@ -84,7 +85,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
     super.initState();
     // 无法忽略自己的回复
     var replyUserName = widget.reply.userName;
-    var loginUserName = '';
     if (GStorage().getUserInfo().isNotEmpty) {
       loginUserName = GStorage().getUserInfo()['userName'];
     }
@@ -96,6 +96,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
+    print('line 99: ${widget.totalPage}');
   }
 
   void menuAction(id) {
@@ -458,13 +459,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 reply.floorNumber != 1)
               TextButton(
                 onPressed: () => widget.queryReplyList(
-                    reply.replyMemberList, reply.floorNumber, [reply]),
+                    reply.replyMemberList, reply.floorNumber, [reply], widget.totalPage),
                 child: Text(
                   '查看回复',
                   style: textStyle,
                 ),
               ),
-            if (reply.userName != GStorage().getUserInfo()['userName'])
+            if (reply.userName != loginUserName)
               TextButton(
                 onPressed: thanksDialog,
                 child: Row(children: [
@@ -485,6 +486,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       : Text('感谢', style: textStyle),
                 ]),
               ),
+            if(reply.userName == loginUserName)
+              const SizedBox(height: 45),
             // TextButton(
             //   onPressed: replyComment,
             //   child: Row(children: [

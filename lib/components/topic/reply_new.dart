@@ -48,7 +48,6 @@ class _ReplyNewState extends State<ReplyNew> {
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
       }
-
       var res = await DioRequestWeb.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res == 'true') {
