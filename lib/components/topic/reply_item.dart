@@ -21,6 +21,7 @@ class ReplyListItem extends StatefulWidget {
     this.queryReplyList,
     this.totalPage,
     this.source,
+    this.replyList,
     Key? key,
   }) : super(key: key);
 
@@ -29,6 +30,7 @@ class ReplyListItem extends StatefulWidget {
   final queryReplyList;
   int? totalPage;
   String? source;
+  List? replyList;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -142,6 +144,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           replyMemberList: [reply],
           topicId: widget.topicId,
           totalPage: widget.totalPage,
+          replyList: widget.replyList,
         );
       },
     ).then((value) => {
@@ -362,6 +365,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 7),
           child: SelectionArea(
+            /// TODO SelectionArea ignore Inkwell onTap event
+            // https://github.com/flutter/flutter/issues/53797
             child: HtmlRender(
                 htmlContent: reply.contentRendered,
                 imgList: reply.imgList,

@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/components/topic/member_list.dart';
 
 class ReplyNew extends StatefulWidget {
   List? replyMemberList;
   final String topicId;
   int? totalPage;
+  List? replyList;
 
   ReplyNew({
     this.replyMemberList,
     required this.topicId,
     this.totalPage,
+    this.replyList,
     super.key,
   });
 
@@ -25,6 +28,8 @@ class _ReplyNewState extends State<ReplyNew> {
   final GlobalKey _formKey = GlobalKey<FormState>();
   late String _replyContent = '';
   final statusBarHeight = GStorage().getStatusBarHeight();
+  List atReplyList = []; // @用户列表
+  List atMemberList = []; // 选中的用户列表
 
   @override
   void initState() {
@@ -73,6 +78,53 @@ class _ReplyNewState extends State<ReplyNew> {
           },
         );
       }
+    }
+  }
+
+  void onShowMember() {
+    var atReplyList = List.from(widget.replyList!);
+    if(atReplyList.isNotEmpty){
+      for (var i = 0; i < atReplyList.length; i++) {
+        atReplyList[i].isChoose = false;
+      }
+      setState(() {
+        atReplyList = atReplyList;
+      });
+      showModalBottomSheet<Map>(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return ReplyMemberList(
+            replyList: atReplyList,
+          );
+        },
+      ).then((value) {
+        if(value != null){
+          // @单用户
+          setState(() {
+            atMemberList = value['atMemberList'];
+            String atUserName = atMemberList[0].userName;
+            int atFloor = atMemberList[0].floorNumber;
+            _replyContentController.text = '${_replyContentController.text}$atUserName #$atFloor ';
+          });
+        }else{
+          // @多用户 / 没有@用户
+         var atMemberList = atReplyList.where((i) => i.isChoose).toList();
+         setState(() {
+           atMemberList = atMemberList;
+         });
+         for(int i = 0; i < atMemberList.length; i++) {
+           String atUserName = '';
+           int atFloor = atMemberList[i].floorNumber;
+           if(i == 0){
+             atUserName  = atMemberList[i].userName;
+           }else{
+             atUserName  = '@${atMemberList[i].userName}';
+           }
+           _replyContentController.text = '${_replyContentController.text}$atUserName #$atFloor ';
+         }
+        }
+      });
     }
   }
 
@@ -190,6 +242,12 @@ class _ReplyNewState extends State<ReplyNew> {
                   style: Theme.of(context).textTheme.bodyLarge,
                   validator: (v) {
                     return v!.trim().isNotEmpty ? null : "请输入回复内容";
+                  },
+                  onChanged: (value) {
+                    if(value.endsWith('@')){
+                      print('TextFormField 唤起');
+                      onShowMember();
+                    }
                   },
                   onSaved: (val) {
                     _replyContent = val!;

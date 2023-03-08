@@ -1478,8 +1478,10 @@ class DioRequestWeb {
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
       // 获取最后一页最近一条
+      SmartDialog.showLoading(msg: '获取最新回复');
       var replyDetail = await getTopicDetail(topicId, totalPage + 1);
       var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.userName == GStorage().getUserInfo()['userName']);
+      SmartDialog.dismiss();
       GStorage().setReplyItem(lastReply);
       return 'true';
     } else if (response.statusCode == 200) {

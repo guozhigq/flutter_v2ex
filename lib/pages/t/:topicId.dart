@@ -254,6 +254,7 @@ class _TopicDetailState extends State<TopicDetail>
           replyMemberList: replyMemberList,
           topicId: _detailModel!.topicId,
           totalPage: _totalPage,
+          replyList: _replyList,
         );
       },
     ).then((value) {
@@ -942,7 +943,9 @@ class _TopicDetailState extends State<TopicDetail>
                   key: UniqueKey(),
                   queryReplyList: (replyMemberList, floorNumber, resultList) =>
                       queryReplyList(replyMemberList, floorNumber, resultList),
-                  source: 'topic');
+                  source: 'topic',
+                replyList: _replyList,
+              );
             },
             childCount: _replyList.length,
           ),
