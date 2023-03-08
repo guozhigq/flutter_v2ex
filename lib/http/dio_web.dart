@@ -2007,7 +2007,6 @@ class DioRequestWeb {
       'lastVersion': '',
       'downloadHref': '',
     };
-    String res = '';
     Response response = await Request().get('${Strings.remoteUrl}/releases', extra: {
       'ua': 'mob'
     });
@@ -2015,8 +2014,13 @@ class DioRequestWeb {
     var boxNodes = document!.querySelectorAll('div.col-md-9');
     if(boxNodes.isNotEmpty){
       var versionNode = boxNodes[0].querySelector("span[class='f1 text-bold d-inline mr-3'] > a");
+      // 远程版本
       var version = versionNode!.text;
-      res = version;
+      var needUpdate = Utils.needUpdate(Strings.currentVersion, version);
+      if(needUpdate) {
+        SmartDialog.showToast('有新版本咯 🎉');
+      }
+      updata['needUpdate'] = needUpdate;
       updata['lastVersion'] = version;
       updata['downloadHref'] = '${Strings.remoteUrl}/releases/download/$version/app-release.apk';
     }

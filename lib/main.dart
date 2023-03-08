@@ -121,6 +121,8 @@ class _MyAppState extends State<MyApp> {
     //     DioRequestWeb.queryDaily();
     //   });
     // }
+    // 检查更新
+    DioRequestWeb.checkUpdate();
   }
 
   @override

@@ -49,13 +49,28 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               SmartDialog.showLoading(msg: '正在检查更新');
               Map update = await DioRequestWeb.checkUpdate();
               SmartDialog.dismiss();
-              var needUpdate = Utils.needUpdate(Strings.currentVersion, update['lastVersion']);
-              if(needUpdate && context.mounted) {
+              if(update['needUpdate'] && context.mounted) {
                 showDialog<String>(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
                     title: const Text('提示'),
-                    content: Text('检测到有新版本 ${update['lastVersion']}，是否更新？'),
+                    // content: Text('发现新版本 ${update['lastVersion']}'),
+                    content: Text.rich(TextSpan(
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(letterSpacing: 1),
+                      children: [
+                        const TextSpan(text: '发现新版本 '),
+                        TextSpan(
+                          text: '${update['lastVersion']}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),),
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -64,7 +79,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                       TextButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          Utils.openURL(Strings.remoteUrl);
+                          Utils.openURL('${Strings.remoteUrl}/releases');
                         },
                         child: const Text('前往更新'),
                       ),
