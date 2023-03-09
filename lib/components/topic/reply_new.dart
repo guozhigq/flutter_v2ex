@@ -39,6 +39,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 200); // 设置延迟时间
   Timer? timer;
+  String myUserName = '';
 
   @override
   void initState() {
@@ -48,6 +49,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     // replyContentFocusNode.addListener(_onFocus);
     // 界面观察者 必须
     WidgetsBinding.instance.addObserver(this);
+    myUserName = GStorage().getUserInfo().isNotEmpty
+        ? GStorage().getUserInfo()['userName']
+        : '';
   }
 
   Future<dynamic> onSubmit() async {
@@ -119,17 +123,38 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         },
       ).then((value) {
         if (value != null) {
-          // @单用户
-          setState(() {
-            atMemberList = value['atMemberList'];
-            String atUserName = atMemberList[0].userName;
-            int atFloor = atMemberList[0].floorNumber;
-            _replyContentController.text =
-                '${_replyContentController.text}$atUserName #$atFloor ';
-          });
-          // 聚焦
-          FocusScope.of(context).requestFocus(replyContentFocusNode);
-        } else {
+          if(value.containsKey('checkStatus')){
+            // 全选 去重去本人 不显示楼层
+            List atMemberList = value['atMemberList'];
+            Set<String> set = {};  // 定义一个空集合
+            for(var i = 0; i < atMemberList.length; i++){
+              if(atMemberList[i].userName != myUserName){
+                set.add(atMemberList[i].userName);
+              }
+            }
+            List newAtMemberList = set.toList();
+            for (int i = 0; i < newAtMemberList.length; i++) {
+              String atUserName = '';
+              if (i == 0) {
+                atUserName = newAtMemberList[i];
+              } else {
+                atUserName = '@${newAtMemberList[i]}';
+              }
+              _replyContentController.text =
+              '${_replyContentController.text}$atUserName ';
+            }
+          }else{
+            // @单用户
+            setState(() {
+              atMemberList = value['atMemberList'];
+              String atUserName = atMemberList[0].userName;
+              int atFloor = atMemberList[0].floorNumber;
+              _replyContentController.text =
+              '${_replyContentController.text}$atUserName #$atFloor ';
+            });
+          }
+        }
+        if(value == null){
           // @多用户 / 没有@用户
           var atMemberList = atReplyList.where((i) => i.isChoose).toList();
           if (atMemberList.isNotEmpty) {
@@ -147,10 +172,10 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               _replyContentController.text =
                   '${_replyContentController.text}$atUserName #$atFloor ';
             }
-            // 聚焦
-            FocusScope.of(context).requestFocus(replyContentFocusNode);
           }
         }
+        // 聚焦
+        FocusScope.of(context).requestFocus(replyContentFocusNode);
       });
     });
   }
