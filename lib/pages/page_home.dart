@@ -18,25 +18,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   // 自定义、 缓存 、 api获取
   List<TabModel> tabs = GStorage()
       .getTabs()
       .where((item) => item.checked)
       .toList();
   String shortcut = 'no action set';
+  late TabController _tabController = TabController(vsync: this, length: tabs.length);
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     eventBus.on('editTabs', (args) {
-      setState(() {
-        tabs = GStorage()
-            .getTabs()
-            .where((item) => item.checked)
-            .toList();
-      });
+      _loadCustomTabs();
     });
     const QuickActions quickActions = QuickActions();
     quickActions.initialize((String shortcutType) {
@@ -81,6 +78,20 @@ class _HomePageState extends State<HomePage>
     });
   }
 
+  void _loadCustomTabs() {
+    var customTabs = GStorage()
+        .getTabs()
+        .where((item) => item.checked)
+        .toList();
+
+      setState(() {
+        tabs.clear();
+        tabs.addAll(customTabs);
+        _tabController = TabController(length: tabs.length, vsync: this);
+        /// DefaultTabController在build外无法重新build tabView
+        // DefaultTabController.of(context).animateTo(0);
+      });
+  }
   // 页面缓存
   @override
   bool get wantKeepAlive => true;
@@ -90,27 +101,49 @@ class _HomePageState extends State<HomePage>
     super.build(context);
     num height = MediaQuery.of(context).padding.top;
     GStorage().setStatusBarHeight(height);
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const HomeSearchBar(),
-        ),
-        drawer: const HomeLeftDrawer(),
-        body: Column(
-          children: <Widget>[
-            HomeStickyBar(tabs: tabs),
-            const SizedBox(height: 3),
-            Expanded(
-              child: TabBarView(
-                children: tabs.map((e) {
-                  return TabBarList(e);
-                }).toList(),
-              ),
-            )
-          ],
-        ),
+    /// DefaultTabController在build外无法重新build tabView
+    // return DefaultTabController(
+    //   length: tabs.length,
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       automaticallyImplyLeading: false,
+    //       title: const HomeSearchBar(),
+    //     ),
+    //     drawer: const HomeLeftDrawer(),
+    //     body: Column(
+    //       children: <Widget>[
+    //         HomeStickyBar(tabs: tabs),
+    //         const SizedBox(height: 3),
+    //         Expanded(
+    //           child: TabBarView(
+    //             children: tabs.map((e) {
+    //               return TabBarList(e);
+    //             }).toList(),
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   ),
+    // );
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const HomeSearchBar(),
+      ),
+      drawer: const HomeLeftDrawer(),
+      body: Column(
+        children: <Widget>[
+          HomeStickyBar(tabs: tabs, ctr: _tabController),
+          const SizedBox(height: 3),
+          Expanded(
+            child: TabBarView(
+                controller: _tabController,
+              children: tabs.map((e) {
+                return TabBarList(e);
+              }).toList(),
+            ),
+          )
+        ],
       ),
     );
   }
