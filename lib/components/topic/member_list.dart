@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
@@ -12,19 +14,53 @@ class ReplyMemberList extends StatefulWidget {
   State<ReplyMemberList> createState() => _ReplyMemberListState();
 }
 
-class _ReplyMemberListState extends State<ReplyMemberList> {
+class _ReplyMemberListState extends State<ReplyMemberList>
+    with TickerProviderStateMixin {
   final statusBarHeight = GStorage().getStatusBarHeight();
   final ScrollController _listScrollController = ScrollController();
+  int _currentIndex = 0;
+  bool checkStatus = false; // 是否全选
+  IconData iconData = Icons.done;
 
   // 滑动至顶部下拉关闭bottomSheet +2 降低灵敏度
   bool _handleScrollNotification(ScrollNotification notification) {
     if (notification is ScrollEndNotification &&
-        _listScrollController.offset + 2 <= _listScrollController.position.minScrollExtent &&
+        _listScrollController.offset + 2 <=
+            _listScrollController.position.minScrollExtent &&
         notification.metrics.extentBefore == 0) {
       Get.back();
       return true;
     }
     return false;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void _checkAll() {
+    Timer.periodic(const Duration(milliseconds: 20), (timer) {
+      if (_currentIndex >= widget.replyList!.length) {
+        return;
+      }
+      /// TODO 频繁 setState
+      setState(() {
+        widget.replyList![_currentIndex].isChoose = !checkStatus;
+        _currentIndex++;
+        if (_currentIndex >= widget.replyList!.length) {
+          checkStatus = !checkStatus;
+          _currentIndex = 0;
+          timer.cancel();
+          Navigator.pop(context, {
+            'atMemberList': widget.replyList,
+            'checkStatus': true
+          });
+        }
+        iconData = !checkStatus ? Icons.done : Icons.done_all;
+      });
+    });
   }
 
   @override
@@ -82,8 +118,7 @@ class _ReplyMemberListState extends State<ReplyMemberList> {
               }
             },
           ),
-      )
-        ,
+        ),
       ),
     );
   }
@@ -93,30 +128,37 @@ class _ReplyMemberListState extends State<ReplyMemberList> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text.rich(
-          TextSpan(
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium!
-                .copyWith(letterSpacing: 1),
-            children: [
-              const TextSpan(text: '选择要'),
               TextSpan(
-                text: '@',
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium!
-                    .copyWith(fontWeight: FontWeight.w900),
+                    .copyWith(letterSpacing: 1),
+                children: [
+                  const TextSpan(text: '选择要'),
+                  TextSpan(
+                    text: '@',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .copyWith(fontWeight: FontWeight.w900),
+                  ),
+                  const TextSpan(text: '的用户')
+                ],
               ),
-              const TextSpan(text: '的用户')
-            ],
-          ),
-        ),
+            ),
         IconButton(
-          tooltip: '确认并收起',
+          tooltip: '全部选中',
           onPressed: () {
-            Navigator.pop(context);
+            _checkAll();
           },
-          icon: const Icon(Icons.arrow_downward_rounded),
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(iconData,
+                key: ValueKey<IconData>(iconData),
+                size: 28.0,
+                color: Theme.of(context).colorScheme.primary),
+          ),
+          // icon: Icon(!checkStatus ? Icons.done : Icons.done_all, color: Theme.of(context).colorScheme.primary,),
           style: IconButton.styleFrom(
             padding: const EdgeInsets.all(9),
             // backgroundColor: Theme.of(context).colorScheme.background
