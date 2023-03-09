@@ -148,7 +148,7 @@ class _TopicDetailState extends State<TopicDetail>
       SmartDialog.showLoading(msg: '加载中ing');
     }
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
+    await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       if (_currentPage == 0) {
@@ -177,7 +177,7 @@ class _TopicDetailState extends State<TopicDetail>
     }
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage);
+    await DioRequestWeb.getTopicDetail(topicId, _currentPage);
     setState(() {
       if (_currentPage == _totalPage) {
         _replyList = topicDetailModel.replyList.reversed.toList();
@@ -284,7 +284,7 @@ class _TopicDetailState extends State<TopicDetail>
 
     // 获取之前楼层的所有回复
     List<ReplyItem> replyList =
-        _replyList.where((e) => e.floorNumber < floorNumber).toList();
+    _replyList.where((e) => e.floorNumber < floorNumber).toList();
     // 根据@的用户数 创建指定长度的列表
     List<Map> multipleReplyList = List.filled(replyMemberList.length, {});
     // 循环评论列表
@@ -348,7 +348,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future onIgnoreTopic() async {
     Future.delayed(
       const Duration(seconds: 0),
-      () => showDialog(
+          () => showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作提示'),
@@ -379,7 +379,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future onReportTopic() async {
     Future.delayed(
       const Duration(seconds: 0),
-      () => showDialog(
+          () => showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作提示'),
@@ -489,42 +489,43 @@ class _TopicDetailState extends State<TopicDetail>
         Scaffold(
           appBar: !expendAppBar
               ? AppBar(
-                  centerTitle: false,
-                  title: StreamBuilder(
-                    stream: titleStreamC.stream,
-                    initialData: false,
-                    builder: (context, AsyncSnapshot snapshot) {
-                      return AnimatedOpacity(
-                        opacity: snapshot.data ? 1 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Text(
-                          _detailModel != null ? _detailModel!.topicTitle : '',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      );
-                    },
+            centerTitle: false,
+            title: StreamBuilder(
+              stream: titleStreamC.stream,
+              initialData: false,
+              builder: (context, AsyncSnapshot snapshot) {
+                return AnimatedOpacity(
+                  opacity: snapshot.data ? 1 : 0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    _detailModel != null ? _detailModel!.topicTitle : '',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  actions: _detailModel != null ? appBarAction() : [],
-                )
+                );
+              },
+            ),
+            actions: _detailModel != null ? appBarAction() : [],
+          )
               : null,
           body: _detailModel != null
               ? Scrollbar(
-                  radius: const Radius.circular(10),
-                  controller: _scrollController,
-                  child: PullRefresh(
-                    key: _globalKey,
-                    onChildRefresh: getDetailInit,
-                    // 上拉
-                    onChildLoad: !reverseSort
-                        ? (_totalPage > 1 && _currentPage < _totalPage
-                            ? getDetail
-                            : null)
-                        : (_currentPage > 0 ? getDetailReverst : null),
-                    currentPage: _currentPage,
-                    totalPage: _totalPage,
-                    child: showRes(),
-                  ),
-                )
+            radius: const Radius.circular(10),
+            controller: _scrollController,
+            child: PullRefresh(
+              key: _globalKey,
+              onChildRefresh: getDetailInit,
+              // 上拉
+              onChildLoad: !reverseSort
+                  ? (_totalPage > 1 && _currentPage < _totalPage
+                  ? getDetail
+                  : null)
+                  : (_currentPage > 0 ? getDetailReverst : null),
+              currentPage: _currentPage,
+              totalPage: _totalPage,
+              child: showRes(),
+              ctr: _controller,
+            ),
+          )
               : showLoading(),
           bottomNavigationBar: StreamBuilder(
             stream: aStreamC.stream,
@@ -667,7 +668,7 @@ class _TopicDetailState extends State<TopicDetail>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               color:
-                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+              Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -713,9 +714,9 @@ class _TopicDetailState extends State<TopicDetail>
                               if (res != null && res['nodeDetail'].isNotEmpty) {
                                 setState(() {
                                   _detailModel!.nodeName =
-                                      res['nodeDetail']['nodeName'];
+                                  res['nodeDetail']['nodeName'];
                                   _detailModel!.nodeId =
-                                      res['nodeDetail']['nodeId'];
+                                  res['nodeDetail']['nodeId'];
                                 });
                               }
                             },
@@ -742,11 +743,11 @@ class _TopicDetailState extends State<TopicDetail>
                           margin: const EdgeInsets.only(right: 10),
                           child: GestureDetector(
                               onTap: () => Get.toNamed(
-                                      '/member/${_detailModel!.createdId}',
-                                      parameters: {
-                                        'memberAvatar': _detailModel!.avatar,
-                                        'heroTag': heroTag,
-                                      }),
+                                  '/member/${_detailModel!.createdId}',
+                                  parameters: {
+                                    'memberAvatar': _detailModel!.avatar,
+                                    'heroTag': heroTag,
+                                  }),
                               child: Hero(
                                 tag: _detailModel!.createdId + heroTag,
                                 child: CAvatar(
@@ -769,9 +770,9 @@ class _TopicDetailState extends State<TopicDetail>
                                     .textTheme
                                     .titleMedium!
                                     .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary),
                               ),
                             ] else ...[
                               Text(
@@ -785,13 +786,13 @@ class _TopicDetailState extends State<TopicDetail>
                               height: 15,
                               child: _detailModel != null
                                   ? Text(_detailModel!.createdTime,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .outline))
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall!
+                                      .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline))
                                   : null,
                             )
                           ],
@@ -921,10 +922,10 @@ class _TopicDetailState extends State<TopicDetail>
                         shape: StadiumBorder(
                           side: BorderSide(
                               color:
-                                  Theme.of(context).colorScheme.surfaceVariant),
+                              Theme.of(context).colorScheme.surfaceVariant),
                         ),
                         selectedColor:
-                            Theme.of(context).colorScheme.outlineVariant,
+                        Theme.of(context).colorScheme.outlineVariant,
                         selected: reverseSort,
                       ),
                     ]
@@ -935,7 +936,7 @@ class _TopicDetailState extends State<TopicDetail>
         // 回复列表
         SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) {
+                (context, index) {
               return ReplyListItem(
                 reply: _replyList[index],
                 topicId: _detailModel!.topicId,
@@ -981,7 +982,7 @@ class _TopicDetailState extends State<TopicDetail>
       list.add(
         Container(
           padding:
-              const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
+          const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
           // color: Theme.of(context).colorScheme.onInverseSurface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1021,7 +1022,7 @@ class _TopicDetailState extends State<TopicDetail>
       width: double.infinity,
       height: 100 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
+      EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
       child: Center(
         // child: TextField(),
         child: Text(
