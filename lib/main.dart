@@ -122,7 +122,7 @@ class _MyAppState extends State<MyApp> {
     //   });
     // }
     // 检查更新
-    DioRequestWeb.checkUpdate();
+    // DioRequestWeb.checkUpdate();
   }
 
   @override
