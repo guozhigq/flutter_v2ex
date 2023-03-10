@@ -96,7 +96,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
-    print('reply_item: ${widget.replyList}');
   }
 
   void menuAction(id) {
@@ -132,7 +131,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
   // 回复评论
   void replyComment() {
     var replyId = reply.replyId;
-    print('line 134: ${widget.replyList}');
     if (replyId == '') {
       // 刚回复的楼层没有回复replyId
       SmartDialog.showToast('无法回复最新评论');

@@ -8,6 +8,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/components/topic/member_list.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:extended_text_field/extended_text_field.dart';
+import 'package:flutter_v2ex/components/extended_text/selection_controls.dart';
+import 'package:flutter_v2ex/components/extended_text/text_span_builder.dart';
+
 
 class ReplyNew extends StatefulWidget {
   List? replyMemberList;
@@ -29,8 +33,11 @@ class ReplyNew extends StatefulWidget {
 
 class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   final TextEditingController _replyContentController = TextEditingController();
+  final MyTextSelectionControls _myExtendedMaterialTextSelectionControls =
+  MyTextSelectionControls();
+
   final GlobalKey _formKey = GlobalKey<FormState>();
-  late String _replyContent = '';
+  // late String _replyContent = '';
   final statusBarHeight = GStorage().getStatusBarHeight();
   List atReplyList = []; // @用户列表
   List atMemberList = []; // 选中的用户列表
@@ -57,11 +64,14 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   }
 
   Future<dynamic> onSubmit() async {
+    /// ExtendedTextField 不支持validator always true
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
 
+      String _replyContent = _replyContentController.text;
       String replyUser = '';
+      // 有且只有一个
       if (widget.replyMemberList!.isNotEmpty) {
         for (var i in widget.replyMemberList as List) {
           replyUser += '@${i.userName} #${i.floorNumber}  ';
@@ -180,6 +190,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             }
           }
         }
+        // 移动光标
+        _replyContentController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _replyContentController.text.length));
         // 聚焦
         FocusScope.of(context).requestFocus(replyContentFocusNode);
       });
@@ -345,7 +358,6 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           Align(
             alignment: FractionalOffset.topRight,
             child: TextButton(
-
               onPressed: ableClean ? onCleanInput : null,
               child: const Text('清空输入'),
             ),
@@ -369,7 +381,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: TextFormField(
+                child: ExtendedTextField(
+                  selectionControls: _myExtendedMaterialTextSelectionControls,
+                  specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: _replyContentController),
                   controller: _replyContentController,
                   minLines: 1,
                   maxLines: null,
@@ -378,17 +392,36 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   decoration: const InputDecoration(
                       hintText: "输入回复内容", border: InputBorder.none),
                   style: Theme.of(context).textTheme.bodyLarge,
-                  validator: (v) {
-                    return v!.trim().isNotEmpty ? null : "请输入回复内容";
-                  },
+                  // validator: (v) {
+                  //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
+                  // },
                   onChanged: (value) {
                     if (value.endsWith('@')) {
                       print('TextFormField 唤起');
                       onShowMember(context);
                     }
                   },
-                  onSaved: (val) {
-                    _replyContent = val!;
+                  // onSaved: (val) {
+                  //   _replyContent = val!;
+                  // },
+                  toolbarOptions: ToolbarOptions(copy: true, paste: true, ),
+                  textSelectionGestureDetectorBuilder: ({
+                    required ExtendedTextSelectionGestureDetectorBuilderDelegate
+                    delegate,
+                    required Function showToolbar,
+                    required Function hideToolbar,
+                    required Function? onTap,
+                    required BuildContext context,
+                    required Function? requestKeyboard,
+                  }) {
+                    return MyCommonTextSelectionGestureDetectorBuilder(
+                      delegate: delegate,
+                      showToolbar: showToolbar,
+                      hideToolbar: hideToolbar,
+                      onTap: () {},
+                      context: context,
+                      requestKeyboard: requestKeyboard,
+                    );
                   },
                 ),
               ),
@@ -396,7 +429,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           ),
           AnimatedSize(
             curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 30),
             child: SizedBox(
               width: double.infinity,
               height:
@@ -439,4 +472,36 @@ class Debouncer {
       callback();
     });
   }
+
+
+}
+
+class MyCommonTextSelectionGestureDetectorBuilder
+    extends CommonTextSelectionGestureDetectorBuilder {
+  MyCommonTextSelectionGestureDetectorBuilder(
+      {required ExtendedTextSelectionGestureDetectorBuilderDelegate delegate,
+        required Function showToolbar,
+        required Function hideToolbar,
+        required Function? onTap,
+        required BuildContext context,
+        required Function? requestKeyboard})
+      : super(
+    delegate: delegate,
+    showToolbar: showToolbar,
+    hideToolbar: hideToolbar,
+    onTap: onTap,
+    context: context,
+    requestKeyboard: requestKeyboard,
+  );
+
+  @override
+  void onTapDown(TapDownDetails details) {
+    super.onTapDown(details);
+
+    /// always show toolbar
+    shouldShowSelectionToolbar = true;
+  }
+
+  @override
+  bool get showToolbarInWeb => true;
 }
