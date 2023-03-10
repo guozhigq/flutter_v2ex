@@ -100,6 +100,10 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   }
 
   void onShowMember(context) {
+    if(widget.replyList == null){
+      print('reply_new: widget.replyList为null');
+      return;
+    }
     // Don't use 'BuildContext's across async gaps 防止异步函数丢失上下文，传入context
     var atReplyList = List.from(widget.replyList!);
     if (atReplyList.isEmpty) {
@@ -250,7 +254,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height - statusBarHeight - 10,
+      height: MediaQuery.of(context).size.height - statusBarHeight,
       padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(

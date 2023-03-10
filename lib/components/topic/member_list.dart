@@ -21,7 +21,7 @@ class _ReplyMemberListState extends State<ReplyMemberList>
   int _currentIndex = 0;
   bool checkStatus = false; // 是否全选
   IconData iconData = Icons.done;
-
+  String myUserName = '';
   // 滑动至顶部下拉关闭bottomSheet +2 降低灵敏度
   bool _handleScrollNotification(ScrollNotification notification) {
     if (notification is ScrollEndNotification &&
@@ -38,6 +38,10 @@ class _ReplyMemberListState extends State<ReplyMemberList>
   void initState() {
     // TODO: implement initState
     super.initState();
+    myUserName = GStorage().getUserInfo().isNotEmpty
+        ? GStorage().getUserInfo()['userName']
+        : '';
+    widget.replyList!.removeWhere((item) => item.userName == myUserName);
   }
 
   void _checkAll() {
@@ -67,7 +71,7 @@ class _ReplyMemberListState extends State<ReplyMemberList>
   Widget build(BuildContext context) {
     return Container(
       clipBehavior: Clip.hardEdge,
-      height: MediaQuery.of(context).size.height - statusBarHeight - 40,
+      height: MediaQuery.of(context).size.height - statusBarHeight - 85,
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
