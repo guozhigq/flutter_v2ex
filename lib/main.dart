@@ -163,6 +163,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
         return  GetMaterialApp(
+          title: 'VVEX',
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
           getPages: AppPages.getPages,
