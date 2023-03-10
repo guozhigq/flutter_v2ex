@@ -7,12 +7,15 @@ class ReplySheet extends StatefulWidget {
   String topicId = ''; // 主题id
   List replyMemberList = []; // user列表
   int? totalPage;
+  List? replyList;
+
   ReplySheet(
       {required this.height,
       required this.resultList,
       required this.topicId,
       required this.replyMemberList,
       this.totalPage,
+      this.replyList,
       Key? key})
       : super(key: key);
 
@@ -28,6 +31,7 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     print(widget.replyMemberList);
+    print('line34： ${widget.replyList}');
     _tabController =
         TabController(length: widget.replyMemberList.length, vsync: this);
   }
@@ -80,12 +84,12 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
                       widget.resultList[0][widget.replyMemberList[0]].length,
                   itemBuilder: (BuildContext context, int index) {
                     return ReplyListItem(
-                      reply: widget.resultList[0][widget.replyMemberList[0]]
-                          [index],
-                      topicId: widget.topicId,
-                      totalPage: widget.totalPage,
-                      source: 'sheet',
-                    );
+                        reply: widget.resultList[0][widget.replyMemberList[0]]
+                            [index],
+                        topicId: widget.topicId,
+                        totalPage: widget.totalPage,
+                        source: 'sheet',
+                        replyList: widget.replyList);
                   },
                 ),
               ),

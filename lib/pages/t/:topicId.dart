@@ -81,12 +81,12 @@ class _TopicDetailState extends State<TopicDetail>
   void initState() {
     super.initState();
 
-    setState(() {
+    // setState(() {
       topicId = Get.parameters['topicId']!;
       myUserName = GStorage().getUserInfo().isNotEmpty
           ? GStorage().getUserInfo()['userName']
           : '';
-    });
+    // });
 
     _controller = EasyRefreshController(
       controlFinishRefresh: true,
@@ -335,7 +335,9 @@ class _TopicDetailState extends State<TopicDetail>
             replyMemberList: replyMemberList,
             resultList: multipleReplyList,
             topicId: _detailModel!.topicId,
-            totalPage: totalPage);
+            totalPage: totalPage,
+            replyList: _replyList,
+        );
       },
     ).then((value) {
       setState(() {
