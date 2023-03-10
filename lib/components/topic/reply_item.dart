@@ -192,7 +192,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       setState(() {
                         ignoreStatus = true;
                       });
-                      Navigator.pop(context);
+                      if(context.mounted) {
+                        Navigator.pop(context);
+                      }
                     }
                   },
                   child: const Text('确定')),
@@ -344,7 +346,17 @@ class _ReplyListItemState extends State<ReplyListItem> {
                         ],
                         if (reply.platform == 'iPhone') ...[
                           const Icon(Icons.apple, size: 16),
-                        ]
+                        ],
+                        Text(' • ', style: TextStyle(color: Theme.of(context).colorScheme.outline),),
+                        Text(
+                          '${reply.floorNumber}L',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall!
+                              .copyWith(
+                              color:
+                              Theme.of(context).colorScheme.outline),
+                        ),
                       ],
                     )
                   ],
@@ -392,16 +404,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
       child: RepaintBoundary(
         key: repaintKey,
         child: Material(
-          color: reply.isChoose
-              ? Theme.of(context).colorScheme.onInverseSurface
-              : null,
           child: InkWell(
             onTap: replyComment,
-            // onLongPress: () {
-            //   setState(() {
-            //     reply.isChoose = !reply.isChoose;
-            //   });
-            // },
             onLongPress: () {},
             child: Ink(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
@@ -454,6 +458,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Row(
           children: [
             const SizedBox(width: 32),
+            TextButton(
+              onPressed: replyComment,
+              child: Row(children: [
+                Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
+                const SizedBox(width: 2),
+                Text('回复', style: textStyle),
+              ]),
+            ),
             if (reply.replyMemberList.isNotEmpty &&
                 widget.queryReplyList != null &&
                 reply.floorNumber != 1)
@@ -465,6 +477,28 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   style: textStyle,
                 ),
               ),
+            if(reply.userName == loginUserName)
+              const SizedBox(height: 45),
+            // TextButton(
+            //   onPressed: replyComment,
+            //   child: Row(children: [
+            //     Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
+            //     // const SizedBox(width: 2),
+            //     // Text('回复', style: textStyle),
+            //   ]),
+            // ),
+          ],
+        ),
+        Row(
+          children: [
+            // Text(
+            //   '${reply.floorNumber}楼',
+            //   style: Theme.of(context)
+            //       .textTheme
+            //       .labelSmall!
+            //       .copyWith(color: Theme.of(context).colorScheme.outline),
+            // ),
+            // const SizedBox(width: 14)
             if (reply.userName != loginUserName)
               TextButton(
                 onPressed: thanksDialog,
@@ -479,35 +513,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
                   const SizedBox(width: 2),
                   reply.favorites > 0
                       ? reply.favoritesStatus
-                          ? Text(reply.favorites.toString(),
-                              style: textStyle.copyWith(
-                                  color: Theme.of(context).colorScheme.primary))
-                          : Text(reply.favorites.toString(), style: textStyle)
+                      ? Text(reply.favorites.toString(),
+                      style: textStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primary))
+                      : Text(reply.favorites.toString(), style: textStyle)
                       : Text('感谢', style: textStyle),
                 ]),
               ),
-            if(reply.userName == loginUserName)
-              const SizedBox(height: 45),
-            // TextButton(
-            //   onPressed: replyComment,
-            //   child: Row(children: [
-            //     Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
-            //     const SizedBox(width: 2),
-            //     Text('回复', style: textStyle),
-            //   ]),
-            // ),
-          ],
-        ),
-        Row(
-          children: [
-            Text(
-              '${reply.floorNumber}楼',
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.outline),
-            ),
-            const SizedBox(width: 14)
           ],
         )
       ],
