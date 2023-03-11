@@ -2026,4 +2026,33 @@ class DioRequestWeb {
     }
     return updata;
   }
+
+  static Future<List<TabTopicItem>> getTopicsHistory() async {
+    var topics = <TabTopicItem>[];
+    var response;
+    try {
+      response = await Request().get(
+        '/',
+        cacheOptions:
+        buildCacheOptions(const Duration(minutes: 20), forceRefresh: false),
+        extra: {'ua': 'pc'},
+      );
+    } catch (err) {
+      throw(err);
+    }
+    var document = parse(response.data);
+    var historyDom = document.getElementById('my-recent-topics');
+    var topicNodes = historyDom!.querySelectorAll('div.cell:not(.flex-one-row)');
+    if(topicNodes.isNotEmpty){
+      for (var aNode in topicNodes) {
+        var item = TabTopicItem();
+        item.memberId = aNode.querySelector('img')!.attributes['alt']!;
+        item.avatar = aNode.querySelector('img')!.attributes['src']!;
+        item.topicId = aNode.querySelectorAll('a').last.attributes['href']!.replaceAll(RegExp(r'\D'), '');
+        item.topicTitle = aNode.querySelectorAll('a').last.text;
+        topics.add(item);
+      }
+    }
+    return topics;
+  }
 }
