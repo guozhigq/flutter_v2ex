@@ -114,71 +114,126 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(source == 'move'
+            ? '移动节点'
+            : source == 'nodes'
+            ? '全部节点'
+            : '选择节点'),
+      ),
         body: Stack(
       children: [
         CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: kToolbarHeight + 70,
-              title: Text(source == 'move'
-                  ? '移动节点'
-                  : source == 'nodes'
-                      ? '全部节点'
-                      : '选择节点'),
-              elevation: 1,
-              pinned: true,
-              floating: true,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Column(
-                  children: [
-                    const SizedBox(height: kToolbarHeight + 70),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(
-                          top: 0, right: 12, left: 12, bottom: 0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          padding: const EdgeInsets.only(
-                              top: 0, right: 0, left: 20, bottom: 0),
-                          child: Center(
-                            child: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '搜索节点',
-                                suffixIcon: controller.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: Icon(
-                                          Icons.clear,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .outline,
-                                        ),
-                                        onPressed: () {
-                                          controller.clear();
-                                          setState(() {
-                                            topicNodesList = tempNodesList;
-                                          });
-                                        })
-                                    : null,
+              automaticallyImplyLeading: false,
+              leading: null,
+              leadingWidth: 0,
+              onStretchTrigger: () {
+                print('123');
+                // setState(() {
+                //   _isAppBarFloating = !_isAppBarFloating ;
+                // });
+                return Future.value();
+              },
+              title: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                    top: 10, right: 5, left: 5, bottom: 20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    padding: const EdgeInsets.only(
+                        top: 0, right: 0, left: 20, bottom: 0),
+                    child: Center(
+                      child: TextField(
+                        controller: controller,
+                        autofocus: true,
+                        textInputAction: TextInputAction.search,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '搜索节点',
+                          suffixIcon: controller.text.isNotEmpty
+                              ? IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline,
                               ),
-                              onChanged: (String value) {
-                                search(value);
-                              },
-                            ),
-                          ),
+                              onPressed: () {
+                                controller.clear();
+                                setState(() {
+                                  topicNodesList = tempNodesList;
+                                });
+                              })
+                              : null,
                         ),
+                        onChanged: (String value) {
+                          search(value);
+                        },
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
+              elevation: 1,
+              pinned: false,
+              floating: true,
+              // flexibleSpace: FlexibleSpaceBar(
+              //   background: Column(
+              //     children: [
+              //       const SizedBox(height: kToolbarHeight),
+              //       Container(
+              //         width: double.infinity,
+              //         padding: const EdgeInsets.only(
+              //             top: 0, right: 12, left: 12, bottom: 0),
+              //         child: ClipRRect(
+              //           borderRadius: BorderRadius.circular(50),
+              //           child: Container(
+              //             width: double.infinity,
+              //             height: 50,
+              //             color: Theme.of(context).colorScheme.onInverseSurface,
+              //             padding: const EdgeInsets.only(
+              //                 top: 0, right: 0, left: 20, bottom: 0),
+              //             child: Center(
+              //               child: TextField(
+              //                 controller: controller,
+              //                 autofocus: true,
+              //                 textInputAction: TextInputAction.search,
+              //                 decoration: InputDecoration(
+              //                   border: InputBorder.none,
+              //                   hintText: '搜索节点',
+              //                   suffixIcon: controller.text.isNotEmpty
+              //                       ? IconButton(
+              //                           icon: Icon(
+              //                             Icons.clear,
+              //                             color: Theme.of(context)
+              //                                 .colorScheme
+              //                                 .outline,
+              //                           ),
+              //                           onPressed: () {
+              //                             controller.clear();
+              //                             setState(() {
+              //                               topicNodesList = tempNodesList;
+              //                             });
+              //                           })
+              //                       : null,
+              //                 ),
+              //                 onChanged: (String value) {
+              //                   search(value);
+              //                 },
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ),
             SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
