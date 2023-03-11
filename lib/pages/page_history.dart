@@ -24,7 +24,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<List<TabTopicItem>> getHistoryTopic() async {
-    var res = await DioRequestWeb.getTopicsRecent(1);
+    var res = await DioRequestWeb.getTopicsHistory();
     setState(() {
       topicList = res;
       _isLoading = false;
