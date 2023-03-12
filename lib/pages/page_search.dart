@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/components/search/menu.dart';
 
 
 class SearchPage extends StatefulWidget {
@@ -26,6 +27,12 @@ class _SearchPageState extends State<SearchPage> {
   bool _isBlock = false;
   String searchKeyWord = '';
   TextEditingController controller = TextEditingController();
+
+  String sortType = 'created';
+  int orderType = 0;
+  int startTime = 0;
+  int endTime = 0;
+
 
   @override
   void initState() {
@@ -52,32 +59,72 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<SoV2exRes> search() async {
     SoV2exRes res = SoV2exRes();
-    if(searchKeyWord.isEmpty || searchKeyWord == ''){
+    if (searchKeyWord.isEmpty || searchKeyWord == '') {
       setState(() {
         _isLoading = false;
         _isBlock = true;
       });
       return res;
     }
-    res = await SoV2ex.onSearch(searchKeyWord, _currentPage * pageCount, pageCount);
+    setState(() {
+      _isLoading = true;
+      _isBlock = false;
+    });
+    res = await SoV2ex.onSearch(
+        searchKeyWord,
+        _currentPage * pageCount,
+        pageCount,
+        sort: sortType,
+        order: orderType,
+        gte: startTime,
+        lte: endTime
+    );
+    print(res.hits);
     setState(() {
       if (res.total > 0) {
-        if(_currentPage == 0) {
+        if (_currentPage == 0) {
           hitsList = res.hits;
           _totalPage = (res.total / pageCount).ceil();
-        }else{
+        } else {
           hitsList!.addAll(res.hits);
         }
-      }else{
+      } else {
         // 无结果
+        hitsList = [];
         _isBlock = true;
       }
       _currentPage += 1;
       _isLoading = false;
-
-      print(_totalPage);
     });
     return res;
+  }
+
+  // 排序方式
+  void setSort(String sortTypeVal) {
+    setState(() {
+      sortType = sortTypeVal;
+    });
+  }
+
+  // 升降序
+  void setOrder(int orderTypeVal) {
+    setState(() {
+      orderType = orderTypeVal;
+    });
+  }
+
+  // 起始时间
+  void setStartTime(int startTimeVal) {
+    setState(() {
+      startTime = startTimeVal;
+    });
+  }
+
+  // 结束时间
+  void setEndTime(int endTimeVal) {
+    setState(() {
+      endTime = endTimeVal;
+    });
   }
 
   @override
@@ -91,31 +138,50 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  TextField(
-          controller: controller,
-          autofocus: true,
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            hintText: '搜索功能由soV2ex提供',
-            border: InputBorder.none,
-            suffixIcon: controller.text.isNotEmpty ?  IconButton(
-                icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.outline,),
-                onPressed: () {
-                  controller.clear();
+        elevation: 1,
+        title:
+            Hero(
+              tag: 'search',
+              child: TextField(
+                controller: controller,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: '搜索功能由soV2ex提供',
+                  border: InputBorder.none,
+                  suffixIcon: controller.text.isNotEmpty
+                      ? IconButton(
+                      icon: Icon(
+                        Icons.clear,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      onPressed: () {
+                        controller.clear();
+                        setState(() {
+                          hitsList = [];
+                        });
+                      })
+                      : null,
+                ),
+                onSubmitted: (String value) {
                   setState(() {
-                    hitsList = [];
+                    _currentPage = 0;
+                    searchKeyWord = value;
+                    _isLoading = true;
                   });
-                }
-            ): null,
+                  search();
+                },
+              ),
+            )
+        ,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50.0),
+          child: SearchMenu(
+              setSort: setSort,
+              setOrder: setOrder,
+              setStartTime: setStartTime,
+              setEndTime: setEndTime
           ),
-          onSubmitted: (String value) {
-            setState(() {
-              _currentPage = 0;
-              searchKeyWord = value;
-              _isLoading = true;
-            });
-            search();
-          },
         ),
       ),
       body: Stack(
@@ -126,7 +192,7 @@ class _SearchPageState extends State<SearchPage> {
             child: _isLoading
                 ? const TopicSkeleton()
                 : Container(
-                    margin: const EdgeInsets.only(right: 12, left: 12),
+                    // margin: const EdgeInsets.only(right: 12, left: 12),
                     child: hitsList!.isNotEmpty
                         ? PullRefresh(
                             totalPage: _totalPage,
@@ -137,8 +203,10 @@ class _SearchPageState extends State<SearchPage> {
                                     : null,
                             child: wrap(),
                           )
-                        : null
-                  ),
+                        : Center(
+                      child: Text('未找到内容', style: Theme.of(context).textTheme.titleMedium,),
+                    )
+            ),
           ),
           Positioned(
             right: 20,
@@ -174,7 +242,7 @@ class _SearchPageState extends State<SearchPage> {
           delegate: SliverChildBuilderDelegate((context, index) {
             return Container(
               margin:
-                  const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
+                  const EdgeInsets.only(top: 0, right: 12, bottom: 7, left: 12),
               child: Material(
                 color: Theme.of(context).colorScheme.onInverseSurface,
                 borderRadius: BorderRadius.circular(10),
@@ -216,16 +284,16 @@ class _SearchPageState extends State<SearchPage> {
                 .copyWith(height: 1.6, fontWeight: FontWeight.w500),
           ),
         ),
-        if(source.content != null && source.content.isNotEmpty)
-        Container(
-          alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 0, bottom: 12),
-          height: 20,
-          // child: HtmlRender(
-          //     htmlContent: source.content
-          // ),
-          child: Text(source.content),
-        ),
+        if (source.content != null && source.content.isNotEmpty)
+          Container(
+            alignment: Alignment.centerLeft,
+            margin: const EdgeInsets.only(top: 0, bottom: 12),
+            height: 20,
+            // child: HtmlRender(
+            //     htmlContent: source.content
+            // ),
+            child: Text(source.content),
+          ),
         // 头像、昵称
         Row(
           // 两端对齐
@@ -239,7 +307,11 @@ class _SearchPageState extends State<SearchPage> {
                   children: <Widget>[
                     Row(
                       children: [
-                        Icon(Icons.person, size: 15, color: Theme.of(context).colorScheme.outline,),
+                        Icon(
+                          Icons.person,
+                          size: 15,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                         const SizedBox(width: 4),
                         SizedBox(
                           width: 150,
@@ -258,46 +330,45 @@ class _SearchPageState extends State<SearchPage> {
                     const SizedBox(height: 1.5),
                     Row(
                       children: [
-
-                          Text(
-                            source.created,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                          ),
+                        Text(
+                          source.created,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall!
+                              .copyWith(
+                                  color: Theme.of(context).colorScheme.outline),
+                        ),
                       ],
                     )
                   ],
                 )
               ],
             ),
-            if(source.replies > 0)
-            Material(
-              borderRadius: BorderRadius.circular(50),
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: InkWell(
+            if (source.replies > 0)
+              Material(
                 borderRadius: BorderRadius.circular(50),
-                child: Ink(
-                  padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        source.replies.toString(),
-                        style: const TextStyle(
-                          fontSize: 11.0,
-                          textBaseline: TextBaseline.ideographic,
-                        ),
-                      )
-                    ],
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Ink(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 3.5, horizontal: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          source.replies.toString(),
+                          style: const TextStyle(
+                            fontSize: 11.0,
+                            textBaseline: TextBaseline.ideographic,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            )
+              )
           ],
         ),
       ],

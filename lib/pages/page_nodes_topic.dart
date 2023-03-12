@@ -129,13 +129,6 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
               automaticallyImplyLeading: false,
               leading: null,
               leadingWidth: 0,
-              onStretchTrigger: () {
-                print('123');
-                // setState(() {
-                //   _isAppBarFloating = !_isAppBarFloating ;
-                // });
-                return Future.value();
-              },
               title: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
@@ -151,7 +144,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                     child: Center(
                       child: TextField(
                         controller: controller,
-                        autofocus: true,
+                        autofocus: false,
                         textInputAction: TextInputAction.search,
                         decoration: InputDecoration(
                           border: InputBorder.none,
