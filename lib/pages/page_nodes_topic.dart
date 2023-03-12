@@ -129,8 +129,10 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
               automaticallyImplyLeading: false,
               leading: null,
               leadingWidth: 0,
+              expandedHeight: 70,
               title: Container(
                 width: double.infinity,
+                margin: const EdgeInsets.only(top: 15),
                 padding: const EdgeInsets.only(
                     top: 10, right: 5, left: 5, bottom: 20),
                 child: ClipRRect(
