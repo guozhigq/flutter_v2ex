@@ -24,7 +24,8 @@ enum StoreKeys {
   globalFs,
   htmlFs,
   replyFs,
-  tabs
+  tabs,
+  autoUpdate
 }
 
 class GStorage {
@@ -160,4 +161,9 @@ class GStorage {
     }
     return list;
   }
+
+  // 自动更新
+  setAutoUpdate(bool value) => _box.write(StoreKeys.autoUpdate.toString(), value);
+
+  bool getAutoUpdate() => _box.read<bool>(StoreKeys.autoUpdate.toString()) ?? true;
 }

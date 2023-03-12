@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -13,6 +14,8 @@ class HelpPage extends StatefulWidget {
 }
 
 class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
+  bool autoUpdate = GStorage().getAutoUpdate();
+
   @override
   Widget build(BuildContext context) {
     TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
@@ -23,6 +26,36 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
       ),
       body: ListView(
         children: [
+          ListTile(
+            onTap: () {
+              setState(() {
+                autoUpdate = !autoUpdate;
+                GStorage().setAutoSign(autoUpdate);
+              });
+            },
+            leading: Icon(Icons.update, color: iconStyle),
+            title: const Text('自动检查更新'),
+            subtitle: Text('打开app时检查更新', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                          (Set<MaterialState> states) {
+                        if (states.isNotEmpty &&
+                            states.first == MaterialState.selected) {
+                          return const Icon(Icons.done);
+                        }
+                        return null; // All other states will use the default thumbIcon.
+                      }),
+                  value: autoUpdate,
+                  onChanged: (value) {
+                    setState(() {
+                      autoUpdate = !autoUpdate;
+                      GStorage().setAutoUpdate(autoUpdate);
+                    });
+                  }),
+            ),
+          ),
           ListTile(
             onTap: () =>
                 Utils.openURL(Strings.remoteUrl),
@@ -49,44 +82,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               SmartDialog.showLoading(msg: '正在检查更新');
               Map update = await DioRequestWeb.checkUpdate();
               SmartDialog.dismiss();
-              if(update['needUpdate'] && context.mounted) {
-                showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('提示'),
-                    // content: Text('发现新版本 ${update['lastVersion']}'),
-                    content: Text.rich(TextSpan(
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(letterSpacing: 1),
-                      children: [
-                        const TextSpan(text: '发现新版本 '),
-                        TextSpan(
-                          text: '${update['lastVersion']}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('稍后'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          Utils.openURL('${Strings.remoteUrl}/releases');
-                        },
-                        child: const Text('前往更新'),
-                      ),
-                    ],
-                  ),
-                );
-              }else {
+              if(!update['needUpdate'] && context.mounted) {
                 SmartDialog.showToast('已经是最新版了 😊');
               }
             },

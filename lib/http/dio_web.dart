@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_v2ex/models/version.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -2007,23 +2008,52 @@ class DioRequestWeb {
       'lastVersion': '',
       'downloadHref': '',
     };
-    Response response = await Request().get('${Strings.remoteUrl}/releases', extra: {
-      'ua': 'mob'
-    });
-    var document = parse(response.data).body;
-    var boxNodes = document!.querySelectorAll('div.col-md-9');
-    if(boxNodes.isNotEmpty){
-      var versionNode = boxNodes[0].querySelector("span[class='f1 text-bold d-inline mr-3'] > a");
-      // 远程版本
-      var version = versionNode!.text;
+    Response response = await Request().get('https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
+    var versionDetail = VersionModel.fromJson(response.data);
+    print(versionDetail.tag_name);
+    // 版本号
+    var version = versionDetail.tag_name;
+    var updateLog = versionDetail.body;
+    List<String> updateLogList = updateLog.split('\r\n');
       var needUpdate = Utils.needUpdate(Strings.currentVersion, version);
       if(needUpdate) {
-        SmartDialog.showToast('有新版本咯 🎉');
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('🎉 发现新版本 '),
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(version, style: const TextStyle(
+                    fontSize: 20
+                  ),),
+                 const SizedBox(height: 8),
+                 for(var i in updateLogList) ... [
+                   Text(i)
+                 ]
+                ],
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => SmartDialog.dismiss(),
+                    child: const Text('取消')),
+                TextButton(
+                  // TODO
+                    onPressed: ()
+                    {
+                      SmartDialog.dismiss();
+                      Utils.openURL('${Strings.remoteUrl}/releases');
+                    },
+                    child: const Text('去更新'))
+              ],
+            );
+          },
+        );
       }
-      updata['needUpdate'] = needUpdate;
-      updata['lastVersion'] = version;
-      updata['downloadHref'] = '${Strings.remoteUrl}/releases/download/$version/app-release.apk';
-    }
     return updata;
   }
 

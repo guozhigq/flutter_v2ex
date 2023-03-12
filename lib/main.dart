@@ -122,7 +122,9 @@ class _MyAppState extends State<MyApp> {
     //   });
     // }
     // 检查更新
-    // DioRequestWeb.checkUpdate();
+    if(GStorage().getAutoUpdate()){
+      DioRequestWeb.checkUpdate();
+    }
   }
 
   @override
