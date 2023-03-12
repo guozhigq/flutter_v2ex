@@ -66,10 +66,12 @@ class _SearchPageState extends State<SearchPage> {
       });
       return res;
     }
-    setState(() {
-      _isLoading = true;
-      _isBlock = false;
-    });
+    if(_currentPage == 0) {
+      setState(() {
+        _isLoading = true;
+        _isBlock = false;
+      });
+    }
     res = await SoV2ex.onSearch(
         searchKeyWord,
         _currentPage * pageCount,
@@ -79,7 +81,6 @@ class _SearchPageState extends State<SearchPage> {
         gte: startTime,
         lte: endTime
     );
-    print(res.hits);
     setState(() {
       if (res.total > 0) {
         if (_currentPage == 0) {
@@ -88,7 +89,7 @@ class _SearchPageState extends State<SearchPage> {
         } else {
           hitsList!.addAll(res.hits);
         }
-      } else {
+      } else if(res.total == 0) {
         // 无结果
         hitsList = [];
         _isBlock = true;
@@ -103,28 +104,36 @@ class _SearchPageState extends State<SearchPage> {
   void setSort(String sortTypeVal) {
     setState(() {
       sortType = sortTypeVal;
+      _currentPage = 0;
     });
+    search();
   }
 
   // 升降序
   void setOrder(int orderTypeVal) {
     setState(() {
       orderType = orderTypeVal;
+      _currentPage = 0;
     });
+    search();
   }
 
   // 起始时间
   void setStartTime(int startTimeVal) {
     setState(() {
       startTime = startTimeVal;
+      _currentPage = 0;
     });
+    search();
   }
 
   // 结束时间
   void setEndTime(int endTimeVal) {
     setState(() {
       endTime = endTimeVal;
+      _currentPage = 0;
     });
+    search();
   }
 
   @override
@@ -139,10 +148,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
-        title:
-            Hero(
-              tag: 'search',
-              child: TextField(
+        title:TextField(
                 controller: controller,
                 autofocus: true,
                 textInputAction: TextInputAction.search,
@@ -172,8 +178,6 @@ class _SearchPageState extends State<SearchPage> {
                   search();
                 },
               ),
-            )
-        ,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50.0),
           child: SearchMenu(

@@ -21,17 +21,16 @@ class SoV2ex {
     };
     if(gte!= 0){
       data['gte'] = gte;
+      data['lte'] = DateTime.now().millisecondsSinceEpoch~/1000;
     }
     if(lte!= 0){
       data['lte'] = lte;
     }
-    print(data);
     response = await Request().get(
       'https://www.sov2ex.com/api/search',
       data: data,
       options: options,
     );
-    print(response.data);
     return SoV2exRes.fromMap(response.data);
   }
 }
