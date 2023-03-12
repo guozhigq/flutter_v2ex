@@ -2007,6 +2007,7 @@ class DioRequestWeb {
     Map updata = {
       'lastVersion': '',
       'downloadHref': '',
+      'needUpdate': false,
     };
     Response response = await Request().get('https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
     var versionDetail = VersionModel.fromJson(response.data);
@@ -2053,6 +2054,9 @@ class DioRequestWeb {
             );
           },
         );
+      }
+      else{
+        updata[needUpdate] = true;
       }
     return updata;
   }
