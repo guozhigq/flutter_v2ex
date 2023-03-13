@@ -256,7 +256,7 @@ class _MemberPageState extends State<MemberPage> {
                             Hero(
                               tag: heroTag,
                               child: CAvatar(
-                                url: memberAvatar,
+                                url: memberProfile.mbAvatar,
                                 size: 80,
                                 quality: 'origin',
                               ),
@@ -466,11 +466,13 @@ class _MemberPageState extends State<MemberPage> {
                 Image.asset('assets/images/social/${i.type}.png',
                     width: 25, height: 25),
                 const SizedBox(width: 2),
-                Text(
+                Flexible(child: Text(
                   i.name,
+                  maxLines: 1,
                   style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
-                ),
+                  TextStyle(color: Theme.of(context).colorScheme.primary),
+                ),)
+                ,
               ],
             ),
           ),

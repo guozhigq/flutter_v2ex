@@ -335,17 +335,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
                                     color:
                                         Theme.of(context).colorScheme.outline),
                           ),
-                          const SizedBox(width: 2),
+                          // const SizedBox(width: 2),
                         ],
-                        if (reply.platform == 'Android') ...[
-                          const Icon(
-                            Icons.android,
-                            size: 14,
-                          ),
-                        ],
-                        if (reply.platform == 'iPhone') ...[
-                          const Icon(Icons.apple, size: 16),
-                        ],
+                        // if (reply.platform == 'Android') ...[
+                        //   const Icon(
+                        //     Icons.android,
+                        //     size: 14,
+                        //   ),
+                        //
+                        // ],
+                        // if (reply.platform == 'iPhone') ...[
+                        //   const Icon(Icons.apple, size: 16),
+                        // ],
                         Text(' • ', style: TextStyle(color: Theme.of(context).colorScheme.outline),),
                         Text(
                           '${reply.floorNumber}L',
@@ -354,7 +355,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                               .labelSmall!
                               .copyWith(
                               color:
-                              Theme.of(context).colorScheme.outline),
+                              Theme.of(context).colorScheme.onBackground),
                         ),
                       ],
                     )
