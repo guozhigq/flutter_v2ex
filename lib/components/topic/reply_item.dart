@@ -245,10 +245,16 @@ class _ReplyListItemState extends State<ReplyListItem> {
       child: SizedBox(
         height: ignoreStatus ? 0 : null,
         child: widget.source == 'topic'
-            ? replyItemTopic(
-                context,
-                content(context),
-              )
+            ? Column(
+          children: [
+            replyItemTopic(
+              context,
+              content(context),
+            ),
+            Divider(indent: 50, height: 0.3, color: Theme.of(context).colorScheme.onInverseSurface,)
+          ],
+        )
+
             : replyItemSheet(
                 context,
                 content(context),
@@ -392,29 +398,23 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget replyItemTopic(context, child) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-            width: 1.0,
-          ),
-        ),
-      ),
-      child: RepaintBoundary(
+    return
+      RepaintBoundary(
         key: repaintKey,
         child: Material(
           child: InkWell(
-            onTap: replyComment,
+            onTap: () async{
+              /// 增加200毫秒延迟 水波纹动画
+              await Future.delayed(const Duration(milliseconds: 200));
+              replyComment();
+            },
             onLongPress: () {},
             child: Ink(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
               child: child,
             ),
           ),
         ),
-      ),
-      // ),
     );
   }
 
@@ -432,7 +432,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
               ? Theme.of(context).colorScheme.onInverseSurface
               : null,
           child: InkWell(
-            onTap: replyComment,
+            onTap: () async{
+              /// 增加200毫秒延迟 水波纹动画
+              await Future.delayed(const Duration(milliseconds: 200));
+              replyComment();
+            },
             onLongPress: () {},
             borderRadius: BorderRadius.circular(20),
             child: Ink(
