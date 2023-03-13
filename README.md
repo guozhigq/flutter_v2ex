@@ -17,10 +17,10 @@
     <p>适配了<a target="_blank" href="https://m3.material.io/">Material You</a> 样式</p>
     <br/>
     <br/>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="500"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="500"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="500"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="500"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="49%"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="49%"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="49%"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="49%"></img>
 </div>
 <br/>
 
