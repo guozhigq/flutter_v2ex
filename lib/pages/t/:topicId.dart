@@ -68,7 +68,6 @@ class _TopicDetailState extends State<TopicDetail>
   SampleItem? selectedMenu;
   String platform = '';
 
-
   bool expendAppBar = GStorage().getExpendAppBar(); // 伸缩appBar
 
   late AnimationController animationController;
@@ -160,9 +159,10 @@ class _TopicDetailState extends State<TopicDetail>
       _currentPage += 1;
     });
 
-    if(pinScrollHeight == null ) {
+    if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final pinBox = listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+        final pinBox =
+            listGlobalKey.currentContext?.findRenderObject() as RenderBox;
         final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
         setState(() {
           pinScrollHeight = pinPosition;
@@ -198,8 +198,10 @@ class _TopicDetailState extends State<TopicDetail>
       _currentPage -= 1;
       print('---_totalPage---:$_totalPage');
     });
-    if(type == 'init'){
-      _scrollController.animateTo(pinScrollHeight!, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    if (type == 'init') {
+      _scrollController.animateTo(pinScrollHeight!,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut);
     }
     SmartDialog.dismiss();
   }
@@ -739,23 +741,21 @@ class _TopicDetailState extends State<TopicDetail>
           ),
         SliverToBoxAdapter(
           child: TopicMain(
-            detailModel: _detailModel,
-            topicDetail: topicDetail,
-              heroTag: heroTag
-          ),
+              detailModel: _detailModel,
+              topicDetail: topicDetail,
+              heroTag: heroTag),
         ),
         if (_detailModel != null) ...[
           if (_replyList.isNotEmpty) ...[
             const SliverToBoxAdapter(
-              child: SizedBox(height: 10),
+              child: SizedBox(height: 20),
             ),
             SliverPersistentHeader(
               delegate: _MySliverPersistentHeaderDelegate(
                 child: Container(
                   key: listGlobalKey,
-                  height: 60,
-                  padding: const EdgeInsets.only(
-                      left: 15, right: 12),
+                  height: 55,
+                  padding: const EdgeInsets.only(left: 15, right: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -884,8 +884,8 @@ class _TopicDetailState extends State<TopicDetail>
 }
 
 class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _minExtent = 60;
-  final double _maxExtent = 60;
+  final double _minExtent = 55;
+  final double _maxExtent = 55;
   final Widget child;
 
   _MySliverPersistentHeaderDelegate({required this.child});
@@ -899,14 +899,16 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.background,
-        boxShadow: overlapsContent ?  [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            spreadRadius: 2,
-            blurRadius: 20,
-            offset: const Offset(0, 3),
-          ),
-        ] : null,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 20,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: child,
     );
