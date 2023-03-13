@@ -29,6 +29,7 @@ class Strings {
   ];
   static List<TabModel> tabs = [
     TabModel('最近', 'recent', 'recent', true),
+    TabModel('最新', 'changes', 'changes', true),
     TabModel('全部', 'all', 'tab', true),
     TabModel('最热', 'hot', 'tab', true),
     TabModel('技术', 'tech', 'tab', true),

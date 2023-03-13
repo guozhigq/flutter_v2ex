@@ -72,7 +72,9 @@ class DioRequestWeb {
         );
         break;
       case 'recent':
-        return await getTopicsRecent(p).then((value) => value);
+        return await getTopicsRecent('recent', p).then((value) => value);
+      case 'changes':
+        return await getTopicsRecent('changes', p).then((value) => value);
       case 'go':
         return await getTopicsByNodeId(id, p).then((value) => value.topicList);
       default:
@@ -140,12 +142,12 @@ class DioRequestWeb {
   }
 
   // 获取最新的主题
-  static Future<List<TabTopicItem>> getTopicsRecent(int p) async {
+  static Future<List<TabTopicItem>> getTopicsRecent(String path, int p) async {
     var topics = <TabTopicItem>[];
     var response;
     try {
       response = await Request().get(
-        '/recent',
+        '/$path',
         data: {'p': p},
         extra: {'ua': 'pc'},
       );
@@ -158,10 +160,12 @@ class DioRequestWeb {
         var item = TabTopicItem();
         item.memberId =
             aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
-        item.avatar = Uri.encodeFull(aNode
-            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-            ?.first
-            .attributes["src"]);
+        if(aNode.xpath("/table/tr/td[1]/a[1]/img") != null && aNode.xpath("/table/tr/td[1]/a[1]/img")!.isNotEmpty){
+          item.avatar = Uri.encodeFull(aNode
+              .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
+              ?.first
+              .attributes["src"]);
+        }
         String topicUrl = aNode
             .xpath("/table/tr/td[3]/span[1]/a")
             ?.first
