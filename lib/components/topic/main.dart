@@ -5,17 +5,17 @@ import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
-import 'package:flutter_v2ex/components/common/skeleton_topic_detail.dart';
+import 'package:flutter_v2ex/components/topic/skeleton_main.dart';
 
 class TopicMain extends StatelessWidget {
   var detailModel;
   var topicDetail;
-
-  TopicMain({this.detailModel, this.topicDetail, Key? key}) : super(key: key);
+  String? heroTag;
+  TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String heroTag = Random().nextInt(999).toString();
+    heroTag = heroTag ?? Random().nextInt(999).toString();
     TextStyle titleStyle = Theme.of(context)
         .textTheme
         .titleLarge!
@@ -61,11 +61,11 @@ class TopicMain extends StatelessWidget {
                           ? Get.toNamed('/member/${detailModel!.createdId}',
                               parameters: {
                                   'memberAvatar': detailModel!.avatar,
-                                  'heroTag': heroTag,
+                                  'heroTag': heroTag!,
                                 })
                           : null,
                       child: Hero(
-                        tag: heroTag,
+                        tag: heroTag!,
                         child: CAvatar(
                           url: topicDetail != null
                               ? topicDetail!.avatar

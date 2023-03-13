@@ -50,7 +50,7 @@ class _ListItemState extends State<ListItem>
           onTap: () async {
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
-            var arguments = <String, TabTopicItem>{"topic": widget.topic};
+            var arguments = <String, dynamic>{"topic": widget.topic, "heroTag": '${widget.topic.topicId}${widget.topic.memberId}'};
             Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
           },
           borderRadius: BorderRadius.circular(10),
@@ -65,7 +65,6 @@ class _ListItemState extends State<ListItem>
 
   Widget content() {
     final herotag = widget.topic.memberId + Random().nextInt(999).toString();
-    // final herotag = UniqueKey();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -98,10 +97,10 @@ class _ListItemState extends State<ListItem>
                   onTap: () => Get.toNamed('/member/${widget.topic.memberId}',
                       parameters: {
                         'memberAvatar': widget.topic.avatar,
-                        'heroTag': herotag,
+                        'heroTag': '${widget.topic.topicId}${widget.topic.memberId}',
                       }),
                   child: Hero(
-                    tag: herotag,
+                    tag: '${widget.topic.topicId}${widget.topic.memberId}',
                     child: CAvatar(
                       url: widget.topic.avatar,
                       size: 30,
