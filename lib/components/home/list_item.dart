@@ -47,7 +47,7 @@ class _ListItemState extends State<ListItem>
         color: Theme.of(context).colorScheme.onInverseSurface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: () async{
+          onTap: () async {
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
             var arguments = <String, TabTopicItem>{"topic": widget.topic};
@@ -70,18 +70,21 @@ class _ListItemState extends State<ListItem>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // title
-        Container(
-          alignment: Alignment.centerLeft,
-          margin: const EdgeInsets.only(top: 0, bottom: 12),
-          child: Text(
-            Characters(widget.topic.topicTitle).join('\u{200B}'),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall!
-                .copyWith(height: 1.6, fontWeight: FontWeight.w500),
-          ),
+        Hero(
+            tag: widget.topic.topicId,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              margin: const EdgeInsets.only(top: 0, bottom: 12),
+              child: Text(
+                Characters(widget.topic.topicTitle).join('\u{200B}'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall!
+                    .copyWith(height: 1.6, fontWeight: FontWeight.w500),
+              ),
+            )
         ),
         // 头像、昵称
         Row(

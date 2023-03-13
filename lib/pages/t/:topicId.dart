@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter_v2ex/components/topic/main.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -38,6 +39,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
+  var topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -82,10 +84,13 @@ class _TopicDetailState extends State<TopicDetail>
     super.initState();
 
     // setState(() {
-      topicId = Get.parameters['topicId']!;
-      myUserName = GStorage().getUserInfo().isNotEmpty
-          ? GStorage().getUserInfo()['userName']
-          : '';
+    topicId = Get.parameters['topicId']!;
+    if(Get.arguments != null){
+      topicDetail = Get.arguments['topic'];
+    }
+    myUserName = GStorage().getUserInfo().isNotEmpty
+        ? GStorage().getUserInfo()['userName']
+        : '';
     // });
 
     _controller = EasyRefreshController(
@@ -115,8 +120,6 @@ class _TopicDetailState extends State<TopicDetail>
         setState(() {
           _replyList.add(item);
         });
-        // print('118: item: ${item.content}');
-        // print('118 topic: ${_replyList.length}');
       }
     });
 
@@ -148,7 +151,7 @@ class _TopicDetailState extends State<TopicDetail>
       SmartDialog.showLoading(msg: '加载中ing');
     }
     TopicDetailModel topicDetailModel =
-    await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
+        await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       if (_currentPage == 0) {
@@ -177,7 +180,7 @@ class _TopicDetailState extends State<TopicDetail>
     }
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
-    await DioRequestWeb.getTopicDetail(topicId, _currentPage);
+        await DioRequestWeb.getTopicDetail(topicId, _currentPage);
     setState(() {
       if (_currentPage == _totalPage) {
         _replyList = topicDetailModel.replyList.reversed.toList();
@@ -193,7 +196,6 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
-    print('12');
     await _scrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     _controller.callRefresh();
@@ -208,10 +210,10 @@ class _TopicDetailState extends State<TopicDetail>
       _hide();
     }
 
-    if (_scrollController.offset > 150 && !_visibleTitle) {
+    if (_scrollController.offset > 100 && !_visibleTitle) {
       _visibleTitle = true;
       titleStreamC.add(true);
-    } else if (_scrollController.offset <= 150 && _visibleTitle) {
+    } else if (_scrollController.offset <= 100 && _visibleTitle) {
       _visibleTitle = false;
       titleStreamC.add(false);
     }
@@ -223,8 +225,6 @@ class _TopicDetailState extends State<TopicDetail>
       _isVisible = true;
       aStreamC.add(true);
       animationController.forward();
-
-      // setState(() => _isVisible = true);
     }
   }
 
@@ -234,8 +234,6 @@ class _TopicDetailState extends State<TopicDetail>
       _isVisible = false;
       aStreamC.add(false);
       animationController.reverse();
-
-      // setState(() => _isVisible = false);
     }
   }
 
@@ -284,7 +282,7 @@ class _TopicDetailState extends State<TopicDetail>
 
     // 获取之前楼层的所有回复
     List<ReplyItem> replyList =
-    _replyList.where((e) => e.floorNumber < floorNumber).toList();
+        _replyList.where((e) => e.floorNumber < floorNumber).toList();
     // 根据@的用户数 创建指定长度的列表
     List<Map> multipleReplyList = List.filled(replyMemberList.length, {});
     // 循环评论列表
@@ -331,12 +329,12 @@ class _TopicDetailState extends State<TopicDetail>
       isScrollControlled: true,
       builder: (BuildContext context) {
         return ReplySheet(
-            height: height,
-            replyMemberList: replyMemberList,
-            resultList: multipleReplyList,
-            topicId: _detailModel!.topicId,
-            totalPage: totalPage,
-            replyList: _replyList,
+          height: height,
+          replyMemberList: replyMemberList,
+          resultList: multipleReplyList,
+          topicId: _detailModel!.topicId,
+          totalPage: totalPage,
+          replyList: _replyList,
         );
       },
     ).then((value) {
@@ -350,7 +348,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future onIgnoreTopic() async {
     Future.delayed(
       const Duration(seconds: 0),
-          () => showDialog(
+      () => showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作提示'),
@@ -381,7 +379,7 @@ class _TopicDetailState extends State<TopicDetail>
   Future onReportTopic() async {
     Future.delayed(
       const Duration(seconds: 0),
-          () => showDialog(
+      () => showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('操作提示'),
@@ -491,44 +489,45 @@ class _TopicDetailState extends State<TopicDetail>
         Scaffold(
           appBar: !expendAppBar
               ? AppBar(
-            centerTitle: false,
-            title: StreamBuilder(
-              stream: titleStreamC.stream,
-              initialData: false,
-              builder: (context, AsyncSnapshot snapshot) {
-                return AnimatedOpacity(
-                  opacity: snapshot.data ? 1 : 0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Text(
-                    _detailModel != null ? _detailModel!.topicTitle : '',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  centerTitle: false,
+                  title: StreamBuilder(
+                    stream: titleStreamC.stream,
+                    initialData: false,
+                    builder: (context, AsyncSnapshot snapshot) {
+                      return AnimatedOpacity(
+                        opacity: snapshot.data ? 1 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Text(
+                          _detailModel != null ? _detailModel!.topicTitle : '',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-            actions: _detailModel != null ? appBarAction() : [],
-          )
+                  actions: _detailModel != null ? appBarAction() : [],
+                )
               : null,
-          body: _detailModel != null
-              ? Scrollbar(
-            radius: const Radius.circular(10),
-            controller: _scrollController,
-            child: PullRefresh(
-              key: _globalKey,
-              onChildRefresh: getDetailInit,
-              // 上拉
-              onChildLoad: !reverseSort
-                  ? (_totalPage > 1 && _currentPage < _totalPage
-                  ? getDetail
-                  : null)
-                  : (_currentPage > 0 ? getDetailReverst : null),
-              currentPage: _currentPage,
-              totalPage: _totalPage,
-              child: showRes(),
-              ctr: _controller,
-            ),
-          )
-              : showLoading(),
+          body: topicDetail == null && _detailModel == null?
+              showLoading() :
+          Scrollbar(
+                  radius: const Radius.circular(10),
+                  controller: _scrollController,
+                  child: PullRefresh(
+                    key: _globalKey,
+                    onChildRefresh: getDetailInit,
+                    // 上拉
+                    onChildLoad: !reverseSort
+                        ? (_totalPage > 1 && _currentPage < _totalPage
+                            ? getDetail
+                            : null)
+                        : (_currentPage > 0 ? getDetailReverst : null),
+                    currentPage: _currentPage,
+                    totalPage: _totalPage,
+                    ctr: _controller,
+                    child: showRes(),
+                  ),
+                )
+             ,
           bottomNavigationBar: StreamBuilder(
             stream: aStreamC.stream,
             initialData: false,
@@ -573,9 +572,9 @@ class _TopicDetailState extends State<TopicDetail>
       IconButton(
         onPressed: onFavTopic,
         tooltip: '收藏主题',
-        icon: const Icon(Icons.star_border_rounded),
+        icon: const Icon(Icons.bookmark_add_outlined),
         selectedIcon: Icon(
-          Icons.star_rounded,
+          Icons.bookmark_add_rounded,
           color: Theme.of(context).colorScheme.primary,
         ),
         isSelected: _detailModel!.isFavorite,
@@ -670,7 +669,7 @@ class _TopicDetailState extends State<TopicDetail>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               color:
-              Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -716,9 +715,9 @@ class _TopicDetailState extends State<TopicDetail>
                               if (res != null && res['nodeDetail'].isNotEmpty) {
                                 setState(() {
                                   _detailModel!.nodeName =
-                                  res['nodeDetail']['nodeName'];
+                                      res['nodeDetail']['nodeName'];
                                   _detailModel!.nodeId =
-                                  res['nodeDetail']['nodeId'];
+                                      res['nodeDetail']['nodeId'];
                                 });
                               }
                             },
@@ -730,162 +729,13 @@ class _TopicDetailState extends State<TopicDetail>
             ),
           ),
         SliverToBoxAdapter(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 20, right: 20, bottom: 22, left: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          child: GestureDetector(
-                              onTap: () => Get.toNamed(
-                                  '/member/${_detailModel!.createdId}',
-                                  parameters: {
-                                    'memberAvatar': _detailModel!.avatar,
-                                    'heroTag': heroTag,
-                                  }),
-                              child: Hero(
-                                tag: _detailModel!.createdId + heroTag,
-                                child: CAvatar(
-                                  url: _detailModel!.avatar,
-                                  size: 45,
-                                  quality: 'origin',
-                                ),
-                              )),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            if (myUserName != '' &&
-                                myUserName == _detailModel!.createdId) ...[
-                              Text(
-                                _detailModel!.createdId,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary),
-                              ),
-                            ] else ...[
-                              Text(
-                                _detailModel!.createdId,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
-                            SizedBox(
-                              height: 15,
-                              child: _detailModel != null
-                                  ? Text(_detailModel!.createdTime,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall!
-                                      .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline))
-                                  : null,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    NodeTag(
-                        nodeId: _detailModel!.nodeId,
-                        nodeName: _detailModel!.nodeName,
-                        route: 'detail')
-                  ],
-                ),
-              ),
-
-              /// 主题标题
-              SelectionArea(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                      top: 0, right: 18, bottom: 15, left: 18),
-                  child: Text(
-                    _detailModel!.topicTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge!
-                        .copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-
-              /// action操作
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (_detailModel!.favoriteCount > 0) ...[
-                    Text(
-                      '${_detailModel!.favoriteCount}收藏',
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.outline),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  Text(
-                    '${_detailModel!.visitorCount}查看',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.outline),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '${_detailModel!.replyCount}回复',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.outline),
-                  ),
-                  const SizedBox(width: 20)
-                ],
-              ),
-              const SizedBox(height: 5),
-              Divider(
-                endIndent: 15,
-                indent: 15,
-                color: Theme.of(context).dividerColor.withOpacity(0.15),
-              ),
-              // 内容
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 5, right: 18, bottom: 10, left: 18),
-                child: SelectionArea(
-                  child: HtmlRender(
-                    htmlContent: _detailModel!.contentRendered,
-                    imgCount: _detailModel!.imgCount,
-                    imgList: _detailModel!.imgList,
-                    fs: GStorage().getHtmlFs(),
-                  ),
-                ),
-              ),
-              // 附言
-              if (_detailModel!.subtleList.isNotEmpty) ...[
-                ...subList(_detailModel!.subtleList)
-              ],
-              if (_detailModel!.content.isNotEmpty)
-                Divider(
-                  color: Theme.of(context).dividerColor.withOpacity(0.15),
-                ),
-            ],
+          child: TopicMain(
+            detailModel: _detailModel,
+            topicDetail: topicDetail,
           ),
         ),
-        if (_replyList.isNotEmpty) ...[
+        if (_detailModel != null) ...[
+          if(_replyList.isNotEmpty) ...[
           SliverToBoxAdapter(
             child: Container(
                 padding: const EdgeInsets.only(
@@ -924,98 +774,60 @@ class _TopicDetailState extends State<TopicDetail>
                         shape: StadiumBorder(
                           side: BorderSide(
                               color:
-                              Theme.of(context).colorScheme.surfaceVariant),
+                                  Theme.of(context).colorScheme.surfaceVariant),
                         ),
                         selectedColor:
-                        Theme.of(context).colorScheme.outlineVariant,
+                            Theme.of(context).colorScheme.outlineVariant,
                         selected: reverseSort,
                       ),
                     ]
                   ],
                 )),
           ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                return ReplyListItem(
+                  reply: _replyList[index],
+                  topicId: _detailModel!.topicId,
+                  totalPage: _totalPage,
+                  key: UniqueKey(),
+                  queryReplyList: (replyMemberList, floorNumber, resultList,
+                      totalPage) =>
+                      queryReplyList(
+                          replyMemberList, floorNumber, resultList, _totalPage),
+                  source: 'topic',
+                  replyList: _replyList,
+                );
+              },
+              childCount: _replyList.length,
+            ),
+          ),
+          ],
+          // 没有更多
+          SliverToBoxAdapter(
+            child: Offstage(
+              // when true hidden
+              offstage: _detailModel!.replyCount != '0',
+              child: moreTopic(type: 'null'),
+            ),
+          ),
+          // 加载更多
+          SliverToBoxAdapter(
+            child: Offstage(
+              // when true hidden
+              // no reply hidden
+              //
+              offstage: _detailModel!.replyCount == '0' ||
+                  (!reverseSort && (_currentPage < _totalPage)) ||
+                  (reverseSort && (_currentPage > 0)),
+              child: moreTopic(),
+            ),
+          )
         ],
         // 回复列表
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-                (context, index) {
-              return ReplyListItem(
-                reply: _replyList[index],
-                topicId: _detailModel!.topicId,
-                totalPage: _totalPage,
-                key: UniqueKey(),
-                queryReplyList: (replyMemberList, floorNumber, resultList, totalPage) =>
-                    queryReplyList(replyMemberList, floorNumber, resultList, _totalPage),
-                source: 'topic',
-                replyList: _replyList,
-              );
-            },
-            childCount: _replyList.length,
-          ),
-        ),
-        // 没有更多
-        SliverToBoxAdapter(
-          child: Offstage(
-            // when true hidden
-            offstage: _detailModel!.replyCount != '0',
-            child: moreTopic(type: 'null'),
-          ),
-        ),
-        // 加载更多
-        SliverToBoxAdapter(
-          child: Offstage(
-            // when true hidden
-            // no reply hidden
-            //
-            offstage: _detailModel!.replyCount == '0' ||
-                (!reverseSort && (_currentPage < _totalPage)) ||
-                (reverseSort && (_currentPage > 0)),
-            child: moreTopic(),
-          ),
-        )
       ],
     );
-  }
-
-  // 附言
-  List<Widget> subList(data) {
-    List<Widget>? list = [];
-    for (var i in data) {
-      list.add(
-        Container(
-          padding:
-          const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
-          // color: Theme.of(context).colorScheme.onInverseSurface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(
-                height: 1,
-                color: Theme.of(context).dividerColor.withOpacity(0.15),
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Text(
-                i.fade,
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    backgroundColor: Theme.of(context).colorScheme.secondary),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              HtmlRender(
-                htmlContent: i.content,
-                imgCount: _detailModel!.imgCount,
-                imgList: _detailModel!.imgList,
-              )
-            ],
-          ),
-        ),
-      );
-    }
-    return list;
   }
 
   // 底部 没有更多
@@ -1024,7 +836,7 @@ class _TopicDetailState extends State<TopicDetail>
       width: double.infinity,
       height: 100 + MediaQuery.of(context).padding.bottom,
       padding:
-      EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
       child: Center(
         // child: TextField(),
         child: Text(
