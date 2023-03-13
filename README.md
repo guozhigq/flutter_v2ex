@@ -1,31 +1,64 @@
-<div align=center><img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/images/icon/icon_android.png" width="100" height="100"></img></div>
+<div align=center><img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/images/icon/icon_android.png" width="200" height="200"></img></div>
 <br/>
 
-# vvex &nbsp; ![](https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter) ![](https://img.shields.io/badge/Dart-2.19.2-blue?style=flat) ![](https://img.shields.io/badge/Java-11.0.15-green?style=flat)
 
-vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支持 Android 和 iOS。<br/>在 Android 12+的系统上支持 Material You 3 规范
-<br/>
-[前往下载](https://github.com/guozhigq/flutter_v2ex/releases/)
+<div align="center">
+    <h1>VVEX</h1>
+    <div align="center">
+        <img alt="GitHub" src="https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter">
+        <img alt="GitHub" src="https://img.shields.io/badge/Dart-2.19.2-blue?style=flat">
+        <img alt="GitHub" src="https://img.shields.io/badge/Java-11.0.15-green?style=flat">
+        <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">
+            <img alt="Version" src="https://img.shields.io/github/v/release/guozhigq/flutter_v2ex?color=c3e7ff&label=version&style=flat">
+        </a>
+    </div>
+    <br/>
+    <p>使用 Flutter 开发的 <a target="_blank" href="https://www.v2ex.com/">V2ex</a> 客户端</p>
+    <p>适配了<a target="_blank" href="https://m3.material.io/">Material You</a> 样式</p>
+    <br/>
+    <br/>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="500"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="500"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="500"></img>
+    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="500"></img>
+</div>
 <br/>
 
-## 预览
-<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="500"></img>
-<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="500"></img>
-<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="500"></img>
-<img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="500"></img>
+
+## 功能
+[开发计划](https://github.com/users/guozhigq/projects/2)
+<br/>
+- [x] 夜间模式
+- [x] 动态主题
+- [x] 自动签到
+- [x] 高级搜索
+- [x] 节点排序
+- [x] @回复多人
+- [x] 检测更新
+- [x] 2FA验证登录
+- [x] 回复保存为图片
+- [x] 多类型消息提醒
+- [x] base64 加密/解密
+- [x] Signin with Google
+- [ ] 图片上传
+- [ ] 数据缓存
+- [ ] 页面骨架屏
+- [ ] 话题已读标记
+- [ ] 话题标记已读
+- [ ] markdown 格式发布主题
 
 <br/>
 
 ## 环境配置
 
 ```
-[✓] Flutter (Channel stable, 3.7.4, on macOS 12.6 21G115 darwin-arm64, locale
+[✓] Flutter (Channel stable, 3.7.7, on macOS 12.6 21G115 darwin-arm64, locale
     zh-Hans-CN)
 [✓] Android toolchain - develop for Android devices (Android SDK version 33.0.0)
 [✓] Xcode - develop for iOS and macOS (Xcode 14.2)
 [✓] Chrome - develop for the web
 [✓] Android Studio (version 2022.1)
-[✓] VS Code (version 1.75.1)
+[✓] VS Code (version 1.76.1)
 [✓] Connected device (3 available)
 [✓] HTTP Host Availability
 ```
@@ -50,38 +83,8 @@ vvex 是使用 flutter 开发的 [V2ex](https://www.v2ex.com/) 客户端，支�
 
 <br/>
 
-## 额外功能
-
-
--   自动签到
--   回复保存为图片
--   多类型消息提醒
--   长按头像回复多人
--   base64 解码，一键复制
--   material You 取色（Android 12+）
-<br/>
-
-## 待完成
-
--   markdown 格式发布主题
--   图片上传
--   google auth
--   节点排序
--   话题已读标记
--   部分页面骨架屏
-<br/>
-
-## 待优化
-
--   回复多人
--   数据缓存
--   高级搜索
--   dom 解析
-<br/>
-
 ## 感谢
 
--   搜索功能使用 [Sov2ex](https://github.com/Bynil/sov2ex)
--   [V2LF](https://github.com/w4mxl/V2LF)
--   [Flutter](https://flutter.dev/)
--   [dart](https://www.dartcn.com/)
+* [V2LF](https://github.com/w4mxl/V2LF) : 很多思路借鉴了 V2LF， 感谢 🙏
+* [sov2ex](https://github.com/Bynil/sov2ex) : 一个便捷的 V2EX 站内搜索引擎，搜索功能基于此实现，感谢🙏
+
