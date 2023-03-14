@@ -17,10 +17,10 @@
     <p>适配了<a target="_blank" href="https://m3.material.io/">Material You</a> 样式</p>
     <br/>
     <br/>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_1.png" width="49%"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_2.png" width="49%"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_3.png" width="49%"></img>
-    <img src="https://github.com/guozhigq/flutter_v2ex/blob/main/assets/preview/preview_4.png" width="49%"></img>
+    <img src="https://files.catbox.moe/w3pnbd.png" width="49%"></img>
+    <img src="https://files.catbox.moe/kpuks8.png" width="49%"></img>
+    <img src="https://files.catbox.moe/dkf8qt.png" width="49%"></img>
+    <img src="https://files.catbox.moe/xij4ov.png" width="49%"></img>
 </div>
 <br/>
 
@@ -66,7 +66,20 @@
 ```
 
 ## 运行
+<strong>执行 flutter build apk(ios)</strong>
+```dart
+打包前将 lib/http/init.dart 84行左右代理进行修改
 
+client.findProxy = (uri) {
+    // proxy all request to localhost:8888
+    // return 'PROXY 192.168.1.60:7890';
+    // return 'PROXY 172.16.32.186:7890';
+    // return 'PROXY localhost:7890';
+    // return 'PROXY 127.0.0.1:7890';
+    // 不设置代理 TODO 打包前关闭代理
+    return 'DIRECT';
+};
+```
 确保相关开发环境及代码编辑器正确配置
 
 -   终端运行
