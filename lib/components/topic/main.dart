@@ -15,7 +15,7 @@ class TopicMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    heroTag = heroTag ?? Random().nextInt(999).toString();
+    var heroTag = Random().nextInt(999).toString();
     TextStyle titleStyle = Theme.of(context)
         .textTheme
         .titleLarge!

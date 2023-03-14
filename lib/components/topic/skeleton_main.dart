@@ -28,36 +28,35 @@ class TopicItemSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var commonColor = Theme.of(context).colorScheme.onInverseSurface;
-    double height = GStorage().getHtmlFs();
+    double height = GStorage().getHtmlFs() + 2;
     return Container(
-      margin: const EdgeInsets.only(top: 8, bottom: 0, ),
-      padding: const EdgeInsets.fromLTRB(0, 0, 12, 8),
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            width: 350,
+            width: double.infinity,
             height: height,
             margin: const EdgeInsets.only(top: 0, bottom: 8),
             color: commonColor,
           ),
           Container(
-            width: 320,
+            width: double.infinity,
             height: height,
-            margin: const EdgeInsets.only(top: 0, bottom: 8),
+            margin: const EdgeInsets.only(top: 0, bottom: 8, right: 40),
             color: commonColor,
           ),
           Container(
-            width: 280,
+            width: double.infinity,
             height: height,
-            margin: const EdgeInsets.only(top: 0, bottom: 8),
+            margin: const EdgeInsets.only(top: 0, bottom: 8, right: 80),
             color: commonColor,
           ),
           Container(
-            width: 200,
+            width: double.infinity,
             height: height,
-            margin: const EdgeInsets.only(top: 0, bottom: 12),
+            margin: const EdgeInsets.only(top: 0, bottom: 12, right: 200),
             color: commonColor,
           ),
         ],

@@ -97,10 +97,10 @@ class _ListItemState extends State<ListItem>
                   onTap: () => Get.toNamed('/member/${widget.topic.memberId}',
                       parameters: {
                         'memberAvatar': widget.topic.avatar,
-                        'heroTag': '${widget.topic.topicId}${widget.topic.memberId}',
+                        'heroTag': herotag,
                       }),
                   child: Hero(
-                    tag: '${widget.topic.topicId}${widget.topic.memberId}',
+                    tag: herotag,
                     child: CAvatar(
                       url: widget.topic.avatar,
                       size: 30,

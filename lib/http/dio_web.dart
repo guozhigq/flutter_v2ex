@@ -502,7 +502,7 @@ class DioRequestWeb {
     //  at 9 小时 26 分钟前，1608 次点击
     var pureStr = document
         .querySelector('$headerQuery > small')!
-        .text
+        .innerHtml
         .split(' at')[1]
         .replaceAll(RegExp(r"\s+"), "");
     detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
