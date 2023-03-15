@@ -12,8 +12,6 @@ class ListItem extends StatefulWidget {
 
   const ListItem({required this.topic, super.key});
 
-  // List<TabTopicItem> item;
-
   @override
   State<ListItem> createState() => _ListItemState();
 }
@@ -50,7 +48,10 @@ class _ListItemState extends State<ListItem>
           onTap: () async {
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
-            var arguments = <String, dynamic>{"topic": widget.topic, "heroTag": '${widget.topic.topicId}${widget.topic.memberId}'};
+            var arguments = <String, dynamic>{
+              "topic": widget.topic,
+              "heroTag": '${widget.topic.topicId}${widget.topic.memberId}'
+            };
             Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
           },
           borderRadius: BorderRadius.circular(10),
@@ -65,26 +66,24 @@ class _ListItemState extends State<ListItem>
 
   Widget content() {
     final herotag = widget.topic.memberId + Random().nextInt(999).toString();
+    TextStyle timeStyle = Theme.of(context)
+        .textTheme
+        .labelSmall!
+        .copyWith(color: Theme.of(context).colorScheme.outline);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // title
-        Hero(
-            tag: widget.topic.topicId,
-            child: Container(
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(top: 0, bottom: 12),
-              child: Text(
-                Characters(widget.topic.topicTitle).join('\u{200B}'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(height: 1.6, fontWeight: FontWeight.w500),
-              ),
-            )
+        Text(
+          Characters(widget.topic.topicTitle).join('\u{200B}'),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+          style: Theme.of(context)
+              .textTheme
+              .titleSmall!
+              .copyWith(height: 1.6, fontWeight: FontWeight.w500),
         ),
+        const SizedBox(height: 12),
         // 头像、昵称
         Row(
           // 两端对齐
@@ -127,26 +126,13 @@ class _ListItemState extends State<ListItem>
                     Row(
                       children: [
                         if (widget.topic.lastReplyTime.isNotEmpty) ...[
-                          Text(
-                            widget.topic.lastReplyTime,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                          ),
+                          Text(widget.topic.lastReplyTime, style: timeStyle),
                         ],
                         if (widget.topic.replyCount > 0) ...[
                           const SizedBox(width: 10),
                           Text(
                             '${widget.topic.replyCount} 回复',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
+                            style: timeStyle,
                           ),
                         ]
                       ],

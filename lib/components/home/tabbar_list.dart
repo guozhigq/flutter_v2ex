@@ -105,6 +105,7 @@ class _TabBarListState extends State<TabBarList>
           }
           topicList.addAll(result);
           tempTopicList = result;
+          _dioError = false;
         }
         _isLoading = false;
         Timer(const Duration(milliseconds: 500), () {

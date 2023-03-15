@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -56,6 +57,8 @@ void main() async {
   }catch(err) {
     print('GetStorage err: ${err.toString()}');
   }
+  // 高帧率滚动性能优化
+  GestureBinding.instance.resamplingEnabled = true;
   // 入口
   runApp(const MyApp());
   // 配置状态栏
