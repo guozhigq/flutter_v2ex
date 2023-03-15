@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_v2ex/models/version.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -71,7 +72,9 @@ class DioRequestWeb {
         );
         break;
       case 'recent':
-        return await getTopicsRecent(p).then((value) => value);
+        return await getTopicsRecent('recent', p).then((value) => value);
+      case 'changes':
+        return await getTopicsRecent('changes', p).then((value) => value);
       case 'go':
         return await getTopicsByNodeId(id, p).then((value) => value.topicList);
       default:
@@ -139,12 +142,12 @@ class DioRequestWeb {
   }
 
   // 获取最新的主题
-  static Future<List<TabTopicItem>> getTopicsRecent(int p) async {
+  static Future<List<TabTopicItem>> getTopicsRecent(String path, int p) async {
     var topics = <TabTopicItem>[];
     var response;
     try {
       response = await Request().get(
-        '/recent',
+        '/$path',
         data: {'p': p},
         extra: {'ua': 'pc'},
       );
@@ -157,10 +160,12 @@ class DioRequestWeb {
         var item = TabTopicItem();
         item.memberId =
             aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
-        item.avatar = Uri.encodeFull(aNode
-            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-            ?.first
-            .attributes["src"]);
+        if(aNode.xpath("/table/tr/td[1]/a[1]/img") != null && aNode.xpath("/table/tr/td[1]/a[1]/img")!.isNotEmpty){
+          item.avatar = Uri.encodeFull(aNode
+              .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
+              ?.first
+              .attributes["src"]);
+        }
         String topicUrl = aNode
             .xpath("/table/tr/td[3]/span[1]/a")
             ?.first
@@ -497,7 +502,7 @@ class DioRequestWeb {
     //  at 9 小时 26 分钟前，1608 次点击
     var pureStr = document
         .querySelector('$headerQuery > small')!
-        .text
+        .innerHtml
         .split(' at')[1]
         .replaceAll(RegExp(r"\s+"), "");
     detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
@@ -632,15 +637,6 @@ class DioRequestWeb {
       print('585 - thank: ${detailModel.isThank}');
     }
 
-    // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？')) { location.href = '/ignore/topic/583319?once=62479'; }"
-    //    class="op" style="user-select: auto;">忽略主题</a>
-    // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(5)
-
-    // 登录 是否感谢 document.querySelector('#topic_thank > span')
-    // detailModel.isThank = document.querySelector('#topic_thank > span') != null;
-    // print(detailModel.isFavorite == true ? 'yes' : 'no');
-    // print(detailModel.isThank == true ? 'yes' : 'no');
-
     // 判断是否有评论
     if (document.querySelector('#no-comments-yet') == null) {
       // 表示有评论
@@ -696,7 +692,13 @@ class DioRequestWeb {
         if (aNode.querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.badges > div.badge') !=
             null) {
-          replyItem.isOwner = true;
+          String status = aNode.querySelector(
+              '$replyTrQuery > td:nth-child(5) > div.badges > div.badge')!.text;
+          if(status == 'MOD'){
+            replyItem.isMod = true;
+          }else if(status == 'OP'){
+            replyItem.isOwner = true;
+          }
         }
         replyItem.lastReplyTime = aNode
             .querySelector('$replyTrQuery > td:nth-child(5) > span')!
@@ -1478,8 +1480,10 @@ class DioRequestWeb {
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
       // 获取最后一页最近一条
+      SmartDialog.showLoading(msg: '获取最新回复');
       var replyDetail = await getTopicDetail(topicId, totalPage + 1);
       var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.userName == GStorage().getUserInfo()['userName']);
+      SmartDialog.dismiss();
       GStorage().setReplyItem(lastReply);
       return 'true';
     } else if (response.statusCode == 200) {
@@ -2004,20 +2008,86 @@ class DioRequestWeb {
     Map updata = {
       'lastVersion': '',
       'downloadHref': '',
+      'needUpdate': false,
     };
-    String res = '';
-    Response response = await Request().get('${Strings.remoteUrl}/releases', extra: {
-      'ua': 'mob'
-    });
-    var document = parse(response.data).body;
-    var boxNodes = document!.querySelectorAll('div.col-md-9');
-    if(boxNodes.isNotEmpty){
-      var versionNode = boxNodes[0].querySelector("span[class='f1 text-bold d-inline mr-3'] > a");
-      var version = versionNode!.text;
-      res = version;
-      updata['lastVersion'] = version;
-      updata['downloadHref'] = '${Strings.remoteUrl}/releases/download/$version/app-release.apk';
-    }
+    Response response = await Request().get('https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
+    var versionDetail = VersionModel.fromJson(response.data);
+    print(versionDetail.tag_name);
+    // 版本号
+    var version = versionDetail.tag_name;
+    var updateLog = versionDetail.body;
+    List<String> updateLogList = updateLog.split('\r\n');
+      var needUpdate = Utils.needUpdate(Strings.currentVersion, version);
+      if(needUpdate) {
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('🎉 发现新版本 '),
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(version, style: const TextStyle(
+                    fontSize: 20
+                  ),),
+                 const SizedBox(height: 8),
+                 for(var i in updateLogList) ... [
+                   Text(i)
+                 ]
+                ],
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => SmartDialog.dismiss(),
+                    child: const Text('取消')),
+                TextButton(
+                  // TODO
+                    onPressed: ()
+                    {
+                      SmartDialog.dismiss();
+                      Utils.openURL('${Strings.remoteUrl}/releases');
+                    },
+                    child: const Text('去更新'))
+              ],
+            );
+          },
+        );
+      }
+      else{
+        updata[needUpdate] = true;
+      }
     return updata;
+  }
+
+  static Future<List<TabTopicItem>> getTopicsHistory() async {
+    var topics = <TabTopicItem>[];
+    var response;
+    try {
+      response = await Request().get(
+        '/',
+        extra: {'ua': 'pc'},
+      );
+    } catch (err) {
+      throw(err);
+    }
+    var document = parse(response.data);
+    var historyDom = document.body!.querySelector('div[id="my-recent-topics"]');
+    if(historyDom != null){
+      var topicNodes = historyDom!.querySelectorAll('div.cell:not(.flex-one-row)');
+      if(topicNodes.isNotEmpty){
+        for (var aNode in topicNodes) {
+          var item = TabTopicItem();
+          item.memberId = aNode.querySelector('img')!.attributes['alt']!;
+          item.avatar = aNode.querySelector('img')!.attributes['src']!;
+          item.topicId = aNode.querySelectorAll('a').last.attributes['href']!.replaceAll(RegExp(r'\D'), '');
+          item.topicTitle = aNode.querySelectorAll('a').last.text;
+          topics.add(item);
+        }
+      }
+    }
+    return topics;
   }
 }

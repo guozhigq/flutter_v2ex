@@ -31,7 +31,7 @@ class NodeTag extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                nodeName!,
+                nodeName!.contains('WATCH')? 'iWatch' : nodeName!,
                 style: const TextStyle(
                   fontSize: 11.0,
                   textBaseline: TextBaseline.ideographic,

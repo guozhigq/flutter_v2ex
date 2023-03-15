@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_v2ex">
+    package="com.guozhigq.vvex">
 
     <queries>
         <!-- If your app opens https URLs -->

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
 
 class HomeStickyBar extends StatelessWidget {
-  const HomeStickyBar({super.key, required this.tabs});
+  const HomeStickyBar({super.key, required this.tabs, required this.ctr});
   final List<TabModel> tabs;
+  final TabController ctr;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -13,6 +14,7 @@ class HomeStickyBar extends StatelessWidget {
         children: [
           Expanded(
             child: TabBar(
+              controller: ctr,
               dividerColor: Colors.transparent,
               onTap: (index) {},
               isScrollable: true,

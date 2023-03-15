@@ -101,7 +101,10 @@ class Utils {
               presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
         );
       }catch(err) {
-        SmartDialog.showToast(err.toString());
+        // SmartDialog.showToast(err.toString());
+        // https://github.com/guozhigq/flutter_v2ex/issues/49
+        GStorage().setLinkOpenInApp(false);
+        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
       }
     }
   }

@@ -21,6 +21,7 @@ class ReplyListItem extends StatefulWidget {
     this.queryReplyList,
     this.totalPage,
     this.source,
+    this.replyList,
     Key? key,
   }) : super(key: key);
 
@@ -29,6 +30,7 @@ class ReplyListItem extends StatefulWidget {
   final queryReplyList;
   int? totalPage;
   String? source;
+  List? replyList;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -75,6 +77,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   String heroTag = Random().nextInt(999).toString();
   final GlobalKey repaintKey = GlobalKey();
   bool ignoreStatus = false; // 对当前主题的忽略状态 默认false
+  String? loginUserName;
 
   @override
   void initState() {
@@ -82,7 +85,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
     super.initState();
     // 无法忽略自己的回复
     var replyUserName = widget.reply.userName;
-    var loginUserName = '';
     if (GStorage().getUserInfo().isNotEmpty) {
       loginUserName = GStorage().getUserInfo()['userName'];
     }
@@ -142,6 +144,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           replyMemberList: [reply],
           topicId: widget.topicId,
           totalPage: widget.totalPage,
+          replyList: widget.replyList,
         );
       },
     ).then((value) => {
@@ -188,7 +191,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       setState(() {
                         ignoreStatus = true;
                       });
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     }
                   },
                   child: const Text('确定')),
@@ -240,9 +245,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
       child: SizedBox(
         height: ignoreStatus ? 0 : null,
         child: widget.source == 'topic'
-            ? replyItemTopic(
-                context,
-                content(context),
+            ? Column(
+                children: [
+                  replyItemTopic(
+                    context,
+                    content(context),
+                  ),
+                  Divider(
+                    indent: 50,
+                    height: 0.3,
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                  )
+                ],
               )
             : replyItemSheet(
                 context,
@@ -306,12 +320,21 @@ class _ReplyListItemState extends State<ReplyListItem> {
                           reply.userName,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: Theme.of(context).textTheme.labelLarge,
+                          style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                            color: reply.isMod || reply.isOwner ? Theme.of(context).colorScheme.primary : null
+                          ),
                         ),
                         const SizedBox(width: 4),
                         if (reply.isOwner) ...[
                           Icon(
                             Icons.person,
+                            size: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        ],
+                        if (reply.isMod) ...[
+                          Icon(
+                            Icons.security,
                             size: 15,
                             color: Theme.of(context).colorScheme.primary,
                           )
@@ -330,17 +353,33 @@ class _ReplyListItemState extends State<ReplyListItem> {
                                     color:
                                         Theme.of(context).colorScheme.outline),
                           ),
-                          const SizedBox(width: 2),
+                          // const SizedBox(width: 2),
                         ],
-                        if (reply.platform == 'Android') ...[
-                          const Icon(
-                            Icons.android,
-                            size: 14,
-                          ),
-                        ],
-                        if (reply.platform == 'iPhone') ...[
-                          const Icon(Icons.apple, size: 16),
-                        ]
+                        // if (reply.platform == 'Android') ...[
+                        //   const Icon(
+                        //     Icons.android,
+                        //     size: 14,
+                        //   ),
+                        //
+                        // ],
+                        // if (reply.platform == 'iPhone') ...[
+                        //   const Icon(Icons.apple, size: 16),
+                        // ],
+                        Text(
+                          ' • ',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
+                        Text(
+                          '${reply.floorNumber}L',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall!
+                              .copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground),
+                        ),
                       ],
                     )
                   ],
@@ -362,6 +401,8 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 7),
           child: SelectionArea(
+            /// TODO SelectionArea ignore Inkwell onTap event
+            // https://github.com/flutter/flutter/issues/53797
             child: HtmlRender(
                 htmlContent: reply.contentRendered,
                 imgList: reply.imgList,
@@ -374,37 +415,23 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget replyItemTopic(context, child) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-            width: 1.0,
+    return RepaintBoundary(
+      key: repaintKey,
+      child: Material(
+        color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
+        child: InkWell(
+          onTap: () async {
+            /// 增加200毫秒延迟 水波纹动画
+            await Future.delayed(const Duration(milliseconds: 200));
+            replyComment();
+          },
+          onLongPress: () {},
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+            child: child,
           ),
         ),
       ),
-      child: RepaintBoundary(
-        key: repaintKey,
-        child: Material(
-          color: reply.isChoose
-              ? Theme.of(context).colorScheme.onInverseSurface
-              : null,
-          child: InkWell(
-            onTap: replyComment,
-            // onLongPress: () {
-            //   setState(() {
-            //     reply.isChoose = !reply.isChoose;
-            //   });
-            // },
-            onLongPress: () {},
-            child: Ink(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
-              child: child,
-            ),
-          ),
-        ),
-      ),
-      // ),
     );
   }
 
@@ -418,11 +445,14 @@ class _ReplyListItemState extends State<ReplyListItem> {
         key: repaintKey,
         child: Material(
           borderRadius: BorderRadius.circular(20),
-          color: reply.isChoose
-              ? Theme.of(context).colorScheme.onInverseSurface
-              : null,
+          // color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
+          elevation: reply.isOwner ? 3 : 0,
           child: InkWell(
-            onTap: replyComment,
+            onTap: () async {
+              /// 增加200毫秒延迟 水波纹动画
+              await Future.delayed(const Duration(milliseconds: 200));
+              replyComment();
+            },
             onLongPress: () {},
             borderRadius: BorderRadius.circular(20),
             child: Ink(
@@ -448,18 +478,47 @@ class _ReplyListItemState extends State<ReplyListItem> {
         Row(
           children: [
             const SizedBox(width: 32),
+            TextButton(
+              onPressed: replyComment,
+              child: Row(children: [
+                Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
+                const SizedBox(width: 2),
+                Text('回复', style: textStyle),
+              ]),
+            ),
             if (reply.replyMemberList.isNotEmpty &&
                 widget.queryReplyList != null &&
                 reply.floorNumber != 1)
               TextButton(
-                onPressed: () => widget.queryReplyList(
-                    reply.replyMemberList, reply.floorNumber, [reply]),
+                onPressed: () => widget.queryReplyList(reply.replyMemberList,
+                    reply.floorNumber, [reply], widget.totalPage),
                 child: Text(
                   '查看回复',
                   style: textStyle,
                 ),
               ),
-            if (reply.userName != GStorage().getUserInfo()['userName'])
+            if (reply.userName == loginUserName) const SizedBox(height: 45),
+            // TextButton(
+            //   onPressed: replyComment,
+            //   child: Row(children: [
+            //     Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
+            //     // const SizedBox(width: 2),
+            //     // Text('回复', style: textStyle),
+            //   ]),
+            // ),
+          ],
+        ),
+        Row(
+          children: [
+            // Text(
+            //   '${reply.floorNumber}楼',
+            //   style: Theme.of(context)
+            //       .textTheme
+            //       .labelSmall!
+            //       .copyWith(color: Theme.of(context).colorScheme.outline),
+            // ),
+            // const SizedBox(width: 14)
+            if (reply.userName != loginUserName)
               TextButton(
                 onPressed: thanksDialog,
                 child: Row(children: [
@@ -480,26 +539,6 @@ class _ReplyListItemState extends State<ReplyListItem> {
                       : Text('感谢', style: textStyle),
                 ]),
               ),
-            // TextButton(
-            //   onPressed: replyComment,
-            //   child: Row(children: [
-            //     Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
-            //     const SizedBox(width: 2),
-            //     Text('回复', style: textStyle),
-            //   ]),
-            // ),
-          ],
-        ),
-        Row(
-          children: [
-            Text(
-              '${reply.floorNumber}楼',
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.outline),
-            ),
-            const SizedBox(width: 14)
           ],
         )
       ],

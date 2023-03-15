@@ -12,14 +12,16 @@ class PullRefresh extends StatefulWidget {
   final onChildLoad;
   final int? currentPage;
   final int? totalPage;
+  final EasyRefreshController? ctr;
 
-   const PullRefresh({
+  const PullRefresh({
     // this.ctr,
     this.child,
     this.onChildRefresh,
     this.onChildLoad,
     this.currentPage,
     this.totalPage,
+    this.ctr,
     super.key,
   });
 
@@ -28,12 +30,7 @@ class PullRefresh extends StatefulWidget {
 }
 
 class _PullRefreshState extends State<PullRefresh> {
-  // late EasyRefreshController _controller;
-
-  final EasyRefreshController _controller = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
+  late EasyRefreshController _controller;
 
   final _MIProperties _headerProperties = _MIProperties(name: 'Header');
   final _CIProperties _footerProperties = _CIProperties(
@@ -46,6 +43,14 @@ class _PullRefreshState extends State<PullRefresh> {
   @override
   void initState() {
     super.initState();
+    if(widget.ctr != null){
+      _controller = widget.ctr!;
+    }else{
+      _controller = EasyRefreshController(
+        controlFinishRefresh: true,
+        controlFinishLoad: true,
+      );
+    }
   }
 
   @override
@@ -95,11 +100,11 @@ class _PullRefreshState extends State<PullRefresh> {
       ),
       onRefresh: widget.onChildRefresh != null
           ? () async {
-              await widget.onChildRefresh();
-              print('onRefresh Finish');
-              _controller.finishRefresh();
-              _controller.resetFooter();
-            }
+        await widget.onChildRefresh();
+        print('onRefresh Finish');
+        _controller.finishRefresh();
+        _controller.resetFooter();
+      }
           : null,
       // 下拉
       onLoad: widget.onChildLoad != null
@@ -109,17 +114,17 @@ class _PullRefreshState extends State<PullRefresh> {
         print('-------${widget.totalPage}');
 
         if (widget.currentPage == widget.totalPage!) {
-                _controller.finishLoad();
-                _controller.resetFooter();
-                return IndicatorResult.noMore;
-              }
-              await widget.onChildLoad!();
-              print('onLoad Finish');
-              print('widget.currentPage: ${widget.currentPage}');
-              print('widget.totalPage: ${widget.totalPage}');
-              _controller.finishLoad();
-              _controller.resetFooter();
-            }
+          _controller.finishLoad();
+          _controller.resetFooter();
+          return IndicatorResult.noMore;
+        }
+        await widget.onChildLoad!();
+        print('onLoad Finish');
+        print('widget.currentPage: ${widget.currentPage}');
+        print('widget.totalPage: ${widget.totalPage}');
+        _controller.finishLoad();
+        _controller.resetFooter();
+      }
           : null,
       child: widget.child,
     );

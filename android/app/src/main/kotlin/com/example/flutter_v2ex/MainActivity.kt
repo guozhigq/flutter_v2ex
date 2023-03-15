@@ -1,4 +1,4 @@
-package com.example.flutter_v2ex
+package com.guozhigq.vvex
 
 import io.flutter.embedding.android.FlutterActivity
 

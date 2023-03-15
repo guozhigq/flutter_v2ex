@@ -269,14 +269,6 @@ class _SettingPageState extends State<SettingPage> {
               subtitle: Text('清除当前登录信息', style: subTitleStyle),
             ),
           ],
-          ListTile(
-            onTap: () async {
-              Get.toNamed('/help');
-            },
-            leading: Icon(Icons.info_outline, color: iconStyle),
-            title: const Text('关于'),
-            subtitle: Text('意见反馈、版本说明', style: subTitleStyle),
-          )
         ],
       ),
     );

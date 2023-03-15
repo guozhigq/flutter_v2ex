@@ -121,6 +121,10 @@ class _MyAppState extends State<MyApp> {
     //     DioRequestWeb.queryDaily();
     //   });
     // }
+    // 检查更新
+    if(GStorage().getAutoUpdate()){
+      DioRequestWeb.checkUpdate();
+    }
   }
 
   @override
@@ -161,13 +165,13 @@ class _MyAppState extends State<MyApp> {
           );
         }
         return  GetMaterialApp(
+          title: 'VVEX',
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
           getPages: AppPages.getPages,
           theme: ThemeData(
             fontFamily: 'NotoSansSC',
-            // textTheme: CustomTheme(Theme.of(context).textTheme).customFsTheme(fontSize: globalFs),
-            textTheme: fontSizeController!.getFontSize,
+            textTheme: fontSizeController?.getFontSize ?? const TextTheme(),
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.dark
                 ? darkColorScheme
@@ -175,7 +179,6 @@ class _MyAppState extends State<MyApp> {
           ),
           darkTheme: ThemeData(
             fontFamily: 'NotoSansSC',
-            // textTheme: CustomTheme(Theme.of(context).textTheme).customFsTheme(fontSize: globalFs),
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.light
                 ? lightColorScheme

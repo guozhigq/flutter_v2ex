@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter_v2ex/components/topic/main.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -38,55 +39,55 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
+  var topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
   List replyMemberList = [];
-  String heroTag = Random().nextInt(999).toString();
+  String heroTag = '';
 
   // 监听页面滚动
   final ScrollController _scrollController = ScrollController();
-  TopicDetailModel? _detailModel;
+  TopicDetailModel? _detailModel; // 主题详情
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
   final GlobalKey _globalKey = GlobalKey();
-  GlobalKey listGlobalKey = GlobalKey();
-  late StreamController<bool> aStreamC;
-  late StreamController<bool> titleStreamC;
+  GlobalKey listGlobalKey = GlobalKey(); // 获取pin时的滚动条高度
+  late StreamController<bool> aStreamC; // bottomBar
+  late StreamController<bool> titleStreamC; // appBar title
 
   // action
   bool reverseSort = false; // 倒序
   bool isLoading = false; // 请求状态 正序/倒序
 
-  // bool _showFab = true;
-  // bool _isElevated = true;
   bool _isVisible = true;
-  bool floorReplyVisible = false;
-  String myUserName = '';
+  bool floorReplyVisible = false; // 查看回复
+  String myUserName = ''; // 当前用户名
 
   SampleItem? selectedMenu;
   String platform = '';
 
-  // FloatingActionButtonLocation get _fabLocation => _isVisible
-  //     ? FloatingActionButtonLocation.endContained
-  //     : FloatingActionButtonLocation.endFloat;
-
-  bool expendAppBar = GStorage().getExpendAppBar();
+  bool expendAppBar = GStorage().getExpendAppBar(); // 伸缩appBar
 
   late AnimationController animationController;
   bool _visibleTitle = false;
+  double? pinScrollHeight;
 
   @override
   void initState() {
     super.initState();
 
-    setState(() {
-      topicId = Get.parameters['topicId']!;
-      myUserName = GStorage().getUserInfo().isNotEmpty
-          ? GStorage().getUserInfo()['userName']
-          : '';
-    });
+    // setState(() {
+    topicId = Get.parameters['topicId']!;
+    if (Get.arguments != null) {
+      topicDetail = Get.arguments['topic'];
+      heroTag = Get.arguments['heroTag'];
+    }
+    myUserName = GStorage().getUserInfo().isNotEmpty
+        ? GStorage().getUserInfo()['userName']
+        : '';
+    // });
 
     _controller = EasyRefreshController(
       controlFinishRefresh: true,
@@ -115,8 +116,6 @@ class _TopicDetailState extends State<TopicDetail>
         setState(() {
           _replyList.add(item);
         });
-        // print('118: item: ${item.content}');
-        // print('118 topic: ${_replyList.length}');
       }
     });
 
@@ -159,6 +158,17 @@ class _TopicDetailState extends State<TopicDetail>
       }
       _currentPage += 1;
     });
+
+    if (pinScrollHeight == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final pinBox =
+            listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+        final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
+        setState(() {
+          pinScrollHeight = pinPosition;
+        });
+      });
+    }
     if (!topicDetailModel.isAuth) {
       SmartDialog.dismiss();
     }
@@ -188,12 +198,16 @@ class _TopicDetailState extends State<TopicDetail>
       _currentPage -= 1;
       print('---_totalPage---:$_totalPage');
     });
+    if (type == 'init') {
+      _scrollController.animateTo(pinScrollHeight!,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut);
+    }
     SmartDialog.dismiss();
   }
 
   // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
-    print('12');
     await _scrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     _controller.callRefresh();
@@ -208,11 +222,11 @@ class _TopicDetailState extends State<TopicDetail>
       _hide();
     }
 
-    if (_scrollController.offset > 150 && !_visibleTitle) {
-        _visibleTitle = true;
+    if (_scrollController.offset > 100 && !_visibleTitle) {
+      _visibleTitle = true;
       titleStreamC.add(true);
-    } else if (_scrollController.offset <= 150 && _visibleTitle) {
-        _visibleTitle = false;
+    } else if (_scrollController.offset <= 100 && _visibleTitle) {
+      _visibleTitle = false;
       titleStreamC.add(false);
     }
   }
@@ -223,8 +237,6 @@ class _TopicDetailState extends State<TopicDetail>
       _isVisible = true;
       aStreamC.add(true);
       animationController.forward();
-
-      // setState(() => _isVisible = true);
     }
   }
 
@@ -234,8 +246,6 @@ class _TopicDetailState extends State<TopicDetail>
       _isVisible = false;
       aStreamC.add(false);
       animationController.reverse();
-
-      // setState(() => _isVisible = false);
     }
   }
 
@@ -254,11 +264,12 @@ class _TopicDetailState extends State<TopicDetail>
           replyMemberList: replyMemberList,
           topicId: _detailModel!.topicId,
           totalPage: _totalPage,
+          replyList: _replyList,
         );
       },
     ).then((value) {
       // 回复成功取消回复取消选中状态
-      if (value != null){
+      if (value != null) {
         var list = _replyList;
         for (var item in _replyList) {
           item.isChoose = false;
@@ -266,13 +277,13 @@ class _TopicDetailState extends State<TopicDetail>
         setState(() {
           _replyList = list;
         });
-          eventBus.emit('topicReply', value['replyStatus']);
+        eventBus.emit('topicReply', value['replyStatus']);
       }
     });
   }
 
   // 查看楼中楼回复
-  void queryReplyList(replyMemberList, floorNumber, resultList) {
+  void queryReplyList(replyMemberList, floorNumber, resultList, totalPage) {
     // replyMemberList 被@的用户
     // resultList 当前楼层回复
     // [
@@ -291,7 +302,6 @@ class _TopicDetailState extends State<TopicDetail>
     for (var i in replyList) {
       if (replyMemberList.contains(i.userName)) {
         queryFlag = true;
-        print('查询到@用户');
         // 取出被@用户的回复
         // 插入指定位置
         int index = replyMemberList.indexOf(i.userName);
@@ -316,10 +326,10 @@ class _TopicDetailState extends State<TopicDetail>
       multipleReplyList.add(replyListMap);
       replyMemberList = [resultList[0].userName];
     }
-    showfloorReply(multipleReplyList, replyMemberList);
+    showfloorReply(multipleReplyList, replyMemberList, totalPage);
   }
 
-  void showfloorReply(multipleReplyList, replyMemberList) {
+  void showfloorReply(multipleReplyList, replyMemberList, totalPage) {
     setState(() {
       floorReplyVisible = true;
     });
@@ -334,6 +344,8 @@ class _TopicDetailState extends State<TopicDetail>
           replyMemberList: replyMemberList,
           resultList: multipleReplyList,
           topicId: _detailModel!.topicId,
+          totalPage: totalPage,
+          replyList: _replyList,
         );
       },
     ).then((value) {
@@ -496,8 +508,7 @@ class _TopicDetailState extends State<TopicDetail>
                       return AnimatedOpacity(
                         opacity: snapshot.data ? 1 : 0,
                         duration: const Duration(milliseconds: 300),
-                        child:
-                        Text(
+                        child: Text(
                           _detailModel != null ? _detailModel!.topicTitle : '',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -507,8 +518,9 @@ class _TopicDetailState extends State<TopicDetail>
                   actions: _detailModel != null ? appBarAction() : [],
                 )
               : null,
-          body: _detailModel != null
-              ? Scrollbar(
+          body: topicDetail == null && _detailModel == null
+              ? showLoading()
+              : Scrollbar(
                   radius: const Radius.circular(10),
                   controller: _scrollController,
                   child: PullRefresh(
@@ -522,10 +534,10 @@ class _TopicDetailState extends State<TopicDetail>
                         : (_currentPage > 0 ? getDetailReverst : null),
                     currentPage: _currentPage,
                     totalPage: _totalPage,
+                    ctr: _controller,
                     child: showRes(),
                   ),
-                )
-              : showLoading(),
+                ),
           bottomNavigationBar: StreamBuilder(
             stream: aStreamC.stream,
             initialData: false,
@@ -570,9 +582,9 @@ class _TopicDetailState extends State<TopicDetail>
       IconButton(
         onPressed: onFavTopic,
         tooltip: '收藏主题',
-        icon: const Icon(Icons.star_border_rounded),
+        icon: const Icon(Icons.bookmark_add_outlined),
         selectedIcon: Icon(
-          Icons.star_rounded,
+          Icons.bookmark_add_rounded,
           color: Theme.of(context).colorScheme.primary,
         ),
         isSelected: _detailModel!.isFavorite,
@@ -617,7 +629,7 @@ class _TopicDetailState extends State<TopicDetail>
   Widget showRes() {
     return CustomScrollView(
       controller: _scrollController,
-      key: listGlobalKey,
+      // key: listGlobalKey,
       slivers: [
         if (expendAppBar) ...[
           SliverAppBar(
@@ -642,9 +654,10 @@ class _TopicDetailState extends State<TopicDetail>
                         return AnimatedOpacity(
                           opacity: snapshot.data ? 1 : 0,
                           duration: const Duration(milliseconds: 300),
-                          child:
-                          Text(
-                            _detailModel != null ? _detailModel!.topicTitle : '',
+                          child: Text(
+                            _detailModel != null
+                                ? _detailModel!.topicTitle
+                                : '',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         );
@@ -726,290 +739,115 @@ class _TopicDetailState extends State<TopicDetail>
             ),
           ),
         SliverToBoxAdapter(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 20, right: 20, bottom: 22, left: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          child: GestureDetector(
-                              onTap: () => Get.toNamed(
-                                      '/member/${_detailModel!.createdId}',
-                                      parameters: {
-                                        'memberAvatar': _detailModel!.avatar,
-                                        'heroTag': heroTag,
-                                      }),
-                              child: Hero(
-                                tag: _detailModel!.createdId + heroTag,
-                                child: CAvatar(
-                                  url: _detailModel!.avatar,
-                                  size: 45,
-                                  quality: 'origin',
-                                ),
-                              )),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            if (myUserName != '' &&
-                                myUserName == _detailModel!.createdId) ...[
-                              Text(
-                                _detailModel!.createdId,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
-                              ),
-                            ] else ...[
-                              Text(
-                                _detailModel!.createdId,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
-                            SizedBox(
-                              height: 15,
-                              child: _detailModel != null
-                                  ? Text(_detailModel!.createdTime,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall!
-                                          .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .outline))
-                                  : null,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    NodeTag(
-                        nodeId: _detailModel!.nodeId,
-                        nodeName: _detailModel!.nodeName,
-                        route: 'detail')
-                  ],
-                ),
-              ),
-
-              /// 主题标题
-              SelectionArea(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                      top: 0, right: 18, bottom: 15, left: 18),
-                  child: Text(
-                    _detailModel!.topicTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge!
-                        .copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-
-              /// action操作
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (_detailModel!.favoriteCount > 0) ...[
-                    Text(
-                      '${_detailModel!.favoriteCount}收藏',
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.outline),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  Text(
-                    '${_detailModel!.visitorCount}查看',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.outline),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '${_detailModel!.replyCount}回复',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium!
-                        .copyWith(color: Theme.of(context).colorScheme.outline),
-                  ),
-                  const SizedBox(width: 20)
-                ],
-              ),
-              const SizedBox(height: 5),
-              Divider(
-                endIndent: 15,
-                indent: 15,
-                color: Theme.of(context).dividerColor.withOpacity(0.15),
-              ),
-              // 内容
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 5, right: 18, bottom: 10, left: 18),
-                child: SelectionArea(
-                  child: HtmlRender(
-                    htmlContent: _detailModel!.contentRendered,
-                    imgCount: _detailModel!.imgCount,
-                    imgList: _detailModel!.imgList,
-                    fs: GStorage().getHtmlFs(),
-                  ),
-                ),
-              ),
-              // 附言
-              if (_detailModel!.subtleList.isNotEmpty) ...[
-                ...subList(_detailModel!.subtleList)
-              ],
-              if (_detailModel!.content.isNotEmpty)
-                Divider(
-                  color: Theme.of(context).dividerColor.withOpacity(0.15),
-                ),
-            ],
-          ),
+          child: TopicMain(
+              detailModel: _detailModel,
+              topicDetail: topicDetail,
+              heroTag: heroTag),
         ),
-        if (_replyList.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Container(
-                padding: const EdgeInsets.only(
-                    top: 20, left: 15, bottom: 18, right: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${_detailModel!.replyCount}条回复',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(fontSize: 18),
-                    ),
-                    if (_replyList.length > 2) ...[
-                      RawChip(
-                        side: BorderSide.none,
-                        showCheckmark: false,
-                        labelPadding: const EdgeInsets.only(left: 1, right: 4),
-                        label: Text(
-                          '倒序查看',
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        avatar: const Icon(
-                          Icons.swap_vert,
-                          size: 19,
-                        ),
-                        onPressed: () => setState(() {
-                          reverseSort = !reverseSort;
-                          if (reverseSort) {
-                            getDetailReverst(type: 'init');
-                          } else {
-                            getDetail(type: 'init');
-                          }
-                        }),
-                        shape: StadiumBorder(
-                          side: BorderSide(
-                              color:
-                                  Theme.of(context).colorScheme.surfaceVariant),
-                        ),
-                        selectedColor:
-                            Theme.of(context).colorScheme.outlineVariant,
-                        selected: reverseSort,
+        if (_detailModel != null) ...[
+          if (_replyList.isNotEmpty) ...[
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 10),
+            ),
+            SliverPersistentHeader(
+              delegate: _MySliverPersistentHeaderDelegate(
+                child: Container(
+                  key: listGlobalKey,
+                  height: 60,
+                  padding: const EdgeInsets.only(left: 15, right: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_detailModel!.replyCount}条回复',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(fontSize: 18),
                       ),
-                    ]
-                  ],
-                )),
+                      if (_replyList.length > 2) ...[
+                        RawChip(
+                          side: BorderSide.none,
+                          showCheckmark: false,
+                          labelPadding:
+                              const EdgeInsets.only(left: 1, right: 4),
+                          label: Text(
+                            '倒序查看',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          avatar: const Icon(
+                            Icons.swap_vert,
+                            size: 19,
+                          ),
+                          onPressed: () => setState(() {
+                            reverseSort = !reverseSort;
+                            if (reverseSort) {
+                              getDetailReverst(type: 'init');
+                            } else {
+                              getDetail(type: 'init');
+                            }
+                          }),
+                          shape: StadiumBorder(
+                            side: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceVariant),
+                          ),
+                          selectedColor:
+                              Theme.of(context).colorScheme.outlineVariant,
+                          selected: reverseSort,
+                        ),
+                      ]
+                    ],
+                  ),
+                ),
+              ),
+              pinned: true,
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return ReplyListItem(
+                    reply: _replyList[index],
+                    topicId: _detailModel!.topicId,
+                    totalPage: _totalPage,
+                    key: UniqueKey(),
+                    queryReplyList:
+                        (replyMemberList, floorNumber, resultList, totalPage) =>
+                            queryReplyList(replyMemberList, floorNumber,
+                                resultList, _totalPage),
+                    source: 'topic',
+                    replyList: _replyList,
+                  );
+                },
+                childCount: _replyList.length,
+              ),
+            ),
+          ],
+          // 没有更多
+          SliverToBoxAdapter(
+            child: Offstage(
+              // when true hidden
+              offstage: _detailModel!.replyCount != '0',
+              child: moreTopic(type: 'null'),
+            ),
           ),
+          // 加载更多
+          SliverToBoxAdapter(
+            child: Offstage(
+              // when true hidden
+              // no reply hidden
+              //
+              offstage: _detailModel!.replyCount == '0' ||
+                  (!reverseSort && (_currentPage < _totalPage)) ||
+                  (reverseSort && (_currentPage > 0)),
+              child: moreTopic(),
+            ),
+          )
         ],
         // 回复列表
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              return ReplyListItem(
-                  reply: _replyList[index],
-                  topicId: _detailModel!.topicId,
-                  totalPage: _totalPage,
-                  key: UniqueKey(),
-                  queryReplyList: (replyMemberList, floorNumber, resultList) =>
-                      queryReplyList(replyMemberList, floorNumber, resultList),
-                  source: 'topic');
-            },
-            childCount: _replyList.length,
-          ),
-        ),
-        // 没有更多
-        SliverToBoxAdapter(
-          child: Offstage(
-            // when true hidden
-            offstage: _detailModel!.replyCount != '0',
-            child: moreTopic(type: 'null'),
-          ),
-        ),
-        // 加载更多
-        SliverToBoxAdapter(
-          child: Offstage(
-            // when true hidden
-            // no reply hidden
-            //
-            offstage: _detailModel!.replyCount == '0' ||
-                (!reverseSort && (_currentPage < _totalPage)) ||
-                (reverseSort && (_currentPage > 0)),
-            child: moreTopic(),
-          ),
-        )
       ],
     );
-  }
-
-  // 附言
-  List<Widget> subList(data) {
-    List<Widget>? list = [];
-    for (var i in data) {
-      list.add(
-        Container(
-          padding:
-              const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
-          // color: Theme.of(context).colorScheme.onInverseSurface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(
-                height: 1,
-                color: Theme.of(context).dividerColor.withOpacity(0.15),
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Text(
-                i.fade,
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    backgroundColor: Theme.of(context).colorScheme.secondary),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              HtmlRender(
-                htmlContent: i.content,
-                imgCount: _detailModel!.imgCount,
-                imgList: _detailModel!.imgList,
-              )
-            ],
-          ),
-        ),
-      );
-    }
-    return list;
   }
 
   // 底部 没有更多
@@ -1041,5 +879,50 @@ class _TopicDetailState extends State<TopicDetail>
         ],
       ),
     );
+  }
+}
+
+class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double _minExtent = 60;
+  final double _maxExtent = 60;
+  final Widget child;
+
+  _MySliverPersistentHeaderDelegate({required this.child});
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    //创建child子组件
+    //shrinkOffset：child偏移值minExtent~maxExtent
+    //overlapsContent：SliverPersistentHeader覆盖其他子组件返回true，否则返回false
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 20,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
+      ),
+      child: child,
+    );
+  }
+
+  //SliverPersistentHeader最大高度
+  @override
+  double get maxExtent => _maxExtent;
+
+  //SliverPersistentHeader最小高度
+  @override
+  double get minExtent => _minExtent;
+
+  @override
+  bool shouldRebuild(covariant _MySliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }
