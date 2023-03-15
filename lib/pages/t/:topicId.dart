@@ -161,12 +161,14 @@ class _TopicDetailState extends State<TopicDetail>
 
     if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final pinBox =
-            listGlobalKey.currentContext?.findRenderObject() as RenderBox;
-        final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
-        setState(() {
-          pinScrollHeight = pinPosition;
-        });
+        if(listGlobalKey.currentContext != null){
+          final pinBox =
+          listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+          final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
+          setState(() {
+            pinScrollHeight = pinPosition;
+          });
+        }
       });
     }
     if (!topicDetailModel.isAuth) {

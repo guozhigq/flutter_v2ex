@@ -72,7 +72,7 @@ class TopicMain extends StatelessWidget {
         ),
         Container(
           padding:
-              const EdgeInsets.only(top: 20, right: 20, bottom: 5, left: 20),
+              const EdgeInsets.only(top: 20, right: 20, bottom: 15, left: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -178,18 +178,17 @@ class TopicMain extends StatelessWidget {
         //     const SizedBox(width: 20)
         //   ],
         // ),
-        // const SizedBox(height: 5),
-        // Divider(
-        //   endIndent: 15,
-        //   indent: 15,
-        //   color: Theme.of(context).dividerColor.withOpacity(0.15),
-        // ),
+        Divider(
+          endIndent: 15,
+          indent: 15,
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+        ),
         // 内容
         if (detailModel != null) ...[
           if (detailModel!.content != '')
             Container(
               padding: const EdgeInsets.only(
-                  top: 10, right: 18, bottom: 10, left: 18),
+                  top: 8, right: 18, bottom: 10, left: 18),
               child: SelectionArea(
                 child: HtmlRender(
                   htmlContent: detailModel!.contentRendered,
