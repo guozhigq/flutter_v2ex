@@ -399,7 +399,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         ),
         // title
         Container(
-          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 45, right: 7),
+          margin: const EdgeInsets.only(top: 5, left: 45, right: 10),
           child: SelectionArea(
             /// TODO SelectionArea ignore Inkwell onTap event
             // https://github.com/flutter/flutter/issues/53797
@@ -427,7 +427,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
           },
           onLongPress: () {},
           child: Ink(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+            padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
             child: child,
           ),
         ),
