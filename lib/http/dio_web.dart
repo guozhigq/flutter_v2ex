@@ -637,15 +637,6 @@ class DioRequestWeb {
       print('585 - thank: ${detailModel.isThank}');
     }
 
-    // <a href="#;" onclick="if (confirm('确定不想再看到这个主题？')) { location.href = '/ignore/topic/583319?once=62479'; }"
-    //    class="op" style="user-select: auto;">忽略主题</a>
-    // #Wrapper > div > div:nth-child(1) > div.inner > div > a:nth-child(5)
-
-    // 登录 是否感谢 document.querySelector('#topic_thank > span')
-    // detailModel.isThank = document.querySelector('#topic_thank > span') != null;
-    // print(detailModel.isFavorite == true ? 'yes' : 'no');
-    // print(detailModel.isThank == true ? 'yes' : 'no');
-
     // 判断是否有评论
     if (document.querySelector('#no-comments-yet') == null) {
       // 表示有评论
@@ -701,7 +692,13 @@ class DioRequestWeb {
         if (aNode.querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.badges > div.badge') !=
             null) {
-          replyItem.isOwner = true;
+          String status = aNode.querySelector(
+              '$replyTrQuery > td:nth-child(5) > div.badges > div.badge')!.text;
+          if(status == 'MOD'){
+            replyItem.isMod = true;
+          }else if(status == 'OP'){
+            replyItem.isOwner = true;
+          }
         }
         replyItem.lastReplyTime = aNode
             .querySelector('$replyTrQuery > td:nth-child(5) > span')!
