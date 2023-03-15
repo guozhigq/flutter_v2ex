@@ -20,6 +20,10 @@ class TopicMain extends StatelessWidget {
         .textTheme
         .titleLarge!
         .copyWith(fontWeight: FontWeight.w500);
+    TextStyle labelMedium = Theme.of(context)
+        .textTheme
+        .labelMedium!
+        .copyWith(color: Theme.of(context).colorScheme.outline);
     TextStyle timeStyle = Theme.of(context)
         .textTheme
         .labelSmall!
@@ -45,10 +49,30 @@ class TopicMain extends StatelessWidget {
                       ),
           ),
         ),
-
         Container(
           padding:
-              const EdgeInsets.only(top: 20, right: 20, bottom: 20, left: 20),
+          const EdgeInsets.only(top: 10, right: 20, bottom: 10, left: 20),
+          child:
+          Row(
+            children: [
+              detailModel != null
+                  ? Text(detailModel!.createdTime, style: timeStyle)
+                  : topicDetail != null
+                      ? Text(topicDetail!.lastReplyTime,
+                          style: timeStyle)
+                      : const SizedBox(),
+              const SizedBox(width: 10,),
+              if(detailModel != null)
+                Text('${detailModel.visitorCount} 点击', style: labelMedium) ,
+              const SizedBox(width: 10,),
+              if(detailModel != null)
+                Text('${detailModel.favoriteCount} 收藏', style: labelMedium)
+            ],
+          ),
+        ),
+        Container(
+          padding:
+              const EdgeInsets.only(top: 20, right: 20, bottom: 5, left: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -97,12 +121,12 @@ class TopicMain extends StatelessWidget {
                                       Theme.of(context).textTheme.titleMedium,
                                 )
                               : const Text('加载中'),
-                      detailModel != null
-                          ? Text(detailModel!.createdTime, style: timeStyle)
-                          : topicDetail != null
-                              ? Text(topicDetail!.lastReplyTime,
-                                  style: timeStyle)
-                              : const SizedBox()
+                      // detailModel != null
+                      //     ? Text(detailModel!.createdTime, style: timeStyle)
+                      //     : topicDetail != null
+                      //         ? Text(topicDetail!.lastReplyTime,
+                      //             style: timeStyle)
+                      //         : const SizedBox()
                     ],
                   ),
                 ],
@@ -155,17 +179,17 @@ class TopicMain extends StatelessWidget {
         //   ],
         // ),
         // const SizedBox(height: 5),
-        Divider(
-          endIndent: 15,
-          indent: 15,
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
-        ),
+        // Divider(
+        //   endIndent: 15,
+        //   indent: 15,
+        //   color: Theme.of(context).dividerColor.withOpacity(0.15),
+        // ),
         // 内容
         if (detailModel != null) ...[
           if (detailModel!.content != '')
             Container(
               padding: const EdgeInsets.only(
-                  top: 5, right: 18, bottom: 10, left: 18),
+                  top: 10, right: 18, bottom: 10, left: 18),
               child: SelectionArea(
                 child: HtmlRender(
                   htmlContent: detailModel!.contentRendered,

@@ -16,4 +16,5 @@ class ReplyItem {
   bool isChoose = false; // 默认不选中,
   List replyMemberList = []; // 回复的用户id
   List imgList = []; // image
+  bool isMod = false; // 管理员
 }

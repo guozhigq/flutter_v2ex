@@ -68,7 +68,6 @@ class _TopicDetailState extends State<TopicDetail>
   SampleItem? selectedMenu;
   String platform = '';
 
-
   bool expendAppBar = GStorage().getExpendAppBar(); // 伸缩appBar
 
   late AnimationController animationController;
@@ -160,9 +159,10 @@ class _TopicDetailState extends State<TopicDetail>
       _currentPage += 1;
     });
 
-    if(pinScrollHeight == null ) {
+    if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final pinBox = listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+        final pinBox =
+            listGlobalKey.currentContext?.findRenderObject() as RenderBox;
         final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
         setState(() {
           pinScrollHeight = pinPosition;
@@ -198,8 +198,10 @@ class _TopicDetailState extends State<TopicDetail>
       _currentPage -= 1;
       print('---_totalPage---:$_totalPage');
     });
-    if(type == 'init'){
-      _scrollController.animateTo(pinScrollHeight!, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    if (type == 'init') {
+      _scrollController.animateTo(pinScrollHeight!,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut);
     }
     SmartDialog.dismiss();
   }
@@ -300,7 +302,6 @@ class _TopicDetailState extends State<TopicDetail>
     for (var i in replyList) {
       if (replyMemberList.contains(i.userName)) {
         queryFlag = true;
-        print('查询到@用户');
         // 取出被@用户的回复
         // 插入指定位置
         int index = replyMemberList.indexOf(i.userName);
@@ -739,10 +740,9 @@ class _TopicDetailState extends State<TopicDetail>
           ),
         SliverToBoxAdapter(
           child: TopicMain(
-            detailModel: _detailModel,
-            topicDetail: topicDetail,
-              heroTag: heroTag
-          ),
+              detailModel: _detailModel,
+              topicDetail: topicDetail,
+              heroTag: heroTag),
         ),
         if (_detailModel != null) ...[
           if (_replyList.isNotEmpty) ...[
@@ -754,8 +754,7 @@ class _TopicDetailState extends State<TopicDetail>
                 child: Container(
                   key: listGlobalKey,
                   height: 60,
-                  padding: const EdgeInsets.only(
-                      left: 15, right: 12),
+                  padding: const EdgeInsets.only(left: 15, right: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -899,14 +898,16 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.background,
-        boxShadow: overlapsContent ?  [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            spreadRadius: 2,
-            blurRadius: 20,
-            offset: const Offset(0, 3),
-          ),
-        ] : null,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 20,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
       ),
       child: child,
     );
