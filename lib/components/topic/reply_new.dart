@@ -11,7 +11,7 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter_v2ex/components/extended_text/selection_controls.dart';
 import 'package:flutter_v2ex/components/extended_text/text_span_builder.dart';
-
+import 'package:flutter_v2ex/http/topic.dart';
 
 class ReplyNew extends StatefulWidget {
   List? replyMemberList;
@@ -77,7 +77,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
       }
-      var res = await DioRequestWeb.onSubmitReplyTopic(
+      var res = await TopicWebApi.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res == 'true') {
         if (context.mounted) {

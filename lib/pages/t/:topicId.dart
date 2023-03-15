@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter_v2ex/components/topic/main.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
 
@@ -25,6 +24,7 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_v2ex/http/topic.dart';
 
 enum SampleItem { ignore, share, report, browse }
 
@@ -147,7 +147,7 @@ class _TopicDetailState extends State<TopicDetail>
       SmartDialog.showLoading(msg: '加载中ing');
     }
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
+        await TopicWebApi.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       if (_currentPage == 0) {
@@ -189,7 +189,7 @@ class _TopicDetailState extends State<TopicDetail>
     }
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage);
+        await TopicWebApi.getTopicDetail(topicId, _currentPage);
     setState(() {
       if (_currentPage == _totalPage) {
         _replyList = topicDetailModel.replyList.reversed.toList();
@@ -374,7 +374,7 @@ class _TopicDetailState extends State<TopicDetail>
                 onPressed: () async {
                   Navigator.pop(context);
                   SmartDialog.showLoading();
-                  var res = await DioRequestWeb.onIgnoreTopic(topicId);
+                  var res = await TopicWebApi.onIgnoreTopic(topicId);
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已忽略' : '操作失败');
                   if (res) {
@@ -405,7 +405,7 @@ class _TopicDetailState extends State<TopicDetail>
                 onPressed: () async {
                   Navigator.pop(context);
                   SmartDialog.showLoading();
-                  var res = await DioRequestWeb.onReportTopic(topicId);
+                  var res = await TopicWebApi.onReportTopic(topicId);
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已举报' : '操作失败');
                   if (res) {
@@ -432,7 +432,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 收藏
   Future<void> onFavTopic() async {
-    var res = await DioRequestWeb.favoriteTopic(
+    var res = await TopicWebApi.favoriteTopic(
         _detailModel!.isFavorite, _detailModel!.topicId);
     if (res) {
       setState(() {
@@ -469,7 +469,7 @@ class _TopicDetailState extends State<TopicDetail>
             TextButton(
               onPressed: (() async {
                 Navigator.pop(context, 'OK');
-                var res = await DioRequestWeb.thankTopic(_detailModel!.topicId);
+                var res = await TopicWebApi.thankTopic(_detailModel!.topicId);
                 print('54: $res');
                 if (res) {
                   setState(() {

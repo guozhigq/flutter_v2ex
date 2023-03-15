@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
+import 'package:flutter_v2ex/http/topic.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -24,7 +23,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<List<TabTopicItem>> getHistoryTopic() async {
-    var res = await DioRequestWeb.getTopicsHistory();
+    var res = await TopicWebApi.getTopicsHistory();
     setState(() {
       topicList = res;
       _isLoading = false;

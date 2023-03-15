@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/http/user.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -47,7 +48,7 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   Future<MemberNoticeModel> queryNotice() async {
-    var res = await DioRequestWeb.queryNotice(_currentPage + 1);
+    var res = await UserWebApi.queryNotice(_currentPage + 1);
 
     setState(() {
       if (_currentPage == 0) {
@@ -66,7 +67,7 @@ class _MessagePageState extends State<MessagePage> {
   Future<bool> onDeleteNotice(index) async{
       String noticeId = noticeList[index].delIdOne;
       String once = noticeList[index].delIdTwo;
-      await DioRequestWeb.onDelNotice(noticeId, once);
+      await UserWebApi.onDelNotice(noticeId, once);
       setState(() {
         noticeList.removeAt(index);
       });

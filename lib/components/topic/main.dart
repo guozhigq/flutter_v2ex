@@ -72,7 +72,7 @@ class TopicMain extends StatelessWidget {
         ),
         Container(
           padding:
-              const EdgeInsets.only(top: 20, right: 20, bottom: 15, left: 20),
+              const EdgeInsets.only(top: 20, right: 20, bottom: 12, left: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[

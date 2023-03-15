@@ -7,6 +7,7 @@ import 'package:flutter_v2ex/components/member/topic_item.dart';
 import 'package:flutter_v2ex/models/web/model_member_topic.dart';
 import 'package:flutter_v2ex/models/web/item_member_topic.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
+import 'package:flutter_v2ex/http/user.dart';
 
 class MemberTopicsPage extends StatefulWidget {
   const MemberTopicsPage({Key? key}) : super(key: key);
@@ -52,7 +53,7 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
 
   Future<ModelMemberTopic> queryMemberTopic() async {
     ModelMemberTopic res =
-        await DioRequestWeb.queryMemberTopic(memberId, _currentPage + 1);
+        await UserWebApi.queryMemberTopic(memberId, _currentPage + 1);
     if (!res.isShow) {
       setState(() {
         _isLoading = false;

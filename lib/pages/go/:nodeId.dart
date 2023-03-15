@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
+import 'package:flutter_v2ex/http/node.dart';
 
 class GoPage extends StatefulWidget {
   const GoPage({super.key});
@@ -53,7 +54,7 @@ class _GoPageState extends State<GoPage> {
   }
 
   void getTopics() async {
-    var res = await DioRequestWeb.getTopicsByNodeId(nodeId, _currentPage + 1);
+    var res = await NodeWebApi.getTopicsByNodeId(nodeId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
@@ -67,7 +68,7 @@ class _GoPageState extends State<GoPage> {
   }
 
   Future<bool> favNode() async {
-    bool res = await DioRequestWeb.onFavNode(topicListDetail!.nodeId, topicListDetail!.isFavorite);
+    bool res = await NodeWebApi.onFavNode(topicListDetail!.nodeId, topicListDetail!.isFavorite);
     if(res) {
       SmartDialog.showToast(topicListDetail!.isFavorite ? '取消收藏成功' : '收藏成功');
       setState(() {
