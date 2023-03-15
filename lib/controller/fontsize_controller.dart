@@ -15,15 +15,12 @@ class FontSizeController extends GetxController {
     super.onInit();
     // 获取字体大小
     textTheme = customFsTheme(fontSize: globalFs.value);
-
   }
 
   TextTheme customFsTheme({double fontSize = 14}) {
     double scale = fontSize / baseFontSize;
-    print('scale: $scale');
     if(Get.context != null){
       var _textTheme = Theme.of(Get.context!).textTheme;
-      print('_textTheme: $_textTheme');
       return TextTheme(
         displayLarge: updateFontSize(_textTheme.displayLarge!, scale),
         displayMedium: updateFontSize(_textTheme.displayMedium!, scale),
@@ -57,7 +54,9 @@ class FontSizeController extends GetxController {
       customFsTheme(fontSize: globalFs.value);
 
   void setFontSize({fontSize}) {
+    globalFs.value = fontSize;
     textTheme = customFsTheme(fontSize: fontSize);
+    update();
   }
 
 }

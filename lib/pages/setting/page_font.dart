@@ -26,10 +26,10 @@ class _SetFontPageState extends State<SetFontPage> {
         actions: [
           TextButton(
             onPressed: () {
-              GStorage().setGlobalFs(_currentGlobalSize);
               GStorage().setHtmlFs(_currentHtmlSize);
               GStorage().setReplyFs(_currentReplySize);
               if(_currentGlobalSize != GStorage().getGlobalFs()){
+                GStorage().setGlobalFs(_currentGlobalSize);
                 FontSizeController().setFontSize(fontSize: _currentGlobalSize);
               }
               SmartDialog.showToast('设置成功');
@@ -43,30 +43,30 @@ class _SetFontPageState extends State<SetFontPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Container(
-            //   width: double.infinity,
-            //   padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       Text('全局字体', style: Theme.of(context).textTheme.titleMedium),
-            //       Text(_currentGlobalSize.toString(), style: Theme.of(context).textTheme.titleMedium),
-            //     ],
-            //   ),
-            // ),
-            // Slider(
-            //   value: _currentGlobalSize,
-            //   max: 18,
-            //   divisions: 5,
-            //   min: 13,
-            //   label: _currentGlobalSize.round().toString(),
-            //   onChanged: (double value) {
-            //     setState(() {
-            //       _currentGlobalSize = value;
-            //     });
-            //   },
-            // ),
-            // const Divider(),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('全局字体（重启生效）', style: Theme.of(context).textTheme.titleMedium),
+                  Text(_currentGlobalSize.toString(), style: Theme.of(context).textTheme.titleMedium),
+                ],
+              ),
+            ),
+            Slider(
+              value: _currentGlobalSize,
+              max: 18,
+              divisions: 5,
+              min: 13,
+              label: _currentGlobalSize.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _currentGlobalSize = value;
+                });
+              },
+            ),
+            const Divider(),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
