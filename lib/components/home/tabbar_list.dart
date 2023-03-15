@@ -96,14 +96,13 @@ class _TabBarListState extends State<TabBarList>
         } else {
           // 去除重复数据
           List<TabTopicItem> result = List.from(res);
-          for (var i in tempTopicList) {
-            for (var j in res) {
-              if (j.topicId == i.topicId) {
-                result.removeAt(res.indexOf(j));
-              }
+          try{
+            for (var i in tempTopicList) {
+              result.removeWhere((j) => j.topicId == i.topicId);
             }
+          }catch(err){
+            print('list去重： $err');
           }
-          print(result[0]);
           topicList.addAll(result);
           tempTopicList = result;
         }
@@ -197,10 +196,11 @@ class _TabBarListState extends State<TabBarList>
                             child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(
+                            SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
+                                    color: Theme.of(context).colorScheme.onBackground,
                                     strokeWidth: 2.0)),
                             const SizedBox(width: 16),
                             Column(
@@ -209,7 +209,7 @@ class _TabBarListState extends State<TabBarList>
                                 Text('加载中...',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .titleMedium),
+                                        .labelLarge),
                                 const SizedBox(height: 4),
                                 Text(
                                   '最后更新于刚刚',
