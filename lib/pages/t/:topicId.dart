@@ -25,6 +25,7 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_v2ex/http/topic.dart';
+import 'package:flutter_v2ex/service/read.dart';
 
 enum SampleItem { ignore, share, report, browse }
 
@@ -133,7 +134,9 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetailInit() async {
-    getDetail(type: 'init');
+    await getDetail(type: 'init');
+    // 标记已读
+    Read().add(_detailModel!);
   }
 
   Future getDetail({type}) async {

@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
+import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
+import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -22,6 +25,9 @@ import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/app_theme.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_v2ex/service/read.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -57,6 +63,16 @@ void main() async {
   }catch(err) {
     print('GetStorage err: ${err.toString()}');
   }
+  // 初始化 Hive 历史浏览box
+  await Hive.initFlutter();
+  Hive.registerAdapter(TabTopicItemAdapter());
+  Hive.registerAdapter(TopicDetailModelAdapter());
+  Hive.registerAdapter(ReplyItemAdapter());
+  Hive.registerAdapter(TopicSubtleItemAdapter());
+
+  await Hive.openBox('recentTopicsBox');
+  // Read().clear();
+
   // 高帧率滚动性能优化
   GestureBinding.instance.resamplingEnabled = true;
   // 入口
