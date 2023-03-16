@@ -35,7 +35,7 @@ class CAvatar extends StatelessWidget {
         //   value: downloadProgress.progress,
         //   strokeWidth: 3,
         // ),
-        errorWidget: (context, url, error) => placeholder(context),
+        errorWidget: (context, url, error) => errAvatar(context),
         placeholder: (context, url) => placeholder(context),
       ),
       // child: ImageLoading(
@@ -48,7 +48,8 @@ class CAvatar extends StatelessWidget {
   }
 
   Widget placeholder(context) {
-    return Container(
+    return
+      Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -58,6 +59,24 @@ class CAvatar extends StatelessWidget {
       child: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
           backgroundImage: const AssetImage('assets/images/avatar.png')),
+    );
+  }
+  Widget errAvatar(context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(50),
+      ),
+      clipBehavior: Clip.antiAlias,
+      width: size,
+      height: size,
+      child: Center(
+        child: Icon(
+          Icons.person_rounded,
+          size: size - 10,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 }

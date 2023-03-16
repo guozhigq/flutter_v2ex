@@ -72,7 +72,7 @@ class TopicMain extends StatelessWidget {
         ),
         Container(
           padding:
-              const EdgeInsets.only(top: 20, right: 20, bottom: 12, left: 20),
+              const EdgeInsets.only(top: 20, right: 20, bottom: 8, left: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -147,37 +147,6 @@ class TopicMain extends StatelessWidget {
             ],
           ),
         ),
-
-        /// action操作
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.end,
-        //   children: [
-        //     if (detailModel!.favoriteCount > 0) ...[
-        //       Text(
-        //         '${detailModel!.favoriteCount}收藏',
-        //         style: Theme.of(context).textTheme.labelMedium!.copyWith(
-        //             color: Theme.of(context).colorScheme.outline),
-        //       ),
-        //       const SizedBox(width: 16),
-        //     ],
-        //     Text(
-        //       '${detailModel!.visitorCount}查看',
-        //       style: Theme.of(context)
-        //           .textTheme
-        //           .labelMedium!
-        //           .copyWith(color: Theme.of(context).colorScheme.outline),
-        //     ),
-        //     const SizedBox(width: 16),
-        //     Text(
-        //       '${detailModel!.replyCount}回复',
-        //       style: Theme.of(context)
-        //           .textTheme
-        //           .labelMedium!
-        //           .copyWith(color: Theme.of(context).colorScheme.outline),
-        //     ),
-        //     const SizedBox(width: 20)
-        //   ],
-        // ),
         Divider(
           endIndent: 15,
           indent: 15,
@@ -188,7 +157,7 @@ class TopicMain extends StatelessWidget {
           if (detailModel!.content != '')
             Container(
               padding: const EdgeInsets.only(
-                  top: 8, right: 18, bottom: 10, left: 18),
+                  top: 6, right: 18, bottom: 10, left: 18),
               child: SelectionArea(
                 child: HtmlRender(
                   htmlContent: detailModel!.contentRendered,

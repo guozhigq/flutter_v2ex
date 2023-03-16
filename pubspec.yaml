@@ -48,7 +48,7 @@ dependencies:
     flutter_inappwebview: ^6.0.0-beta.22
     animations: ^2.0.7
     flutter_smart_dialog: ^4.8.1
-    extended_image: ^7.0.0
+    extended_image: ^7.0.2
     flutter_html_iframe: ^3.0.0-alpha.4
     get: ^4.6.5
     get_storage: ^2.0.3

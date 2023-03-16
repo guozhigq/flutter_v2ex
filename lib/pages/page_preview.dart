@@ -13,6 +13,7 @@ import 'package:flutter_v2ex/components/common/appbar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
+typedef DoubleClickAnimationListener = void Function();
 
 enum SampleItem { share, save, browser }
 
@@ -24,13 +25,17 @@ class ImagePreview extends StatefulWidget {
 }
 
 class _ImagePreviewState extends State<ImagePreview>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int initialPage = 0;
   List imgList = [];
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   late AnimationController animationController;
   Animation<double>? _animationValue;
+  late AnimationController _doubleClickAnimationController;
+  Animation<double>? _doubleClickAnimation;
+  late DoubleClickAnimationListener _doubleClickAnimationListener;
+  List<double> doubleTapScales = <double>[1.0, 2.0];
 
   bool storage = true;
   bool videos = true;
@@ -53,6 +58,9 @@ class _ImagePreviewState extends State<ImagePreview>
       initialPage = Get.arguments['initialPage']!;
       imgList = Get.arguments['imgList'];
     }
+    _doubleClickAnimationController = AnimationController(
+        duration: const Duration(milliseconds: 250), vsync: this);
+
   }
 
   android() async {
@@ -101,6 +109,7 @@ class _ImagePreviewState extends State<ImagePreview>
   }
 
   void onShareImg() async {
+    _requestPermission();
     // final Uri imgUrl = Uri.parse(imgList[initialPage]) ;
     var response = await Dio().get(imgList[initialPage],
         options: Options(responseType: ResponseType.bytes));
@@ -116,6 +125,14 @@ class _ImagePreviewState extends State<ImagePreview>
       Utils.openURL(imgList[initialPage]);
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    animationController.dispose();
+    _doubleClickAnimationController.dispose();
+    clearGestureDetailsCache();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,6 +203,8 @@ class _ImagePreviewState extends State<ImagePreview>
               initialPage = index;
             })
           },
+          canScrollPage: (GestureDetails? gestureDetails) =>
+          gestureDetails!.totalScale! <= 1.0,
           preloadPagesCount: 2,
           itemCount: imgList.length,
           itemBuilder: (BuildContext context, int index) {
@@ -193,6 +212,44 @@ class _ImagePreviewState extends State<ImagePreview>
               imgList[index],
               fit: BoxFit.contain,
               mode: ExtendedImageMode.gesture,
+              onDoubleTap: (ExtendedImageGestureState state) {
+                ///you can use define pointerDownPosition as you can,
+                ///default value is double tap pointer down postion.
+                final Offset? pointerDownPosition =
+                    state.pointerDownPosition;
+                final double? begin = state.gestureDetails!.totalScale;
+                double end;
+
+                //remove old
+                _doubleClickAnimation
+                    ?.removeListener(_doubleClickAnimationListener);
+
+                //stop pre
+                _doubleClickAnimationController.stop();
+
+                //reset to use
+                _doubleClickAnimationController.reset();
+
+                if (begin == doubleTapScales[0]) {
+                  end = doubleTapScales[1];
+                } else {
+                  end = doubleTapScales[0];
+                }
+
+                _doubleClickAnimationListener = () {
+                  //print(_animation.value);
+                  state.handleDoubleTap(
+                      scale: _doubleClickAnimation!.value,
+                      doubleTapPosition: pointerDownPosition);
+                };
+                _doubleClickAnimation = _doubleClickAnimationController
+                    .drive(Tween<double>(begin: begin, end: end));
+
+                _doubleClickAnimation!
+                    .addListener(_doubleClickAnimationListener);
+
+                _doubleClickAnimationController.forward();
+              },
               loadStateChanged: (ExtendedImageState state) {
                 if (state.extendedImageLoadState == LoadState.loading) {
                   final ImageChunkEvent? loadingProgress =
