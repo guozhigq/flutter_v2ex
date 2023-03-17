@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_v2ex/models/version.dart';
+import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -122,6 +123,11 @@ class DioRequestWeb {
         topics.add(item);
       }
     }
+    try{
+      Read().mark(topics);
+    }catch(err){
+      print(err);
+    }
     return topics;
   }
 
@@ -178,6 +184,11 @@ class DioRequestWeb {
             .split('/')[2];
         topics.add(item);
       }
+    try{
+      Read().mark(topics);
+    }catch(err){
+      print(err);
+    }
       return topics;
 
   }

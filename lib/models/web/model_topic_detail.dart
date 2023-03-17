@@ -20,7 +20,7 @@ class TopicDetailModel {
   @HiveField(5)
   String avatar = '';
   @HiveField(6)
-  String replyCount = '0';
+  int replyCount = 0;
   @HiveField(7)
   // String smallGray = ''; // 6 小时 21 分钟前 · 3366 次点击
   String createdTime = ''; // 创建时间

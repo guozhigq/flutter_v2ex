@@ -11,7 +11,6 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  // final ScrollController? controller;
   List historyList = [];
 
   @override
@@ -22,13 +21,36 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
 
-  void getHistoryTopic() {
-    var res = Read().query();
+  Future getHistoryTopic() async{
+    var res = await Read().query();
     if(res.isNotEmpty){
       setState(() {
         historyList = res.reversed.toList();
       });
+    }else{
+      historyList = [];
     }
+  }
+
+  void clearHis() {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text("提示"),
+        content: const Text('确定删除全部浏览记录吗？'),
+        actions: [
+          TextButton(onPressed: () =>Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () async{
+            await Read().clear();
+            setState(() {
+              historyList = [];
+            });
+            if(context.mounted){
+              Navigator.pop(context);
+            }
+          }, child: const Text('确定')),
+        ],
+      );
+    });
   }
 
   @override
@@ -36,28 +58,35 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('最近浏览'),
+        actions: [
+          IconButton(
+              onPressed: historyList.isNotEmpty ? clearHis : null,
+              tooltip: '清除浏览记录',
+              icon: const Icon(Icons.clear_all_rounded),),
+          const SizedBox(width: 12),
+        ],
       ),
-      body: ListView.builder(
-          // primary: controller == null,
-          // controller: controller,
+      body: historyList.isEmpty ? noData() : ListView.builder(
           itemCount: historyList.length,
           itemBuilder: (context, index) {
         return StickyHeaderBuilder(
-          // controller: controller, // Optional
           builder: (BuildContext context, double stuckAmount) {
-            stuckAmount = 1.0 - stuckAmount.clamp(0.0, 1.0);
+            stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
             return Container(
               height: 60.0,
-              color: Color.lerp(Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.background, stuckAmount),
+              // color: Color.lerp(Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.onInverseSurface, stuckAmount),
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.centerLeft,
               child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      historyList[index]['date'],
-                        style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                Text(
+                  historyList[index]['date'],
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                  Text(
+                    '${historyList[index]['topicList'].length} 贴',
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.outline),
                   ),
                 ],
               ),

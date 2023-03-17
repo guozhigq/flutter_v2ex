@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_v2ex/models/version.dart';
+import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -139,6 +140,11 @@ class NodeWebApi {
         // item.nodeName = aNode.xpath("/table/tr/td[3]/span[1]/a/text()")![0].name!;
         topics.add(item);
       }
+    }
+    try{
+      Read().mark(topics);
+    }catch(err){
+      print(err);
     }
     detailModel.topicList = topics;
 

@@ -23,7 +23,7 @@ class TopicDetailModelAdapter extends TypeAdapter<TopicDetailModel> {
       ..topicTitle = fields[3] as String
       ..createdId = fields[4] as String
       ..avatar = fields[5] as String
-      ..replyCount = fields[6] as String
+      ..replyCount = fields[6] as int
       ..createdTime = fields[7] as String
       ..visitorCount = fields[8] as String
       ..content = fields[9] as String

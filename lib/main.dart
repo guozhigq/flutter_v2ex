@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_v2ex/service/read.dart';
+import 'package:flutter_v2ex/utils/hive.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -64,17 +66,10 @@ void main() async {
     print('GetStorage err: ${err.toString()}');
   }
   // 初始化 Hive 历史浏览box
-  await Hive.initFlutter();
-  Hive.registerAdapter(TabTopicItemAdapter());
-  Hive.registerAdapter(TopicDetailModelAdapter());
-  Hive.registerAdapter(ReplyItemAdapter());
-  Hive.registerAdapter(TopicSubtleItemAdapter());
-
-  await Hive.openBox('recentTopicsBox');
-  // Read().clear();
+  await initHive();
 
   // 高帧率滚动性能优化
-  GestureBinding.instance.resamplingEnabled = true;
+  // GestureBinding.instance.resamplingEnabled = true;
   // 入口
   runApp(const MyApp());
   // 配置状态栏
@@ -158,6 +153,7 @@ class _MyAppState extends State<MyApp> {
     if(_timer.isActive){
       _timer.cancel();
     }
+    closeHive();
     super.dispose();
   }
 
