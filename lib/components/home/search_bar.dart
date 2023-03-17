@@ -136,6 +136,10 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 child: CAvatar(
                                   url: userInfo['avatar'],
                                   size: 37,
+                                  fadeInDuration:
+                                      const Duration(milliseconds: 0),
+                                  fadeOutDuration:
+                                      const Duration(milliseconds: 0),
                                 ),
                               )
                             // ?  Text(userInfo['userName'])
@@ -161,21 +165,24 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       ),
                     ],
                   ),
-                  Positioned(
-                    right: 38,
-                    top: 0,
-                    child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            unRead = false;
-                          });
-                          Get.toNamed('/notifications');
-                        },
-                        icon: Icon(Icons.notifications_none_rounded,
-                            color: !unRead
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.primary)),
-                  )
+                  Visibility(
+                    visible: loginStatus,
+                    child: Positioned(
+                      right: 38,
+                      top: 0,
+                      child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              unRead = false;
+                            });
+                            Get.toNamed('/notifications');
+                          },
+                          icon: Icon(Icons.notifications_none_rounded,
+                              color: !unRead
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.primary)),
+                    ),
+                  ),
                 ],
               )),
         ),

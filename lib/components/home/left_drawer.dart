@@ -23,6 +23,11 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       'title': '今日热议',
       'path': '/hot'
     },
+    {
+      'leading': const Icon(Icons.history_outlined),
+      'title': '最近浏览',
+      'path': '/history'
+    },
   ];
   final List<Map<dynamic, dynamic>> _listTitleMap = [
     {
@@ -36,19 +41,9 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
       'path': '/my/topics'
     },
     {
-      'leading': const Icon(Icons.notifications_none),
-      'title': '消息提醒',
-      'path': '/notifications'
-    },
-    {
       'leading': const Icon(Icons.edit_note_outlined),
       'title': '发布主题',
       'path': '/write'
-    },
-    {
-      'leading': const Icon(Icons.history_outlined),
-      'title': '最近浏览',
-      'path': '/history'
     },
   ];
   final List<Map<dynamic, dynamic>> _listTitleMap_2 = [
@@ -67,44 +62,44 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   void onDestinationSelected(int index) async {
     if (!_loginStatus) {
-      if (index == 0) {
+      if (index <= 1) {
         // 热议
-        Get.toNamed(_listTitleMap_0[0]['path']);
+        Get.toNamed(_listTitleMap_0[index]['path']);
       }
-      if (index == 1) {
+      if (index == 2) {
         // 选择主题
         setState(() {
           _tempThemeValue = _currentThemeValue;
         });
         _showThemeDialog();
       }
-      if (index == 2) {
+      if (index == 3) {
         // 设置
         Get.toNamed('/setting');
       }
-      if (index == 3) {
+      if (index == 4) {
         // 帮助
         Get.toNamed('/help');
       }
     } else {
-      if (index == 0) {
-        Get.toNamed(_listTitleMap_0[0]['path']);
-      } else if (index < 6) {
+      if (index <= 1) {
+        Get.toNamed(_listTitleMap_0[index]['path']);
+      } else if (index < 5) {
         // 用户权限
-        Get.toNamed(_listTitleMap[index - 1]['path']);
+        Get.toNamed(_listTitleMap[index - _listTitleMap_0.length]['path']);
       }
-      if (index == 6) {
+      if (index == 5) {
         // 选择主题
         setState(() {
           _tempThemeValue = _currentThemeValue;
         });
         _showThemeDialog();
       }
-      if (index == 7) {
+      if (index == 6) {
         // 设置
         Get.toNamed('/setting');
       }
-      if (index == 8) {
+      if (index == 7) {
         // 帮助
         Get.toNamed('/help');
       }
@@ -112,6 +107,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   }
 
   void _showThemeDialog() {
+    TextStyle textStyle = Theme.of(context).textTheme.titleMedium!;
     showDialog(
       context: context,
       builder: (context) {
@@ -124,8 +120,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
               children: [
                 RadioListTile(
                   value: ThemeType.light,
-                  title: Text('浅色',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  title: Text('浅色', style: textStyle),
                   groupValue: _tempThemeValue,
                   onChanged: (ThemeType? value) {
                     setState(() {
@@ -135,8 +130,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                 ),
                 RadioListTile(
                   value: ThemeType.dark,
-                  title: Text('深色',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  title: Text('深色', style: textStyle),
                   groupValue: _tempThemeValue,
                   onChanged: (ThemeType? value) {
                     setState(() {
@@ -146,8 +140,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
                 ),
                 RadioListTile(
                   value: ThemeType.system,
-                  title: Text('系统默认设置',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  title: Text('系统默认设置', style: textStyle),
                   groupValue: _tempThemeValue,
                   onChanged: (ThemeType? value) {
                     setState(() {
@@ -195,9 +188,9 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     final _drawerItems = [
       Container(
         padding: const EdgeInsets.only(
-          top: 10,
+          top: 15,
           left: 35,
-          bottom: 20,
+          bottom: 15,
         ),
         child: Text('VVEX',
             style: Theme.of(context)
