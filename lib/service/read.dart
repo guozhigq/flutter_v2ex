@@ -81,7 +81,7 @@ class Read {
     // 缓存的keys List
     var keys = box.keys;
     int len = keys.length;
-    if (len >= 7) {
+    if (len >= 3) {
       // 删除最旧的那条
       box.delete(0);
     }
