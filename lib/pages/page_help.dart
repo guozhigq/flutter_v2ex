@@ -57,17 +57,24 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                   }),
             ),
           ),
+          // ListTile(
+          //   onTap: () =>
+          //       Get.toNamed('/agreement', parameters: {'source': 'privacy'}),
+          //   leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
+          //   title: const Text('隐私政策'),
+          // ),
+          // ListTile(
+          //   onTap: () =>
+          //       Get.toNamed('/agreement', parameters: {'source': 'user'}),
+          //   leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
+          //   title: const Text('用户协议'),
+          // ),
           ListTile(
             onTap: () =>
-                Get.toNamed('/agreement', parameters: {'source': 'privacy'}),
-            leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
-            title: const Text('隐私政策'),
-          ),
-          ListTile(
-            onTap: () =>
-                Get.toNamed('/agreement', parameters: {'source': 'user'}),
-            leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
-            title: const Text('用户协议'),
+                Utils.openURL('https://t.me/+lm_oOVmF0RJiODk1'),
+            leading: Icon(Icons.group_add_outlined, color: iconStyle,),
+            title: const Text('加入讨论'),
+            subtitle: Text('来TG跟开发者面对面', style: subTitleStyle),
           ),
           ListTile(
             onTap: () =>
