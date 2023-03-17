@@ -267,32 +267,17 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget lfAvtar() {
-    return GestureDetector(
-      onTap: () => Get.toNamed('/member/${reply.userName}', parameters: {
-        'memberAvatar': reply.avatar,
-        'heroTag': reply.userName + heroTag,
-      }),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 5),
-            clipBehavior: Clip.hardEdge,
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(18))),
-            child: Stack(
-              children: [
-                Hero(
-                  tag: reply.userName + heroTag,
-                  child: CAvatar(
-                    url: reply.avatar,
-                    size: 34,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // IconButton(onPressed: () => {}, icon: const Icon(Icons.celebration))
-        ],
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      clipBehavior: Clip.hardEdge,
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(18))),
+      child: Hero(
+        tag: reply.userName + heroTag,
+        child: CAvatar(
+          url: reply.avatar,
+          size: 34,
+        ),
       ),
     );
   }
@@ -306,85 +291,98 @@ class _ReplyListItemState extends State<ReplyListItem> {
           // 两端对齐
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                lfAvtar(),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          reply.userName,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                            color: reply.isMod || reply.isOwner ? Theme.of(context).colorScheme.primary : null
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        if (reply.isOwner) ...[
-                          Icon(
-                            Icons.person,
-                            size: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        ],
-                        if (reply.isMod) ...[
-                          Icon(
-                            Icons.security,
-                            size: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        ]
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        if (reply.lastReplyTime.isNotEmpty) ...[
+            GestureDetector(
+              onTap: () =>
+                  Get.toNamed('/member/${reply.userName}', parameters: {
+                'memberAvatar': reply.avatar,
+                'heroTag': reply.userName + heroTag,
+              }),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  lfAvtar(),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
                           Text(
-                            reply.lastReplyTime,
+                            reply.userName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge!
+                                .copyWith(
+                                    color: reply.isMod || reply.isOwner
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null),
+                          ),
+                          const SizedBox(width: 4),
+                          if (reply.isOwner) ...[
+                            Icon(
+                              Icons.person,
+                              size: 15,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          ],
+                          if (reply.isMod) ...[
+                            Icon(
+                              Icons.security,
+                              size: 15,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          ]
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          if (reply.lastReplyTime.isNotEmpty) ...[
+                            Text(
+                              reply.lastReplyTime,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline),
+                            ),
+                            // const SizedBox(width: 2),
+                          ],
+                          // if (reply.platform == 'Android') ...[
+                          //   const Icon(
+                          //     Icons.android,
+                          //     size: 14,
+                          //   ),
+                          //
+                          // ],
+                          // if (reply.platform == 'iPhone') ...[
+                          //   const Icon(Icons.apple, size: 16),
+                          // ],
+                          Text(
+                            ' • ',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline),
+                          ),
+                          Text(
+                            '${reply.floorNumber}L',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall!
                                 .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground),
                           ),
-                          // const SizedBox(width: 2),
                         ],
-                        // if (reply.platform == 'Android') ...[
-                        //   const Icon(
-                        //     Icons.android,
-                        //     size: 14,
-                        //   ),
-                        //
-                        // ],
-                        // if (reply.platform == 'iPhone') ...[
-                        //   const Icon(Icons.apple, size: 16),
-                        // ],
-                        Text(
-                          ' • ',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.outline),
-                        ),
-                        Text(
-                          '${reply.floorNumber}L',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall!
-                              .copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
+                      )
+                    ],
+                  )
+                ],
+              ),
             ),
             IconButton(
               padding: const EdgeInsets.all(2.0),
@@ -418,7 +416,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
     return RepaintBoundary(
       key: repaintKey,
       child: Material(
-        color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
+        color: reply.isOwner
+            ? Theme.of(context).colorScheme.onInverseSurface
+            : null,
         child: InkWell(
           onTap: () async {
             /// 增加200毫秒延迟 水波纹动画
