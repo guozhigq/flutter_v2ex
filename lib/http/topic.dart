@@ -96,7 +96,7 @@ class TopicWebApi {
     //  at 9 小时 26 分钟前，1608 次点击
     var pureStr = document
         .querySelector('$headerQuery > small')!
-        .innerHtml
+        .text
         .split(' at')[1]
         .replaceAll(RegExp(r"\s+"), "");
     detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
