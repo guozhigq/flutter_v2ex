@@ -18,22 +18,15 @@ class ListItem extends StatefulWidget {
 
 class _ListItemState extends State<ListItem>
     with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> opacityAnim;
-
+  TabTopicItem topic = TabTopicItem();
   @override
   void initState() {
     super.initState();
-
-    _ctrl =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    opacityAnim = Tween<double>(begin: 0, end: 1.0).animate(_ctrl);
-    _ctrl.forward();
+    topic = widget.topic;
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
     super.dispose();
   }
 
@@ -42,17 +35,20 @@ class _ListItemState extends State<ListItem>
     return Container(
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
       child: Material(
-        color: Theme.of(context).colorScheme.onInverseSurface,
+        color: topic.readStatus == 'unread' ?  Theme.of(context).colorScheme.onInverseSurface : null,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {
+            setState(() {
+              topic.readStatus = 'read';
+            });
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
             var arguments = <String, dynamic>{
-              "topic": widget.topic,
-              "heroTag": '${widget.topic.topicId}${widget.topic.memberId}'
+              "topic": topic,
+              "heroTag": '${topic.topicId}${topic.memberId}'
             };
-            Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
+            Get.toNamed("/t/${topic.topicId}", arguments: arguments);
           },
           borderRadius: BorderRadius.circular(10),
           child: Ink(
@@ -65,7 +61,7 @@ class _ListItemState extends State<ListItem>
   }
 
   Widget content() {
-    final herotag = widget.topic.memberId + Random().nextInt(999).toString();
+    final herotag = topic.memberId + Random().nextInt(999).toString();
     TextStyle timeStyle = Theme.of(context)
         .textTheme
         .labelSmall!
@@ -75,7 +71,7 @@ class _ListItemState extends State<ListItem>
       children: <Widget>[
         // title
         Text(
-          Characters(widget.topic.topicTitle).join('\u{200B}'),
+          Characters(topic.topicTitle).join('\u{200B}'),
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
           style: Theme.of(context)
@@ -93,15 +89,15 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Get.toNamed('/member/${widget.topic.memberId}',
+                  onTap: () => Get.toNamed('/member/${topic.memberId}',
                       parameters: {
-                        'memberAvatar': widget.topic.avatar,
+                        'memberAvatar': topic.avatar,
                         'heroTag': herotag,
                       }),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
-                      url: widget.topic.avatar,
+                      url: topic.avatar,
                       size: 30,
                     ),
                   ),
@@ -113,7 +109,7 @@ class _ListItemState extends State<ListItem>
                     SizedBox(
                       width: 150,
                       child: Text(
-                        widget.topic.memberId,
+                        topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: Theme.of(context)
@@ -125,13 +121,13 @@ class _ListItemState extends State<ListItem>
                     const SizedBox(height: 1.5),
                     Row(
                       children: [
-                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
-                          Text(widget.topic.lastReplyTime, style: timeStyle),
+                        if (topic.lastReplyTime.isNotEmpty) ...[
+                          Text(topic.lastReplyTime, style: timeStyle),
                         ],
-                        if (widget.topic.replyCount > 0) ...[
+                        if (topic.replyCount > 0) ...[
                           const SizedBox(width: 10),
                           Text(
-                            '${widget.topic.replyCount} 回复',
+                            '${topic.replyCount} 回复',
                             style: timeStyle,
                           ),
                         ]
@@ -141,10 +137,10 @@ class _ListItemState extends State<ListItem>
                 )
               ],
             ),
-            if (widget.topic.nodeName.isNotEmpty) ...[
+            if (topic.nodeName.isNotEmpty) ...[
               NodeTag(
-                  nodeId: widget.topic.nodeId,
-                  nodeName: widget.topic.nodeName,
+                  nodeId: topic.nodeId,
+                  nodeName: topic.nodeName,
                   route: 'home')
             ]
           ],

@@ -42,4 +42,5 @@ class Strings {
     TabModel('问与答', 'qna', 'tab', true),
     TabModel('R2', 'r2', 'tab', true),
   ];
+  static int maxAge = 7; // 最多记录7天已读
 }

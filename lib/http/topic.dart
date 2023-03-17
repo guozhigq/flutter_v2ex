@@ -263,11 +263,11 @@ class TopicWebApi {
           ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
           : 1;
 
-      detailModel.replyCount = replyBoxDom
+      detailModel.replyCount =  int.parse(replyBoxDom
           .querySelector('div.cell span')!
           .text
           .replaceAll(RegExp(r"\s+"), "")
-          .split('条回复')[0];
+          .split('条回复')[0]);
 
       /// 回复楼层
       /// first td user avatar
