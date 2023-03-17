@@ -136,7 +136,7 @@ class _MyAppState extends State<MyApp> {
     //   });
     // }
     // 检查更新
-    if(GStorage().getAutoUpdate()){
+    if(GStorage().getAutoUpdate() && Platform.isAndroid){
       DioRequestWeb.checkUpdate();
     }
   }

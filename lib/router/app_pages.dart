@@ -22,6 +22,8 @@ import 'package:flutter_v2ex/pages/page_write.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_history.dart';
+import 'package:flutter_v2ex/pages/page_agreement.dart';
+
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
@@ -93,5 +95,8 @@ class AppPages {
     GetPage(name: '/nodesSort', page: () => const NodesSortPage()),
     // 最近浏览
     GetPage(name: '/history', page: () => const HistoryPage()),
+    // 隐私协议
+    GetPage(name: '/agreement', page: () => const AgreementPage()),
+
   ];
 }

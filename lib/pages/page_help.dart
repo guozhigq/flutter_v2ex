@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});
@@ -58,6 +59,18 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ),
           ListTile(
             onTap: () =>
+                Get.toNamed('/agreement', parameters: {'source': 'privacy'}),
+            leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
+            title: const Text('隐私政策'),
+          ),
+          ListTile(
+            onTap: () =>
+                Get.toNamed('/agreement', parameters: {'source': 'user'}),
+            leading: Icon(Icons.collections_bookmark_outlined, color: iconStyle,),
+            title: const Text('用户协议'),
+          ),
+          ListTile(
+            onTap: () =>
                 Utils.openURL(Strings.remoteUrl),
             onLongPress: () {
               Clipboard.setData( ClipboardData(text: Strings.remoteUrl));
@@ -65,7 +78,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             },
             leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
-            subtitle: Text('欢迎 star', style: subTitleStyle),
+            subtitle: Text('欢迎 star & pr', style: subTitleStyle),
           ),
           ListTile(
             onTap: () => Utils.openURL('${Strings.remoteUrl}/issues/new'),
