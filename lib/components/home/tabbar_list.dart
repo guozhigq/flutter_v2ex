@@ -92,6 +92,7 @@ class _TabBarListState extends State<TabBarList>
       setState(() {
         if (_currentPage == 0) {
           topicList = res;
+          _dioError = false;
           tempTopicList = res;
         } else {
           // 去除重复数据
