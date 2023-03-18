@@ -17,7 +17,8 @@ class HtmlRender extends StatefulWidget {
   final List? imgList;
   final double? fs;
 
-  HtmlRender({this.htmlContent, this.imgCount, this.imgList, this.fs ,super.key});
+  HtmlRender(
+      {this.htmlContent, this.imgCount, this.imgList, this.fs, super.key});
 
   @override
   _HtmlRenderState createState() => _HtmlRenderState();
@@ -29,7 +30,7 @@ class _HtmlRenderState extends State<HtmlRender> {
   @override
   void initState() {
     super.initState();
-    if(widget.fs != null){
+    if (widget.fs != null) {
       htmlFs = widget.fs;
     }
   }
@@ -47,7 +48,6 @@ class _HtmlRenderState extends State<HtmlRender> {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
             imgUrl = Utils().imageUrl(imgUrl!);
             // ignore: avoid_print
-            print(imgUrl);
             // todo 多张图片轮播
             return SelectionContainer.disabled(
               child: GestureDetector(
@@ -134,17 +134,17 @@ class _HtmlRenderState extends State<HtmlRender> {
           border: Border.all(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         ),
-        "code > span": Style(textAlign: TextAlign.start)
+        "code > span": Style(textAlign: TextAlign.start),
       },
     );
   }
 
   // a标签webview跳转
   void openHrefByWebview(String? aUrl, BuildContext context) async {
-    if(aUrl!.contains('base64Wechat')){
+    if (aUrl!.contains('base64Wechat')) {
       Clipboard.setData(ClipboardData(text: aUrl.split(':')[1]));
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
+        SnackBar(
           duration: const Duration(milliseconds: 3000),
           // showCloseIcon: true,
           content: Text('已复制【${aUrl.split(':')[1]}】'),
@@ -164,17 +164,16 @@ class _HtmlRenderState extends State<HtmlRender> {
         List arr = aUrl.split('.com');
         // 获得链接 /t/919475#reply1
         var tHref = arr[1];
-        if(tHref.startsWith('/t') ||
+        if (tHref.startsWith('/t') ||
             tHref.startsWith('/go') ||
-            tHref.startsWith('/member')
-        ){
+            tHref.startsWith('/member')) {
           if (tHref.contains('#')) {
             // 去掉回复数  /t/919475#reply1
             // 获得链接 /t/919475
             tHref = arr[1].split('#')[0];
           }
           Get.toNamed(tHref);
-        }else{
+        } else {
           Utils.openURL(aUrl);
         }
       } else {
@@ -183,6 +182,9 @@ class _HtmlRenderState extends State<HtmlRender> {
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||
         aUrl.startsWith('/t/')) {
+      if(aUrl.contains('#')){
+        aUrl = aUrl.split('#')[0];
+      }
       Get.toNamed(aUrl);
     } else {
       // sms tel email schemeUrl

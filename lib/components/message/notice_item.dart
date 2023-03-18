@@ -59,7 +59,11 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              Get.toNamed('/t/${widget.noticeItem.topicId}');
+              String replyCount = widget.noticeItem.topicHref.split('#reply')[1];
+              Get.toNamed('/t/${widget.noticeItem.topicId}', parameters: {
+                'source': 'notice',
+                'floorNumber': replyCount
+              });
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
