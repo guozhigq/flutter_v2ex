@@ -23,6 +23,8 @@ class ReplyListItem extends StatefulWidget {
     this.source,
     this.replyList,
     Key? key,
+    this.replyCount,
+    this.floorJump,
   }) : super(key: key);
 
   final ReplyItem reply;
@@ -31,6 +33,8 @@ class ReplyListItem extends StatefulWidget {
   int? totalPage;
   String? source;
   List? replyList;
+  String? replyCount;
+  final floorJump;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -93,8 +97,21 @@ class _ReplyListItemState extends State<ReplyListItem> {
         sheetMenu.removeAt(2);
       });
     }
-    setState(() {
-      reply = widget.reply;
+    // setState(() {
+    reply = widget.reply;
+    // });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (repaintKey.currentContext != null) {
+        final pinBox =
+            repaintKey.currentContext?.findRenderObject() as RenderBox;
+        final pinPosition = pinBox.localToGlobal(Offset.zero).dy;
+        if (pinPosition > 0 &&
+            int.parse(widget.replyCount!) - 1 >= widget.reply.floorNumber) {
+          double replyHeight = pinBox.size.height;
+          widget.floorJump(reply.floorNumber, replyHeight);
+        }
+      }
     });
   }
 
@@ -418,7 +435,9 @@ class _ReplyListItemState extends State<ReplyListItem> {
       child: Material(
         color: reply.isOwner
             ? Theme.of(context).colorScheme.onInverseSurface
-            : null,
+            : reply.floorNumber == int.parse(widget.replyCount!)
+                ? Theme.of(context).colorScheme.errorContainer
+                : null,
         child: InkWell(
           onTap: () async {
             /// 增加200毫秒延迟 水波纹动画

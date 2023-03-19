@@ -23,6 +23,7 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_v2ex/http/topic.dart';
 import 'package:flutter_v2ex/service/read.dart';
@@ -74,6 +75,10 @@ class _TopicDetailState extends State<TopicDetail>
   late AnimationController animationController;
   bool _visibleTitle = false;
   double? pinScrollHeight;
+  // 消息页面进入
+  String routerSource = '';
+  String noticeReplyCount = '';
+  double tempHeight = 0.0;
 
   @override
   void initState() {
@@ -81,9 +86,19 @@ class _TopicDetailState extends State<TopicDetail>
 
     // setState(() {
     topicId = Get.parameters['topicId']!;
+    var keys = Get.parameters.keys;
+    print('😊： $keys');
+    // 从消息页面进入 跳转至指定楼层
+    if (keys.contains('replyCount')) {
+      routerSource = Get.parameters['source']! ?? '';
+      noticeReplyCount = Get.parameters['replyCount']! ?? '';
+      _currentPage = (int.parse(noticeReplyCount) / 100).ceil() - 1;
+      //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
+    }
+
     if (Get.arguments != null) {
       topicDetail = Get.arguments['topic'];
-      heroTag = Get.arguments['heroTag'];
+      topicDetail = Get.arguments['heroTag'];
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -140,7 +155,7 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetail({type}) async {
-    if (type == 'init') {
+    if (type == 'init' && routerSource == '') {
       // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
@@ -149,6 +164,7 @@ class _TopicDetailState extends State<TopicDetail>
     if (reverseSort) {
       SmartDialog.showLoading(msg: '加载中ing');
     }
+    print('😭： $_currentPage');
     TopicDetailModel topicDetailModel =
         await TopicWebApi.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
@@ -164,12 +180,13 @@ class _TopicDetailState extends State<TopicDetail>
 
     if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(listGlobalKey.currentContext != null){
+        if (listGlobalKey.currentContext != null) {
           final pinBox =
-          listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+              listGlobalKey.currentContext?.findRenderObject() as RenderBox;
           final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
           setState(() {
             pinScrollHeight = pinPosition;
+            tempHeight = pinPosition;
           });
         }
       });
@@ -487,6 +504,15 @@ class _TopicDetailState extends State<TopicDetail>
         ),
       );
     }
+  }
+
+  floorJump(floorNumber, replyHeight) async {
+    tempHeight = tempHeight! + replyHeight;
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (floorNumber < int.parse(noticeReplyCount)) {
+      _scrollController.animateTo(tempHeight,
+          duration: const Duration(milliseconds: 100), curve: Curves.easeInOut);
+    } else {}
   }
 
   @override
@@ -823,6 +849,9 @@ class _TopicDetailState extends State<TopicDetail>
                                 resultList, _totalPage),
                     source: 'topic',
                     replyList: _replyList,
+                    replyCount: noticeReplyCount,
+                    floorJump: (floorNumber, replyHeight) =>
+                        floorJump(floorNumber, replyHeight),
                   );
                 },
                 childCount: _replyList.length,
