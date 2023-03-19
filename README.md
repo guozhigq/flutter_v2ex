@@ -15,6 +15,7 @@
     <br/>
     <p>使用 Flutter 开发的 <a target="_blank" href="https://www.v2ex.com/">V2ex</a> 客户端</p>
     <p>适配了<a target="_blank" href="https://m3.material.io/">Material You</a> 样式</p>
+    <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">去下载</a>
     <br/>
     <br/>
     <img src="https://files.catbox.moe/w3pnbd.png" width="49%"></img>
