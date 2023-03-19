@@ -25,7 +25,8 @@ enum StoreKeys {
   htmlFs,
   replyFs,
   tabs,
-  autoUpdate
+  autoUpdate,
+  highlightOp,
 }
 
 class GStorage {
@@ -166,4 +167,9 @@ class GStorage {
   setAutoUpdate(bool value) => _box.write(StoreKeys.autoUpdate.toString(), value);
 
   bool getAutoUpdate() => _box.read<bool>(StoreKeys.autoUpdate.toString()) ?? true;
+
+  // 自动更新
+  setHighlightOp(bool value) => _box.write(StoreKeys.highlightOp.toString(), value);
+
+  bool getHighlightOp() => _box.read<bool>(StoreKeys.highlightOp.toString()) ?? false;
 }

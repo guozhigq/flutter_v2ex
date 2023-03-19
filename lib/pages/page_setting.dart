@@ -27,6 +27,7 @@ class _SettingPageState extends State<SettingPage> {
   late String cacheSize = '';
   late bool expendAppBar = GStorage().getExpendAppBar();
   late bool noticeOn = GStorage().getNoticeOn();
+  late bool highlightOp = GStorage().getHighlightOp();
 
   @override
   void initState() {
@@ -234,6 +235,35 @@ class _SettingPageState extends State<SettingPage> {
                     setState(() {
                       noticeOn = !noticeOn;
                       GStorage().setNoticeOn(noticeOn);
+                    });
+                  }),
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                highlightOp = !highlightOp;
+                GStorage().setHighlightOp(noticeOn);
+              });
+            },
+            leading: Icon(Icons.notifications_none, color: iconStyle),
+            title: const Text('突出显示OP回复'),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                          (Set<MaterialState> states) {
+                        if (states.isNotEmpty &&
+                            states.first == MaterialState.selected) {
+                          return const Icon(Icons.done);
+                        }
+                        return null; // All other states will use the default thumbIcon.
+                      }),
+                  value: highlightOp,
+                  onChanged: (value) {
+                    setState(() {
+                      highlightOp = !highlightOp;
+                      GStorage().setHighlightOp(highlightOp);
                     });
                   }),
             ),

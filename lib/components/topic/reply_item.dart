@@ -78,6 +78,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
   final GlobalKey repaintKey = GlobalKey();
   bool ignoreStatus = false; // 对当前主题的忽略状态 默认false
   String? loginUserName;
+  bool highLightOp = GStorage().getHighlightOp();
 
   @override
   void initState() {
@@ -416,7 +417,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
     return RepaintBoundary(
       key: repaintKey,
       child: Material(
-        color: reply.isOwner
+        color: reply.isOwner && highLightOp
             ? Theme.of(context).colorScheme.onInverseSurface
             : null,
         child: InkWell(
@@ -446,7 +447,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         child: Material(
           borderRadius: BorderRadius.circular(20),
           // color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
-          elevation: reply.isOwner ? 3 : 0,
+          elevation: reply.isOwner && highLightOp ? 3 : 0,
           child: InkWell(
             onTap: () async {
               /// 增加200毫秒延迟 水波纹动画
