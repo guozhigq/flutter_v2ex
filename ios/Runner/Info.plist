@@ -15,7 +15,7 @@
 	<key>CFBundleName</key>
 	<string>VVEX</string>
 	<key>CFBundlePackageType</key>
-	<string>VVEX</string>
+	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
