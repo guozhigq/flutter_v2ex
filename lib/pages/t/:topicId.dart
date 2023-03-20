@@ -77,7 +77,7 @@ class _TopicDetailState extends State<TopicDetail>
   double? pinScrollHeight;
   // 消息页面进入
   String routerSource = '';
-  String noticeReplyCount = '';
+  String noticeFloorNumber = '';
   double tempHeight = 0.0;
 
   @override
@@ -89,16 +89,16 @@ class _TopicDetailState extends State<TopicDetail>
     var keys = Get.parameters.keys;
     print('😊： $keys');
     // 从消息页面进入 跳转至指定楼层
-    if (keys.contains('replyCount')) {
+    if (keys.contains('floorNumber')) {
       routerSource = Get.parameters['source']! ?? '';
-      noticeReplyCount = Get.parameters['replyCount']! ?? '';
-      _currentPage = (int.parse(noticeReplyCount) / 100).ceil() - 1;
+      noticeFloorNumber = Get.parameters['floorNumber']! ?? '';
+      _currentPage = (int.parse(noticeFloorNumber) / 100).ceil() - 1;
       //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
     }
 
     if (Get.arguments != null) {
       topicDetail = Get.arguments['topic'];
-      topicDetail = Get.arguments['heroTag'];
+      heroTag = Get.arguments['heroTag'];
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -509,7 +509,7 @@ class _TopicDetailState extends State<TopicDetail>
   floorJump(floorNumber, replyHeight) async {
     tempHeight = tempHeight! + replyHeight;
     await Future.delayed(const Duration(milliseconds: 200));
-    if (floorNumber < int.parse(noticeReplyCount)) {
+    if (floorNumber < int.parse(noticeFloorNumber)) {
       _scrollController.animateTo(tempHeight,
           duration: const Duration(milliseconds: 100), curve: Curves.easeInOut);
     } else {}
@@ -849,7 +849,7 @@ class _TopicDetailState extends State<TopicDetail>
                                 resultList, _totalPage),
                     source: 'topic',
                     replyList: _replyList,
-                    replyCount: noticeReplyCount,
+                    floorNumber: noticeFloorNumber,
                     floorJump: (floorNumber, replyHeight) =>
                         floorJump(floorNumber, replyHeight),
                   );

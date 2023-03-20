@@ -23,7 +23,7 @@ class ReplyListItem extends StatefulWidget {
     this.source,
     this.replyList,
     Key? key,
-    this.replyCount,
+    this.floorNumber,
     this.floorJump,
   }) : super(key: key);
 
@@ -33,7 +33,7 @@ class ReplyListItem extends StatefulWidget {
   int? totalPage;
   String? source;
   List? replyList;
-  String? replyCount;
+  String? floorNumber;
   final floorJump;
 
   @override
@@ -101,18 +101,21 @@ class _ReplyListItemState extends State<ReplyListItem> {
     reply = widget.reply;
     // });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (repaintKey.currentContext != null) {
-        final pinBox =
-            repaintKey.currentContext?.findRenderObject() as RenderBox;
-        final pinPosition = pinBox.localToGlobal(Offset.zero).dy;
-        if (pinPosition > 0 &&
-            int.parse(widget.replyCount!) - 1 >= widget.reply.floorNumber) {
-          double replyHeight = pinBox.size.height;
-          widget.floorJump(reply.floorNumber, replyHeight);
+    if(widget.floorNumber != '') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (repaintKey.currentContext != null) {
+          final pinBox =
+              repaintKey.currentContext?.findRenderObject() as RenderBox;
+          final pinPosition = pinBox.localToGlobal(Offset.zero).dy;
+          if (pinPosition > 0 &&
+              int.parse(widget.floorNumber!) - 1 >= widget.reply.floorNumber) {
+            double replyHeight = pinBox.size.height;
+            widget.floorJump(reply.floorNumber, replyHeight);
+          }
         }
-      }
-    });
+      });
+    }
+
   }
 
   void menuAction(id) {
@@ -435,7 +438,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
       child: Material(
         color: reply.isOwner
             ? Theme.of(context).colorScheme.onInverseSurface
-            : reply.floorNumber == int.parse(widget.replyCount!)
+            : widget.floorNumber != '' && reply.floorNumber == int.parse(widget.floorNumber!)
                 ? Theme.of(context).colorScheme.errorContainer
                 : null,
         child: InkWell(

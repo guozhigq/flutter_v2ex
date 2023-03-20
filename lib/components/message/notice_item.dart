@@ -61,14 +61,14 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              String replyCount =
+              String floorNumber =
                   widget.noticeItem.topicHref.split('#reply')[1];
               NoticeType noticeType = widget.noticeItem.noticeType;
               Map<String, String> parameters = {};
               if (noticeType.name == NoticeType.reply.name ||
                   noticeType.name == NoticeType.thanksReply.name) {
                 // 回复 or 感谢回复
-                parameters = {'source': 'notice', 'replyCount': replyCount};
+                parameters = {'source': 'notice', 'floorNumber': floorNumber};
               }
               Get.toNamed('/t/${widget.noticeItem.topicId}',
                   parameters: parameters);
