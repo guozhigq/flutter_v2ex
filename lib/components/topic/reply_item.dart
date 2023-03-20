@@ -88,7 +88,7 @@ class _ReplyListItemState extends State<ReplyListItem>
 
   late AnimationController _controller;
   int _animationCount = 0;
-  final int _maxAnimationCount = 2;
+  final int _maxAnimationCount = 3;
 
   @override
   void initState() {
@@ -110,7 +110,7 @@ class _ReplyListItemState extends State<ReplyListItem>
 
     _controller = AnimationController(
         lowerBound: 0.95,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     )..addListener(() {
     if (_controller.status == AnimationStatus.completed) {

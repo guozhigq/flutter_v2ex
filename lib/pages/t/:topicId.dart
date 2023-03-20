@@ -76,6 +76,7 @@ class _TopicDetailState extends State<TopicDetail>
   bool _visibleTitle = false;
   double? pinScrollHeight;
   late AutoScrollController autoScrollController;
+
   // 消息页面进入
   String routerSource = '';
   int noticeFloorNumber = 0;
@@ -182,17 +183,19 @@ class _TopicDetailState extends State<TopicDetail>
 
     if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(listGlobalKey.currentContext != null){
+        if (listGlobalKey.currentContext != null) {
           final pinBox =
-          listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+              listGlobalKey.currentContext?.findRenderObject() as RenderBox;
           final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
           setState(() {
             pinScrollHeight = pinPosition;
           });
         }
       });
-      if(noticeFloorNumber > 0) {
-        _scrollToCounter();
+      if (noticeFloorNumber > 0) {
+        SmartDialog.showLoading(msg: '前往楼层');
+        await _scrollToCounter();
+        SmartDialog.dismiss();
       }
     }
     if (!topicDetailModel.isAuth) {
@@ -511,9 +514,11 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future _scrollToCounter() async {
-    print('line 502: _scrollToCounter');
-    await autoScrollController.scrollToIndex((noticeFloorNumber%100)-1,
-        preferPosition: AutoScrollPosition.begin);
+    await autoScrollController.scrollToIndex(
+      (noticeFloorNumber % 100) - 1,
+      preferPosition: AutoScrollPosition.begin,
+      duration: const Duration(milliseconds: 100),
+    );
     // autoScrollController.highlight(5);
   }
 
@@ -837,41 +842,40 @@ class _TopicDetailState extends State<TopicDetail>
               ),
               pinned: true,
             ),
-            if(noticeFloorNumber > 0  && _currentPage > 1)
-            SliverToBoxAdapter(
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                color: Theme.of(context).colorScheme.onInverseSurface,
-                child: Center(
-                  child: Text('前 ${_currentPage-1} 页已隐藏'),
+            if (noticeFloorNumber > 0 && _currentPage > 1)
+              SliverToBoxAdapter(
+                child: Container(
+                  width: double.infinity,
+                  height: 60,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  child: Center(
+                    child: Text('前 ${_currentPage - 1} 页已隐藏'),
+                  ),
                 ),
               ),
-            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount:  _replyList.length,
+                childCount: _replyList.length,
                 (context, index) {
                   return AutoScrollTag(
                       key: ValueKey(index),
                       controller: autoScrollController,
                       index: index,
                       child:
-                      // noticeFloorNumber > 0 && index == 0 ? Text('123') :
-                      ReplyListItem(
+                          // noticeFloorNumber > 0 && index == 0 ? Text('123') :
+                          ReplyListItem(
                         reply: _replyList[index],
                         topicId: _detailModel!.topicId,
                         totalPage: _totalPage,
                         key: UniqueKey(),
-                        queryReplyList:
-                            (replyMemberList, floorNumber, resultList, totalPage) =>
+                        queryReplyList: (replyMemberList, floorNumber,
+                                resultList, totalPage) =>
                             queryReplyList(replyMemberList, floorNumber,
                                 resultList, _totalPage),
                         source: 'topic',
                         replyList: _replyList,
                         floorNumber: noticeFloorNumber,
-                      )
-                  );
+                      ));
                   // return ReplyListItem(
                   //   reply: _replyList[index],
                   //   topicId: _detailModel!.topicId,
