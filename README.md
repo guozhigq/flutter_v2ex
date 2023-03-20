@@ -67,20 +67,8 @@
 ```
 
 ## 运行
-<strong>执行 flutter build apk(ios)</strong>
-```dart
-打包前将 lib/http/init.dart 84行左右代理进行修改
 
-client.findProxy = (uri) {
-    // proxy all request to localhost:8888
-    // return 'PROXY 192.168.1.60:7890';
-    // return 'PROXY 172.16.32.186:7890';
-    // return 'PROXY localhost:7890';
-    // return 'PROXY 127.0.0.1:7890';
-    // 不设置代理 TODO 打包前关闭代理
-    return 'DIRECT';
-};
-```
+
 确保相关开发环境及代码编辑器正确配置
 
 -   终端运行
@@ -98,6 +86,26 @@ client.findProxy = (uri) {
     -   确保底部状态栏显示正确的设备，点击顶部工具栏下箭头 -> Start Debugging
 
 <br/>
+
+## 打包
+
+<strong>执行 flutter build apk/ios</strong>
+```dart
+打包前在 lib/http/init.dart 中关闭代理
+
+client.findProxy = (uri) {
+    // proxy all request to localhost:8888
+    // return 'PROXY 192.168.1.60:7890';
+    // return 'PROXY 172.16.32.186:7890';
+    // return 'PROXY localhost:7890';
+    // return 'PROXY 127.0.0.1:7890';
+    // 不设置代理 TODO 打包前关闭代理
+    return 'DIRECT';
+};
+```
+
+<br/>
+
 
 ## 感谢
 
