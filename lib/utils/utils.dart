@@ -213,6 +213,7 @@ class Utils {
 
   // base64 解析 wechat
   static base64Decode(contentDom) {
+    List decodeRes = [];
     try {
       var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
@@ -224,17 +225,18 @@ class Utils {
         if (!blacklist.contains(content) &&
             i.group(0)!.trim().length % 4 == 0) {
           wechat = utf8.decode(base64.decode(i.group(0)!));
+          decodeRes.add(wechat);
         }
       }
       RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
       RegExp emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
       if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat) || emailRegExp.hasMatch(wechat)){
-        return wechat;
+        return decodeRes;
       }
-      return '';
+      return decodeRes;
     } catch (err) {
       // print(err);
-      return '';
+      return decodeRes;
     }
   }
 
