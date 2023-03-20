@@ -26,6 +26,7 @@ import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_v2ex/http/topic.dart';
 import 'package:flutter_v2ex/service/read.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 enum SampleItem { ignore, share, report, browse }
 
@@ -48,7 +49,7 @@ class _TopicDetailState extends State<TopicDetail>
   String heroTag = '';
 
   // 监听页面滚动
-  final ScrollController _scrollController = ScrollController();
+  // final ScrollController _scrollController = ScrollController();
   TopicDetailModel? _detailModel; // 主题详情
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
@@ -74,16 +75,33 @@ class _TopicDetailState extends State<TopicDetail>
   late AnimationController animationController;
   bool _visibleTitle = false;
   double? pinScrollHeight;
+  late AutoScrollController autoScrollController;
+  // 消息页面进入
+  String routerSource = '';
+  int noticeFloorNumber = 0;
 
   @override
   void initState() {
     super.initState();
+
+    autoScrollController = AutoScrollController(
+        viewportBoundaryGetter: () =>
+            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+        axis: Axis.vertical);
 
     // setState(() {
     topicId = Get.parameters['topicId']!;
     if (Get.arguments != null) {
       topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];
+    }
+    var keys = Get.parameters.keys;
+    // 从消息页面进入 跳转至指定楼层
+    if (keys.contains('floorNumber')) {
+      routerSource = Get.parameters['source']! ?? '';
+      noticeFloorNumber = int.parse(Get.parameters['floorNumber']!) ?? 0;
+      _currentPage = (noticeFloorNumber / 100).ceil() - 1;
+      //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -96,7 +114,7 @@ class _TopicDetailState extends State<TopicDetail>
     );
 
     // TODO build优化
-    _scrollController.addListener(_listen);
+    autoScrollController.addListener(_listen);
     getDetailInit();
     eventBus.on('topicReply', (status) {
       print('eventON: $status');
@@ -140,7 +158,7 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetail({type}) async {
-    if (type == 'init') {
+    if (type == 'init' && routerSource == '') {
       // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
@@ -173,6 +191,9 @@ class _TopicDetailState extends State<TopicDetail>
           });
         }
       });
+      if(noticeFloorNumber > 0) {
+        _scrollToCounter();
+      }
     }
     if (!topicDetailModel.isAuth) {
       SmartDialog.dismiss();
@@ -204,7 +225,7 @@ class _TopicDetailState extends State<TopicDetail>
       print('---_totalPage---:$_totalPage');
     });
     if (type == 'init') {
-      _scrollController.animateTo(pinScrollHeight!,
+      autoScrollController.animateTo(pinScrollHeight!,
           duration: const Duration(milliseconds: 1000),
           curve: Curves.easeInOut);
     }
@@ -213,24 +234,24 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
-    await _scrollController.animateTo(0,
+    await autoScrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     _controller.callRefresh();
   }
 
   void _listen() {
     final ScrollDirection direction =
-        _scrollController.position.userScrollDirection;
+        autoScrollController.position.userScrollDirection;
     if (direction == ScrollDirection.forward) {
       _show();
     } else if (direction == ScrollDirection.reverse) {
       _hide();
     }
 
-    if (_scrollController.offset > 100 && !_visibleTitle) {
+    if (autoScrollController.offset > 100 && !_visibleTitle) {
       _visibleTitle = true;
       titleStreamC.add(true);
-    } else if (_scrollController.offset <= 100 && _visibleTitle) {
+    } else if (autoScrollController.offset <= 100 && _visibleTitle) {
       _visibleTitle = false;
       titleStreamC.add(false);
     }
@@ -489,11 +510,18 @@ class _TopicDetailState extends State<TopicDetail>
     }
   }
 
+  Future _scrollToCounter() async {
+    print('line 502: _scrollToCounter');
+    await autoScrollController.scrollToIndex((noticeFloorNumber%100)-1,
+        preferPosition: AutoScrollPosition.begin);
+    // autoScrollController.highlight(5);
+  }
+
   @override
   void dispose() {
     _controller.dispose();
-    _scrollController.removeListener(_listen);
-    _scrollController.dispose();
+    autoScrollController.removeListener(_listen);
+    autoScrollController.dispose();
     eventBus.off('topicReply');
     super.dispose();
   }
@@ -527,7 +555,7 @@ class _TopicDetailState extends State<TopicDetail>
               ? showLoading()
               : Scrollbar(
                   radius: const Radius.circular(10),
-                  controller: _scrollController,
+                  controller: autoScrollController,
                   child: PullRefresh(
                     key: _globalKey,
                     onChildRefresh: getDetailInit,
@@ -633,7 +661,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   Widget showRes() {
     return CustomScrollView(
-      controller: _scrollController,
+      controller: autoScrollController,
       // key: listGlobalKey,
       slivers: [
         if (expendAppBar) ...[
@@ -809,23 +837,55 @@ class _TopicDetailState extends State<TopicDetail>
               ),
               pinned: true,
             ),
+            if(noticeFloorNumber > 0  && _currentPage > 1)
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                color: Theme.of(context).colorScheme.onInverseSurface,
+                child: Center(
+                  child: Text('前 ${_currentPage-1} 页已隐藏'),
+                ),
+              ),
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
+                childCount:  _replyList.length,
                 (context, index) {
-                  return ReplyListItem(
-                    reply: _replyList[index],
-                    topicId: _detailModel!.topicId,
-                    totalPage: _totalPage,
-                    key: UniqueKey(),
-                    queryReplyList:
-                        (replyMemberList, floorNumber, resultList, totalPage) =>
+                  return AutoScrollTag(
+                      key: ValueKey(index),
+                      controller: autoScrollController,
+                      index: index,
+                      child:
+                      // noticeFloorNumber > 0 && index == 0 ? Text('123') :
+                      ReplyListItem(
+                        reply: _replyList[index],
+                        topicId: _detailModel!.topicId,
+                        totalPage: _totalPage,
+                        key: UniqueKey(),
+                        queryReplyList:
+                            (replyMemberList, floorNumber, resultList, totalPage) =>
                             queryReplyList(replyMemberList, floorNumber,
                                 resultList, _totalPage),
-                    source: 'topic',
-                    replyList: _replyList,
+                        source: 'topic',
+                        replyList: _replyList,
+                        floorNumber: noticeFloorNumber,
+                      )
                   );
+                  // return ReplyListItem(
+                  //   reply: _replyList[index],
+                  //   topicId: _detailModel!.topicId,
+                  //   totalPage: _totalPage,
+                  //   key: UniqueKey(),
+                  //   queryReplyList:
+                  //       (replyMemberList, floorNumber, resultList, totalPage) =>
+                  //           queryReplyList(replyMemberList, floorNumber,
+                  //               resultList, _totalPage),
+                  //   source: 'topic',
+                  //   replyList: _replyList,
+                  // );
                 },
-                childCount: _replyList.length,
+                // childCount: _replyList.length,
               ),
             ),
           ],

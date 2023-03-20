@@ -13,6 +13,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'dart:math' as math;
 
 class ReplyListItem extends StatefulWidget {
   ReplyListItem({
@@ -22,6 +23,7 @@ class ReplyListItem extends StatefulWidget {
     this.totalPage,
     this.source,
     this.replyList,
+    this.floorNumber,
     Key? key,
   }) : super(key: key);
 
@@ -31,12 +33,16 @@ class ReplyListItem extends StatefulWidget {
   int? totalPage;
   String? source;
   List? replyList;
+  int? floorNumber;
+
+
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
 }
 
-class _ReplyListItemState extends State<ReplyListItem> {
+class _ReplyListItemState extends State<ReplyListItem>
+    with TickerProviderStateMixin {
   // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
     {
@@ -80,6 +86,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
   String? loginUserName;
   bool highLightOp = GStorage().getHighlightOp();
 
+  late AnimationController _controller;
+  int _animationCount = 0;
+  final int _maxAnimationCount = 2;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -97,6 +107,24 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
+
+    _controller = AnimationController(
+        lowerBound: 0.95,
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    )..addListener(() {
+    if (_controller.status == AnimationStatus.completed) {
+    _animationCount++;
+      if (_animationCount >= _maxAnimationCount) {
+        _controller.stop();
+      } else {
+        _controller.reverse();
+    }
+    } else if (_controller.status == AnimationStatus.dismissed) {
+      _controller.forward();
+    }
+    });
+    _controller.forward();
   }
 
   void menuAction(id) {
@@ -236,6 +264,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
         SmartDialog.showToast('已保存到相册');
       }
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -414,26 +449,62 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget replyItemTopic(context, child) {
-    return RepaintBoundary(
-      key: repaintKey,
-      child: Material(
-        color: reply.isOwner && highLightOp
-            ? Theme.of(context).colorScheme.onInverseSurface
-            : null,
-        child: InkWell(
-          onTap: () async {
-            /// 增加200毫秒延迟 水波纹动画
-            await Future.delayed(const Duration(milliseconds: 200));
-            replyComment();
-          },
-          onLongPress: () {},
-          child: Ink(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
-            child: child,
+    return AnimatedBuilder(
+      animation: _controller,
+      child: RepaintBoundary(
+        key: repaintKey,
+        child: Material(
+          color: reply.isOwner
+              ? Theme.of(context).colorScheme.onInverseSurface
+              : null,
+          child: InkWell(
+            onTap: () async {
+              /// 增加200毫秒延迟 水波纹动画
+              await Future.delayed(const Duration(milliseconds: 200));
+              replyComment();
+            },
+            onLongPress: () {},
+            child: Ink(
+              padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
+              child: child,
+            ),
           ),
         ),
       ),
+      builder: (BuildContext context, Widget? child) {
+        return Transform.scale(
+          scale: widget.floorNumber! > 0 &&
+                  reply.floorNumber == widget.floorNumber!
+              ? _controller.value
+              : 1,
+          child: child,
+        );
+      },
     );
+    // return
+    // RepaintBoundary(
+    //   key: repaintKey,
+    //   child: Material(
+    //     color:
+    //         widget.floorNumber! > 0 && reply.floorNumber == widget.floorNumber!
+    //             ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.5)
+    //             : reply.isOwner
+    //                 ? Theme.of(context).colorScheme.onInverseSurface
+    //                 : null,
+    //     child: InkWell(
+    //       onTap: () async {
+    //         /// 增加200毫秒延迟 水波纹动画
+    //         await Future.delayed(const Duration(milliseconds: 200));
+    //         replyComment();
+    //       },
+    //       onLongPress: () {},
+    //       child: Ink(
+    //         padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
+    //         child: child,
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   Widget replyItemSheet(context, child) {

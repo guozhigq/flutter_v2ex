@@ -74,6 +74,7 @@ dependencies:
     sticky_headers: ^0.3.0+2
     hive: ^2.2.3
     hive_flutter: ^1.1.0
+    scroll_to_index: ^3.0.1
 
 dev_dependencies:
     flutter_test:
