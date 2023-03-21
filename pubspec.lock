@@ -346,6 +346,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.1"
+  fconsole:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: be2d09aa4c195bf6b563ffc74ba7f95a716a62db
+      url: "https://github.com/guozhigq/fconsole.git"
+    source: git
+    version: "2.3.1"
   ffi:
     dependency: transitive
     description:
@@ -455,6 +464,11 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.0.0"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_native_timezone:
     dependency: "direct main"
     description:
@@ -601,6 +615,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.7.1"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -633,6 +655,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.6.1"
+  json_view:
+    dependency: transitive
+    description:
+      name: json_view
+      sha256: bc34d95586b1d36b2641fa5ff33d31cfd8c234d355d4444e2e3d6b62e7a22108
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0"
+  left_scroll_actions:
+    dependency: transitive
+    description:
+      name: left_scroll_actions
+      sha256: b1f52234469b93a5e520ca002201794fc6b8a914af5357c328b6ab265bd18733
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.2"
   lints:
     dependency: transitive
     description:
@@ -1070,6 +1108,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.0"
+  tapped:
+    dependency: transitive
+    description:
+      name: tapped
+      sha256: "27a01d5c80d0e33100f62514dfcca43d933984822d852c84a7664943b3cf1b30"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
   term_glyph:
     dependency: transitive
     description:

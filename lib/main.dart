@@ -30,6 +30,7 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
+import 'package:fconsole/fconsole.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -46,49 +47,53 @@ class ProxiedHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // 消息通知初始化
-  try{
-    await LocalNoticeService().init();
-  }catch(err){
-    print('LocalNoticeService err: ${err.toString()}');
-  }
-  // 代理设置
-  Map<String, String>? proxy = await SystemProxy.getProxySettings();
-  if (proxy != null) {
-    HttpOverrides.global = ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
-  }
-  // 本地存储初始化
-  try{
-    await GetStorage.init();
-  }catch(err) {
-    print('GetStorage err: ${err.toString()}');
-  }
-  // 初始化 Hive 历史浏览box
-  await initHive();
+void main() => runAppWithFConsole(
+      const MyApp(),
+      beforeRun: () async {
+        WidgetsFlutterBinding.ensureInitialized();
+        // 消息通知初始化
+        try {
+          await LocalNoticeService().init();
+        } catch (err) {
+          print('LocalNoticeService err: ${err.toString()}');
+        }
+        // 代理设置
+        Map<String, String>? proxy = await SystemProxy.getProxySettings();
+        if (proxy != null) {
+          HttpOverrides.global =
+              ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
+        }
+        // 本地存储初始化
+        try {
+          await GetStorage.init();
+        } catch (err) {
+          print('GetStorage err: ${err.toString()}');
+        }
+        // 初始化 Hive 历史浏览box
+        await initHive();
 
-  // 高帧率滚动性能优化
-  // GestureBinding.instance.resamplingEnabled = true;
-  // 入口
-  runApp(const MyApp());
-  // 配置状态栏
-  if (Platform.isAndroid) {
-    SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      // Setting a transparent navigation bar color
-      systemNavigationBarContrastEnforced: true,
-      // Default
-      statusBarBrightness: Brightness.light,
-      // statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarIconBrightness:
-          Brightness.dark, // This defines the color of the scrim
-    ));
-  }
-}
+        // 高帧率滚动性能优化
+        // GestureBinding.instance.resamplingEnabled = true;
+        // 入口
+        runApp(const MyApp());
+        // 配置状态栏
+        if (Platform.isAndroid) {
+          SystemChrome.setEnabledSystemUIMode(
+              SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
+          SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Colors.transparent,
+            // Setting a transparent navigation bar color
+            systemNavigationBarContrastEnforced: true,
+            // Default
+            statusBarBrightness: Brightness.light,
+            // statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarIconBrightness:
+                Brightness.dark, // This defines the color of the scrim
+          ));
+        }
+      },
+    );
 
 // 主题色
 Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
@@ -136,7 +141,7 @@ class _MyAppState extends State<MyApp> {
     //   });
     // }
     // 检查更新
-    if(GStorage().getAutoUpdate()){
+    if (GStorage().getAutoUpdate()) {
       DioRequestWeb.checkUpdate();
     }
   }
@@ -150,7 +155,7 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('themeChange');
     eventBus.off('editTabs');
     // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
-    if(_timer.isActive){
+    if (_timer.isActive) {
       _timer.cancel();
     }
     closeHive();
@@ -159,8 +164,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final FontSizeController? fontSizeController
-    = Get.put(FontSizeController());
+    final FontSizeController? fontSizeController =
+        Get.put(FontSizeController());
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         ColorScheme? lightColorScheme;
@@ -179,7 +184,7 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.dark,
           );
         }
-        return  GetMaterialApp(
+        return GetMaterialApp(
           title: 'VVEX',
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
@@ -211,12 +216,12 @@ class _MyAppState extends State<MyApp> {
             return FlutterSmartDialog(
                 loadingBuilder: (String msg) => CustomLoading(msg: msg),
                 toastBuilder: (String msg) => CustomToast(msg: msg),
+
                 /// 设置文字大小不跟随系统更改
                 child: MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                   child: child!,
-                )
-            );
+                ));
           },
         );
       },
