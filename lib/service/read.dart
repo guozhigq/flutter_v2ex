@@ -52,6 +52,9 @@ class Read {
       'content': content
     };
     var keys = box.keys;
+    if(keys.length >= 4){
+      box.delete(keys.first);
+    }
     if (keys.contains(nowDay)) {
       // 已存在当前天
       var nowDayData = box.get(nowDay);

@@ -35,7 +35,7 @@ class _ListItemState extends State<ListItem>
     return Container(
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
       child: Material(
-        color: topic.readStatus == 'unread' ?  Theme.of(context).colorScheme.onInverseSurface : null,
+        color: Theme.of(context).colorScheme.onInverseSurface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {
@@ -74,10 +74,13 @@ class _ListItemState extends State<ListItem>
           Characters(topic.topicTitle).join('\u{200B}'),
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
-          style: Theme.of(context)
-              .textTheme
-              .titleSmall!
-              .copyWith(height: 1.6, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                height: 1.6,
+                fontWeight: FontWeight.w500,
+                color: topic.readStatus == 'unread'
+                    ? null
+                    : Theme.of(context).colorScheme.outline,
+              ),
         ),
         const SizedBox(height: 12),
         // 头像、昵称
@@ -89,11 +92,11 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Get.toNamed('/member/${topic.memberId}',
-                      parameters: {
-                        'memberAvatar': topic.avatar,
-                        'heroTag': herotag,
-                      }),
+                  onTap: () =>
+                      Get.toNamed('/member/${topic.memberId}', parameters: {
+                    'memberAvatar': topic.avatar,
+                    'heroTag': herotag,
+                  }),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
@@ -112,10 +115,13 @@ class _ListItemState extends State<ListItem>
                         topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium!
-                            .copyWith(fontWeight: FontWeight.w500),
+                        style:
+                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: topic.readStatus == 'unread'
+                                      ? null
+                                      : Theme.of(context).colorScheme.outline,
+                                ),
                       ),
                     ),
                     const SizedBox(height: 1.5),
@@ -139,9 +145,7 @@ class _ListItemState extends State<ListItem>
             ),
             if (topic.nodeName.isNotEmpty) ...[
               NodeTag(
-                  nodeId: topic.nodeId,
-                  nodeName: topic.nodeName,
-                  route: 'home')
+                  nodeId: topic.nodeId, nodeName: topic.nodeName, route: 'home')
             ]
           ],
         ),
