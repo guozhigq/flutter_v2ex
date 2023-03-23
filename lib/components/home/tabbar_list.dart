@@ -226,7 +226,7 @@ class _TabBarListState extends State<TabBarList>
                       return moreTopic('全部加载完成');
                     }
                   } else {
-                    return ListItem(topic: topicList[index]);
+                    return ListItem(topic: topicList[index], key: UniqueKey());
                   }
                 },
               ),
