@@ -849,7 +849,14 @@ class _TopicDetailState extends State<TopicDetail>
                   height: 60,
                   color: Theme.of(context).colorScheme.onInverseSurface,
                   child: Center(
-                    child: Text('前 ${_currentPage - 1} 页已隐藏'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.commit, color: Theme.of(context).colorScheme.outline,),
+                        const SizedBox(width: 6),
+                        Text('前 ${_currentPage - 1} 页已隐藏')
+                      ],
+                    ),
                   ),
                 ),
               ),
