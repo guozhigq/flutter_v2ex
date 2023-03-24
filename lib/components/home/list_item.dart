@@ -144,8 +144,11 @@ class _ListItemState extends State<ListItem>
               ],
             ),
             if (topic.nodeName.isNotEmpty) ...[
-              NodeTag(
-                  nodeId: topic.nodeId, nodeName: topic.nodeName, route: 'home')
+              Opacity(
+                opacity: topic.readStatus == 'unread' ? 1 : 0.6,
+                child:  NodeTag(
+                  nodeId: topic.nodeId, nodeName: topic.nodeName, route: 'home'),
+              ),
             ]
           ],
         ),
