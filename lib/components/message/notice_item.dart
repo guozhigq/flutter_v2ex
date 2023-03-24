@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
@@ -59,11 +60,17 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              String replyCount = widget.noticeItem.topicHref.split('#reply')[1];
-              Get.toNamed('/t/${widget.noticeItem.topicId}', parameters: {
-                'source': 'notice',
-                'floorNumber': replyCount
-              });
+              String floorNumber =
+              widget.noticeItem.topicHref.split('#reply')[1];
+              NoticeType noticeType = widget.noticeItem.noticeType;
+              Map<String, String> parameters = {};
+              if (noticeType.name == NoticeType.reply.name ||
+                  noticeType.name == NoticeType.thanksReply.name) {
+                // 回复 or 感谢回复
+                parameters = {'source': 'notice', 'floorNumber': floorNumber};
+              }
+              Get.toNamed('/t/${widget.noticeItem.topicId}',
+                  parameters: parameters);
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
