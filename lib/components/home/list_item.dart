@@ -1,10 +1,10 @@
+import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
-import 'dart:math';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -133,7 +133,7 @@ class _ListItemState extends State<ListItem>
                         if (topic.replyCount > 0) ...[
                           const SizedBox(width: 10),
                           Text(
-                            '${topic.replyCount} 回复',
+                            '${topic.replyCount} ${I18nKeyword.replies.tr}',
                             style: timeStyle,
                           ),
                         ]

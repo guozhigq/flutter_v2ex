@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
+import 'package:flutter_v2ex/service/translation.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:get/get.dart';
 
@@ -220,6 +222,16 @@ class _MyAppState extends State<MyApp> {
                 ? lightColorScheme
                 : darkColorScheme,
           ),
+          translations: Translation(),
+          localizationsDelegates: const [
+            GlobalCupertinoLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            // GmLocalizationsDelegate()
+          ],
+          locale: const Locale("en", "US"),
+          supportedLocales: const [Locale("en", "US")],
+          fallbackLocale: const Locale("en", "US"),
           home: const HomePage(),
           navigatorKey: Routes.navigatorKey,
           routingCallback: (routing) {

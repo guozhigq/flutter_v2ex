@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/topic/skeleton_main.dart';
@@ -63,10 +64,10 @@ class TopicMain extends StatelessWidget {
                       : const SizedBox(),
               const SizedBox(width: 10,),
               if(detailModel != null)
-                Text('${detailModel.visitorCount} 点击', style: labelMedium) ,
+                Text('${detailModel.visitorCount} ${I18nKeyword.topicClick.tr}', style: labelMedium) ,
               const SizedBox(width: 10,),
               if(detailModel != null)
-                Text('${detailModel.favoriteCount} 收藏', style: labelMedium)
+                Text('${detailModel.favoriteCount} ${I18nKeyword.topicFav.tr}', style: labelMedium)
             ],
           ),
         ),

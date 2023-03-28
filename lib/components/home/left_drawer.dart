@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/string.dart';
@@ -20,42 +21,42 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
   final List<Map<dynamic, dynamic>> _listTitleMap_0 = [
     {
       'leading': const Icon(Icons.whatshot_outlined),
-      'title': '今日热议',
+      'title': I18nKeyword.todayHot.tr,
       'path': '/hot'
     },
     {
       'leading': const Icon(Icons.history_outlined),
-      'title': '最近浏览',
+      'title': I18nKeyword.history.tr,
       'path': '/history'
     },
   ];
   final List<Map<dynamic, dynamic>> _listTitleMap = [
     {
       'leading': const Icon(Icons.favorite_outline),
-      'title': '我的关注',
+      'title': I18nKeyword.myFollow.tr,
       'path': '/my/following'
     },
     {
       'leading': const Icon(Icons.star_border_rounded),
-      'title': '我的收藏',
+      'title': I18nKeyword.myFavorite.tr,
       'path': '/my/topics'
     },
     {
       'leading': const Icon(Icons.edit_note_outlined),
-      'title': '发布主题',
+      'title': I18nKeyword.createTopic.tr,
       'path': '/write'
     },
   ];
   final List<Map<dynamic, dynamic>> _listTitleMap_2 = [
-    {'leading': const Icon(Icons.brightness_medium_rounded), 'title': '选择主题'},
+    {'leading': const Icon(Icons.brightness_medium_rounded), 'title': I18nKeyword.chooseTheme.tr},
     {
       'leading': const Icon(Icons.tune_outlined),
-      'title': '设置',
+      'title': I18nKeyword.setting.tr,
       'path': '/setting'
     },
     {
       'leading': const Icon(Icons.help_outline_outlined),
-      'title': '帮助',
+      'title': I18nKeyword.help.tr,
       'path': '/help'
     },
   ];

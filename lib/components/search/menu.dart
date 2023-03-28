@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class SearchMenu extends StatefulWidget {
@@ -106,14 +108,14 @@ class _SearchMenuState extends State<SearchMenu> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('选择升降序'),
+          title: Text(I18nKeyword.selectOrder.tr),
           contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               RadioListTile(
                 value: 0,
-                title: Text('最近优先',
+                title: Text(I18nKeyword.recentPriority.tr,
                     style: Theme.of(context).textTheme.titleMedium),
                 groupValue: orderType,
                 onChanged: (value) {
@@ -126,7 +128,7 @@ class _SearchMenuState extends State<SearchMenu> {
               ),
               RadioListTile(
                 value: 1,
-                title: Text('历史优先',
+                title: Text(I18nKeyword.historicalPriority.tr,
                     style: Theme.of(context).textTheme.titleMedium),
                 groupValue: orderType,
                 onChanged: (value) {

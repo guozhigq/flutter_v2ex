@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/soV2ex.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
@@ -153,7 +154,7 @@ class _SearchPageState extends State<SearchPage> {
                 autofocus: true,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: '搜索功能由soV2ex提供',
+                  hintText: I18nKeyword.searchPower.tr,
                   border: InputBorder.none,
                   suffixIcon: controller.text.isNotEmpty
                       ? IconButton(

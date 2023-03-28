@@ -1,7 +1,9 @@
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
+import 'package:flutter_v2ex/components/home/list_item.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -57,11 +59,11 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('最近浏览'),
+        title: Text(I18nKeyword.history.tr),
         actions: [
           IconButton(
               onPressed: historyList.isNotEmpty ? clearHis : null,
-              tooltip: '清除浏览记录',
+              tooltip: I18nKeyword.clearHistory.tr,
               icon: const Icon(Icons.clear_all_rounded),),
           const SizedBox(width: 12),
         ],
@@ -109,8 +111,8 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Widget noData() {
-    return const Center(
-      child: Text('没有数据'),
+    return Center(
+      child: Text(I18nKeyword.noData.tr),
     );
   }
 }

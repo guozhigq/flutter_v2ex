@@ -31,13 +31,14 @@ environment:
 dependencies:
     flutter:
         sdk: flutter
-
+    flutter_localizations:
+        sdk: flutter
     # The following adds the Cupertino Icons font to your application.
     # Use with the CupertinoIcons class for iOS style icons.
     #    cupertino_icons: ^1.0.2
     dynamic_color: ^1.5.4
     dio: ^4.0.6
-#    dio_http_cache: ^0.3.0
+    #    dio_http_cache: ^0.3.0
     dio_http_cache:
         git:
             url: https://github.com/guozhigq/dio-http-cache.git
@@ -86,7 +87,7 @@ dev_dependencies:
     # package. See that file for information about deactivating specific lint
     # rules and activating additional ones.
     flutter_lints: ^2.0.0
-#    flutter_launcher_icons: ^0.9.3
+    #    flutter_launcher_icons: ^0.9.3
     hive_generator: ^2.0.0
     build_runner: ^2.3.3
 
@@ -129,16 +130,16 @@ flutter:
     # "family" key with the font family name, and a "fonts" key with a
     # list giving the asset and other descriptors for the font. For
     # example:
-#    fonts:
-#        - family: NotoSansSC
-#          fonts:
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Black.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Light.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Medium.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.otf
-#              - asset: assets/fonts/NotoSansSC/NotoSansSC-Thin.otf
-#                style: italic
+    fonts:
+        - family: NotoSansSC
+          fonts:
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Black.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Light.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Medium.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.otf
+              - asset: assets/fonts/NotoSansSC/NotoSansSC-Thin.otf
+                style: italic
 
 # For details regarding fonts from package dependencies,
 # see https://flutter.dev/custom-fonts/#from-packages

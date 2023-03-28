@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter_v2ex/components/topic/main.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -635,18 +636,18 @@ class _TopicDetailState extends State<TopicDetail>
           PopupMenuItem<SampleItem>(
             value: SampleItem.ignore,
             onTap: onIgnoreTopic,
-            child: const Text('忽略主题'),
+            child: Text(I18nKeyword.topicIgnore.tr),
           ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.share,
             onTap: onShareTopic,
-            child: const Text('分享'),
+            child: Text(I18nKeyword.topicShare.tr),
           ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.report,
             onTap: onReportTopic,
             child: Text(
-              '举报',
+              I18nKeyword.topicReport.tr,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.error.withAlpha(200)),
             ),
@@ -655,7 +656,7 @@ class _TopicDetailState extends State<TopicDetail>
           PopupMenuItem<SampleItem>(
             value: SampleItem.browse,
             onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: const Text('在浏览器中打开'),
+            child: Text(I18nKeyword.openInBrowser.tr,),
           ),
         ],
       ),
@@ -936,7 +937,7 @@ class _TopicDetailState extends State<TopicDetail>
       child: Center(
         // child: TextField(),
         child: Text(
-          type == 'noMore' ? '没有更多回复了' : '还没有人回复',
+          type == 'noMore' ? I18nKeyword.noMoreResponses.tr : '还没有人回复',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),

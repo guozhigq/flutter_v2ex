@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -97,11 +98,12 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
+                        tooltip: I18nKeyword.drawer.tr,
                         onPressed: () => Scaffold.of(context).openDrawer(),
                         icon: const Icon(Icons.menu),
                       ),
                       Center(
-                        child: Text('搜索',
+                        child: Text(I18nKeyword.search.tr,
                             style: Theme.of(context).textTheme.bodyMedium),
                       ),
                       GestureDetector(
@@ -171,6 +173,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       right: 38,
                       top: 0,
                       child: IconButton(
+                        tooltip: I18nKeyword.notice.tr,
                           onPressed: () {
                             setState(() {
                               unRead = false;

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -555,7 +556,7 @@ class _ReplyListItemState extends State<ReplyListItem>
               child: Row(children: [
                 Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
                 const SizedBox(width: 2),
-                Text('回复', style: textStyle),
+                Text(I18nKeyword.replyAction.tr, style: textStyle),
               ]),
             ),
             if (reply.replyMemberList.isNotEmpty &&
@@ -565,7 +566,7 @@ class _ReplyListItemState extends State<ReplyListItem>
                 onPressed: () => widget.queryReplyList(reply.replyMemberList,
                     reply.floorNumber, [reply], widget.totalPage),
                 child: Text(
-                  '查看回复',
+                  I18nKeyword.viewResponse.tr,
                   style: textStyle,
                 ),
               ),
@@ -608,7 +609,7 @@ class _ReplyListItemState extends State<ReplyListItem>
                               style: textStyle.copyWith(
                                   color: Theme.of(context).colorScheme.primary))
                           : Text(reply.favorites.toString(), style: textStyle)
-                      : Text('感谢', style: textStyle),
+                      : Text(I18nKeyword.replyThank.tr, style: textStyle),
                 ]),
               ),
           ],
