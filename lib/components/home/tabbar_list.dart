@@ -183,7 +183,9 @@ class _TabBarListState extends State<TabBarList>
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 1, bottom: 0),
                 physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics()),
+                    // parent: BouncingScrollPhysics(), // iOS
+                  parent: ClampingScrollPhysics() // Android
+                ),
                 //重要
                 itemCount: topicList.length + 1,
                 controller: _controller,
