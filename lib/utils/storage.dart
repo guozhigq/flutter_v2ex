@@ -27,6 +27,7 @@ enum StoreKeys {
   tabs,
   autoUpdate,
   highlightOp,
+  tempFs
 }
 
 class GStorage {
@@ -172,4 +173,8 @@ class GStorage {
   setHighlightOp(bool value) => _box.write(StoreKeys.highlightOp.toString(), value);
 
   bool getHighlightOp() => _box.read<bool>(StoreKeys.highlightOp.toString()) ?? false;
+
+  setTempFs(double value) => _box.write(StoreKeys.tempFs.toString(), value);
+
+  double getTempFs() => _box.read<double>(StoreKeys.tempFs.toString()) ?? 14;
 }

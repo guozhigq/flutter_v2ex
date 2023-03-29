@@ -49,7 +49,7 @@ class _SetFontPageState extends State<SetFontPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('全局字体（重启生效）', style: Theme.of(context).textTheme.titleMedium),
+                  Text('全局字体', style: Theme.of(context).textTheme.titleMedium),
                   Text(_currentGlobalSize.toString(), style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
