@@ -57,6 +57,7 @@ class _SettingPageState extends State<SettingPage> {
           TextButton(
               onPressed: () async {
                 Navigator.pop(context);
+
                 /// 删除cookie目录
                 try {
                   await Login.signOut();
@@ -87,22 +88,34 @@ class _SettingPageState extends State<SettingPage> {
     TextStyle titleStyle = Theme.of(context).textTheme.titleLarge!;
     TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
     Color iconStyle = Theme.of(context).colorScheme.onBackground;
+    TextStyle groupTitleStyle = Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.primary);
     return Scaffold(
       appBar: AppBar(
         title: const Text('设置'),
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 25, 20, 5),
+            child: Text('常规设置', style: groupTitleStyle),
+          ),
           ListTile(
+            onTap: () => Get.toNamed('/nodesSort'),
+            // leading: Icon(Icons.drag_indicator_rounded, color: iconStyle),
+            title: const Text('节点设置'),
+            subtitle: Text('调整节点顺序', style: subTitleStyle),
+          ),
+          ListTile(
+            enableFeedback: true,
             onTap: () {
               setState(() {
                 autoSign = !autoSign;
                 GStorage().setAutoSign(autoSign);
               });
             },
-            leading: Icon(Icons.task_alt, color: iconStyle),
+            // leading: Icon(Icons.task_alt, color: iconStyle),
             title: const Text('自动签到'),
-            subtitle: Text('北京时间8点', style: subTitleStyle),
+            subtitle: Text('自动领取每日登陆奖励', style: subTitleStyle),
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
@@ -123,32 +136,6 @@ class _SettingPageState extends State<SettingPage> {
                   }),
             ),
           ),
-          // ListTile(
-          //   onTap: () {
-          //     setState(() {
-          //       materialColor = !materialColor;
-          //     });
-          //   },
-          //   leading: Icon(Icons.color_lens_outlined, color: iconStyle),
-          //   title: const Text('动态色彩'),
-          //   subtitle: Text('将壁纸颜色应用于主题色', style: subTitleStyle),
-          //   trailing: Transform.scale(
-          //     scale: 0.9,
-          //     child: Switch(
-          //         value: materialColor,
-          //         onChanged: (value) {
-          //           setState(() {
-          //             materialColor = value;
-          //           });
-          //         }),
-          //   ),
-          // ),
-          // ListTile(
-          //   onTap: () {},
-          //   leading: Icon(Icons.workspaces_outlined, color: iconStyle),
-          //   title: const Text('主题风格'),
-          //   subtitle: Text('选择应用主题色', style: subTitleStyle),
-          // ),
           ListTile(
             onTap: () {
               setState(() {
@@ -156,7 +143,7 @@ class _SettingPageState extends State<SettingPage> {
                 GStorage().setLinkOpenInApp(linkOpenInApp);
               });
             },
-            leading: Icon(Icons.open_in_new_rounded, color: iconStyle),
+            // leading: Icon(Icons.open_in_new_rounded, color: iconStyle),
             title: const Text('使用应用内浏览器'),
             subtitle: Text('在应用内查看外部链接', style: subTitleStyle),
             trailing: Transform.scale(
@@ -182,41 +169,11 @@ class _SettingPageState extends State<SettingPage> {
           ListTile(
             onTap: () {
               setState(() {
-                expendAppBar = !expendAppBar;
-                GStorage().setExpendAppBar(expendAppBar);
-              });
-            },
-            leading: Icon(Icons.expand, color: iconStyle),
-            title: const Text('滑动时收起AppBar'),
-            subtitle: Text('在详情页收起顶部信息栏', style: subTitleStyle),
-            trailing: Transform.scale(
-              scale: 0.8,
-              child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                      (Set<MaterialState> states) {
-                    if (states.isNotEmpty &&
-                        states.first == MaterialState.selected) {
-                      return const Icon(Icons.done);
-                    }
-                    return null; // All other states will use the default thumbIcon.
-                  }),
-                  value: expendAppBar,
-                  onChanged: (value) {
-                    setState(() {
-                      expendAppBar = !expendAppBar;
-                      GStorage().setExpendAppBar(expendAppBar);
-                    });
-                  }),
-            ),
-          ),
-          ListTile(
-            onTap: () {
-              setState(() {
                 noticeOn = !noticeOn;
                 GStorage().setNoticeOn(noticeOn);
               });
             },
-            leading: Icon(Icons.notifications_none, color: iconStyle),
+            // leading: Icon(Icons.notifications_none, color: iconStyle),
             title: const Text('接收消息通知'),
             subtitle: Text('关闭后收到通知将不再提醒', style: subTitleStyle),
             trailing: Transform.scale(
@@ -239,6 +196,47 @@ class _SettingPageState extends State<SettingPage> {
                   }),
             ),
           ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 25, 20, 5),
+            child: Text('显示设置', style: groupTitleStyle),
+          ),
+          ListTile(
+            onTap: () => Get.toNamed('/setFont'),
+            // leading: Icon(Icons.font_download_outlined, color: iconStyle),
+            title: const Text('字体设置'),
+            subtitle: Text('设置字体大小', style: subTitleStyle),
+          ),
+          ListTile(
+            onTap: () {
+              setState(() {
+                expendAppBar = !expendAppBar;
+                GStorage().setExpendAppBar(expendAppBar);
+              });
+            },
+            // leading: Icon(Icons.expand, color: iconStyle),
+            title: const Text('滑动时收起AppBar'),
+            subtitle: Text('在详情页收起顶部信息栏', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                          (Set<MaterialState> states) {
+                        if (states.isNotEmpty &&
+                            states.first == MaterialState.selected) {
+                          return const Icon(Icons.done);
+                        }
+                        return null; // All other states will use the default thumbIcon.
+                      }),
+                  value: expendAppBar,
+                  onChanged: (value) {
+                    setState(() {
+                      expendAppBar = !expendAppBar;
+                      GStorage().setExpendAppBar(expendAppBar);
+                    });
+                  }),
+            ),
+          ),
           ListTile(
             onTap: () {
               setState(() {
@@ -246,8 +244,9 @@ class _SettingPageState extends State<SettingPage> {
                 GStorage().setHighlightOp(noticeOn);
               });
             },
-            leading: Icon(Icons.notifications_none, color: iconStyle),
-            title: const Text('突出显示OP回复'),
+            // leading: Icon(Icons.notifications_none, color: iconStyle),
+            title: const Text('高亮OP回复'),
+            subtitle: Text('开启后突出显示OP回复', style: subTitleStyle),
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
@@ -269,25 +268,13 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
           ListTile(
-            onTap: () => Get.toNamed('/setFont'),
-            leading: Icon(Icons.font_download_outlined, color: iconStyle),
-            title: const Text('字体设置'),
-            subtitle: Text('设置字体大小', style: subTitleStyle),
-          ),
-          ListTile(
-            onTap: () => Get.toNamed('/nodesSort'),
-            leading: Icon(Icons.drag_indicator_rounded, color: iconStyle),
-            title: const Text('节点设置'),
-            subtitle: Text('调整节点顺序', style: subTitleStyle),
-          ),
-          ListTile(
             onTap: () async {
               var cleanStatus = await CacheManage().clearCacheAll();
               if (cleanStatus) {
                 getCacheSize();
               }
             },
-            leading: Icon(Icons.cleaning_services_outlined, color: iconStyle),
+            // leading: Icon(Icons.cleaning_services_outlined, color: iconStyle),
             title: const Text('清除缓存'),
             subtitle: Text('图片及网络缓存 $cacheSize', style: subTitleStyle),
           ),
