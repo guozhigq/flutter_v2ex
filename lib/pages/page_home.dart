@@ -124,8 +124,11 @@ class _HomePageState extends State<HomePage>
           ]),
         ),
         actions: [
-          TextButton(onPressed: () => SystemNavigator.pop(), child: const Text('不同意并退出')),
-          TextButton(onPressed: () => SmartDialog.dismiss(), child: const Text('同意')),
+          TextButton(
+              onPressed: () => SystemNavigator.pop(),
+              child: const Text('不同意并退出')),
+          TextButton(
+              onPressed: () => SmartDialog.dismiss(), child: const Text('同意')),
         ],
       );
     });
@@ -134,6 +137,7 @@ class _HomePageState extends State<HomePage>
   onClickUser() {
     Get.toNamed('/agreement', parameters: {'source': 'user'});
   }
+
   onClickPrivacy() {
     Get.toNamed('/agreement', parameters: {'source': 'privacy'});
   }
@@ -149,48 +153,78 @@ class _HomePageState extends State<HomePage>
     GStorage().setStatusBarHeight(height);
 
     /// DefaultTabController在build外无法重新build tabView
-    // return DefaultTabController(
-    //   length: tabs.length,
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       automaticallyImplyLeading: false,
-    //       title: const HomeSearchBar(),
-    //     ),
-    //     drawer: const HomeLeftDrawer(),
-    //     body: Column(
-    //       children: <Widget>[
-    //         HomeStickyBar(tabs: tabs),
-    //         const SizedBox(height: 3),
-    //         Expanded(
-    //           child: TabBarView(
-    //             children: tabs.map((e) {
-    //               return TabBarList(e);
-    //             }).toList(),
-    //           ),
-    //         )
-    //       ],
-    //     ),
-    //   ),
-    // );
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const HomeSearchBar(),
-      ),
       drawer: const HomeLeftDrawer(),
-      body: Column(
-        children: <Widget>[
-          HomeStickyBar(tabs: tabs, ctr: _tabController),
-          const SizedBox(height: 3),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: tabs.map((e) {
-                return TabBarList(e);
-              }).toList(),
+      body: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverOverlapAbsorber(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+              sliver: SliverAppBar(
+                title: const HomeSearchBar(),
+                automaticallyImplyLeading: false,
+                pinned: true,
+                floating: true,
+                snap: true,
+                forceElevated: innerBoxIsScrolled,
+                bottom: TabBar(
+                  controller: _tabController,
+                  dividerColor: Colors.transparent,
+                  onTap: (index) {},
+                  isScrollable: true,
+                  enableFeedback: true,
+                  splashBorderRadius: BorderRadius.circular(6),
+                  tabs: tabs.map((item) {
+                    return Tab(text: item.name);
+                  }).toList(),
+                ),
+              ),
             ),
-          )
-        ],
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: tabs.map((e) {
+            return Builder(
+              builder: (BuildContext context) {
+                return CustomScrollView(
+                  shrinkWrap: true,
+                  key: PageStorageKey<String>(e.id),
+                  slivers: <Widget>[
+                    SliverOverlapInjector(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                          context),
+                    ),
+                    // TabBarList(e),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              color: index % 2 == 0
+                                  ? Colors.green
+                                  : Colors.greenAccent,
+                              height: 80,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Item $index",
+                                style: const TextStyle(fontSize: 30),
+                              ),
+                            ),
+                          );
+                          // return TabBarList(e);
+                        },
+                        childCount: 400,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
