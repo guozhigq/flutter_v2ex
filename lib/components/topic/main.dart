@@ -19,7 +19,7 @@ class TopicMain extends StatelessWidget {
     TextStyle titleStyle = Theme.of(context)
         .textTheme
         .titleLarge!
-        .copyWith(fontWeight: FontWeight.w500);
+        .copyWith(fontWeight: FontWeight.w500, height: 1.5);
     TextStyle labelMedium = Theme.of(context)
         .textTheme
         .labelMedium!
@@ -27,7 +27,7 @@ class TopicMain extends StatelessWidget {
     TextStyle timeStyle = Theme.of(context)
         .textTheme
         .labelSmall!
-        .copyWith(color: Theme.of(context).colorScheme.outline);
+        .copyWith(color: Theme.of(context).colorScheme.outline, letterSpacing: 2);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -43,10 +43,7 @@ class TopicMain extends StatelessWidget {
                 ? Text(detailModel!.topicTitle, style: titleStyle)
                 : topicDetail != null
                     ? Text(topicDetail!.topicTitle, style: titleStyle)
-                    : Text(
-                        'me',
-                        style: titleStyle,
-                      ),
+                    : const Placeholder(),
           ),
         ),
         Container(

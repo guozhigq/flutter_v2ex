@@ -1,10 +1,4 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:flutter/gestures.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
-import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -26,9 +20,6 @@ import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/app_theme.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {

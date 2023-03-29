@@ -852,7 +852,10 @@ class _TopicDetailState extends State<TopicDetail>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.commit, color: Theme.of(context).colorScheme.outline,),
+                        Icon(
+                          Icons.commit,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                         const SizedBox(width: 6),
                         Text('前 ${_currentPage - 1} 页已隐藏')
                       ],
