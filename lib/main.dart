@@ -21,6 +21,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/app_theme.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -93,10 +94,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final SystemUiOverlayStyle kDark = SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent /*Android=23*/,
-    statusBarBrightness: Brightness.light /*iOS*/,
-    statusBarIconBrightness: Brightness.dark /*Android=23*/,
-    systemStatusBarContrastEnforced: false /*Android=29*/,
+    // statusBarColor: Colors.transparent /*Android=23*/,
+    // statusBarBrightness: Brightness.light /*iOS*/,
+    // statusBarIconBrightness: Brightness.dark /*Android=23*/,
+    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
     systemNavigationBarDividerColor: Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
     systemNavigationBarIconBrightness: Brightness.dark /*Android=27*/,
@@ -104,13 +105,13 @@ class _MyAppState extends State<MyApp> {
   );
 
   final SystemUiOverlayStyle kLight = SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent /*Android=23*/,
-    statusBarBrightness: Brightness.dark /*iOS*/,
-    statusBarIconBrightness: Brightness.light /*Android=23*/,
-    systemStatusBarContrastEnforced: false /*Android=29*/,
+    // statusBarColor: Colors.transparent /*Android=23*/,
+    // statusBarBrightness: Brightness.dark /*iOS*/,
+    // statusBarIconBrightness: Brightness.light /*Android=23*/,
+    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
     systemNavigationBarDividerColor: Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
-    systemNavigationBarIconBrightness: Brightness.light /*Android=27*/,
+    systemNavigationBarIconBrightness: Brightness.dark /*Android=27*/,
     systemNavigationBarContrastEnforced: false /*Android=29*/,
   );
   ThemeType currentThemeValue = ThemeType.system;
@@ -198,6 +199,7 @@ class _MyAppState extends State<MyApp> {
           getPages: AppPages.getPages,
           theme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // fontFamily: GoogleFonts.getFont('Noto Sans').fontFamily,
             textTheme: fontSizeController?.getFontSize ?? const TextTheme(),
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.dark
@@ -206,6 +208,7 @@ class _MyAppState extends State<MyApp> {
           ),
           darkTheme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // fontFamily: GoogleFonts.getFont('Noto Sans').fontFamily,
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.light
                 ? lightColorScheme

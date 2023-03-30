@@ -39,14 +39,14 @@ class AppPages {
     ),
     // 话题详情
     GetPage(
-        name: '/t/:topicId',
-        page: () => const TopicDetail(),
-        // transitionDuration: const Duration(milliseconds: 300),
-        transition: Transition.cupertino,
-        showCupertinoParallax: false,
-        gestureWidth:(context)=> context.width,
-        curve: Curves.linear,
-        ),
+      name: '/t/:topicId',
+      page: () => const TopicDetail(),
+      // transitionDuration: const Duration(milliseconds: 300),
+      transition: Transition.cupertino,
+      showCupertinoParallax: false,
+      gestureWidth: (context) => context.width,
+      curve: Curves.linear,
+    ),
     // webView
     GetPage(
         name: '/webView',
@@ -55,7 +55,14 @@ class AppPages {
         transitionDuration: const Duration(milliseconds: 300)),
 
     // 节点主页
-    GetPage(name: '/go/:nodeId', page: () => const GoPage()),
+    GetPage(
+        name: '/go/:nodeId',
+        page: () => const GoPage(),
+        transition: Transition.cupertino,
+        showCupertinoParallax: false,
+        gestureWidth: (context) => context.width,
+        curve: Curves.linear,
+    ),
     // 所有节点
     GetPage(
       name: '/nodes',
@@ -68,11 +75,14 @@ class AppPages {
     GetPage(name: '/help', page: () => const HelpPage()),
 
     // 用户主页
-    GetPage(name: '/member/:memberId', page: () => const MemberPage(),
+    GetPage(
+      name: '/member/:memberId',
+      page: () => const MemberPage(),
       transition: Transition.cupertino,
       showCupertinoParallax: false,
-      gestureWidth:(context)=> context.width,
-      curve: Curves.linear,),
+      gestureWidth: (context) => context.width,
+      curve: Curves.linear,
+    ),
     // 用户发布的主题
     GetPage(
         name: '/member/:memberId/topics', page: () => const MemberTopicsPage()),
@@ -87,9 +97,20 @@ class AppPages {
     GetPage(name: '/my/following', page: () => const MyFollowPage()),
 
     // 消息提醒
-    GetPage(name: '/notifications', page: () => const MessagePage()),
+    GetPage(
+        name: '/notifications',
+        page: () => const MessagePage(),
+        transition: Transition.cupertino,
+        showCupertinoParallax: false,
+        gestureWidth: (context) => context.width,
+        curve: Curves.linear,
+    ),
     // 图片预览
-    GetPage(name: '/imgPreview', page: () => ImagePreview(), transition: Transition.cupertino,),
+    GetPage(
+      name: '/imgPreview',
+      page: () => ImagePreview(),
+      transition: Transition.cupertino,
+    ),
     // 设置
     GetPage(name: '/setting', page: () => const SettingPage()),
     // 搜索

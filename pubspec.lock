@@ -407,6 +407,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.0-alpha.4"
+  flutter_html_table:
+    dependency: "direct main"
+    description:
+      name: flutter_html_table
+      sha256: b01c4867466740e8c177459f241e66ad67d4e7f6a081649ba1f035e925bbefa5
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0-alpha.4"
   flutter_inappwebview:
     dependency: "direct main"
     description:
@@ -423,6 +431,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  flutter_layout_grid:
+    dependency: transitive
+    description:
+      name: flutter_layout_grid
+      sha256: "86c1b21520612edfbb93f189b3ec05058470570f3a5c08ce10c92cc76a6e814e"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.6"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -513,6 +529,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: "927573f2e8a8d65c17931e21918ad0ab0666b1b636537de7c4932bdb487b190f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.3"
   graphs:
     dependency: transitive
     description:

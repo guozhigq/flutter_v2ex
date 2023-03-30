@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
@@ -84,14 +85,27 @@ class _GoPageState extends State<GoPage> {
         appBar: topicListDetail != null
             ? AppBar(
                 centerTitle: false,
-                title: Text(topicListDetail!.nodeName),
+                // title: Text(topicListDetail!.nodeName),
+          title: Row(
+            children: [
+              CAvatar(url: topicListDetail!.nodeCover, size: 35),
+              const SizedBox(width: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(topicListDetail!.nodeName, style: Theme.of(context).textTheme.titleMedium),
+                  Text('   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).colorScheme.outline),)
+                ],
+              )
+            ],
+          ),
                 titleSpacing: 0,
                 actions: [
                   IconButton(
                     onPressed: () => favNode(),
-                    icon: const Icon(Icons.star_border_rounded),
+                    icon: const Icon(Icons.bookmark_add_outlined),
                     selectedIcon: Icon(
-                      Icons.star_rounded,
+                      Icons.bookmark_add_rounded,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     isSelected: topicListDetail!.isFavorite,

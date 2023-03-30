@@ -34,7 +34,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                 GStorage().setAutoSign(autoUpdate);
               });
             },
-            leading: Icon(Icons.update, color: iconStyle),
+            // leading: Icon(Icons.update, color: iconStyle),
             title: const Text('自动检查更新'),
             subtitle: Text('打开app时检查更新', style: subTitleStyle),
             trailing: Transform.scale(
@@ -72,7 +72,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ListTile(
             onTap: () =>
                 Utils.openURL('https://t.me/+lm_oOVmF0RJiODk1'),
-            leading: Icon(Icons.group_add_outlined, color: iconStyle,),
+            // leading: Icon(Icons.group_add_outlined, color: iconStyle,),
             title: const Text('加入讨论'),
             subtitle: Text('来TG跟开发者面对面', style: subTitleStyle),
           ),
@@ -83,7 +83,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               Clipboard.setData( ClipboardData(text: Strings.remoteUrl));
               SmartDialog.showToast('已复制内容');
             },
-            leading: Icon(Icons.settings_ethernet, color: iconStyle,),
+            // leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
             subtitle: Text('欢迎 star & pr', style: subTitleStyle),
           ),
@@ -93,7 +93,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               Clipboard.setData( ClipboardData(text:'${Strings.remoteUrl}/issues/new'));
               SmartDialog.showToast('已复制内容');
             },
-            leading: Icon(Icons.feedback_outlined, color: iconStyle),
+            // leading: Icon(Icons.feedback_outlined, color: iconStyle),
             title: const Text('意见反馈'),
             subtitle: Text('issues', style: subTitleStyle),
           ),
@@ -106,7 +106,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                 SmartDialog.showToast('已经是最新版了 😊');
               }
             },
-            leading: Icon(Icons.info_outline, color: iconStyle),
+            // leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('版本'),
             subtitle: Text(Strings.currentVersion, style: subTitleStyle),
           )

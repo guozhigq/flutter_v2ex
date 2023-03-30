@@ -289,6 +289,7 @@ class _ReplyListItemState extends State<ReplyListItem>
                   ),
                   Divider(
                     indent: 50,
+                    endIndent: 12,
                     height: 0.3,
                     color: Theme.of(context).colorScheme.onInverseSurface,
                   )
@@ -350,7 +351,7 @@ class _ReplyListItemState extends State<ReplyListItem>
                             maxLines: 1,
                             style: Theme.of(context)
                                 .textTheme
-                                .labelLarge!
+                                .titleSmall!
                                 .copyWith(
                                     color: reply.isMod || reply.isOwner
                                         ? Theme.of(context).colorScheme.primary
@@ -400,7 +401,10 @@ class _ReplyListItemState extends State<ReplyListItem>
                           // ],
                           Text(
                             ' • ',
-                            style: TextStyle(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
                                 color: Theme.of(context).colorScheme.outline),
                           ),
                           Text(

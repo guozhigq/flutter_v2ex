@@ -962,8 +962,8 @@ class _TopicDetailState extends State<TopicDetail>
 }
 
 class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _minExtent = 60;
-  final double _maxExtent = 60;
+  final double _minExtent = 55;
+  final double _maxExtent = 55;
   final Widget child;
 
   _MySliverPersistentHeaderDelegate({required this.child});
@@ -980,7 +980,7 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
+                  color: Theme.of(context).colorScheme.background.withOpacity(0.15),
                   spreadRadius: 2,
                   blurRadius: 20,
                   offset: const Offset(0, 3),

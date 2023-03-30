@@ -88,7 +88,7 @@ class _SettingPageState extends State<SettingPage> {
     TextStyle titleStyle = Theme.of(context).textTheme.titleLarge!;
     TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
     Color iconStyle = Theme.of(context).colorScheme.onBackground;
-    TextStyle groupTitleStyle = Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.primary);
+    TextStyle groupTitleStyle = Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.primary);
     return Scaffold(
       appBar: AppBar(
         title: const Text('设置'),
@@ -279,11 +279,13 @@ class _SettingPageState extends State<SettingPage> {
             subtitle: Text('图片及网络缓存 $cacheSize', style: subTitleStyle),
           ),
           if (loginStatus) ...[
+            const SizedBox(height: 10),
             ListTile(
               onTap: onLogout,
-              leading: Icon(Icons.logout_rounded, color: iconStyle),
-              title: const Text('退出登录'),
-              subtitle: Text('清除当前登录信息', style: subTitleStyle),
+              title: Center(
+              child: Text('退出登录', style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.error)),
+              ),
+              // subtitle: Text('清除当前登录信息', style: subTitleStyle),
             ),
           ],
         ],
