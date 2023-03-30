@@ -16,7 +16,15 @@ class TopicItem extends StatelessWidget {
         color: Theme.of(context).colorScheme.onInverseSurface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: () => Get.toNamed('/t/${topicItem.topicId}'),
+          onTap: () {
+            var topicDetail = topicItem;
+            // topicDetail.lastReplyTime = topicItem.time;
+            var arguments = <String, dynamic>{
+              "topic": topicDetail,
+              "heroTag": ''
+            };
+            Get.toNamed('/t/${topicItem.topicId}', arguments: arguments);
+          },
           borderRadius: BorderRadius.circular(10),
           child: Ink(
             padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),

@@ -41,7 +41,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
-  var topicDetail;
+  var _topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -93,7 +93,7 @@ class _TopicDetailState extends State<TopicDetail>
     // setState(() {
     topicId = Get.parameters['topicId']!;
     if (Get.arguments != null) {
-      topicDetail = Get.arguments['topic'];
+      _topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];
     }
     var keys = Get.parameters.keys;
@@ -556,7 +556,7 @@ class _TopicDetailState extends State<TopicDetail>
                   actions: _detailModel != null ? appBarAction() : [],
                 )
               : null,
-          body: topicDetail == null && _detailModel == null
+          body: _topicDetail == null && _detailModel == null
               ? showLoading()
               : Scrollbar(
                   radius: const Radius.circular(10),
@@ -779,7 +779,7 @@ class _TopicDetailState extends State<TopicDetail>
         SliverToBoxAdapter(
           child: TopicMain(
               detailModel: _detailModel,
-              topicDetail: topicDetail,
+              topicDetail: _topicDetail,
               heroTag: heroTag),
         ),
         if (_detailModel != null) ...[

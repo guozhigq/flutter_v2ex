@@ -80,13 +80,13 @@ class TopicMain extends StatelessWidget {
                           ? Get.toNamed('/member/${detailModel!.createdId}',
                               parameters: {
                                   'memberAvatar': detailModel!.avatar,
-                                  'heroTag': heroTag!,
+                                  'heroTag': heroTag,
                                 })
                           : null,
                       child: Hero(
-                        tag: heroTag!,
+                        tag: heroTag,
                         child: CAvatar(
-                          url: topicDetail != null
+                          url: topicDetail != null && topicDetail!.avatar != ''
                               ? topicDetail!.avatar
                               : detailModel != null
                                   ? detailModel.avatar
