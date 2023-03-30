@@ -625,6 +625,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.7.1"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -1238,6 +1246,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.3.0"
+  webfeed_plus:
+    dependency: "direct main"
+    description:
+      name: webfeed_plus
+      sha256: "2d5fb2a90afedb87a3b8f1d382b91108a5110deb4efb35c85f7adb26c2d97263"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0"
   webview_flutter:
     dependency: transitive
     description:

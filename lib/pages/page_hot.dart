@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
+import 'package:get/get.dart';
 
 
 class HotPage extends StatefulWidget {
@@ -63,6 +64,9 @@ class _HotPageState extends State<HotPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('今日热议'),
+        actions: [
+          TextButton(onPressed: () =>  Get.toNamed('/historyHot'), child: const Text('历史')),
+        ],
       ),
       body: Scrollbar(
         controller: _controller,
