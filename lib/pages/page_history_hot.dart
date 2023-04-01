@@ -23,9 +23,10 @@ class _HistoryHotPageState extends State<HistoryHotPage> {
     for (var i in atomFeed.items!) {
       tabs.add({
         'name': i.title!
+            .split(']')[0]
             .replaceFirst('-', '.')
             .split('.')[1]
-            .replaceAll(']V2ex最热', ' '),
+            .replaceFirst('-', '/')
       });
     }
     setState(() {
@@ -55,9 +56,11 @@ class _HistoryHotPageState extends State<HistoryHotPage> {
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: const Text('历史热议'),
-            bottom: TabBar(
+            title: TabBar(
               isScrollable: true,
+              enableFeedback: true,
+              splashBorderRadius: BorderRadius.circular(6),
+              dividerColor: Colors.transparent,
               tabs: _tabs.map((item) {
                 return Tab(text: item['name']);
               }).toList(),
@@ -68,7 +71,8 @@ class _HistoryHotPageState extends State<HistoryHotPage> {
               return SingleChildScrollView(
                   padding: const EdgeInsets.only(
                       top: 0, left: 20, right: 20, bottom: 30),
-                  child: Html(
+                  child:
+                  Html(
                     data: e.content,
                     onLinkTap: (url, buildContext, attributes, element) =>
                     {openHrefByWebview(url!)},

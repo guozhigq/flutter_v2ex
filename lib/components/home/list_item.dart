@@ -74,7 +74,7 @@ class _ListItemState extends State<ListItem>
           Characters(topic.topicTitle).join('\u{200B}'),
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
-          style: Theme.of(context).textTheme.titleSmall!.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 height: 1.6,
                 fontWeight: FontWeight.w500,
                 color: topic.readStatus == 'unread'

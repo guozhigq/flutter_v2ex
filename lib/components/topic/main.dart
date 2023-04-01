@@ -207,7 +207,7 @@ class TopicMain extends StatelessWidget {
         SelectionArea(
           child: Container(
             padding:
-                const EdgeInsets.only(top: 24, left: 18, right: 18, bottom: 14),
+                const EdgeInsets.only(top: 24, left: 18, right: 18, bottom: 20),
             color: Theme.of(context).colorScheme.onInverseSurface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

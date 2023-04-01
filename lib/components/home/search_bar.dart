@@ -84,6 +84,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       child: Container(
         width: double.infinity,
         height: 115,
+        margin: const EdgeInsets.only(top: 3),
         padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),

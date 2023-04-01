@@ -183,6 +183,11 @@ class _HtmlRenderState extends State<HtmlRender> {
           alignment: Alignment.center,
           textAlign: TextAlign.center,
         ),
+        'blockquote': Style(
+            margin: Margins.zero,
+            padding: EdgeInsets.zero,
+          // lineHeight: LineHeight.normal
+        ),
       },
     );
   }

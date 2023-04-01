@@ -272,9 +272,9 @@ class _TabBarListState extends State<TabBarList>
   Widget moreTopic(text) {
     return Container(
       width: double.infinity,
-      height: 100 + MediaQuery.of(context).padding.bottom,
+      height: 60 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Center(
         // child: ElevatedButton(
         //   onPressed: () => {},
@@ -282,7 +282,9 @@ class _TabBarListState extends State<TabBarList>
         // ),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: const TextStyle(
+            fontSize: 13
+          ),
         ),
       ),
     );

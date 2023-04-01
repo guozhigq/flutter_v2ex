@@ -907,7 +907,7 @@ class _TopicDetailState extends State<TopicDetail>
           SliverToBoxAdapter(
             child: Offstage(
               // when true hidden
-              offstage: _detailModel!.replyCount != '0',
+              offstage: _detailModel!.replyCount != 0,
               child: moreTopic(type: 'null'),
             ),
           ),
@@ -917,7 +917,7 @@ class _TopicDetailState extends State<TopicDetail>
               // when true hidden
               // no reply hidden
               //
-              offstage: _detailModel!.replyCount == '0' ||
+              offstage: _detailModel!.replyCount == 0 ||
                   (!reverseSort && (_currentPage < _totalPage)) ||
                   (reverseSort && (_currentPage > 0)),
               child: moreTopic(),
@@ -940,7 +940,9 @@ class _TopicDetailState extends State<TopicDetail>
         // child: TextField(),
         child: Text(
           type == 'noMore' ? '没有更多回复了' : '还没有人回复',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: const TextStyle(
+            fontSize: 13
+          ),
         ),
       ),
     );
