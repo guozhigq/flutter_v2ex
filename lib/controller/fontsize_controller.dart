@@ -14,13 +14,15 @@ class FontSizeController extends GetxController {
   void onInit() {
     super.onInit();
     // 获取字体大小
-    textTheme = customFsTheme(fontSize: globalFs.value);
+    textTheme = customFsTheme(fontSize: globalFs.value, type: 'init');
   }
 
-  TextTheme customFsTheme({double fontSize = 14}) {
-    double scale = fontSize / baseFontSize;
-    if(Get.context != null){
+  TextTheme customFsTheme({double fontSize = 14, required String type}) {
+    double scale =
+        fontSize / (type == 'init' ? baseFontSize : GStorage().getTempFs());
+    if (Get.context != null) {
       var _textTheme = Theme.of(Get.context!).textTheme;
+      GStorage().setTempFs(fontSize);
       return TextTheme(
         displayLarge: updateFontSize(_textTheme.displayLarge!, scale),
         displayMedium: updateFontSize(_textTheme.displayMedium!, scale),
@@ -38,25 +40,26 @@ class FontSizeController extends GetxController {
         bodyMedium: updateFontSize(_textTheme.bodyMedium!, scale),
         bodySmall: updateFontSize(_textTheme.bodySmall!, scale),
       );
-    }else {
+    } else {
       return const TextTheme();
     }
-
   }
 
   TextStyle updateFontSize(TextStyle textStyle, double scale) {
-    return TextStyle(
-        fontSize: textStyle.fontSize! * scale
-    );
+    return TextStyle(fontSize: textStyle.fontSize! * scale);
   }
 
   TextTheme get getFontSize =>
-      customFsTheme(fontSize: globalFs.value);
+      customFsTheme(fontSize: globalFs.value, type: 'init');
 
   void setFontSize({fontSize}) {
     globalFs.value = fontSize;
-    textTheme = customFsTheme(fontSize: fontSize);
-    update();
+    textTheme = customFsTheme(fontSize: fontSize, type: 'set');
+    Get.changeTheme(ThemeData(
+        textTheme: textTheme,
+        useMaterial3: true,
+        colorSchemeSeed: const Color.fromRGBO(32, 82, 67, 1)));
+    // Get.forceAppUpdate();
+    // update();
   }
-
 }

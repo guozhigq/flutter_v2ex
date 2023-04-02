@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -28,10 +27,8 @@ import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/app_theme.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
@@ -51,9 +48,9 @@ class ProxiedHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // 消息通知初始化
-  try{
+  try {
     await LocalNoticeService().init();
-  }catch(err){
+  } catch (err) {
     print('LocalNoticeService err: ${err.toString()}');
   }
   // 代理设置
@@ -62,9 +59,9 @@ void main() async {
     HttpOverrides.global = ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
   }
   // 本地存储初始化
-  try{
+  try {
     await GetStorage.init();
-  }catch(err) {
+  } catch (err) {
     print('GetStorage err: ${err.toString()}');
   }
   // 初始化 Hive 历史浏览box
@@ -104,24 +101,26 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final SystemUiOverlayStyle kDark = SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent /*Android=23*/,
-    statusBarBrightness: Brightness.light /*iOS*/,
-    statusBarIconBrightness: Brightness.dark /*Android=23*/,
-    systemStatusBarContrastEnforced: false /*Android=29*/,
+    // statusBarColor: Colors.transparent /*Android=23*/,
+    // statusBarBrightness: Brightness.light /*iOS*/,
+    // statusBarIconBrightness: Brightness.dark /*Android=23*/,
+    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
-    systemNavigationBarDividerColor: Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
+    systemNavigationBarDividerColor:
+        Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
     systemNavigationBarIconBrightness: Brightness.dark /*Android=27*/,
     systemNavigationBarContrastEnforced: false /*Android=29*/,
   );
 
   final SystemUiOverlayStyle kLight = SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent /*Android=23*/,
-    statusBarBrightness: Brightness.dark /*iOS*/,
-    statusBarIconBrightness: Brightness.light /*Android=23*/,
-    systemStatusBarContrastEnforced: false /*Android=29*/,
+    // statusBarColor: Colors.transparent /*Android=23*/,
+    // statusBarBrightness: Brightness.dark /*iOS*/,
+    // statusBarIconBrightness: Brightness.light /*Android=23*/,
+    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
-    systemNavigationBarDividerColor: Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
-    systemNavigationBarIconBrightness: Brightness.light /*Android=27*/,
+    systemNavigationBarDividerColor:
+        Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
+    systemNavigationBarIconBrightness: Brightness.dark /*Android=27*/,
     systemNavigationBarContrastEnforced: false /*Android=29*/,
   );
   ThemeType currentThemeValue = ThemeType.system;
@@ -159,7 +158,7 @@ class _MyAppState extends State<MyApp> {
     //   });
     // }
     // 检查更新
-    if(GStorage().getAutoUpdate()){
+    if (GStorage().getAutoUpdate()) {
       DioRequestWeb.checkUpdate();
     }
   }
@@ -173,7 +172,7 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('themeChange');
     eventBus.off('editTabs');
     // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
-    if(_timer.isActive){
+    if (_timer.isActive) {
       _timer.cancel();
     }
     closeHive();
@@ -182,8 +181,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final FontSizeController? fontSizeController
-    = Get.put(FontSizeController());
+    final FontSizeController? fontSizeController =
+        Get.put(FontSizeController());
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         ColorScheme? lightColorScheme;
@@ -209,6 +208,7 @@ class _MyAppState extends State<MyApp> {
           getPages: AppPages.getPages,
           theme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // fontFamily: GoogleFonts.getFont('Noto Sans').fontFamily,
             textTheme: fontSizeController?.getFontSize ?? const TextTheme(),
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.dark
@@ -217,6 +217,7 @@ class _MyAppState extends State<MyApp> {
           ),
           darkTheme: ThemeData(
             fontFamily: 'NotoSansSC',
+            // fontFamily: GoogleFonts.getFont('Noto Sans').fontFamily,
             useMaterial3: true,
             colorScheme: currentThemeValue == ThemeType.light
                 ? lightColorScheme
@@ -227,11 +228,10 @@ class _MyAppState extends State<MyApp> {
             GlobalCupertinoLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
-            // GmLocalizationsDelegate()
           ],
-          locale: const Locale("en", "US"),
-          supportedLocales: const [Locale("en", "US")],
-          fallbackLocale: const Locale("en", "US"),
+          locale: const Locale("zh", "CN"),
+          supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
+          fallbackLocale: const Locale("zh", "CN"),
           home: const HomePage(),
           navigatorKey: Routes.navigatorKey,
           routingCallback: (routing) {
@@ -242,18 +242,17 @@ class _MyAppState extends State<MyApp> {
           navigatorObservers: [FlutterSmartDialog.observer],
           builder: (BuildContext context, Widget? child) {
             return AnnotatedRegion<SystemUiOverlayStyle>(
-              value:  currentThemeValue == ThemeType.dark ? kDark : kLight,
-              child:
-              FlutterSmartDialog(
-                loadingBuilder: (String msg) => CustomLoading(msg: msg),
-                toastBuilder: (String msg) => CustomToast(msg: msg),
-                /// 设置文字大小不跟随系统更改
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                  child: child!,
-                )
-            )
-            );
+                value: currentThemeValue == ThemeType.dark ? kDark : kLight,
+                child: FlutterSmartDialog(
+                    loadingBuilder: (String msg) => CustomLoading(msg: msg),
+                    toastBuilder: (String msg) => CustomToast(msg: msg),
+
+                    /// 设置文字大小不跟随系统更改
+                    child: MediaQuery(
+                      data:
+                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      child: child!,
+                    )));
           },
         );
       },

@@ -141,6 +141,9 @@ class UserWebApi {
               .querySelector('span.topic_info > a.node')!
               .attributes['href']!
               .split('/')[2];
+          item.lastReplyTime = item.time;
+          item.avatar = memberProfile.mbAvatar;
+          item.memberId = memberProfile.memberId;
           topicList.add(item);
         }
       }

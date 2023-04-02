@@ -42,7 +42,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
-  var topicDetail;
+  var _topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -94,7 +94,7 @@ class _TopicDetailState extends State<TopicDetail>
     // setState(() {
     topicId = Get.parameters['topicId']!;
     if (Get.arguments != null) {
-      topicDetail = Get.arguments['topic'];
+      _topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];
     }
     var keys = Get.parameters.keys;
@@ -557,7 +557,7 @@ class _TopicDetailState extends State<TopicDetail>
                   actions: _detailModel != null ? appBarAction() : [],
                 )
               : null,
-          body: topicDetail == null && _detailModel == null
+          body: _topicDetail == null && _detailModel == null
               ? showLoading()
               : Scrollbar(
                   radius: const Radius.circular(10),
@@ -656,7 +656,9 @@ class _TopicDetailState extends State<TopicDetail>
           PopupMenuItem<SampleItem>(
             value: SampleItem.browse,
             onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: Text(I18nKeyword.openInBrowser.tr,),
+            child: Text(
+              I18nKeyword.openInBrowser.tr,
+            ),
           ),
         ],
       ),
@@ -780,7 +782,7 @@ class _TopicDetailState extends State<TopicDetail>
         SliverToBoxAdapter(
           child: TopicMain(
               detailModel: _detailModel,
-              topicDetail: topicDetail,
+              topicDetail: _topicDetail,
               heroTag: heroTag),
         ),
         if (_detailModel != null) ...[
@@ -853,7 +855,10 @@ class _TopicDetailState extends State<TopicDetail>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.commit, color: Theme.of(context).colorScheme.outline,),
+                        Icon(
+                          Icons.commit,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                         const SizedBox(width: 6),
                         Text('前 ${_currentPage - 1} 页已隐藏')
                       ],
@@ -905,7 +910,7 @@ class _TopicDetailState extends State<TopicDetail>
           SliverToBoxAdapter(
             child: Offstage(
               // when true hidden
-              offstage: _detailModel!.replyCount != '0',
+              offstage: _detailModel!.replyCount != 0,
               child: moreTopic(type: 'null'),
             ),
           ),
@@ -915,7 +920,7 @@ class _TopicDetailState extends State<TopicDetail>
               // when true hidden
               // no reply hidden
               //
-              offstage: _detailModel!.replyCount == '0' ||
+              offstage: _detailModel!.replyCount == 0 ||
                   (!reverseSort && (_currentPage < _totalPage)) ||
                   (reverseSort && (_currentPage > 0)),
               child: moreTopic(),
@@ -938,7 +943,7 @@ class _TopicDetailState extends State<TopicDetail>
         // child: TextField(),
         child: Text(
           type == 'noMore' ? I18nKeyword.noMoreResponses.tr : '还没有人回复',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: const TextStyle(fontSize: 13),
         ),
       ),
     );
@@ -960,8 +965,8 @@ class _TopicDetailState extends State<TopicDetail>
 }
 
 class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _minExtent = 60;
-  final double _maxExtent = 60;
+  final double _minExtent = 55;
+  final double _maxExtent = 55;
   final Widget child;
 
   _MySliverPersistentHeaderDelegate({required this.child});
@@ -978,7 +983,10 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .background
+                      .withOpacity(0.15),
                   spreadRadius: 2,
                   blurRadius: 20,
                   offset: const Offset(0, 3),

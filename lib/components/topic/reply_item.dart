@@ -289,9 +289,10 @@ class _ReplyListItemState extends State<ReplyListItem>
                     content(context),
                   ),
                   Divider(
-                    indent: 50,
+                    indent: 55,
+                    endIndent: 15,
                     height: 0.3,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    color: Theme.of(context).colorScheme.onInverseSurface.withOpacity(0.5),
                   )
                 ],
               )
@@ -307,8 +308,9 @@ class _ReplyListItemState extends State<ReplyListItem>
     return Container(
       margin: const EdgeInsets.only(top: 5),
       clipBehavior: Clip.hardEdge,
-      decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(18))),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.03)),
+          borderRadius: const BorderRadius.all(Radius.circular(18))),
       child: Hero(
         tag: reply.userName + heroTag,
         child: CAvatar(
@@ -351,7 +353,7 @@ class _ReplyListItemState extends State<ReplyListItem>
                             maxLines: 1,
                             style: Theme.of(context)
                                 .textTheme
-                                .labelLarge!
+                                .titleSmall!
                                 .copyWith(
                                     color: reply.isMod || reply.isOwner
                                         ? Theme.of(context).colorScheme.primary
@@ -401,7 +403,10 @@ class _ReplyListItemState extends State<ReplyListItem>
                           // ],
                           Text(
                             ' • ',
-                            style: TextStyle(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
                                 color: Theme.of(context).colorScheme.outline),
                           ),
                           Text(
@@ -455,7 +460,7 @@ class _ReplyListItemState extends State<ReplyListItem>
       child: RepaintBoundary(
         key: repaintKey,
         child: Material(
-          color: reply.isOwner
+          color: reply.isOwner && highLightOp
               ? Theme.of(context).colorScheme.onInverseSurface
               : null,
           child: InkWell(

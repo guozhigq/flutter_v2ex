@@ -23,7 +23,7 @@ import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_history.dart';
 import 'package:flutter_v2ex/pages/page_agreement.dart';
-
+import 'package:flutter_v2ex/pages/page_history_hot.dart';
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
@@ -39,7 +39,15 @@ class AppPages {
       curve: Curves.easeInOut,
     ),
     // 话题详情
-    GetPage(name: '/t/:topicId', page: () => const TopicDetail()),
+    GetPage(
+      name: '/t/:topicId',
+      page: () => const TopicDetail(),
+      // transitionDuration: const Duration(milliseconds: 300),
+      transition: Transition.cupertino,
+      showCupertinoParallax: false,
+      gestureWidth: (context) => context.width,
+      curve: Curves.linear,
+    ),
     // webView
     GetPage(
         name: '/webView',
@@ -48,7 +56,14 @@ class AppPages {
         transitionDuration: const Duration(milliseconds: 300)),
 
     // 节点主页
-    GetPage(name: '/go/:nodeId', page: () => const GoPage()),
+    GetPage(
+        name: '/go/:nodeId',
+        page: () => const GoPage(),
+        transition: Transition.cupertino,
+        showCupertinoParallax: false,
+        gestureWidth: (context) => context.width,
+        curve: Curves.linear,
+    ),
     // 所有节点
     GetPage(
       name: '/nodes',
@@ -61,7 +76,14 @@ class AppPages {
     GetPage(name: '/help', page: () => const HelpPage()),
 
     // 用户主页
-    GetPage(name: '/member/:memberId', page: () => const MemberPage()),
+    GetPage(
+      name: '/member/:memberId',
+      page: () => const MemberPage(),
+      transition: Transition.cupertino,
+      showCupertinoParallax: false,
+      gestureWidth: (context) => context.width,
+      curve: Curves.linear,
+    ),
     // 用户发布的主题
     GetPage(
         name: '/member/:memberId/topics', page: () => const MemberTopicsPage()),
@@ -76,9 +98,20 @@ class AppPages {
     GetPage(name: '/my/following', page: () => const MyFollowPage()),
 
     // 消息提醒
-    GetPage(name: '/notifications', page: () => const MessagePage()),
+    GetPage(
+        name: '/notifications',
+        page: () => const MessagePage(),
+        transition: Transition.cupertino,
+        showCupertinoParallax: false,
+        gestureWidth: (context) => context.width,
+        curve: Curves.linear,
+    ),
     // 图片预览
-    GetPage(name: '/imgPreview', page: () => ImagePreview()),
+    GetPage(
+      name: '/imgPreview',
+      page: () => ImagePreview(),
+      transition: Transition.cupertino,
+    ),
     // 设置
     GetPage(name: '/setting', page: () => const SettingPage()),
     // 搜索
@@ -97,6 +130,7 @@ class AppPages {
     GetPage(name: '/history', page: () => const HistoryPage()),
     // 隐私协议
     GetPage(name: '/agreement', page: () => const AgreementPage()),
-
+    // 历史热议
+    GetPage(name: '/historyHot', page: () => const HistoryHotPage()),
   ];
 }

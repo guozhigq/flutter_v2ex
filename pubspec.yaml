@@ -76,6 +76,9 @@ dependencies:
     hive: ^2.2.3
     hive_flutter: ^1.1.0
     scroll_to_index: ^3.0.1
+    google_fonts: ^4.0.3
+    flutter_html_table: ^3.0.0-alpha.4
+    webfeed_plus: ^1.0.0
 
 dev_dependencies:
     flutter_test:

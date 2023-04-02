@@ -6,4 +6,7 @@ class MemberTopicItem {
   String nodeId = '';
   String time = '';
   String replyCount = '0';
+  String lastReplyTime = '';
+  String avatar = '';
+  String memberId = '';
 }

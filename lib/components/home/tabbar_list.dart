@@ -255,7 +255,7 @@ class _TabBarListState extends State<TabBarList>
               },
               child: FloatingActionButton(
                 heroTag: null,
-                child: Image.asset('assets/images/backtop.png', width: 45),
+                child: const Icon(Icons.vertical_align_top_rounded),
                 onPressed: () {
                   _controller.animateTo(0,
                       duration: const Duration(milliseconds: 500),
@@ -282,7 +282,9 @@ class _TabBarListState extends State<TabBarList>
         // ),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: const TextStyle(
+            fontSize: 13
+          ),
         ),
       ),
     );

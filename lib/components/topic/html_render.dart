@@ -1,3 +1,4 @@
+import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class _HtmlRenderState extends State<HtmlRender> {
           {openHrefByWebview(url!, context)},
       customRenders: {
         tagMatcher("iframe"): iframeRender(),
+        tagMatcher("table"): tableRender(),
         tagMatcher("img"): CustomRender.widget(
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
@@ -104,8 +106,6 @@ class _HtmlRenderState extends State<HtmlRender> {
       },
       style: {
         "html": Style(
-          // fontSize: FontSize(
-          //     Theme.of(context).textTheme.bodyLarge!.fontSize!),
           fontSize: htmlFs != null ? FontSize(htmlFs!) : FontSize.medium,
           lineHeight: LineHeight.percent(140),
         ),
@@ -116,8 +116,6 @@ class _HtmlRenderState extends State<HtmlRender> {
         ),
         "p": Style(
           margin: Margins.only(bottom: 0),
-          // fontSize: FontSize(
-          //     Theme.of(context).textTheme.titleLarge!.fontSize!),
         ),
         "li > p": Style(
           display: Display.inline,
@@ -135,6 +133,61 @@ class _HtmlRenderState extends State<HtmlRender> {
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         ),
         "code > span": Style(textAlign: TextAlign.start),
+        "hr": Style(
+          margin: Margins.zero,
+          padding: EdgeInsets.zero,
+          border: Border(
+            top: BorderSide(
+              width: 1.0,
+              color:
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'table': Style(
+          border: Border(
+            right: BorderSide(
+              width: 0.5,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+            bottom: BorderSide(
+              width: 0.5,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'tr': Style(
+          border: Border(
+            top: BorderSide(
+              width: 1.0,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+            left: BorderSide(
+              width: 1.0,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'thead': Style(
+          backgroundColor: Theme.of(context).colorScheme.background,
+        ),
+        'th': Style(
+          padding: const EdgeInsets.only(left: 3, right: 3),
+        ),
+        'td': Style(
+          padding: const EdgeInsets.all(4.0),
+          alignment: Alignment.center,
+          textAlign: TextAlign.center,
+        ),
+        'blockquote': Style(
+            margin: Margins.zero,
+            padding: EdgeInsets.zero,
+          // lineHeight: LineHeight.normal
+        ),
       },
     );
   }
@@ -182,7 +235,7 @@ class _HtmlRenderState extends State<HtmlRender> {
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||
         aUrl.startsWith('/t/')) {
-      if(aUrl.contains('#')){
+      if (aUrl.contains('#')) {
         aUrl = aUrl.split('#')[0];
       }
       Get.toNamed(aUrl);

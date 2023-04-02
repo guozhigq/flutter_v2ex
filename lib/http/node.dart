@@ -90,6 +90,14 @@ class NodeWebApi {
       }
     }
 
+    if(mainBox!.querySelector(
+        'div.box:not(.box-title)>div.cell.flex-one-row') !=
+        null){
+      var favNode = mainBox.querySelector(
+          'div.box:not(.box-title)>div.cell.flex-one-row>div');
+      detailModel.favoriteCount = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), '')) ;
+    }
+
     if (document.querySelector('#TopicsNode') != null) {
       // 主题
       var topicEle =
