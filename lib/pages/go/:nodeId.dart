@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
@@ -17,7 +19,7 @@ class GoPage extends StatefulWidget {
   State<GoPage> createState() => _GoPageState();
 }
 
-class _GoPageState extends State<GoPage>{
+class _GoPageState extends State<GoPage> {
   late final ScrollController _controller = ScrollController();
   NodeListModel? topicListDetail;
   List topicList = [];
@@ -55,7 +57,6 @@ class _GoPageState extends State<GoPage>{
         } else if (_controller.offset <= 150) {
           titleStreamC.add(false);
         }
-
       },
     );
   }
@@ -144,15 +145,12 @@ class _GoPageState extends State<GoPage>{
       controller: _controller,
       slivers: [
         SliverAppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          expandedHeight: 210,
-          collapsedHeight: 60,
-          // leadingWidth: 30,
-          iconTheme: IconThemeData(
-            color: Theme.of(context)
-        .colorScheme
-        .onPrimary
-          ),
+          backgroundColor: Get.isDarkMode ?
+          Theme.of(context).colorScheme.primaryContainer :
+     Theme.of(context).colorScheme.primary,
+          expandedHeight: 230,
+          iconTheme:
+              IconThemeData(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
           pinned: true,
           title: StreamBuilder(
             stream: titleStreamC.stream,
@@ -160,9 +158,9 @@ class _GoPageState extends State<GoPage>{
             builder: (context, AsyncSnapshot snapshot) {
               return AnimatedOpacity(
                 opacity: snapshot.data ? 1 : 0,
-                duration: const Duration(milliseconds: 300),
-                child:
-                Row(
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 500),
+                child: Row(
                   children: [
                     CAvatar(url: topicListDetail!.nodeCover, size: 35),
                     const SizedBox(width: 6),
@@ -170,16 +168,19 @@ class _GoPageState extends State<GoPage>{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(topicListDetail!.nodeName,
-                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimary)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                    color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
                         Text(
                           '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall!
-                              .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                              .copyWith(
+                                  color:
+                                  Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
                         )
                       ],
                     )
@@ -188,90 +189,121 @@ class _GoPageState extends State<GoPage>{
               );
             },
           ),
-
           actions: [
+            // IconButton(
+            //   onPressed: () => favNode(),
+            //   icon: const Icon(Icons.bookmark_add_outlined),
+            //   selectedIcon: const Icon(Icons.bookmark_added),
+            //   isSelected: topicListDetail!.isFavorite,
+            // ),
+            // IconButton(
+            //   onPressed: () => favNode(),
+            //   icon: const Icon(Icons.search_rounded),
+            // ),
             IconButton(
-              onPressed: () => favNode(),
-              icon: const Icon(Icons.bookmark_add_outlined),
-              selectedIcon: const Icon(
-                Icons.bookmark_added
-              ),
-              isSelected: topicListDetail!.isFavorite,
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert),
             ),
-            const SizedBox(width: 12)
+            const SizedBox(width: 4)
           ],
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              padding: const EdgeInsets.only(top: 110, left: 30, right: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.network(
-                        topicListDetail!.nodeCover,
-                        height: 70,
-                        width: 70,
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            topicListDetail!.nodeName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Text(topicListDetail!.nodeIntro,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary),
-                      maxLines: 2),
-                ],
-              ),
-            ),
-          ),
-        ),
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _MySliverPersistentHeaderDelegate(
-            child: Container(
-              width: double.infinity,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(25),
               child: Container(
-                width: double.infinity,
                 height: 20,
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    )),
-              ),
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+              )
+          ),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Stack(
+              children: [
+                topicListDetail!.nodeCover != '' ? Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(topicListDetail!.nodeCover,),
+                      fit: BoxFit.fitWidth
+                    )
+                  ),
+                ) : const Spacer(),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 112, left: 24, right: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: topicListDetail!.nodeCover,
+                            height: 62,
+                            width: 62,
+                            fit: BoxFit.cover,
+                            // fadeOutDuration: const Duration(milliseconds: 800),
+                            // fadeInDuration: const Duration(milliseconds: 300),
+                            errorWidget: (context, url, error) =>
+                            const Center(child: Text('加载失败')),
+                            placeholder: (context, url) =>
+                            const Center(child: Text('加载中')),
+                          ),
+                          const SizedBox(width: 6),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                topicListDetail!.nodeName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                    color: Colors.white),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          ElevatedButton(
+                              onPressed: () => favNode(),
+                              child: Text(
+                                  topicListDetail!.isFavorite ? '已收藏' : '收藏'))
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Text(
+                            topicListDetail!.nodeIntro != ''
+                                ? topicListDetail!.nodeIntro
+                                : '还没有节点描述 😊',
+                            style: const TextStyle(color: Colors.white),
+                            maxLines: 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -302,30 +334,3 @@ class _GoPageState extends State<GoPage>{
   }
 }
 
-class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _minExtent = 20;
-  final double _maxExtent = 20;
-  final Widget child;
-
-  _MySliverPersistentHeaderDelegate({required this.child});
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    //创建child子组件
-    return child;
-  }
-
-  //SliverPersistentHeader最大高度
-  @override
-  double get maxExtent => _maxExtent;
-
-  //SliverPersistentHeader最小高度
-  @override
-  double get minExtent => _minExtent;
-
-  @override
-  bool shouldRebuild(covariant _MySliverPersistentHeaderDelegate oldDelegate) {
-    return true;
-  }
-}
