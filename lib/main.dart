@@ -33,6 +33,7 @@ import 'package:google_fonts/google_fonts.dart';
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
   final String _host;
+
   ProxiedHttpOverrides(this._host, this._port);
 
   @override
@@ -242,17 +243,18 @@ class _MyAppState extends State<MyApp> {
           navigatorObservers: [FlutterSmartDialog.observer],
           builder: (BuildContext context, Widget? child) {
             return AnnotatedRegion<SystemUiOverlayStyle>(
-                value: currentThemeValue == ThemeType.dark ? kDark : kLight,
-                child: FlutterSmartDialog(
-                    loadingBuilder: (String msg) => CustomLoading(msg: msg),
-                    toastBuilder: (String msg) => CustomToast(msg: msg),
+              value: currentThemeValue == ThemeType.dark ? kDark : kLight,
+              child: FlutterSmartDialog(
+                loadingBuilder: (String msg) => CustomLoading(msg: msg),
+                toastBuilder: (String msg) => CustomToast(msg: msg),
 
-                    /// 设置文字大小不跟随系统更改
-                    child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                      child: child!,
-                    )));
+                /// 设置文字大小不跟随系统更改
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                  child: child!,
+                ),
+              ),
+            );
           },
         );
       },

@@ -38,17 +38,17 @@ class ApiInterceptor extends Interceptor {
 
   static String _dioError(DioError error) {
     switch (error.type) {
-      case DioErrorType.connectTimeout:
+      case DioErrorType.connectionTimeout:
         return "网络连接超时，请检查网络设置";
       case DioErrorType.receiveTimeout:
         return "响应超时，请稍后重试！";
       case DioErrorType.sendTimeout:
         return "发送请求超时，请检查网络设置";
-      case DioErrorType.response:
+      case DioErrorType.badResponse:
         return "服务器异常，请稍后重试！";
       case DioErrorType.cancel:
         return "请求已被取消，请重新请求";
-      case DioErrorType.other:
+      case DioErrorType.unknown:
         return "网络异常，请稍后重试！";
       default:
         return "Dio异常";

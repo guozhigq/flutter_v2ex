@@ -75,7 +75,7 @@ class _SettingPageState extends State<SettingPage> {
                   // if(context.mounted){
                   //   Navigator.pop(context);
                   // }
-                  Get.offAll(const HomePage());
+                  Get.offAll(() => const HomePage());
                 } catch (err) {
                   SmartDialog.showToast(err.toString());
                 }

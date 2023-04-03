@@ -37,33 +37,33 @@ dependencies:
     # Use with the CupertinoIcons class for iOS style icons.
     #    cupertino_icons: ^1.0.2
     dynamic_color: ^1.6.2
-    dio: ^4.0.6
+    dio: ^5.1.1
     #    dio_http_cache: ^0.3.0
     dio_http_cache:
         git:
             url: https://github.com/guozhigq/dio-http-cache.git
-    dio_cookie_manager: ^2.0.0
-    path_provider: ^2.0.12
-    html: ^0.15.1
+    dio_cookie_manager: ^2.1.3
+    path_provider: ^2.0.14
+    html: ^0.15.2
     cookie_jar: ^3.0.1
     cached_network_image: ^3.2.3
     easy_refresh: ^3.2.2
     flutter_html: 3.0.0-alpha.6
     flutter_inappwebview: ^6.0.0-beta.22
     animations: ^2.0.7
-    flutter_smart_dialog: ^4.8.1
+    flutter_smart_dialog: ^4.9.0+4
     extended_image: ^7.0.2
     flutter_html_iframe: ^3.0.0-alpha.4
     get: ^4.6.5
     get_storage: ^2.0.3
     device_info_plus: ^8.0.0
     dio_http2_adapter: ^2.0.0
-    url_launcher: ^6.1.9
+    url_launcher: ^6.1.10
     # 权限
     permission_handler: ^10.2.0
     image_gallery_saver: ^1.7.1
     # 桌面长按菜单
-    quick_actions: ^1.0.1
+    quick_actions: ^1.0.2
     # 通知
     flutter_local_notifications: ^13.0.0
     timezone: ^0.9.1

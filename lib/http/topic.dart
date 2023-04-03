@@ -420,7 +420,7 @@ class TopicWebApi {
       return responseStatus;
     } on DioError catch (e) {
       SmartDialog.dismiss();
-      SmartDialog.showToast(e.message);
+      SmartDialog.showToast(e.message!);
     }
   }
 

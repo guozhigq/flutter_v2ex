@@ -447,7 +447,7 @@ class DioRequestWeb {
       return responseStatus;
     } on DioError catch (e) {
       SmartDialog.dismiss();
-      SmartDialog.showToast(e.message);
+      SmartDialog.showToast(e.message!);
     }
   }
 
@@ -562,7 +562,7 @@ class DioRequestWeb {
         }
       }
     } on DioError catch (e) {
-      log(e.message);
+      log(e.message!);
       SmartDialog.showToast('领取每日奖励失败：${e.message}');
     }
   }

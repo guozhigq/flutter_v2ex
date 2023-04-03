@@ -4,7 +4,8 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
+// import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -22,7 +23,7 @@ class Request {
   Dio dio = Dio()
     ..httpClientAdapter = Http2Adapter(
       ConnectionManager(
-        idleTimeout: 10000,
+        idleTimeout: const Duration(milliseconds: 12000),
         // Ignore bad certificate
         onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
       ),
@@ -55,9 +56,9 @@ class Request {
       //请求基地址,可以包含子路径
       baseUrl: Strings.v2exHost,
       //连接服务器超时时间，单位是毫秒.
-      connectTimeout: 12000,
+      connectTimeout: const Duration(milliseconds: 12000),
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
-      receiveTimeout: 12000,
+      receiveTimeout: const Duration(milliseconds: 12000),
       //Http请求头.
       // headers: {
       //   'cookie': '',
@@ -180,17 +181,17 @@ class Request {
   // 处理 Dio 异常
   static String _dioError(DioError error) {
     switch (error.type) {
-      case DioErrorType.connectTimeout:
+      case DioErrorType.connectionTimeout:
         return "网络连接超时，请检查网络设置";
       case DioErrorType.receiveTimeout:
         return "响应超时，请稍后重试！";
       case DioErrorType.sendTimeout:
         return "发送请求超时，请检查网络设置";
-      case DioErrorType.response:
+      case DioErrorType.badResponse:
         return "服务器异常，请稍后重试！";
       case DioErrorType.cancel:
         return "请求已被取消，请重新请求";
-      case DioErrorType.other:
+      case DioErrorType.unknown:
         return "网络异常，请稍后重试！";
       default:
         return "Dio异常";
