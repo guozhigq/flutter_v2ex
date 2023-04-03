@@ -45,9 +45,10 @@ class CustomToast extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.background.withOpacity(0.05),
               blurRadius: 20,
               spreadRadius: 2,
               offset: const Offset(0, 0)
