@@ -128,6 +128,8 @@ class _PullRefreshState extends State<PullRefresh> {
                 _controller.resetFooter();
               }
             : null,
+        scrollBehaviorBuilder: (ScrollPhysics? physics) =>
+            const CustomScrollBehavior(),
         childBuilder: (context, physics) {
           return ScrollConfiguration(
             behavior:
@@ -171,4 +173,23 @@ class _CIProperties {
     required this.infinite,
     required disable,
   });
+}
+
+class CustomScrollBehavior extends ScrollBehavior {
+  final ScrollPhysics? _physics;
+
+  const CustomScrollBehavior([this._physics]);
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    // return _physics ?? super.getScrollPhysics(context);
+    // use Android scrolling behavior by default
+    return _physics ?? const ClampingScrollPhysics();
+  }
+
+  // @override
+  // Widget buildViewportChrome(
+  //     BuildContext context, Widget child, AxisDirection axisDirection) {
+  //   return child;
+  // }
 }
