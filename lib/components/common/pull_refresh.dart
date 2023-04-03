@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
@@ -43,9 +45,9 @@ class _PullRefreshState extends State<PullRefresh> {
   @override
   void initState() {
     super.initState();
-    if(widget.ctr != null){
+    if (widget.ctr != null) {
       _controller = widget.ctr!;
-    }else{
+    } else {
       _controller = EasyRefreshController(
         controlFinishRefresh: true,
         controlFinishLoad: true,
@@ -61,73 +63,80 @@ class _PullRefreshState extends State<PullRefresh> {
 
   @override
   Widget build(BuildContext context) {
-    return EasyRefresh(
-      clipBehavior: Clip.none,
-      controller: _controller,
-      header: MaterialHeader(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        clamping: _headerProperties.clamping,
-        showBezierBackground: _headerProperties.background,
-        bezierBackgroundAnimation: _headerProperties.animation,
-        bezierBackgroundBounce: _headerProperties.bounce,
-        infiniteOffset: _headerProperties.infinite ? 100 : null,
-        springRebound: _headerProperties.listSpring,
-      ),
-      footer: ClassicFooter(
-        clamping: _footerProperties.clamping,
-        backgroundColor: _footerProperties.background
-            ? Theme.of(context).colorScheme.surfaceVariant
+    return EasyRefresh.builder(
+        clipBehavior: Clip.none,
+        controller: _controller,
+        header: MaterialHeader(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          clamping: _headerProperties.clamping,
+          showBezierBackground: _headerProperties.background,
+          bezierBackgroundAnimation: _headerProperties.animation,
+          bezierBackgroundBounce: _headerProperties.bounce,
+          infiniteOffset: _headerProperties.infinite ? 100 : null,
+          springRebound: _headerProperties.listSpring,
+        ),
+        footer: ClassicFooter(
+          clamping: _footerProperties.clamping,
+          backgroundColor: _footerProperties.background
+              ? Theme.of(context).colorScheme.surfaceVariant
+              : null,
+          mainAxisAlignment: _footerProperties.alignment,
+          showMessage: _footerProperties.message,
+          showText: _footerProperties.text,
+          infiniteOffset: _footerProperties.infinite ? 70 : null,
+          triggerWhenReach: _footerProperties.immediately,
+          hapticFeedback: true,
+          dragText: 'Pull to load',
+          armedText: 'Release ready',
+          readyText: 'Loading...',
+          processingText: '加载中...',
+          succeededIcon: const Icon(Icons.auto_awesome),
+          processedText: '加载完成',
+          textStyle: const TextStyle(fontSize: 14),
+          noMoreText: '加载完成',
+          noMoreIcon: const Icon(Icons.auto_awesome),
+          failedText: '加载失败',
+          messageText: '上次更新 %T',
+          triggerOffset: 100,
+          // position: IndicatorPosition.locator,
+        ),
+        onRefresh: widget.onChildRefresh != null
+            ? () async {
+                await widget.onChildRefresh();
+                print('onRefresh Finish');
+                _controller.finishRefresh();
+                _controller.resetFooter();
+              }
             : null,
-        mainAxisAlignment: _footerProperties.alignment,
-        showMessage: _footerProperties.message,
-        showText: _footerProperties.text,
-        infiniteOffset: _footerProperties.infinite ? 70 : null,
-        triggerWhenReach: _footerProperties.immediately,
-        hapticFeedback: true,
-        dragText: 'Pull to load',
-        armedText: 'Release ready',
-        readyText: 'Loading...',
-        processingText: '加载中...',
-        succeededIcon: const Icon(Icons.auto_awesome),
-        processedText: '加载完成',
-        textStyle: const TextStyle(fontSize: 14),
-        noMoreText: '加载完成',
-        noMoreIcon: const Icon(Icons.auto_awesome),
-        failedText: '加载失败',
-        messageText: '上次更新 %T',
-        triggerOffset: 100,
-        // position: IndicatorPosition.locator,
-      ),
-      onRefresh: widget.onChildRefresh != null
-          ? () async {
-        await widget.onChildRefresh();
-        print('onRefresh Finish');
-        _controller.finishRefresh();
-        _controller.resetFooter();
-      }
-          : null,
-      // 下拉
-      onLoad: widget.onChildLoad != null
-          ? () async {
-        print('---------------------');
-        print('-------${widget.currentPage}');
-        print('-------${widget.totalPage}');
+        // 下拉
+        onLoad: widget.onChildLoad != null
+            ? () async {
+                print('---------------------');
+                print('-------${widget.currentPage}');
+                print('-------${widget.totalPage}');
 
-        if (widget.currentPage == widget.totalPage!) {
-          _controller.finishLoad();
-          _controller.resetFooter();
-          return IndicatorResult.noMore;
+                if (widget.currentPage == widget.totalPage!) {
+                  _controller.finishLoad();
+                  _controller.resetFooter();
+                  return IndicatorResult.noMore;
+                }
+                await widget.onChildLoad!();
+                print('onLoad Finish');
+                print('widget.currentPage: ${widget.currentPage}');
+                print('widget.totalPage: ${widget.totalPage}');
+                _controller.finishLoad();
+                _controller.resetFooter();
+              }
+            : null,
+        childBuilder: (context, physics) {
+          return ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: widget.child!,
+          );
         }
-        await widget.onChildLoad!();
-        print('onLoad Finish');
-        print('widget.currentPage: ${widget.currentPage}');
-        print('widget.totalPage: ${widget.totalPage}');
-        _controller.finishLoad();
-        _controller.resetFooter();
-      }
-          : null,
-      child: widget.child,
-    );
+        // child: widget.child,
+        );
   }
 }
 

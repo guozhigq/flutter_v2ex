@@ -151,6 +151,9 @@ class _TopicDetailState extends State<TopicDetail>
     } else if (Platform.isIOS) {
       platform = 'ios';
     }
+    if(Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      platform = 'desktop';
+    }
   }
 
   Future getDetailInit() async {
@@ -676,7 +679,7 @@ class _TopicDetailState extends State<TopicDetail>
           SliverAppBar(
             toolbarHeight: platform == 'android'
                 ? (MediaQuery.of(context).padding.top + 6)
-                : MediaQuery.of(context).padding.top - 2,
+                : platform == 'ios' ? MediaQuery.of(context).padding.top - 2 : kToolbarHeight,
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
             automaticallyImplyLeading: false,
             elevation: 1,

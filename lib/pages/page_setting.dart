@@ -28,6 +28,8 @@ class _SettingPageState extends State<SettingPage> {
   late bool expendAppBar = GStorage().getExpendAppBar();
   late bool noticeOn = GStorage().getNoticeOn();
   late bool highlightOp = GStorage().getHighlightOp();
+  // 平台
+  String platform = '';
 
   @override
   void initState() {
@@ -35,6 +37,13 @@ class _SettingPageState extends State<SettingPage> {
     super.initState();
     // 读取缓存占用
     getCacheSize();
+
+    if (Platform.isAndroid || Platform.isIOS || Platform.isFuchsia) {
+      platform = 'mob';
+    }
+    if(Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      platform = 'desktop';
+    }
   }
 
   Future<void> getCacheSize() async {
@@ -207,6 +216,7 @@ class _SettingPageState extends State<SettingPage> {
             title: const Text('字体设置'),
             subtitle: Text('设置字体大小', style: subTitleStyle),
           ),
+          if(platform == 'mob')
           ListTile(
             onTap: () {
               setState(() {
