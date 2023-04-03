@@ -13,6 +13,7 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/http/user.dart';
 
 class LocalNoticeService {
   int noticeId = 0; //  通知id
@@ -169,7 +170,7 @@ class LocalNoticeService {
     if(noticeCount >= count) {
       return;
     }else{
-      var res = await DioRequestWeb.queryNotice(1);
+      var res = await UserWebApi.queryNotice(1);
       Iterable<MemberNoticeItem> noticeList = res.noticeList.take(count);
       for(var i in noticeList){
         var title = '你有新的消息提醒';

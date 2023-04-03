@@ -1,10 +1,10 @@
+import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
-import 'dart:math';
 
 // ignore: must_be_immutable
 class ListItem extends StatefulWidget {
@@ -12,30 +12,21 @@ class ListItem extends StatefulWidget {
 
   const ListItem({required this.topic, super.key});
 
-  // List<TabTopicItem> item;
-
   @override
   State<ListItem> createState() => _ListItemState();
 }
 
 class _ListItemState extends State<ListItem>
     with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> opacityAnim;
-
+  TabTopicItem topic = TabTopicItem();
   @override
   void initState() {
     super.initState();
-
-    _ctrl =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    opacityAnim = Tween<double>(begin: 0, end: 1.0).animate(_ctrl);
-    _ctrl.forward();
+    topic = widget.topic;
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
     super.dispose();
   }
 
@@ -48,10 +39,16 @@ class _ListItemState extends State<ListItem>
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {
+            setState(() {
+              topic.readStatus = 'read';
+            });
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
-            var arguments = <String, dynamic>{"topic": widget.topic, "heroTag": '${widget.topic.topicId}${widget.topic.memberId}'};
-            Get.toNamed("/t/${widget.topic.topicId}", arguments: arguments);
+            var arguments = <String, dynamic>{
+              "topic": topic,
+              "heroTag": '${topic.topicId}${topic.memberId}'
+            };
+            Get.toNamed("/t/${topic.topicId}", arguments: arguments);
           },
           borderRadius: BorderRadius.circular(10),
           child: Ink(
@@ -64,27 +61,28 @@ class _ListItemState extends State<ListItem>
   }
 
   Widget content() {
-    final herotag = widget.topic.memberId + Random().nextInt(999).toString();
+    final herotag = topic.memberId + Random().nextInt(999).toString();
+    TextStyle timeStyle = Theme.of(context)
+        .textTheme
+        .labelSmall!
+        .copyWith(color: Theme.of(context).colorScheme.outline);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // title
-        Hero(
-            tag: widget.topic.topicId,
-            child: Container(
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(top: 0, bottom: 12),
-              child: Text(
-                Characters(widget.topic.topicTitle).join('\u{200B}'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(height: 1.6, fontWeight: FontWeight.w500),
+        Text(
+          Characters(topic.topicTitle).join('\u{200B}'),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                height: 1.6,
+                fontWeight: FontWeight.w500,
+                color: topic.readStatus == 'unread'
+                    ? null
+                    : Theme.of(context).colorScheme.outline,
               ),
-            )
         ),
+        const SizedBox(height: 12),
         // 头像、昵称
         Row(
           // 两端对齐
@@ -94,15 +92,15 @@ class _ListItemState extends State<ListItem>
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Get.toNamed('/member/${widget.topic.memberId}',
-                      parameters: {
-                        'memberAvatar': widget.topic.avatar,
-                        'heroTag': herotag,
-                      }),
+                  onTap: () =>
+                      Get.toNamed('/member/${topic.memberId}', parameters: {
+                    'memberAvatar': topic.avatar,
+                    'heroTag': herotag,
+                  }),
                   child: Hero(
                     tag: herotag,
                     child: CAvatar(
-                      url: widget.topic.avatar,
+                      url: topic.avatar,
                       size: 30,
                     ),
                   ),
@@ -114,39 +112,29 @@ class _ListItemState extends State<ListItem>
                     SizedBox(
                       width: 150,
                       child: Text(
-                        widget.topic.memberId,
+                        topic.memberId,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium!
-                            .copyWith(fontWeight: FontWeight.w500),
+                        style:
+                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: topic.readStatus == 'unread'
+                                      ? null
+                                      : Theme.of(context).colorScheme.outline,
+                                ),
                       ),
                     ),
                     const SizedBox(height: 1.5),
                     Row(
                       children: [
-                        if (widget.topic.lastReplyTime.isNotEmpty) ...[
-                          Text(
-                            widget.topic.lastReplyTime,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                          ),
+                        if (topic.lastReplyTime.isNotEmpty) ...[
+                          Text(topic.lastReplyTime, style: timeStyle),
                         ],
-                        if (widget.topic.replyCount > 0) ...[
+                        if (topic.replyCount > 0) ...[
                           const SizedBox(width: 10),
                           Text(
-                            '${widget.topic.replyCount} 回复',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
+                            '${topic.replyCount} ${I18nKeyword.replies.tr}',
+                            style: timeStyle,
                           ),
                         ]
                       ],
@@ -155,11 +143,12 @@ class _ListItemState extends State<ListItem>
                 )
               ],
             ),
-            if (widget.topic.nodeName.isNotEmpty) ...[
-              NodeTag(
-                  nodeId: widget.topic.nodeId,
-                  nodeName: widget.topic.nodeName,
-                  route: 'home')
+            if (topic.nodeName.isNotEmpty) ...[
+              Opacity(
+                opacity: topic.readStatus == 'unread' ? 1 : 0.6,
+                child:  NodeTag(
+                  nodeId: topic.nodeId, nodeName: topic.nodeName, route: 'home'),
+              ),
             ]
           ],
         ),

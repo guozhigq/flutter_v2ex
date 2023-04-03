@@ -30,7 +30,7 @@ class TopicItemSkeleton extends StatelessWidget {
     var commonColor = Theme.of(context).colorScheme.onInverseSurface;
     double height = GStorage().getHtmlFs() + 2;
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -10,7 +10,7 @@ class Strings {
   static String v2exHost = "https://www.v2ex.com";
   static String remoteUrl = "https://github.com/guozhigq/flutter_v2ex";
   /// 提交tag时 记得更改
-  static String currentVersion = 'v1.1.27';
+  static String currentVersion = 'v1.2.1';
   List base64BlackList = [
     "bilibili",
     "Bilibili",
@@ -42,4 +42,5 @@ class Strings {
     TabModel('问与答', 'qna', 'tab', true),
     TabModel('R2', 'r2', 'tab', true),
   ];
+  static int maxAge = 7; // 最多记录7天已读
 }

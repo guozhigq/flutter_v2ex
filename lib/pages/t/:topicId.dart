@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter_v2ex/components/topic/main.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
 
@@ -25,6 +25,9 @@ import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/topic/reply_sheet.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_v2ex/http/topic.dart';
+import 'package:flutter_v2ex/service/read.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 enum SampleItem { ignore, share, report, browse }
 
@@ -39,7 +42,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
-  var topicDetail;
+  var _topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -47,7 +50,7 @@ class _TopicDetailState extends State<TopicDetail>
   String heroTag = '';
 
   // 监听页面滚动
-  final ScrollController _scrollController = ScrollController();
+  // final ScrollController _scrollController = ScrollController();
   TopicDetailModel? _detailModel; // 主题详情
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
@@ -73,16 +76,34 @@ class _TopicDetailState extends State<TopicDetail>
   late AnimationController animationController;
   bool _visibleTitle = false;
   double? pinScrollHeight;
+  late AutoScrollController autoScrollController;
+
+  // 消息页面进入
+  String routerSource = '';
+  int noticeFloorNumber = 0;
 
   @override
   void initState() {
     super.initState();
 
+    autoScrollController = AutoScrollController(
+        viewportBoundaryGetter: () =>
+            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+        axis: Axis.vertical);
+
     // setState(() {
     topicId = Get.parameters['topicId']!;
     if (Get.arguments != null) {
-      topicDetail = Get.arguments['topic'];
+      _topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];
+    }
+    var keys = Get.parameters.keys;
+    // 从消息页面进入 跳转至指定楼层
+    if (keys.contains('floorNumber')) {
+      routerSource = Get.parameters['source']! ?? '';
+      noticeFloorNumber = int.parse(Get.parameters['floorNumber']!) ?? 0;
+      _currentPage = (noticeFloorNumber / 100).ceil() - 1;
+      //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -95,7 +116,7 @@ class _TopicDetailState extends State<TopicDetail>
     );
 
     // TODO build优化
-    _scrollController.addListener(_listen);
+    autoScrollController.addListener(_listen);
     getDetailInit();
     eventBus.on('topicReply', (status) {
       print('eventON: $status');
@@ -133,11 +154,13 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetailInit() async {
-    getDetail(type: 'init');
+    await getDetail(type: 'init');
+    // 标记已读
+    Read().add(_detailModel!);
   }
 
   Future getDetail({type}) async {
-    if (type == 'init') {
+    if (type == 'init' && routerSource == '') {
       // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
@@ -147,7 +170,7 @@ class _TopicDetailState extends State<TopicDetail>
       SmartDialog.showLoading(msg: '加载中ing');
     }
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage + 1);
+        await TopicWebApi.getTopicDetail(topicId, _currentPage + 1);
     setState(() {
       _detailModel = topicDetailModel;
       if (_currentPage == 0) {
@@ -161,15 +184,20 @@ class _TopicDetailState extends State<TopicDetail>
 
     if (pinScrollHeight == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(listGlobalKey.currentContext != null){
+        if (listGlobalKey.currentContext != null) {
           final pinBox =
-          listGlobalKey.currentContext?.findRenderObject() as RenderBox;
+              listGlobalKey.currentContext?.findRenderObject() as RenderBox;
           final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
           setState(() {
             pinScrollHeight = pinPosition;
           });
         }
       });
+      if (noticeFloorNumber > 0) {
+        SmartDialog.showLoading(msg: '前往楼层');
+        await _scrollToCounter();
+        SmartDialog.dismiss();
+      }
     }
     if (!topicDetailModel.isAuth) {
       SmartDialog.dismiss();
@@ -189,7 +217,7 @@ class _TopicDetailState extends State<TopicDetail>
     }
     // print('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
-        await DioRequestWeb.getTopicDetail(topicId, _currentPage);
+        await TopicWebApi.getTopicDetail(topicId, _currentPage);
     setState(() {
       if (_currentPage == _totalPage) {
         _replyList = topicDetailModel.replyList.reversed.toList();
@@ -201,7 +229,7 @@ class _TopicDetailState extends State<TopicDetail>
       print('---_totalPage---:$_totalPage');
     });
     if (type == 'init') {
-      _scrollController.animateTo(pinScrollHeight!,
+      autoScrollController.animateTo(pinScrollHeight!,
           duration: const Duration(milliseconds: 1000),
           curve: Curves.easeInOut);
     }
@@ -210,24 +238,24 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 返回顶部并 todo 刷新
   Future onRefreshBtm() async {
-    await _scrollController.animateTo(0,
+    await autoScrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     _controller.callRefresh();
   }
 
   void _listen() {
     final ScrollDirection direction =
-        _scrollController.position.userScrollDirection;
+        autoScrollController.position.userScrollDirection;
     if (direction == ScrollDirection.forward) {
       _show();
     } else if (direction == ScrollDirection.reverse) {
       _hide();
     }
 
-    if (_scrollController.offset > 100 && !_visibleTitle) {
+    if (autoScrollController.offset > 100 && !_visibleTitle) {
       _visibleTitle = true;
       titleStreamC.add(true);
-    } else if (_scrollController.offset <= 100 && _visibleTitle) {
+    } else if (autoScrollController.offset <= 100 && _visibleTitle) {
       _visibleTitle = false;
       titleStreamC.add(false);
     }
@@ -374,7 +402,7 @@ class _TopicDetailState extends State<TopicDetail>
                 onPressed: () async {
                   Navigator.pop(context);
                   SmartDialog.showLoading();
-                  var res = await DioRequestWeb.onIgnoreTopic(topicId);
+                  var res = await TopicWebApi.onIgnoreTopic(topicId);
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已忽略' : '操作失败');
                   if (res) {
@@ -405,7 +433,7 @@ class _TopicDetailState extends State<TopicDetail>
                 onPressed: () async {
                   Navigator.pop(context);
                   SmartDialog.showLoading();
-                  var res = await DioRequestWeb.onReportTopic(topicId);
+                  var res = await TopicWebApi.onReportTopic(topicId);
                   SmartDialog.dismiss();
                   SmartDialog.showToast(res ? '已举报' : '操作失败');
                   if (res) {
@@ -432,7 +460,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   // 收藏
   Future<void> onFavTopic() async {
-    var res = await DioRequestWeb.favoriteTopic(
+    var res = await TopicWebApi.favoriteTopic(
         _detailModel!.isFavorite, _detailModel!.topicId);
     if (res) {
       setState(() {
@@ -469,7 +497,7 @@ class _TopicDetailState extends State<TopicDetail>
             TextButton(
               onPressed: (() async {
                 Navigator.pop(context, 'OK');
-                var res = await DioRequestWeb.thankTopic(_detailModel!.topicId);
+                var res = await TopicWebApi.thankTopic(_detailModel!.topicId);
                 print('54: $res');
                 if (res) {
                   setState(() {
@@ -486,11 +514,20 @@ class _TopicDetailState extends State<TopicDetail>
     }
   }
 
+  Future _scrollToCounter() async {
+    await autoScrollController.scrollToIndex(
+      (noticeFloorNumber % 100) - 1,
+      preferPosition: AutoScrollPosition.begin,
+      duration: const Duration(milliseconds: 100),
+    );
+    // autoScrollController.highlight(5);
+  }
+
   @override
   void dispose() {
     _controller.dispose();
-    _scrollController.removeListener(_listen);
-    _scrollController.dispose();
+    autoScrollController.removeListener(_listen);
+    autoScrollController.dispose();
     eventBus.off('topicReply');
     super.dispose();
   }
@@ -520,11 +557,11 @@ class _TopicDetailState extends State<TopicDetail>
                   actions: _detailModel != null ? appBarAction() : [],
                 )
               : null,
-          body: topicDetail == null && _detailModel == null
+          body: _topicDetail == null && _detailModel == null
               ? showLoading()
               : Scrollbar(
                   radius: const Radius.circular(10),
-                  controller: _scrollController,
+                  controller: autoScrollController,
                   child: PullRefresh(
                     key: _globalKey,
                     onChildRefresh: getDetailInit,
@@ -599,18 +636,18 @@ class _TopicDetailState extends State<TopicDetail>
           PopupMenuItem<SampleItem>(
             value: SampleItem.ignore,
             onTap: onIgnoreTopic,
-            child: const Text('忽略主题'),
+            child: Text(I18nKeyword.topicIgnore.tr),
           ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.share,
             onTap: onShareTopic,
-            child: const Text('分享'),
+            child: Text(I18nKeyword.topicShare.tr),
           ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.report,
             onTap: onReportTopic,
             child: Text(
-              '举报',
+              I18nKeyword.topicReport.tr,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.error.withAlpha(200)),
             ),
@@ -619,7 +656,9 @@ class _TopicDetailState extends State<TopicDetail>
           PopupMenuItem<SampleItem>(
             value: SampleItem.browse,
             onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: const Text('在浏览器中打开'),
+            child: Text(
+              I18nKeyword.openInBrowser.tr,
+            ),
           ),
         ],
       ),
@@ -630,7 +669,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   Widget showRes() {
     return CustomScrollView(
-      controller: _scrollController,
+      controller: autoScrollController,
       // key: listGlobalKey,
       slivers: [
         if (expendAppBar) ...[
@@ -743,7 +782,7 @@ class _TopicDetailState extends State<TopicDetail>
         SliverToBoxAdapter(
           child: TopicMain(
               detailModel: _detailModel,
-              topicDetail: topicDetail,
+              topicDetail: _topicDetail,
               heroTag: heroTag),
         ),
         if (_detailModel != null) ...[
@@ -806,23 +845,64 @@ class _TopicDetailState extends State<TopicDetail>
               ),
               pinned: true,
             ),
+            if (noticeFloorNumber > 0 && _currentPage > 1)
+              SliverToBoxAdapter(
+                child: Container(
+                  width: double.infinity,
+                  height: 60,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.commit,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(width: 6),
+                        Text('前 ${_currentPage - 1} 页已隐藏')
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
+                childCount: _replyList.length,
                 (context, index) {
-                  return ReplyListItem(
-                    reply: _replyList[index],
-                    topicId: _detailModel!.topicId,
-                    totalPage: _totalPage,
-                    key: UniqueKey(),
-                    queryReplyList:
-                        (replyMemberList, floorNumber, resultList, totalPage) =>
+                  return AutoScrollTag(
+                      key: ValueKey(index),
+                      controller: autoScrollController,
+                      index: index,
+                      child:
+                          // noticeFloorNumber > 0 && index == 0 ? Text('123') :
+                          ReplyListItem(
+                        reply: _replyList[index],
+                        topicId: _detailModel!.topicId,
+                        totalPage: _totalPage,
+                        key: UniqueKey(),
+                        queryReplyList: (replyMemberList, floorNumber,
+                                resultList, totalPage) =>
                             queryReplyList(replyMemberList, floorNumber,
                                 resultList, _totalPage),
-                    source: 'topic',
-                    replyList: _replyList,
-                  );
+                        source: 'topic',
+                        replyList: _replyList,
+                        floorNumber: noticeFloorNumber,
+                      ));
+                  // return ReplyListItem(
+                  //   reply: _replyList[index],
+                  //   topicId: _detailModel!.topicId,
+                  //   totalPage: _totalPage,
+                  //   key: UniqueKey(),
+                  //   queryReplyList:
+                  //       (replyMemberList, floorNumber, resultList, totalPage) =>
+                  //           queryReplyList(replyMemberList, floorNumber,
+                  //               resultList, _totalPage),
+                  //   source: 'topic',
+                  //   replyList: _replyList,
+                  // );
                 },
-                childCount: _replyList.length,
+                // childCount: _replyList.length,
               ),
             ),
           ],
@@ -830,7 +910,7 @@ class _TopicDetailState extends State<TopicDetail>
           SliverToBoxAdapter(
             child: Offstage(
               // when true hidden
-              offstage: _detailModel!.replyCount != '0',
+              offstage: _detailModel!.replyCount != 0,
               child: moreTopic(type: 'null'),
             ),
           ),
@@ -840,7 +920,7 @@ class _TopicDetailState extends State<TopicDetail>
               // when true hidden
               // no reply hidden
               //
-              offstage: _detailModel!.replyCount == '0' ||
+              offstage: _detailModel!.replyCount == 0 ||
                   (!reverseSort && (_currentPage < _totalPage)) ||
                   (reverseSort && (_currentPage > 0)),
               child: moreTopic(),
@@ -862,8 +942,8 @@ class _TopicDetailState extends State<TopicDetail>
       child: Center(
         // child: TextField(),
         child: Text(
-          type == 'noMore' ? '没有更多回复了' : '还没有人回复',
-          style: Theme.of(context).textTheme.bodyMedium,
+          type == 'noMore' ? I18nKeyword.noMoreResponses.tr : '还没有人回复',
+          style: const TextStyle(fontSize: 13),
         ),
       ),
     );
@@ -885,8 +965,8 @@ class _TopicDetailState extends State<TopicDetail>
 }
 
 class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _minExtent = 60;
-  final double _maxExtent = 60;
+  final double _minExtent = 55;
+  final double _maxExtent = 55;
   final Widget child;
 
   _MySliverPersistentHeaderDelegate({required this.child});
@@ -903,7 +983,10 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .background
+                      .withOpacity(0.15),
                   spreadRadius: 2,
                   blurRadius: 20,
                   offset: const Offset(0, 3),

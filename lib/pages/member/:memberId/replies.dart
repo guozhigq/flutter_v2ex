@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/member/reply_item.dart';
 import 'package:flutter_v2ex/models/web/item_member_reply.dart';
 import 'package:flutter_v2ex/models/web/model_member_reply.dart';
+import 'package:flutter_v2ex/http/user.dart';
 
 class MemberRepliesPage extends StatefulWidget {
   const MemberRepliesPage({Key? key}) : super(key: key);
@@ -49,7 +50,7 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
 
   Future<ModelMemberReply> queryMemberReply() async {
     ModelMemberReply res =
-        await DioRequestWeb.queryMemberReply(memberId, _currentPage + 1);
+        await UserWebApi.queryMemberReply(memberId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
         replyList = res.replyList;

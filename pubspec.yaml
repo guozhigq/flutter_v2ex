@@ -17,7 +17,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.27
+version: 1.2.1
 
 environment:
     sdk: ">=2.18.6 <3.0.0"
@@ -31,13 +31,17 @@ environment:
 dependencies:
     flutter:
         sdk: flutter
-
+    flutter_localizations:
+        sdk: flutter
     # The following adds the Cupertino Icons font to your application.
     # Use with the CupertinoIcons class for iOS style icons.
     #    cupertino_icons: ^1.0.2
     dynamic_color: ^1.5.4
     dio: ^4.0.6
-    dio_http_cache: ^0.3.0
+    #    dio_http_cache: ^0.3.0
+    dio_http_cache:
+        git:
+            url: https://github.com/guozhigq/dio-http-cache.git
     dio_cookie_manager: ^2.0.0
     path_provider: ^2.0.12
     html: ^0.15.1
@@ -48,7 +52,7 @@ dependencies:
     flutter_inappwebview: ^6.0.0-beta.22
     animations: ^2.0.7
     flutter_smart_dialog: ^4.8.1
-    extended_image: ^7.0.0
+    extended_image: ^7.0.2
     flutter_html_iframe: ^3.0.0-alpha.4
     get: ^4.6.5
     get_storage: ^2.0.3
@@ -68,6 +72,13 @@ dependencies:
     share_plus: ^6.3.1
     extended_tabs: ^4.0.2
     extended_text_field: ^11.0.1
+    sticky_headers: ^0.3.0+2
+    hive: ^2.2.3
+    hive_flutter: ^1.1.0
+    scroll_to_index: ^3.0.1
+    google_fonts: ^4.0.3
+    flutter_html_table: ^3.0.0-alpha.4
+    webfeed_plus: ^1.0.0
 
 dev_dependencies:
     flutter_test:
@@ -79,7 +90,9 @@ dev_dependencies:
     # package. See that file for information about deactivating specific lint
     # rules and activating additional ones.
     flutter_lints: ^2.0.0
-#    flutter_launcher_icons: ^0.9.3
+    #    flutter_launcher_icons: ^0.9.3
+    hive_generator: ^2.0.0
+    build_runner: ^2.3.3
 
 flutter_icons:
     android: true

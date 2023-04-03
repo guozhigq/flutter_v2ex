@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -17,26 +15,17 @@
 	<key>CFBundleName</key>
 	<string>VVEX</string>
 	<key>CFBundlePackageType</key>
-	<string>VVEX</string>
+	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>https</string>
-		<string>http</string>
-	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>请允许APP保存图片到相册</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>Main.storyboard</string>
+	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -45,6 +34,36 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>请允许APP保存图片到相册</string>
+    <key>NSCameraUsageDescription</key>
+    <string>App需要您的同意,才能访问相册</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>App需要您的同意,才能访问相机</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>App需要您的同意,才能访问麦克风</string>
+    <key>NSContactsUsageDescription</key>
+    <string>App需要您的同意,才能访问通信录</string>
+    <key>NSLocationUsageDescription</key>
+    <string>App需要您的同意,才能访问位置</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>App需要您的同意,才能在使用期间访问位置</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>App需要您的同意,才能始终访问位置</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>App需要您的同意,才能访问日历</string>
+    <key>NSRemindersUsageDescription</key>
+    <string>App需要您的同意,才能访问提醒事项</string>
+    <key>NSMotionUsageDescription</key>
+    <string>App需要您的同意,才能访问运动与健身</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>App需要您的同意,才能访问健康更新 </string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>App需要您的同意,才能访问健康分享</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>App需要您的同意,才能访问蓝牙</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>App需要您的同意,才能访问媒体资料库</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -54,5 +73,18 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>https</string>
+      <string>http</string>
+    </array>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+       <key>NSAllowsArbitraryLoads</key><true/>
+    </dict>
 </dict>
 </plist>

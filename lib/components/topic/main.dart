@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/topic/skeleton_main.dart';
@@ -11,7 +12,9 @@ class TopicMain extends StatelessWidget {
   var detailModel;
   var topicDetail;
   String? heroTag;
-  TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key}) : super(key: key);
+
+  TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,15 +22,9 @@ class TopicMain extends StatelessWidget {
     TextStyle titleStyle = Theme.of(context)
         .textTheme
         .titleLarge!
-        .copyWith(fontWeight: FontWeight.w500);
-    TextStyle labelMedium = Theme.of(context)
-        .textTheme
-        .labelMedium!
-        .copyWith(color: Theme.of(context).colorScheme.outline);
-    TextStyle timeStyle = Theme.of(context)
-        .textTheme
-        .labelSmall!
-        .copyWith(color: Theme.of(context).colorScheme.outline);
+        .copyWith(fontWeight: FontWeight.w500, height: 1.5);
+    TextStyle timeStyle = Theme.of(context).textTheme.labelSmall!.copyWith(
+        color: Theme.of(context).colorScheme.outline, letterSpacing: 1);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -43,36 +40,37 @@ class TopicMain extends StatelessWidget {
                 ? Text(detailModel!.topicTitle, style: titleStyle)
                 : topicDetail != null
                     ? Text(topicDetail!.topicTitle, style: titleStyle)
-                    : Text(
-                        'me',
-                        style: titleStyle,
-                      ),
+                    : const Placeholder(),
           ),
         ),
         Container(
           padding:
-          const EdgeInsets.only(top: 10, right: 20, bottom: 10, left: 20),
-          child:
-          Row(
+              const EdgeInsets.only(top: 10, right: 20, bottom: 10, left: 20),
+          child: Row(
             children: [
               detailModel != null
                   ? Text(detailModel!.createdTime, style: timeStyle)
                   : topicDetail != null
-                      ? Text(topicDetail!.lastReplyTime,
-                          style: timeStyle)
+                      ? Text(topicDetail!.lastReplyTime, style: timeStyle)
                       : const SizedBox(),
-              const SizedBox(width: 10,),
-              if(detailModel != null)
-                Text('${detailModel.visitorCount} 点击', style: labelMedium) ,
-              const SizedBox(width: 10,),
-              if(detailModel != null)
-                Text('${detailModel.favoriteCount} 收藏', style: labelMedium)
+              const SizedBox(
+                width: 10,
+              ),
+              if (detailModel != null)
+                Text('${detailModel.visitorCount} ${I18nKeyword.topicClick.tr}',
+                    style: timeStyle),
+              const SizedBox(
+                width: 10,
+              ),
+              if (detailModel != null)
+                Text('${detailModel.favoriteCount} ${I18nKeyword.topicFav.tr}',
+                    style: timeStyle)
             ],
           ),
         ),
         Container(
           padding:
-              const EdgeInsets.only(top: 20, right: 20, bottom: 15, left: 20),
+              const EdgeInsets.only(top: 20, right: 20, bottom: 14, left: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -85,13 +83,13 @@ class TopicMain extends StatelessWidget {
                           ? Get.toNamed('/member/${detailModel!.createdId}',
                               parameters: {
                                   'memberAvatar': detailModel!.avatar,
-                                  'heroTag': heroTag!,
+                                  'heroTag': heroTag,
                                 })
                           : null,
                       child: Hero(
-                        tag: heroTag!,
+                        tag: heroTag,
                         child: CAvatar(
-                          url: topicDetail != null
+                          url: topicDetail != null && topicDetail!.avatar != ''
                               ? topicDetail!.avatar
                               : detailModel != null
                                   ? detailModel.avatar
@@ -110,15 +108,14 @@ class TopicMain extends StatelessWidget {
                               detailModel!.createdId,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: Theme.of(context).textTheme.titleMedium,
+                              style: Theme.of(context).textTheme.titleSmall,
                             )
                           : topicDetail != null
                               ? Text(
                                   topicDetail!.memberId,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
+                                  style: Theme.of(context).textTheme.titleSmall,
                                 )
                               : const Text('加载中'),
                       // detailModel != null
@@ -147,48 +144,22 @@ class TopicMain extends StatelessWidget {
             ],
           ),
         ),
-
-        /// action操作
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.end,
-        //   children: [
-        //     if (detailModel!.favoriteCount > 0) ...[
-        //       Text(
-        //         '${detailModel!.favoriteCount}收藏',
-        //         style: Theme.of(context).textTheme.labelMedium!.copyWith(
-        //             color: Theme.of(context).colorScheme.outline),
-        //       ),
-        //       const SizedBox(width: 16),
-        //     ],
-        //     Text(
-        //       '${detailModel!.visitorCount}查看',
-        //       style: Theme.of(context)
-        //           .textTheme
-        //           .labelMedium!
-        //           .copyWith(color: Theme.of(context).colorScheme.outline),
-        //     ),
-        //     const SizedBox(width: 16),
-        //     Text(
-        //       '${detailModel!.replyCount}回复',
-        //       style: Theme.of(context)
-        //           .textTheme
-        //           .labelMedium!
-        //           .copyWith(color: Theme.of(context).colorScheme.outline),
-        //     ),
-        //     const SizedBox(width: 20)
-        //   ],
+        // Divider(
+        //   endIndent: 15,
+        //   indent: 15,
+        //   color: Theme.of(context).dividerColor.withOpacity(0.15),
         // ),
-        Divider(
-          endIndent: 15,
-          indent: 15,
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
-        ),
         // 内容
         if (detailModel != null) ...[
-          if (detailModel!.content != '')
+          if (detailModel!.content != '') ...[
+            Divider(
+              endIndent: 20,
+              indent: 20,
+              color: Theme.of(context).dividerColor.withOpacity(0.15),
+            ),
             Container(
               padding: const EdgeInsets.only(
-                  top: 8, right: 18, bottom: 10, left: 18),
+                  top: 6, right: 18, bottom: 12, left: 18),
               child: SelectionArea(
                 child: HtmlRender(
                   htmlContent: detailModel!.contentRendered,
@@ -198,20 +169,28 @@ class TopicMain extends StatelessWidget {
                 ),
               ),
             ),
+          ],
           // 附言
           if (detailModel!.subtleList.isNotEmpty) ...[
             ...subList(detailModel!.subtleList, context)
           ],
-          if (detailModel!.content.isNotEmpty)
-            Divider(
-              color: Theme.of(context).dividerColor.withOpacity(0.15),
-            ),
+          // if (detailModel!.content.isNotEmpty)
+          //   Divider(
+          //     height: 1,
+          //     color: Theme.of(context).dividerColor.withOpacity(0.15),
+          //   ),
         ] else ...[
-          const TopicDetailSkeleton(),
           Divider(
+            endIndent: 20,
+            indent: 20,
             color: Theme.of(context).dividerColor.withOpacity(0.15),
           ),
-        ]
+          const TopicDetailSkeleton(),
+        ],
+        Divider(
+          height: 1,
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+        ),
       ],
     );
   }
@@ -221,30 +200,27 @@ class TopicMain extends StatelessWidget {
     List<Widget>? list = [];
     for (var i in data) {
       list.add(
+        Divider(
+          height: 1,
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+        ),
+      );
+      list.add(
         SelectionArea(
           child: Container(
             padding:
-                const EdgeInsets.only(top: 4, left: 18, right: 18, bottom: 10),
-            // color: Theme.of(context).colorScheme.onInverseSurface,
+                const EdgeInsets.only(top: 24, left: 18, right: 18, bottom: 20),
+            color: Theme.of(context).colorScheme.onInverseSurface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(
-                  height: 1,
-                  color: Theme.of(context).dividerColor.withOpacity(0.15),
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
                 Text(
                   i.fade,
                   style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      backgroundColor: Theme.of(context).colorScheme.secondary),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 HtmlRender(
                   htmlContent: i.content,
                   imgCount: detailModel!.imgCount,

@@ -1,11 +1,13 @@
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/models/network/item_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
-
+import 'package:get/get.dart';
 
 class HotPage extends StatefulWidget {
   const HotPage({Key? key}) : super(key: key);
@@ -26,11 +28,10 @@ class _HotPageState extends State<HotPage> {
     queryHotTopic();
   }
 
-
   Future<List<TopicItem>> queryHotTopic() async {
     var res = await DioRequestNet.getHotTopic();
-    List <TabTopicItem> list = [];
-    for(var i in res) {
+    List<TabTopicItem> list = [];
+    for (var i in res) {
       TabTopicItem item = TabTopicItem();
       item.memberId = i.memberId!;
       item.topicId = i.topicId!;
@@ -61,27 +62,30 @@ class _HotPageState extends State<HotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('今日热议'),
-      ),
-      body: Scrollbar(
-        controller: _controller,
-        radius: const Radius.circular(10),
-          child: _isLoading
-              ? const TopicSkeleton()
-              : hotTopicList.isNotEmpty
-              ? PullRefresh(
-            currentPage: 1,
-            totalPage: 1,
-            onChildLoad: queryHotTopic,
-            onChildRefresh: () {
-              queryHotTopic();
-            },
-            child: content(),
-          )
-              : const Text('没有数据')
-      )
-    );
+        appBar: AppBar(
+          title: Text(I18nKeyword.todayHot.tr),
+          actions: [
+            TextButton(
+                onPressed: () => Get.toNamed('/historyHot'),
+                child: const Text('历史')),
+          ],
+        ),
+        body: Scrollbar(
+            controller: _controller,
+            radius: const Radius.circular(10),
+            child: _isLoading
+                ? const TopicSkeleton()
+                : hotTopicList.isNotEmpty
+                    ? PullRefresh(
+                        currentPage: 1,
+                        totalPage: 1,
+                        onChildLoad: queryHotTopic,
+                        onChildRefresh: () {
+                          queryHotTopic();
+                        },
+                        child: content(),
+                      )
+                    : const Text('没有数据')));
   }
 
   Widget content() {
@@ -92,9 +96,8 @@ class _HotPageState extends State<HotPage> {
         slivers: [
           SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                return
-                  ListItem(topic: hotTopicList[index]);
-              }, childCount: hotTopicList.length))
+            return ListItem(topic: hotTopicList[index]);
+          }, childCount: hotTopicList.length))
         ],
       ),
     );

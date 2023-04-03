@@ -13,6 +13,7 @@ import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
+import 'package:flutter_v2ex/http/user.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -57,7 +58,7 @@ class _MemberPageState extends State<MemberPage> {
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
-    var res = await DioRequestWeb.queryMemberProfile(memberId);
+    var res = await UserWebApi.queryMemberProfile(memberId);
     setState(() {
       memberProfile = res;
       _loading = false;
@@ -118,7 +119,7 @@ class _MemberPageState extends State<MemberPage> {
       followId = m.group(0)!;
     }
     bool followStatus = memberProfile.isFollow;
-    bool res = await DioRequestWeb.onFollowMember(followId, followStatus);
+    bool res = await UserWebApi.onFollowMember(followId, followStatus);
     if (res) {
       SmartDialog.showToast(followStatus ? '已取消关注' : '关注成功');
       setState(() {
@@ -173,7 +174,7 @@ class _MemberPageState extends State<MemberPage> {
     }
     bool blockStatus = memberProfile.isBlock;
     // bool followStatus = memberProfile.isFollow;
-    bool res = await DioRequestWeb.onBlockMember(blockId, blockStatus);
+    bool res = await UserWebApi.onBlockMember(blockId, blockStatus);
     if (res) {
       SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
       setState(() {

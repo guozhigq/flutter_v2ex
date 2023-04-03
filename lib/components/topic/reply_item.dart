@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'dart:math' as math;
 
 class ReplyListItem extends StatefulWidget {
   ReplyListItem({
@@ -22,6 +24,7 @@ class ReplyListItem extends StatefulWidget {
     this.totalPage,
     this.source,
     this.replyList,
+    this.floorNumber,
     Key? key,
   }) : super(key: key);
 
@@ -31,12 +34,16 @@ class ReplyListItem extends StatefulWidget {
   int? totalPage;
   String? source;
   List? replyList;
+  int? floorNumber;
+
+
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
 }
 
-class _ReplyListItemState extends State<ReplyListItem> {
+class _ReplyListItemState extends State<ReplyListItem>
+    with TickerProviderStateMixin {
   // bool isChoose = false;
   List<Map<dynamic, dynamic>> sheetMenu = [
     {
@@ -78,6 +85,11 @@ class _ReplyListItemState extends State<ReplyListItem> {
   final GlobalKey repaintKey = GlobalKey();
   bool ignoreStatus = false; // 对当前主题的忽略状态 默认false
   String? loginUserName;
+  bool highLightOp = GStorage().getHighlightOp();
+
+  late AnimationController _controller;
+  int _animationCount = 0;
+  final int _maxAnimationCount = 3;
 
   @override
   void initState() {
@@ -96,6 +108,24 @@ class _ReplyListItemState extends State<ReplyListItem> {
     setState(() {
       reply = widget.reply;
     });
+
+    _controller = AnimationController(
+        lowerBound: 0.95,
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    )..addListener(() {
+    if (_controller.status == AnimationStatus.completed) {
+    _animationCount++;
+      if (_animationCount >= _maxAnimationCount) {
+        _controller.stop();
+      } else {
+        _controller.reverse();
+    }
+    } else if (_controller.status == AnimationStatus.dismissed) {
+      _controller.forward();
+    }
+    });
+    _controller.forward();
   }
 
   void menuAction(id) {
@@ -238,6 +268,13 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedSize(
       curve: Curves.easeInOut,
@@ -252,9 +289,10 @@ class _ReplyListItemState extends State<ReplyListItem> {
                     content(context),
                   ),
                   Divider(
-                    indent: 50,
+                    indent: 55,
+                    endIndent: 15,
                     height: 0.3,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    color: Theme.of(context).colorScheme.onInverseSurface.withOpacity(0.5),
                   )
                 ],
               )
@@ -267,32 +305,18 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget lfAvtar() {
-    return GestureDetector(
-      onTap: () => Get.toNamed('/member/${reply.userName}', parameters: {
-        'memberAvatar': reply.avatar,
-        'heroTag': reply.userName + heroTag,
-      }),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 5),
-            clipBehavior: Clip.hardEdge,
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(18))),
-            child: Stack(
-              children: [
-                Hero(
-                  tag: reply.userName + heroTag,
-                  child: CAvatar(
-                    url: reply.avatar,
-                    size: 34,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // IconButton(onPressed: () => {}, icon: const Icon(Icons.celebration))
-        ],
+    return Container(
+      margin: const EdgeInsets.only(top: 5),
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.03)),
+          borderRadius: const BorderRadius.all(Radius.circular(18))),
+      child: Hero(
+        tag: reply.userName + heroTag,
+        child: CAvatar(
+          url: reply.avatar,
+          size: 34,
+        ),
       ),
     );
   }
@@ -306,85 +330,101 @@ class _ReplyListItemState extends State<ReplyListItem> {
           // 两端对齐
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                lfAvtar(),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          reply.userName,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                            color: reply.isMod || reply.isOwner ? Theme.of(context).colorScheme.primary : null
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        if (reply.isOwner) ...[
-                          Icon(
-                            Icons.person,
-                            size: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        ],
-                        if (reply.isMod) ...[
-                          Icon(
-                            Icons.security,
-                            size: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        ]
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        if (reply.lastReplyTime.isNotEmpty) ...[
+            GestureDetector(
+              onTap: () =>
+                  Get.toNamed('/member/${reply.userName}', parameters: {
+                'memberAvatar': reply.avatar,
+                'heroTag': reply.userName + heroTag,
+              }),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  lfAvtar(),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
                           Text(
-                            reply.lastReplyTime,
+                            reply.userName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(
+                                    color: reply.isMod || reply.isOwner
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null),
+                          ),
+                          const SizedBox(width: 4),
+                          if (reply.isOwner) ...[
+                            Icon(
+                              Icons.person,
+                              size: 15,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          ],
+                          if (reply.isMod) ...[
+                            Icon(
+                              Icons.security,
+                              size: 15,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          ]
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          if (reply.lastReplyTime.isNotEmpty) ...[
+                            Text(
+                              reply.lastReplyTime,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline),
+                            ),
+                            // const SizedBox(width: 2),
+                          ],
+                          // if (reply.platform == 'Android') ...[
+                          //   const Icon(
+                          //     Icons.android,
+                          //     size: 14,
+                          //   ),
+                          //
+                          // ],
+                          // if (reply.platform == 'iPhone') ...[
+                          //   const Icon(Icons.apple, size: 16),
+                          // ],
+                          Text(
+                            ' • ',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall!
                                 .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
+                                color: Theme.of(context).colorScheme.outline),
                           ),
-                          // const SizedBox(width: 2),
+                          Text(
+                            '${reply.floorNumber}L',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall!
+                                .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground),
+                          ),
                         ],
-                        // if (reply.platform == 'Android') ...[
-                        //   const Icon(
-                        //     Icons.android,
-                        //     size: 14,
-                        //   ),
-                        //
-                        // ],
-                        // if (reply.platform == 'iPhone') ...[
-                        //   const Icon(Icons.apple, size: 16),
-                        // ],
-                        Text(
-                          ' • ',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.outline),
-                        ),
-                        Text(
-                          '${reply.floorNumber}L',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall!
-                              .copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
+                      )
+                    ],
+                  )
+                ],
+              ),
             ),
             IconButton(
               padding: const EdgeInsets.all(2.0),
@@ -415,24 +455,62 @@ class _ReplyListItemState extends State<ReplyListItem> {
   }
 
   Widget replyItemTopic(context, child) {
-    return RepaintBoundary(
-      key: repaintKey,
-      child: Material(
-        color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
-        child: InkWell(
-          onTap: () async {
-            /// 增加200毫秒延迟 水波纹动画
-            await Future.delayed(const Duration(milliseconds: 200));
-            replyComment();
-          },
-          onLongPress: () {},
-          child: Ink(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
-            child: child,
+    return AnimatedBuilder(
+      animation: _controller,
+      child: RepaintBoundary(
+        key: repaintKey,
+        child: Material(
+          color: reply.isOwner && highLightOp
+              ? Theme.of(context).colorScheme.onInverseSurface
+              : null,
+          child: InkWell(
+            onTap: () async {
+              /// 增加200毫秒延迟 水波纹动画
+              await Future.delayed(const Duration(milliseconds: 200));
+              replyComment();
+            },
+            onLongPress: () {},
+            child: Ink(
+              padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
+              child: child,
+            ),
           ),
         ),
       ),
+      builder: (BuildContext context, Widget? child) {
+        return Transform.scale(
+          scale: widget.floorNumber! > 0 &&
+                  reply.floorNumber == widget.floorNumber!
+              ? _controller.value
+              : 1,
+          child: child,
+        );
+      },
     );
+    // return
+    // RepaintBoundary(
+    //   key: repaintKey,
+    //   child: Material(
+    //     color:
+    //         widget.floorNumber! > 0 && reply.floorNumber == widget.floorNumber!
+    //             ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.5)
+    //             : reply.isOwner
+    //                 ? Theme.of(context).colorScheme.onInverseSurface
+    //                 : null,
+    //     child: InkWell(
+    //       onTap: () async {
+    //         /// 增加200毫秒延迟 水波纹动画
+    //         await Future.delayed(const Duration(milliseconds: 200));
+    //         replyComment();
+    //       },
+    //       onLongPress: () {},
+    //       child: Ink(
+    //         padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
+    //         child: child,
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   Widget replyItemSheet(context, child) {
@@ -446,7 +524,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
         child: Material(
           borderRadius: BorderRadius.circular(20),
           // color: reply.isOwner ? Theme.of(context).colorScheme.onInverseSurface : null,
-          elevation: reply.isOwner ? 3 : 0,
+          elevation: reply.isOwner && highLightOp ? 3 : 0,
           child: InkWell(
             onTap: () async {
               /// 增加200毫秒延迟 水波纹动画
@@ -483,7 +561,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
               child: Row(children: [
                 Icon(Icons.reply, size: 20, color: color.withOpacity(0.8)),
                 const SizedBox(width: 2),
-                Text('回复', style: textStyle),
+                Text(I18nKeyword.replyAction.tr, style: textStyle),
               ]),
             ),
             if (reply.replyMemberList.isNotEmpty &&
@@ -493,7 +571,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                 onPressed: () => widget.queryReplyList(reply.replyMemberList,
                     reply.floorNumber, [reply], widget.totalPage),
                 child: Text(
-                  '查看回复',
+                  I18nKeyword.viewResponse.tr,
                   style: textStyle,
                 ),
               ),
@@ -536,7 +614,7 @@ class _ReplyListItemState extends State<ReplyListItem> {
                               style: textStyle.copyWith(
                                   color: Theme.of(context).colorScheme.primary))
                           : Text(reply.favorites.toString(), style: textStyle)
-                      : Text('感谢', style: textStyle),
+                      : Text(I18nKeyword.replyThank.tr, style: textStyle),
                 ]),
               ),
           ],

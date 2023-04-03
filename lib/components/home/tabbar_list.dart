@@ -92,6 +92,7 @@ class _TabBarListState extends State<TabBarList>
       setState(() {
         if (_currentPage == 0) {
           topicList = res;
+          _dioError = false;
           tempTopicList = res;
         } else {
           // 去除重复数据
@@ -105,6 +106,7 @@ class _TabBarListState extends State<TabBarList>
           }
           topicList.addAll(result);
           tempTopicList = result;
+          _dioError = false;
         }
         _isLoading = false;
         Timer(const Duration(milliseconds: 500), () {
@@ -181,7 +183,9 @@ class _TabBarListState extends State<TabBarList>
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 1, bottom: 0),
                 physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics()),
+                    // parent: BouncingScrollPhysics(), // iOS
+                  parent: ClampingScrollPhysics() // Android
+                ),
                 //重要
                 itemCount: topicList.length + 1,
                 controller: _controller,
@@ -224,7 +228,7 @@ class _TabBarListState extends State<TabBarList>
                       return moreTopic('全部加载完成');
                     }
                   } else {
-                    return ListItem(topic: topicList[index]);
+                    return ListItem(topic: topicList[index], key: UniqueKey());
                   }
                 },
               ),
@@ -251,7 +255,7 @@ class _TabBarListState extends State<TabBarList>
               },
               child: FloatingActionButton(
                 heroTag: null,
-                child: Image.asset('assets/images/backtop.png', width: 45),
+                child: const Icon(Icons.vertical_align_top_rounded),
                 onPressed: () {
                   _controller.animateTo(0,
                       duration: const Duration(milliseconds: 500),
@@ -278,7 +282,9 @@ class _TabBarListState extends State<TabBarList>
         // ),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: const TextStyle(
+            fontSize: 13
+          ),
         ),
       ),
     );

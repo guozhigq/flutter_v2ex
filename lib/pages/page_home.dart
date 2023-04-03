@@ -1,3 +1,6 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -20,13 +23,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   // 自定义、 缓存 、 api获取
-  List<TabModel> tabs = GStorage()
-      .getTabs()
-      .where((item) => item.checked)
-      .toList();
+  List<TabModel> tabs =
+      GStorage().getTabs().where((item) => item.checked).toList();
   String shortcut = 'no action set';
-  late TabController _tabController = TabController(vsync: this, length: tabs.length);
-
+  late TabController _tabController =
+      TabController(vsync: this, length: tabs.length);
 
   @override
   void initState() {
@@ -76,22 +77,67 @@ class _HomePageState extends State<HomePage>
         }
       });
     });
+    // showPrivacyDialog();
   }
 
   void _loadCustomTabs() {
-    var customTabs = GStorage()
-        .getTabs()
-        .where((item) => item.checked)
-        .toList();
+    var customTabs =
+        GStorage().getTabs().where((item) => item.checked).toList();
 
-      setState(() {
-        tabs.clear();
-        tabs.addAll(customTabs);
-        _tabController = TabController(length: tabs.length, vsync: this);
-        /// DefaultTabController在build外无法重新build tabView
-        // DefaultTabController.of(context).animateTo(0);
-      });
+    setState(() {
+      tabs.clear();
+      tabs.addAll(customTabs);
+      _tabController = TabController(length: tabs.length, vsync: this);
+
+      /// DefaultTabController在build外无法重新build tabView
+      // DefaultTabController.of(context).animateTo(0);
+    });
   }
+
+  showPrivacyDialog() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    SmartDialog.show(builder: (context) {
+      TextStyle style = Theme.of(context).textTheme.titleMedium!;
+      return AlertDialog(
+        title: const Text('欢迎使用VVEX'),
+        content: Text.rich(
+          TextSpan(children: [
+            TextSpan(
+                text: '我们非常重视您的个人信息及隐私保护！ 在您使用我们的产品前，请务必认真阅读', style: style),
+            // TextSpan(
+            //   text: '《用户协议》',
+            //   style: style.copyWith(
+            //     color: Theme.of(context).colorScheme.primary,
+            //   ),
+            //   recognizer: TapGestureRecognizer()..onTap = onClickUser,
+            // ),
+            // TextSpan(text: '、', style: style),
+            TextSpan(
+              text: '《隐私政策》',
+              style: style.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              recognizer: TapGestureRecognizer()..onTap = onClickPrivacy,
+            ),
+            TextSpan(text: '相关内容。 \n', style: style),
+            TextSpan(text: '如您同意以上协议内容，请点击“同意”，开始使用我们的产品和服务。', style: style),
+          ]),
+        ),
+        actions: [
+          TextButton(onPressed: () => SystemNavigator.pop(), child: const Text('不同意并退出')),
+          TextButton(onPressed: () => SmartDialog.dismiss(), child: const Text('同意')),
+        ],
+      );
+    });
+  }
+
+  onClickUser() {
+    Get.toNamed('/agreement', parameters: {'source': 'user'});
+  }
+  onClickPrivacy() {
+    Get.toNamed('/agreement', parameters: {'source': 'privacy'});
+  }
+
   // 页面缓存
   @override
   bool get wantKeepAlive => true;
@@ -101,6 +147,7 @@ class _HomePageState extends State<HomePage>
     super.build(context);
     num height = MediaQuery.of(context).padding.top;
     GStorage().setStatusBarHeight(height);
+
     /// DefaultTabController在build外无法重新build tabView
     // return DefaultTabController(
     //   length: tabs.length,
@@ -137,7 +184,7 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 3),
           Expanded(
             child: TabBarView(
-                controller: _tabController,
+              controller: _tabController,
               children: tabs.map((e) {
                 return TabBarList(e);
               }).toList(),

@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -84,6 +85,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       child: Container(
         width: double.infinity,
         height: 115,
+        margin: const EdgeInsets.only(top: 3),
         padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),
@@ -97,11 +99,12 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
+                        tooltip: I18nKeyword.drawer.tr,
                         onPressed: () => Scaffold.of(context).openDrawer(),
                         icon: const Icon(Icons.menu),
                       ),
                       Center(
-                        child: Text('搜索',
+                        child: Text(I18nKeyword.search.tr,
                             style: Theme.of(context).textTheme.bodyMedium),
                       ),
                       GestureDetector(
@@ -136,6 +139,10 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 child: CAvatar(
                                   url: userInfo['avatar'],
                                   size: 37,
+                                  fadeInDuration:
+                                      const Duration(milliseconds: 0),
+                                  fadeOutDuration:
+                                      const Duration(milliseconds: 0),
                                 ),
                               )
                             // ?  Text(userInfo['userName'])
@@ -161,21 +168,25 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       ),
                     ],
                   ),
-                  Positioned(
-                    right: 38,
-                    top: 0,
-                    child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            unRead = false;
-                          });
-                          Get.toNamed('/notifications');
-                        },
-                        icon: Icon(Icons.notifications_none_rounded,
-                            color: !unRead
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.primary)),
-                  )
+                  Visibility(
+                    visible: loginStatus,
+                    child: Positioned(
+                      right: 38,
+                      top: 0,
+                      child: IconButton(
+                        tooltip: I18nKeyword.notice.tr,
+                          onPressed: () {
+                            setState(() {
+                              unRead = false;
+                            });
+                            Get.toNamed('/notifications');
+                          },
+                          icon: Icon(Icons.notifications_none_rounded,
+                              color: !unRead
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.primary)),
+                    ),
+                  ),
                 ],
               )),
         ),

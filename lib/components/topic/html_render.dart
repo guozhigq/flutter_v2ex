@@ -1,3 +1,4 @@
+import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,8 @@ class HtmlRender extends StatefulWidget {
   final List? imgList;
   final double? fs;
 
-  HtmlRender({this.htmlContent, this.imgCount, this.imgList, this.fs ,super.key});
+  HtmlRender(
+      {this.htmlContent, this.imgCount, this.imgList, this.fs, super.key});
 
   @override
   _HtmlRenderState createState() => _HtmlRenderState();
@@ -29,7 +31,7 @@ class _HtmlRenderState extends State<HtmlRender> {
   @override
   void initState() {
     super.initState();
-    if(widget.fs != null){
+    if (widget.fs != null) {
       htmlFs = widget.fs;
     }
   }
@@ -42,12 +44,12 @@ class _HtmlRenderState extends State<HtmlRender> {
           {openHrefByWebview(url!, context)},
       customRenders: {
         tagMatcher("iframe"): iframeRender(),
+        tagMatcher("table"): tableRender(),
         tagMatcher("img"): CustomRender.widget(
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
             imgUrl = Utils().imageUrl(imgUrl!);
             // ignore: avoid_print
-            print(imgUrl);
             // todo 多张图片轮播
             return SelectionContainer.disabled(
               child: GestureDetector(
@@ -104,8 +106,6 @@ class _HtmlRenderState extends State<HtmlRender> {
       },
       style: {
         "html": Style(
-          // fontSize: FontSize(
-          //     Theme.of(context).textTheme.bodyLarge!.fontSize!),
           fontSize: htmlFs != null ? FontSize(htmlFs!) : FontSize.medium,
           lineHeight: LineHeight.percent(140),
         ),
@@ -116,8 +116,6 @@ class _HtmlRenderState extends State<HtmlRender> {
         ),
         "p": Style(
           margin: Margins.only(bottom: 0),
-          // fontSize: FontSize(
-          //     Theme.of(context).textTheme.titleLarge!.fontSize!),
         ),
         "li > p": Style(
           display: Display.inline,
@@ -134,17 +132,72 @@ class _HtmlRenderState extends State<HtmlRender> {
           border: Border.all(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         ),
-        "code > span": Style(textAlign: TextAlign.start)
+        "code > span": Style(textAlign: TextAlign.start),
+        "hr": Style(
+          margin: Margins.zero,
+          padding: EdgeInsets.zero,
+          border: Border(
+            top: BorderSide(
+              width: 1.0,
+              color:
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'table': Style(
+          border: Border(
+            right: BorderSide(
+              width: 0.5,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+            bottom: BorderSide(
+              width: 0.5,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'tr': Style(
+          border: Border(
+            top: BorderSide(
+              width: 1.0,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+            left: BorderSide(
+              width: 1.0,
+              color:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            ),
+          ),
+        ),
+        'thead': Style(
+          backgroundColor: Theme.of(context).colorScheme.background,
+        ),
+        'th': Style(
+          padding: const EdgeInsets.only(left: 3, right: 3),
+        ),
+        'td': Style(
+          padding: const EdgeInsets.all(4.0),
+          alignment: Alignment.center,
+          textAlign: TextAlign.center,
+        ),
+        'blockquote': Style(
+            margin: Margins.zero,
+            padding: EdgeInsets.zero,
+          // lineHeight: LineHeight.normal
+        ),
       },
     );
   }
 
   // a标签webview跳转
   void openHrefByWebview(String? aUrl, BuildContext context) async {
-    if(aUrl!.contains('base64Wechat')){
+    if (aUrl!.contains('base64Wechat')) {
       Clipboard.setData(ClipboardData(text: aUrl.split(':')[1]));
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
+        SnackBar(
           duration: const Duration(milliseconds: 3000),
           // showCloseIcon: true,
           content: Text('已复制【${aUrl.split(':')[1]}】'),
@@ -164,17 +217,16 @@ class _HtmlRenderState extends State<HtmlRender> {
         List arr = aUrl.split('.com');
         // 获得链接 /t/919475#reply1
         var tHref = arr[1];
-        if(tHref.startsWith('/t') ||
+        if (tHref.startsWith('/t') ||
             tHref.startsWith('/go') ||
-            tHref.startsWith('/member')
-        ){
+            tHref.startsWith('/member')) {
           if (tHref.contains('#')) {
             // 去掉回复数  /t/919475#reply1
             // 获得链接 /t/919475
             tHref = arr[1].split('#')[0];
           }
           Get.toNamed(tHref);
-        }else{
+        } else {
           Utils.openURL(aUrl);
         }
       } else {
@@ -183,6 +235,9 @@ class _HtmlRenderState extends State<HtmlRender> {
     } else if (aUrl.startsWith('/member/') ||
         aUrl.startsWith('/go/') ||
         aUrl.startsWith('/t/')) {
+      if (aUrl.contains('#')) {
+        aUrl = aUrl.split('#')[0];
+      }
       Get.toNamed(aUrl);
     } else {
       // sms tel email schemeUrl

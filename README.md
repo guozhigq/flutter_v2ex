@@ -15,6 +15,7 @@
     <br/>
     <p>使用 Flutter 开发的 <a target="_blank" href="https://www.v2ex.com/">V2ex</a> 客户端</p>
     <p>适配了<a target="_blank" href="https://m3.material.io/">Material You</a> 样式</p>
+    <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">去下载</a>
     <br/>
     <br/>
     <img src="https://files.catbox.moe/w3pnbd.png" width="49%"></img>
@@ -42,11 +43,11 @@
 - [x] 快速返回顶部&刷新
 - [x] base64 加密/解密
 - [x] Signin with Google
+- [x] 话题标记已读
+- [x] 消息跳转至楼层
 - [ ] 图片上传
 - [ ] 数据缓存
 - [ ] 页面骨架屏
-- [ ] 话题已读标记
-- [ ] 话题标记已读
 - [ ] markdown 格式发布主题
 
 <br/>
@@ -66,20 +67,8 @@
 ```
 
 ## 运行
-<strong>执行 flutter build apk(ios)</strong>
-```dart
-打包前将 lib/http/init.dart 84行左右代理进行修改
 
-client.findProxy = (uri) {
-    // proxy all request to localhost:8888
-    // return 'PROXY 192.168.1.60:7890';
-    // return 'PROXY 172.16.32.186:7890';
-    // return 'PROXY localhost:7890';
-    // return 'PROXY 127.0.0.1:7890';
-    // 不设置代理 TODO 打包前关闭代理
-    return 'DIRECT';
-};
-```
+
 确保相关开发环境及代码编辑器正确配置
 
 -   终端运行
@@ -97,6 +86,26 @@ client.findProxy = (uri) {
     -   确保底部状态栏显示正确的设备，点击顶部工具栏下箭头 -> Start Debugging
 
 <br/>
+
+## 打包
+
+<strong>执行 flutter build apk/ios</strong>
+```dart
+打包前在 lib/http/init.dart 中关闭代理
+
+client.findProxy = (uri) {
+    // proxy all request to localhost:8888
+    // return 'PROXY 192.168.1.60:7890';
+    // return 'PROXY 172.16.32.186:7890';
+    // return 'PROXY localhost:7890';
+    // return 'PROXY 127.0.0.1:7890';
+    // 不设置代理 TODO 打包前关闭代理
+    return 'DIRECT';
+};
+```
+
+<br/>
+
 
 ## 感谢
 

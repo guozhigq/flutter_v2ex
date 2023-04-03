@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_v2ex/http/topic.dart';
 
 class DetailBottomBar extends StatefulWidget {
   final VoidCallback? onRefresh;
@@ -46,7 +46,7 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
               onPressed: (() async {
                 Navigator.pop(context, 'OK');
                 var res =
-                    await DioRequestWeb.thankTopic(widget.detailModel!.topicId);
+                    await TopicWebApi.thankTopic(widget.detailModel!.topicId);
                 print('54: $res');
                 if (res) {
                   setState(() {

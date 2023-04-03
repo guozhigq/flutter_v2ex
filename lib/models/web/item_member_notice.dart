@@ -13,4 +13,5 @@ class MemberNoticeItem  {
   String delIdOne = ''; // 删除id
   String delIdTwo = ''; // 删除id
   NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举
+  String topicHref = ''; // 主题href  /t/923791#reply101
 }
