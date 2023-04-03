@@ -224,8 +224,8 @@ class _LoginPageState extends State<LoginPage> {
                         } else if (result == 'false') {
                           // 登录失败
                           setState(() {
-                            _passwordController.value =
-                                const TextEditingValue(text: '');
+                            // _passwordController.value =
+                            //     const TextEditingValue(text: '');
                             _codeController.value =
                                 const TextEditingValue(text: '');
                           });
