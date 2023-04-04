@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/home/search_bar_adaptive.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -175,7 +177,7 @@ class _HomePageState extends State<HomePage>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const HomeSearchBar(),
+        title: Breakpoints.mediumAndUp.isActive(context) ? const HomeSearchBarAdaptive() : const HomeSearchBar(),
       ),
       drawer: const HomeLeftDrawer(),
       body: Column(

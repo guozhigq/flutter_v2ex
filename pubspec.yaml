@@ -79,6 +79,7 @@ dependencies:
     google_fonts: ^4.0.3
     flutter_html_table: ^3.0.0-alpha.4
     webfeed_plus: ^1.0.0
+    flutter_adaptive_scaffold: ^0.1.2
 
 dev_dependencies:
     flutter_test:

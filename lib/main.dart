@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_v2ex/components/adaptive/main.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
@@ -33,6 +34,7 @@ import 'package:google_fonts/google_fonts.dart';
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;
   final String _host;
+
   ProxiedHttpOverrides(this._host, this._port);
 
   @override
@@ -242,17 +244,19 @@ class _MyAppState extends State<MyApp> {
           navigatorObservers: [FlutterSmartDialog.observer],
           builder: (BuildContext context, Widget? child) {
             return AnnotatedRegion<SystemUiOverlayStyle>(
-                value: currentThemeValue == ThemeType.dark ? kDark : kLight,
-                child: FlutterSmartDialog(
-                    loadingBuilder: (String msg) => CustomLoading(msg: msg),
-                    toastBuilder: (String msg) => CustomToast(msg: msg),
+              value: currentThemeValue == ThemeType.dark ? kDark : kLight,
+              child: FlutterSmartDialog(
+                loadingBuilder: (String msg) => CustomLoading(msg: msg),
+                toastBuilder: (String msg) => CustomToast(msg: msg),
 
-                    /// 设置文字大小不跟随系统更改
-                    child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                      child: child!,
-                    )));
+                /// 设置文字大小不跟随系统更改
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                  // child: child!,
+                  child: CAdaptiveLayout(child: child),
+                ),
+              ),
+            );
           },
         );
       },

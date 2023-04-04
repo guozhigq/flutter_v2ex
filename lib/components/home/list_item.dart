@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
@@ -19,6 +20,7 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem>
     with SingleTickerProviderStateMixin {
   TabTopicItem topic = TabTopicItem();
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +50,11 @@ class _ListItemState extends State<ListItem>
               "topic": topic,
               "heroTag": '${topic.topicId}${topic.memberId}'
             };
-            Get.toNamed("/t/${topic.topicId}", arguments: arguments);
+            if(Breakpoints.large.isActive(context)){
+
+            }else{
+              Get.toNamed("/t/${topic.topicId}", arguments: arguments);
+            }
           },
           borderRadius: BorderRadius.circular(10),
           child: Ink(
@@ -84,73 +90,80 @@ class _ListItemState extends State<ListItem>
         ),
         const SizedBox(height: 12),
         // 头像、昵称
-        Row(
-          // 两端对齐
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Row(
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Row(
+              // 两端对齐
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () =>
-                      Get.toNamed('/member/${topic.memberId}', parameters: {
-                    'memberAvatar': topic.avatar,
-                    'heroTag': herotag,
-                  }),
-                  child: Hero(
-                    tag: herotag,
-                    child: CAvatar(
-                      url: topic.avatar,
-                      size: 30,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: <Widget>[
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        topic.memberId,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style:
-                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                    GestureDetector(
+                      onTap: () =>
+                          Get.toNamed('/member/${topic.memberId}', parameters: {
+                        'memberAvatar': topic.avatar,
+                        'heroTag': herotag,
+                      }),
+                      child: Hero(
+                        tag: herotag,
+                        child: CAvatar(
+                          url: topic.avatar,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                          child: Text(
+                            topic.memberId,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium!
+                                .copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: topic.readStatus == 'unread'
                                       ? null
                                       : Theme.of(context).colorScheme.outline,
                                 ),
-                      ),
-                    ),
-                    const SizedBox(height: 1.5),
-                    Row(
-                      children: [
-                        if (topic.lastReplyTime.isNotEmpty) ...[
-                          Text(topic.lastReplyTime, style: timeStyle),
-                        ],
-                        if (topic.replyCount > 0) ...[
-                          const SizedBox(width: 10),
-                          Text(
-                            '${topic.replyCount} ${I18nKeyword.replies.tr}',
-                            style: timeStyle,
                           ),
-                        ]
+                        ),
+                        const SizedBox(height: 1.5),
+                        Row(
+                          children: [
+                            if (topic.lastReplyTime.isNotEmpty) ...[
+                              Text(topic.lastReplyTime, style: timeStyle),
+                            ],
+                            if (topic.replyCount > 0) ...[
+                              const SizedBox(width: 10),
+                              Text(
+                                '${topic.replyCount} ${I18nKeyword.replies.tr}',
+                                style: timeStyle,
+                              ),
+                            ]
+                          ],
+                        )
                       ],
                     )
                   ],
-                )
+                ),
+                if (topic.nodeName.isNotEmpty && constraints.maxWidth > 280) ...[
+                  Opacity(
+                    opacity: topic.readStatus == 'unread' ? 1 : 0.6,
+                    child: NodeTag(
+                        nodeId: topic.nodeId,
+                        nodeName: topic.nodeName,
+                        route: 'home'),
+                  ),
+                ]
               ],
-            ),
-            if (topic.nodeName.isNotEmpty) ...[
-              Opacity(
-                opacity: topic.readStatus == 'unread' ? 1 : 0.6,
-                child:  NodeTag(
-                  nodeId: topic.nodeId, nodeName: topic.nodeName, route: 'home'),
-              ),
-            ]
-          ],
+            );
+          },
         ),
       ],
     );
