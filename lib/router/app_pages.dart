@@ -1,4 +1,5 @@
 import 'package:flutter/animation.dart';
+import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -29,6 +30,7 @@ import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
 
 class AppPages {
+
   static final List<GetPage> getPages = [
     // 登录页面
     GetPage(
@@ -41,7 +43,7 @@ class AppPages {
     // 话题详情
     GetPage(
       name: '/t/:topicId',
-      page: () => const TopicDetail(),
+      page: () => TopicDetail(),
       // transitionDuration: const Duration(milliseconds: 300),
       transition: Transition.cupertino,
       showCupertinoParallax: false,
@@ -132,5 +134,7 @@ class AppPages {
     GetPage(name: '/agreement', page: () => const AgreementPage()),
     // 历史热议
     GetPage(name: '/historyHot', page: () => const HistoryHotPage()),
+    // 首页
+    GetPage(name: '/', page: () => const HomePage()),
   ];
 }

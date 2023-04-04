@@ -32,7 +32,8 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 enum SampleItem { ignore, share, report, browse }
 
 class TopicDetail extends StatefulWidget {
-  const TopicDetail({super.key});
+  var topicDetail;
+  TopicDetail({this.topicDetail,  super.key});
 
   @override
   State<TopicDetail> createState() => _TopicDetailState();
@@ -84,6 +85,7 @@ class _TopicDetailState extends State<TopicDetail>
 
   @override
   void initState() {
+    print('😊 line 98 : ${widget.topicDetail}');
     super.initState();
 
     autoScrollController = AutoScrollController(
@@ -92,7 +94,16 @@ class _TopicDetailState extends State<TopicDetail>
         axis: Axis.vertical);
 
     // setState(() {
-    topicId = Get.parameters['topicId']!;
+    try{
+      topicId = Get.parameters['topicId']!;
+    }catch(e){
+      print('err 😠： $e');
+    }
+    if(widget.topicDetail != null){
+      _topicDetail = widget.topicDetail;
+      topicId = widget.topicDetail.topicId;
+    }
+
     if (Get.arguments != null) {
       _topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];

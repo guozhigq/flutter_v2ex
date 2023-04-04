@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/adaptive/destinations.dart';
+import 'package:flutter_v2ex/components/adaptive/second_body.dart';
 import 'package:flutter_v2ex/components/adaptive/trailing.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:get/get.dart';
 
 class CAdaptiveLayout extends StatefulWidget {
   Widget? child;
@@ -96,6 +98,22 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                   // AdaptiveScaffold for these types of navigation but this
                   // navigation has custom staggered item animations.
                   onDestinationSelected: (int index) {
+                    if (index == 0) {
+                      Get.offAllNamed('/');
+                    }
+                    if (index == 1) {
+                      // Get.toNamed('/hot');
+                      Get.offAllNamed('/hot');
+                    }
+                    if (index == 2) {
+                      Get.offAllNamed('/history');
+                    }
+                    if (index == 3) {
+                      Get.offAllNamed('/my/following');
+                    }
+                    if (index == 4) {
+                      Get.offAllNamed('/my/topics');
+                    }
                     setState(() {
                       _navigationIndex = index;
                     });
@@ -146,6 +164,22 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                 // leading: const _LargeComposeIcon(),
                 width: 160,
                 onDestinationSelected: (int index) {
+                  if (index == 0) {
+                    Get.offAllNamed('/');
+                  }
+                  if (index == 1) {
+                    // Get.toNamed('/hot');
+                    Get.offAllNamed('/hot');
+                  }
+                  if (index == 2) {
+                    Get.offAllNamed('/history');
+                  }
+                  if (index == 3) {
+                    Get.offAllNamed('/my/following');
+                  }
+                  if (index == 4) {
+                    Get.offAllNamed('/my/topics');
+                  }
                   setState(() {
                     _navigationIndex = index;
                   });
@@ -170,29 +204,17 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
           },
         ),
         // second screen
-        secondaryBody: _navigationIndex >= 0
-            ? SlotLayout(
-                config: <Breakpoint, SlotLayoutConfig?>{
-                  Breakpoints.large: SlotLayout.from(
-                    // This overrides the default behavior of the secondaryBody
-                    // disappearing as it is animating out.
-                    outAnimation: AdaptiveScaffold.stayOnScreen,
-                    key: const Key('Secondary Body'),
-                    builder: (_) => SafeArea(
-                      bottom: false,
-                        child: Container(
-                      margin: const EdgeInsets.only(right: 10, top: 10),
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color:
-                              Theme.of(context).colorScheme.onInverseSurface),
-                      child: const TopicDetail(),
-                    )),
-                  )
-                },
-              )
-            : null,
+        secondaryBody: SlotLayout(
+          config: <Breakpoint, SlotLayoutConfig?>{
+            Breakpoints.large: SlotLayout.from(
+              outAnimation: AdaptiveScaffold.stayOnScreen,
+              key: const Key('Secondary Body'),
+              builder: (_) => const SafeArea(
+                child: SecondBody(),
+              ),
+            )
+          },
+        ),
       ),
     );
   }

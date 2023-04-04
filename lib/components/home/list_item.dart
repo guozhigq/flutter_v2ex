@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
@@ -50,8 +51,8 @@ class _ListItemState extends State<ListItem>
               "topic": topic,
               "heroTag": '${topic.topicId}${topic.memberId}'
             };
-            if(Breakpoints.large.isActive(context)){
-
+            if(context.mounted && Breakpoints.large.isActive(context)){
+              eventBus.emit('topicDetail', topic);
             }else{
               Get.toNamed("/t/${topic.topicId}", arguments: arguments);
             }
