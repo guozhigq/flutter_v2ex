@@ -148,7 +148,7 @@ class _GoPageState extends State<GoPage> {
           backgroundColor: Get.isDarkMode ?
           Theme.of(context).colorScheme.primaryContainer :
      Theme.of(context).colorScheme.primary,
-          expandedHeight: 230,
+          expandedHeight: 280 - MediaQuery.of(context).padding.top,
           iconTheme:
               IconThemeData(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
           pinned: true,
