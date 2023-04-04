@@ -1,3 +1,4 @@
+import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
@@ -62,30 +63,79 @@ class _HotPageState extends State<HotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(I18nKeyword.todayHot.tr),
-          actions: [
-            TextButton(
-                onPressed: () => Get.toNamed('/historyHot'),
-                child: const Text('历史')),
-          ],
-        ),
-        body: Scrollbar(
-            controller: _controller,
-            radius: const Radius.circular(10),
-            child: _isLoading
-                ? const TopicSkeleton()
-                : hotTopicList.isNotEmpty
-                    ? PullRefresh(
-                        currentPage: 1,
-                        totalPage: 1,
-                        onChildLoad: queryHotTopic,
-                        onChildRefresh: () {
-                          queryHotTopic();
-                        },
-                        child: content(),
-                      )
-                    : const Text('没有数据')));
+      appBar: AppBar(
+        title: Text(I18nKeyword.todayHot.tr),
+        actions: [
+          TextButton(
+              onPressed: () => Get.toNamed('/historyHot'),
+              child: const Text('历史')),
+        ],
+      ),
+      // body: Scrollbar(
+      //   controller: _controller,
+      //   radius: const Radius.circular(10),
+      //   child: _isLoading
+      //       ? const TopicSkeleton()
+      //       : hotTopicList.isNotEmpty
+      //           ? PullRefresh(
+      //               currentPage: 1,
+      //               totalPage: 1,
+      //               onChildLoad: queryHotTopic,
+      //               onChildRefresh: () {
+      //                 queryHotTopic();
+      //               },
+      //               child: content(),
+      //             )
+      //           : const Text('没有数据'),
+      // ),
+      body: Scrollbar(
+        radius: const Radius.circular(10),
+        controller: _controller,
+        child: _isLoading
+            ? const TopicSkeleton()
+            : hotTopicList.isNotEmpty
+                ? Container(
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                    ),
+                    child: RefreshIndicator(
+                      onRefresh: () {
+                        return queryHotTopic();
+                      },
+                      // desktop ListView scrollBar
+                      child: ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context)
+                            .copyWith(scrollbars: false),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(top: 1, bottom: 0),
+                          physics: const AlwaysScrollableScrollPhysics(
+                              // parent: BouncingScrollPhysics(), // iOS
+                              parent: ClampingScrollPhysics() // Android
+                              ),
+                          //重要
+                          itemCount: hotTopicList.length + 1,
+                          controller: _controller,
+                          // prototypeItem: ListItem(topic: snapshot[0]),
+                          itemBuilder: (BuildContext context, int index) {
+                            if (index == hotTopicList.length) {
+                              return const FooterTips();
+                            } else {
+                              return ListItem(topic: hotTopicList[index]);
+                              ;
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  )
+                : Text('123'),
+      ),
+    );
   }
 
   Widget content() {

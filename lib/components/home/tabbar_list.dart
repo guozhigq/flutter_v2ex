@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
@@ -197,7 +198,6 @@ class _TabBarListState extends State<TabBarList>
                   itemBuilder: (BuildContext context, int index) {
                     if (index == topicList.length) {
                       if (widget.tabItem.id == 'recent') {
-                        // return moreTopic('正在加载更多...');
                         return Container(
                           padding: const EdgeInsets.all(30),
                           child: Center(
@@ -232,7 +232,7 @@ class _TabBarListState extends State<TabBarList>
                               )),
                         );
                       } else {
-                        return moreTopic('全部加载完成');
+                        return const FooterTips();
                       }
                     } else {
                       return ListItem(
@@ -278,30 +278,6 @@ class _TabBarListState extends State<TabBarList>
     );
   }
 
-  Widget moreTopic(text) {
-    return Container(
-      width: double.infinity,
-      height: 100 + MediaQuery.of(context).padding.bottom,
-      padding:
-      EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
-      child: Center(
-        // child: ElevatedButton(
-        //   onPressed: () => {},
-        //   child: const Text('更多相关主题'),
-        // ),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 13),
-        ),
-      ),
-    );
-  }
-
-  // Widget emptyData() {
-  //   return const Center(
-  //     child: Text('没有数据，看看其他节点吧'),
-  //   );
-  // }
   Widget emptyData() {
     return RefreshIndicator(
       onRefresh: () {
