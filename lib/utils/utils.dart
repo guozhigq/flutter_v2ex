@@ -4,6 +4,7 @@ import 'dart:convert' show utf8, base64;
 import 'dart:io';
 import 'dart:async';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
 import 'event_bus.dart';
@@ -254,6 +255,81 @@ class Utils {
       }
     }
     return false;
+  }
+
+  static openHrefByWebview(String? aUrl, BuildContext context) async{
+    if (aUrl!.contains('base64Wechat')) {
+      Clipboard.setData(ClipboardData(text: aUrl.split(':')[1]));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(milliseconds: 3000),
+          // showCloseIcon: true,
+          content: Text('已复制【${aUrl.split(':')[1]}】'),
+        ),
+      );
+      return;
+    }
+    RegExp exp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    RegExp v2exExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[v2ex.com]");
+    RegExp linkExp = RegExp(r"^/go|/t|/member/");
+    bool isValidator = exp.hasMatch(aUrl);
+    if (isValidator) {
+      // http(s) 网址
+      if (v2exExp.firstMatch(aUrl) != null) {
+        // v2ex 链接 https://www.v2ex.com/t/919475#reply1
+        List arr = aUrl.split('.com');
+        // 获得链接 /t/919475#reply1 /t/919475?p=1 /t/919475?p=1#r_12345
+        var tHref = arr[1];
+        Map<String, String> parameters = {};
+        if (linkExp.firstMatch(tHref) != null) {
+          if(tHref.contains('p=')){
+            parameters['p'] = tHref.split('#r_')[0].split('p=')[1];
+            if(tHref.contains('#r_')){
+              parameters['replyId'] = tHref.split('#r_')[1].toString();
+            }
+          }
+          if (tHref.contains('#')) {
+            // 去掉回复数  /t/919475#reply1
+            // 获得链接 /t/919475
+            tHref = tHref.split('#')[0].contains('?') ? tHref.split('#')[0].split('?')[0] : tHref.split('#')[0];
+          }
+          Get.toNamed(tHref, parameters: parameters);
+        } else {
+          Utils.openURL(aUrl);
+        }
+      } else {
+        await Utils.openURL(aUrl);
+      }
+    } else if (aUrl.startsWith('/member/') ||
+        aUrl.startsWith('/go/') ||
+        aUrl.startsWith('/t/')) {
+      if (aUrl.contains('#')) {
+        aUrl = aUrl.split('#')[0];
+      }
+      Get.toNamed(aUrl);
+    } else {
+      // sms tel email schemeUrl
+      final Uri _url = Uri.parse(aUrl);
+      if (await canLaunchUrl(_url)) {
+    launchUrl(_url);
+    } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+    duration: const Duration(milliseconds: 3000),
+    // showCloseIcon: true,
+    content: const Text('🔗链接打开失败'),
+    action: SnackBarAction(
+    label: '复制',
+    onPressed: () {
+    Clipboard.setData(ClipboardData(text: aUrl));
+    },
+    ),
+    ),
+    );
+    throw Exception('Could not launch $aUrl');
+    }
+  }
   }
 }
 

@@ -82,6 +82,8 @@ class _TopicDetailState extends State<TopicDetail>
   String routerSource = '';
   int noticeFloorNumber = 0;
 
+  String replyId = '';
+
   @override
   void initState() {
     super.initState();
@@ -104,6 +106,11 @@ class _TopicDetailState extends State<TopicDetail>
       noticeFloorNumber = int.parse(Get.parameters['floorNumber']!) ?? 0;
       _currentPage = (noticeFloorNumber / 100).ceil() - 1;
       //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
+    }
+    // 直接跳转指定楼层
+    if (keys.contains('replyId')) {
+      replyId = Get.parameters['replyId']! ?? '';
+      _currentPage = int.parse(Get.parameters['p']!) - 1;
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -163,7 +170,7 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetail({type}) async {
-    if (type == 'init' && routerSource == '') {
+    if (type == 'init' && routerSource == '' && replyId == '') {
       // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
@@ -181,6 +188,9 @@ class _TopicDetailState extends State<TopicDetail>
         _totalPage = topicDetailModel.totalPage;
       } else {
         _replyList.addAll(topicDetailModel.replyList);
+      }
+      if(replyId != ''){
+        noticeFloorNumber = topicDetailModel.replyList.where((i) => i.replyId == replyId).first.floorNumber;
       }
       _currentPage += 1;
     });
