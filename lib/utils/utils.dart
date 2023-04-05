@@ -3,26 +3,19 @@
 import 'dart:convert' show utf8, base64;
 import 'dart:io';
 import 'dart:async';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
-import 'event_bus.dart';
 import 'package:get/get.dart';
-import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_v2ex/utils/global.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:flutter_v2ex/http/init.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -223,22 +216,52 @@ class Utils {
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {
-        if (!blacklist.contains(content) &&
-            i.group(0)!.trim().length % 4 == 0) {
+        var value = i.group(0);
+        if (!blacklist.contains(value) &&
+            value!.trim().length % 4 == 0) {
           wechat = utf8.decode(base64.decode(i.group(0)!));
-          decodeRes.add(wechat);
+          RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
+          RegExp emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+          if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat) || emailRegExp.hasMatch(wechat)){
+            decodeRes.add(wechat);
+          }
         }
-      }
-      RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
-      RegExp emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
-      if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat) || emailRegExp.hasMatch(wechat)){
-        return decodeRes;
       }
       return decodeRes;
     } catch (err) {
-      // print(err);
       return decodeRes;
     }
+  }
+  // 替换innerHtml中的文本链接
+  static linkMatch(contentDom) {
+    var innerHtml = contentDom.innerHtml;
+    RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
+    var linkRes = linkRegExp.firstMatch(innerHtml);
+    if(linkRes != null){
+      var matchRes = linkRes.group(0);
+      innerHtml = innerHtml.replaceAll(linkRegExp,"<a href='$matchRes'>$matchRes</a>");
+    }
+
+    // base64 替换
+    // RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
+    // var base64Res = base64RegExp.allMatches(innerHtml);
+    // var wechat = '';
+    // for (var i in base64Res) {
+    //   if (!Strings().base64BlackList.contains(i.group(0)) && i.group(0)!.trim().length % 4 == 0) {
+    //     print('🔥：${i.group(0)}');
+    //     try{
+    //       wechat = utf8.decode(base64.decode(i.group(0)!));
+    //     }catch(e){
+    //       print(e);
+    //     }
+    //     if(wechat != ''){
+    //       innerHtml = innerHtml.replaceAll(base64RegExp,'${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+    //     }
+    //     print(wechat);
+    //   }
+    // }
+
+    return innerHtml;
   }
 
   // 版本比较

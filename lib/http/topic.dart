@@ -160,7 +160,7 @@ class TopicWebApi {
             parseFragment(
                 '<p>base64解码：$decodeDom</p>'));
       }
-      detailModel.contentRendered = contentDom.innerHtml;
+      detailModel.contentRendered = Utils.linkMatch(contentDom);
       if (contentDom.querySelector('img') != null) {
         var imgNodes = contentDom.querySelectorAll('img');
         var imgLength = imgNodes.length;
@@ -362,7 +362,7 @@ class TopicWebApi {
               parseFragment(
                   '<p>base64解码：$decodeDom</p>'));
         }
-        replyItem.contentRendered = contentDom.innerHtml;
+        replyItem.contentRendered = Utils.linkMatch(contentDom);
         replyItem.content = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
