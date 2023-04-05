@@ -40,13 +40,16 @@ class _HtmlRenderState extends State<HtmlRender> {
   Widget build(BuildContext context) {
     return Html(
       data: widget.htmlContent,
+      tagsList: Html.tags..addAll(["form", "label", "input"]),
       onLinkTap: (url, buildContext, attributes, element) =>
-          {
-            Utils.openHrefByWebview(url!, context)
-          },
+          {Utils.openHrefByWebview(url!, context)},
       customRenders: {
         tagMatcher("iframe"): iframeRender(),
-        tagMatcher("table"): tableRender(),
+        // SingleChildScrollView 跟侧滑返回有冲突
+        tagMatcher("table"): CustomRender.widget(widget: (context, buildChildren) => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: tableRender.call().widget!.call(context, buildChildren),
+        )),
         tagMatcher("img"): CustomRender.widget(
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
@@ -105,6 +108,38 @@ class _HtmlRenderState extends State<HtmlRender> {
         //     theme: ideaTheme,
         //   );
         // }),
+        tagMatcher("pre"): CustomRender.widget(
+          widget: (htmlContext, buildChildren) {
+            // var code = htmlContext.tree.element!.children[0].innerHtml;
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3))
+              ),
+              child: Html(data: htmlContext.tree.element!.outerHtml),
+            );
+          },
+        ),
+        tagMatcher("input"): CustomRender.widget(
+          widget: (htmlContext, buildChildren) {
+            switch (htmlContext.tree.element!.attributes["type"]) {
+              case "text":
+                return TextField(
+                    controller: TextEditingController(
+                        text: htmlContext.tree.element!.attributes["value"]));
+              case "checkbox":
+                return Checkbox(
+                    value: htmlContext.tree.element!.attributes["checked"] ==
+                        "checked",
+                    onChanged: null);
+              default:
+                return htmlContext.parser;
+            }
+          },
+        ),
       },
       style: {
         "html": Style(
@@ -128,12 +163,15 @@ class _HtmlRenderState extends State<HtmlRender> {
         ),
         "image": Style(margin: Margins.only(top: 4, bottom: 4)),
         "p > img": Style(margin: Margins.only(top: 4, bottom: 4)),
-        "pre": Style(
-          margin: Margins.only(top: 0),
-          padding: const EdgeInsets.all(2),
-          border: Border.all(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
-        ),
+        // "pre": Style(
+        //   margin: Margins.only(top: 0),
+        //   padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+        //   backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+        //   border: Border.all(
+        //       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+        // ),
+        "code": Style(
+            backgroundColor: Theme.of(context).colorScheme.onInverseSurface),
         "code > span": Style(textAlign: TextAlign.start),
         "hr": Style(
           margin: Margins.zero,
@@ -151,12 +189,12 @@ class _HtmlRenderState extends State<HtmlRender> {
             right: BorderSide(
               width: 0.5,
               color:
-              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
             ),
             bottom: BorderSide(
               width: 0.5,
               color:
-              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
             ),
           ),
         ),
@@ -165,12 +203,12 @@ class _HtmlRenderState extends State<HtmlRender> {
             top: BorderSide(
               width: 1.0,
               color:
-              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
             ),
             left: BorderSide(
               width: 1.0,
               color:
-              Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
             ),
           ),
         ),
@@ -186,8 +224,8 @@ class _HtmlRenderState extends State<HtmlRender> {
           textAlign: TextAlign.center,
         ),
         'blockquote': Style(
-            margin: Margins.zero,
-            padding: EdgeInsets.zero,
+          margin: Margins.zero,
+          padding: EdgeInsets.zero,
           // lineHeight: LineHeight.normal
         ),
       },
