@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/components/topic/main.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
@@ -536,6 +537,11 @@ class _TopicDetailState extends State<TopicDetail>
     // autoScrollController.highlight(5);
   }
 
+  // 复制链接
+  onCopyTopicLink() {
+    Clipboard.setData(ClipboardData(text: 'https://www.v2ex.com/t/$topicId'));
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -567,7 +573,8 @@ class _TopicDetailState extends State<TopicDetail>
                       );
                     },
                   ),
-                  actions: _detailModel != null ? appBarAction() : [],
+                  // actions: _detailModel != null ? appBarAction() : [],
+                  actions: appBarAction(),
                 )
               : null,
           body: _topicDetail == null && _detailModel == null
@@ -630,22 +637,29 @@ class _TopicDetailState extends State<TopicDetail>
   // 顶部操作栏
   List<Widget> appBarAction() {
     List<Widget>? list = [];
-    list.add(
-      IconButton(
-        onPressed: onFavTopic,
-        tooltip: '收藏主题',
-        icon: const Icon(Icons.bookmark_add_outlined),
-        selectedIcon: Icon(
-          Icons.bookmark_add_rounded,
-          color: Theme.of(context).colorScheme.primary,
+    if(_detailModel != null) {
+      list.add(
+        IconButton(
+          onPressed: onFavTopic,
+          tooltip: '收藏主题',
+          icon: const Icon(Icons.bookmark_add_outlined),
+          selectedIcon: Icon(
+            Icons.bookmark_add_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          isSelected: _detailModel!.isFavorite,
         ),
-        isSelected: _detailModel!.isFavorite,
-      ),
-    );
+      );
+    }
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
         itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+          PopupMenuItem<SampleItem>(
+            value: SampleItem.share,
+            onTap: onCopyTopicLink,
+            child: const Text('复制链接'),
+          ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.ignore,
             onTap: onIgnoreTopic,
@@ -717,7 +731,8 @@ class _TopicDetailState extends State<TopicDetail>
                         );
                       },
                     ),
-                    actions: _detailModel != null ? appBarAction() : [],
+                    // actions: _detailModel != null ? appBarAction() : [],
+                    actions: appBarAction(),
                   ),
                 ],
               ),
