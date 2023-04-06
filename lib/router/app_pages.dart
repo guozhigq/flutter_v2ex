@@ -27,6 +27,7 @@ import 'package:flutter_v2ex/pages/page_history_hot.dart';
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class AppPages {
   static final List<GetPage> getPages = [
@@ -97,6 +98,8 @@ class AppPages {
   ];
 }
 
+bool sideslip = GStorage().getSideslip();
+
 class CustomGetPage extends GetPage {
   bool? fullscreen = false;
 
@@ -110,10 +113,11 @@ class CustomGetPage extends GetPage {
           page: () => page,
           curve: Curves.linear,
           //  iPad 模式下 Transition.fadeIn mob 模式下 Transition.cupertino
-          transition: Transition.fadeIn,
+          transition: sideslip ? Transition.cupertino : Transition.native,
           // iPad 模式下关闭 | context.width
-          gestureWidth: (context) => context.width,
+          gestureWidth: sideslip ? (context) => context.width : null,
           showCupertinoParallax: false,
+          popGesture: true,
           transitionDuration: transitionDuration,
           fullscreenDialog: fullscreen != null && fullscreen,
         );

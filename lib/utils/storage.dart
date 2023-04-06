@@ -27,7 +27,8 @@ enum StoreKeys {
   tabs,
   autoUpdate,
   highlightOp,
-  tempFs
+  tempFs,
+  sideslip
 }
 
 class GStorage {
@@ -177,4 +178,9 @@ class GStorage {
   setTempFs(double value) => _box.write(StoreKeys.tempFs.toString(), value);
 
   double getTempFs() => _box.read<double>(StoreKeys.tempFs.toString()) ?? 14;
+
+  // 侧滑返回
+  setSideslip(bool value) => _box.write(StoreKeys.sideslip.toString(), value);
+
+  bool getSideslip() => _box.read<bool>(StoreKeys.sideslip.toString()) ?? false;
 }
