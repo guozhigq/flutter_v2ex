@@ -55,6 +55,30 @@ class NodeWebApi {
       extra: {'ua': 'pc'},
     );
     var document = parse(response.data);
+    if(response.realUri.toString() == '/'){
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('权限不足'),
+            content: const Text('登录后查看节点内容'),
+            actions: [
+              TextButton(
+                  onPressed: (() =>
+                  {SmartDialog.dismiss(), Navigator.pop(context)}),
+                  child: const Text('返回上一页')),
+              TextButton(
+                // TODO
+                  onPressed: (() =>
+                  {Navigator.of(context).pushNamed('/login')}),
+                  child: const Text('去登录'))
+            ],
+          );
+        },
+      );
+      return detailModel;
+    }
     var mainBox = document.body!.children[1].querySelector('#Main');
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover =

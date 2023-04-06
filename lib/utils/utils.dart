@@ -3,25 +3,19 @@
 import 'dart:convert' show utf8, base64;
 import 'dart:io';
 import 'dart:async';
-import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
-import 'event_bus.dart';
 import 'package:get/get.dart';
-import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_v2ex/utils/global.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:flutter_v2ex/http/init.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -66,41 +60,41 @@ class Utils {
     bool linkOpenType = GStorage().getLinkOpenInApp();
     if (!linkOpenType) {
       // 1. openWithSystemBrowser
-      try{
+      try {
         await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
-      }catch(err) {
+      } catch (err) {
         SmartDialog.showToast(err.toString());
       }
     } else {
       // 2. openWithAppBrowser
-      try{
+      try {
         await Utils().browser.open(
-          url: WebUri(aUrl),
-          settings: ChromeSafariBrowserSettings(
-              shareState: CustomTabsShareState.SHARE_STATE_OFF,
-              isSingleInstance: false,
-              isTrustedWebActivity: false,
-              keepAliveEnabled: true,
-              startAnimations: [
-                AndroidResource.anim(
-                    name: "slide_in_left", defPackage: "android"),
-                AndroidResource.anim(
-                    name: "slide_out_right", defPackage: "android")
-              ],
-              exitAnimations: [
-                AndroidResource.anim(
-                    name: "abc_slide_in_top",
-                    defPackage:
-                    "com.pichillilorenzo.flutter_inappwebviewexample"),
-                AndroidResource.anim(
-                    name: "abc_slide_out_top",
-                    defPackage:
-                    "com.pichillilorenzo.flutter_inappwebviewexample")
-              ],
-              dismissButtonStyle: DismissButtonStyle.CLOSE,
-              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-        );
-      }catch(err) {
+              url: WebUri(aUrl),
+              settings: ChromeSafariBrowserSettings(
+                  shareState: CustomTabsShareState.SHARE_STATE_OFF,
+                  isSingleInstance: false,
+                  isTrustedWebActivity: false,
+                  keepAliveEnabled: true,
+                  startAnimations: [
+                    AndroidResource.anim(
+                        name: "slide_in_left", defPackage: "android"),
+                    AndroidResource.anim(
+                        name: "slide_out_right", defPackage: "android")
+                  ],
+                  exitAnimations: [
+                    AndroidResource.anim(
+                        name: "abc_slide_in_top",
+                        defPackage:
+                            "com.pichillilorenzo.flutter_inappwebviewexample"),
+                    AndroidResource.anim(
+                        name: "abc_slide_out_top",
+                        defPackage:
+                            "com.pichillilorenzo.flutter_inappwebviewexample")
+                  ],
+                  dismissButtonStyle: DismissButtonStyle.CLOSE,
+                  presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+            );
+      } catch (err) {
         // SmartDialog.showToast(err.toString());
         // https://github.com/guozhigq/flutter_v2ex/issues/49
         GStorage().setLinkOpenInApp(false);
@@ -218,26 +212,61 @@ class Utils {
       var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
       RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
-      RegExp exp2 = RegExp(r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
+      RegExp exp2 = RegExp(
+          r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
       var expMatch = exp.allMatches(content);
       var wechat = '';
       for (var i in expMatch) {
-        if (!blacklist.contains(content) &&
-            i.group(0)!.trim().length % 4 == 0) {
+        var value = i.group(0);
+        if (!blacklist.contains(value) && value!.trim().length % 4 == 0) {
           wechat = utf8.decode(base64.decode(i.group(0)!));
-          decodeRes.add(wechat);
+          RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
+          RegExp emailRegExp =
+              RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+          if (wechatRegExp.hasMatch(wechat) ||
+              RegExp(r'^\d+$').hasMatch(wechat) ||
+              emailRegExp.hasMatch(wechat)) {
+            decodeRes.add(wechat);
+          }
         }
-      }
-      RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
-      RegExp emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
-      if(wechatRegExp.hasMatch(wechat) || RegExp(r'^\d+$').hasMatch(wechat) || emailRegExp.hasMatch(wechat)){
-        return decodeRes;
       }
       return decodeRes;
     } catch (err) {
-      // print(err);
       return decodeRes;
     }
+  }
+
+  // 替换innerHtml中的文本链接
+  static linkMatch(contentDom) {
+    var innerHtml = contentDom.innerHtml;
+    // RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
+    // var linkRes = linkRegExp.firstMatch(innerHtml);
+    // if (linkRes != null) {
+    //   var matchRes = linkRes.group(0);
+    //   innerHtml =
+    //       innerHtml.replaceAll(linkRegExp, "<a href='$matchRes'>$matchRes</a>");
+    // }
+
+    // base64 替换
+    // RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
+    // var base64Res = base64RegExp.allMatches(innerHtml);
+    // var wechat = '';
+    // for (var i in base64Res) {
+    //   if (!Strings().base64BlackList.contains(i.group(0)) && i.group(0)!.trim().length % 4 == 0) {
+    //     print('🔥：${i.group(0)}');
+    //     try{
+    //       wechat = utf8.decode(base64.decode(i.group(0)!));
+    //     }catch(e){
+    //       print(e);
+    //     }
+    //     if(wechat != ''){
+    //       innerHtml = innerHtml.replaceAll(base64RegExp,'${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+    //     }
+    //     print(wechat);
+    //   }
+    // }
+
+    return innerHtml;
   }
 
   // 版本比较
@@ -254,6 +283,84 @@ class Utils {
       }
     }
     return false;
+  }
+
+  static openHrefByWebview(String? aUrl, BuildContext context) async {
+    if (aUrl!.contains('base64Wechat')) {
+      Clipboard.setData(ClipboardData(text: aUrl.split(':')[1]));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(milliseconds: 3000),
+          // showCloseIcon: true,
+          content: Text('已复制【${aUrl.split(':')[1]}】'),
+        ),
+      );
+      return;
+    }
+    RegExp exp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    RegExp v2exExp =
+        RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[v2ex.com]");
+    RegExp linkExp = RegExp(r"^/go|/t|/member/");
+    bool isValidator = exp.hasMatch(aUrl);
+    if (isValidator) {
+      // http(s) 网址
+      if (v2exExp.firstMatch(aUrl) != null) {
+        // v2ex 链接 https://www.v2ex.com/t/919475#reply1
+        List arr = aUrl.split('.com');
+        // 获得链接 /t/919475#reply1 /t/919475?p=1 /t/919475?p=1#r_12345
+        var tHref = arr[1];
+        Map<String, String> parameters = {};
+        if (linkExp.firstMatch(tHref) != null) {
+          if (tHref.contains('p=')) {
+            parameters['p'] = tHref.split('#r_')[0].split('p=')[1];
+            if (tHref.contains('#r_')) {
+              parameters['replyId'] = tHref.split('#r_')[1].toString();
+            }
+          }
+          if (tHref.contains('#')) {
+            // 去掉回复数  /t/919475#reply1
+            // 获得链接 /t/919475
+            tHref = tHref.split('#')[0].contains('?')
+                ? tHref.split('#')[0].split('?')[0]
+                : tHref.split('#')[0];
+          }
+          Get.toNamed(tHref, parameters: parameters);
+        } else {
+          Utils.openURL(aUrl);
+        }
+      } else {
+        await Utils.openURL(aUrl);
+      }
+    } else if (aUrl.startsWith('/member/') ||
+        aUrl.startsWith('/go/') ||
+        aUrl.startsWith('/t/')) {
+      if (aUrl.contains('#')) {
+        aUrl = aUrl.split('#')[0];
+      }
+      Get.toNamed(aUrl);
+    } else {
+      // sms tel email schemeUrl
+      final Uri _url = Uri.parse(aUrl);
+      if (await canLaunchUrl(_url)) {
+        launchUrl(_url);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(milliseconds: 3000),
+            // showCloseIcon: true,
+            content: const Text('🔗链接打开失败'),
+            action: SnackBarAction(
+              label: '复制',
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: aUrl));
+              },
+            ),
+          ),
+        );
+        throw Exception('Could not launch $aUrl');
+      }
+    }
   }
 }
 

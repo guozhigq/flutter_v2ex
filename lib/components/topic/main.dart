@@ -210,7 +210,12 @@ class TopicMain extends StatelessWidget {
           child: Container(
             padding:
                 const EdgeInsets.only(top: 24, left: 18, right: 18, bottom: 20),
-            color: Theme.of(context).colorScheme.onInverseSurface,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              border: Border(
+                left: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.7), width: 4)
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

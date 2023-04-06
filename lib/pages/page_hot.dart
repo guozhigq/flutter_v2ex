@@ -71,23 +71,6 @@ class _HotPageState extends State<HotPage> {
               child: const Text('历史')),
         ],
       ),
-      // body: Scrollbar(
-      //   controller: _controller,
-      //   radius: const Radius.circular(10),
-      //   child: _isLoading
-      //       ? const TopicSkeleton()
-      //       : hotTopicList.isNotEmpty
-      //           ? PullRefresh(
-      //               currentPage: 1,
-      //               totalPage: 1,
-      //               onChildLoad: queryHotTopic,
-      //               onChildRefresh: () {
-      //                 queryHotTopic();
-      //               },
-      //               child: content(),
-      //             )
-      //           : const Text('没有数据'),
-      // ),
       body: Scrollbar(
         radius: const Radius.circular(10),
         controller: _controller,
@@ -120,7 +103,6 @@ class _HotPageState extends State<HotPage> {
                           //重要
                           itemCount: hotTopicList.length + 1,
                           controller: _controller,
-                          // prototypeItem: ListItem(topic: snapshot[0]),
                           itemBuilder: (BuildContext context, int index) {
                             if (index == hotTopicList.length) {
                               return const FooterTips();
@@ -133,22 +115,7 @@ class _HotPageState extends State<HotPage> {
                       ),
                     ),
                   )
-                : Text('123'),
-      ),
-    );
-  }
-
-  Widget content() {
-    return Container(
-      padding: const EdgeInsets.only(left: 12, right: 12),
-      child: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-            return ListItem(topic: hotTopicList[index]);
-          }, childCount: hotTopicList.length))
-        ],
+                : const Text('没有数据'),
       ),
     );
   }
