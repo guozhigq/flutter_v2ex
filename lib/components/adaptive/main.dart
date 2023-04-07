@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/adaptive/destinations.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_v2ex/components/adaptive/trailing.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 
 class CAdaptiveLayout extends StatefulWidget {
@@ -73,7 +75,7 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
       vsync: this,
     )..forward();
     // TODO: implement initState
-    print(widget.child);
+    print('line 78🔥${widget.child}');
     super.initState();
   }
 
@@ -83,14 +85,13 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
     showGridView.value = Breakpoints.mediumAndUp.isActive(context);
 
     return Scaffold(
+      backgroundColor: getBackground(context, 'adaptMain'),
       body: AdaptiveLayout(
         internalAnimations: false,
         bodyRatio: Breakpoints.medium.isActive(context) ? 0.52 : 0.45,
         primaryNavigation: SlotLayout(
           config: <Breakpoint, SlotLayoutConfig?>{
             Breakpoints.medium: SlotLayout.from(
-              // Every SlotLayoutConfig takes a key and a builder. The builder
-              // is to save memory that would be spent on initialization.
               key: const Key('primaryNavigation'),
               builder: (_) {
                 return AdaptiveScaffold.standardNavigationRail(
@@ -204,17 +205,15 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
           },
         ),
         // second screen
-        secondaryBody: SlotLayout(
-          config: <Breakpoint, SlotLayoutConfig?>{
-            Breakpoints.large: SlotLayout.from(
-              outAnimation: AdaptiveScaffold.stayOnScreen,
-              key: const Key('Secondary Body'),
-              builder: (_) => const SafeArea(
-                child: SecondBody(),
-              ),
-            )
-          },
-        ),
+        // secondaryBody: SlotLayout(
+        //   config: <Breakpoint, SlotLayoutConfig?>{
+        //     Breakpoints.large: SlotLayout.from(
+        //       outAnimation: AdaptiveScaffold.stayOnScreen,
+        //       key: const Key('Secondary Body'),
+        //       builder: (_) => const SecondBody()
+        //     )
+        //   },
+        // ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,7 @@ class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
                 borderRadius: BorderRadius.circular(50),
                 child: Container(
                   width: double.infinity,
-                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  color: getBackground(context, 'searchBar'),
                   padding: const EdgeInsets.only(left: 4),
                   child: Row(
                     children: [

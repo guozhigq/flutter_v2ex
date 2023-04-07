@@ -1,3 +1,5 @@
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +65,7 @@ class _HotPageState extends State<HotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: Breakpoints.mediumAndUp.isActive(context) ? null :  AppBar(
         title: Text(I18nKeyword.todayHot.tr),
         actions: [
           TextButton(
@@ -71,51 +73,54 @@ class _HotPageState extends State<HotPage> {
               child: const Text('历史')),
         ],
       ),
-      body: Scrollbar(
-        radius: const Radius.circular(10),
-        controller: _controller,
-        child: _isLoading
-            ? const TopicSkeleton()
-            : hotTopicList.isNotEmpty
-                ? Container(
-                    clipBehavior: Clip.antiAlias,
-                    margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: RefreshIndicator(
-                      onRefresh: () {
-                        return queryHotTopic();
-                      },
-                      // desktop ListView scrollBar
-                      child: ScrollConfiguration(
-                        behavior: ScrollConfiguration.of(context)
-                            .copyWith(scrollbars: false),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.only(top: 1, bottom: 0),
-                          physics: const AlwaysScrollableScrollPhysics(
-                              // parent: BouncingScrollPhysics(), // iOS
-                              parent: ClampingScrollPhysics() // Android
-                              ),
-                          //重要
-                          itemCount: hotTopicList.length + 1,
-                          controller: _controller,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index == hotTopicList.length) {
-                              return const FooterTips();
-                            } else {
-                              return ListItem(topic: hotTopicList[index]);
-                              ;
-                            }
-                          },
+      body: ResizeLayout(
+        leftLayout: Scrollbar(
+          radius: const Radius.circular(10),
+          controller: _controller,
+          child: _isLoading
+              ? const TopicSkeleton()
+              : hotTopicList.isNotEmpty
+                  ? Container(
+                      clipBehavior: Clip.antiAlias,
+                      margin:
+                          const EdgeInsets.only(right: 12, top: 8, left: 12),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
                         ),
                       ),
-                    ),
-                  )
-                : const Text('没有数据'),
+                      child: RefreshIndicator(
+                        onRefresh: () {
+                          return queryHotTopic();
+                        },
+                        // desktop ListView scrollBar
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: ListView.builder(
+                            padding: const EdgeInsets.only(top: 1, bottom: 0),
+                            physics: const AlwaysScrollableScrollPhysics(
+                                // parent: BouncingScrollPhysics(), // iOS
+                                parent: ClampingScrollPhysics() // Android
+                                ),
+                            //重要
+                            itemCount: hotTopicList.length + 1,
+                            controller: _controller,
+                            itemBuilder: (BuildContext context, int index) {
+                              if (index == hotTopicList.length) {
+                                return const FooterTips();
+                              } else {
+                                return ListItem(topic: hotTopicList[index]);
+                                ;
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    )
+                  : const Text('没有数据'),
+        ),
       ),
     );
   }

@@ -2,7 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/home/search_bar_adaptive.dart';
+import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -126,8 +129,11 @@ class _HomePageState extends State<HomePage>
           ]),
         ),
         actions: [
-          TextButton(onPressed: () => SystemNavigator.pop(), child: const Text('不同意并退出')),
-          TextButton(onPressed: () => SmartDialog.dismiss(), child: const Text('同意')),
+          TextButton(
+              onPressed: () => SystemNavigator.pop(),
+              child: const Text('不同意并退出')),
+          TextButton(
+              onPressed: () => SmartDialog.dismiss(), child: const Text('同意')),
         ],
       );
     });
@@ -136,6 +142,7 @@ class _HomePageState extends State<HomePage>
   onClickUser() {
     Get.toNamed('/agreement', parameters: {'source': 'user'});
   }
+
   onClickPrivacy() {
     Get.toNamed('/agreement', parameters: {'source': 'privacy'});
   }
@@ -174,25 +181,57 @@ class _HomePageState extends State<HomePage>
     //     ),
     //   ),
     // );
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Breakpoints.mediumAndUp.isActive(context) ? const HomeSearchBarAdaptive() : const HomeSearchBar(),
-      ),
-      drawer: const HomeLeftDrawer(),
-      body: Column(
-        children: <Widget>[
-          HomeStickyBar(tabs: tabs, ctr: _tabController),
-          const SizedBox(height: 3),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: tabs.map((e) {
-                return TabBarList(e);
-              }).toList(),
-            ),
-          )
-        ],
+    return SafeArea(
+      bottom: Breakpoints.mediumAndUp.isActive(context) ? true : false,
+      child: Scaffold(
+        backgroundColor: getBackground(context, 'homePage'),
+        appBar: Breakpoints.mediumAndUp.isActive(context)
+            ? null
+            : AppBar(
+                // backgroundColor: getBackground(context, 'homePage'),
+                automaticallyImplyLeading: false,
+                title: const HomeSearchBar(),
+              ),
+        drawer: Breakpoints.mediumAndUp.isActive(context)
+            ? null
+            : const HomeLeftDrawer(),
+        body: ResizeLayout(
+          leftLayout:
+          Column(
+            children: <Widget>[
+              if (Breakpoints.mediumAndUp.isActive(context))
+                const SizedBox(height: 17),
+              HomeStickyBar(tabs: tabs, ctr: _tabController),
+              const SizedBox(height: 3),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: tabs.map((e) {
+                    return TabBarList(e);
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+          // rightLayout: TopicDetail(),
+        ),
+        // body:
+        //   Column(
+        //     children: <Widget>[
+        //       if (Breakpoints.mediumAndUp.isActive(context))
+        //         const SizedBox(height: 17),
+        //       HomeStickyBar(tabs: tabs, ctr: _tabController),
+        //       const SizedBox(height: 3),
+        //       Expanded(
+        //         child: TabBarView(
+        //           controller: _tabController,
+        //           children: tabs.map((e) {
+        //             return TabBarList(e);
+        //           }).toList(),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
       ),
     );
   }

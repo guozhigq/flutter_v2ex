@@ -167,11 +167,13 @@ class _TabBarListState extends State<TabBarList>
           controller: _controller,
           child: Container(
             clipBehavior: Clip.antiAlias,
-            margin: const EdgeInsets.only(right: 12, top: 8, left: 12),
+            margin: const EdgeInsets.only(right: 0, top: 8, left: 12),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
               ),
             ),
             child: RefreshIndicator(

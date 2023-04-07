@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
@@ -28,6 +29,7 @@ class _SettingPageState extends State<SettingPage> {
   late bool expendAppBar = GStorage().getExpendAppBar();
   late bool noticeOn = GStorage().getNoticeOn();
   late bool highlightOp = GStorage().getHighlightOp();
+  late bool sideslip = GStorage().getSideslip();
   // 平台
   String platform = '';
 
@@ -201,6 +203,37 @@ class _SettingPageState extends State<SettingPage> {
                     setState(() {
                       noticeOn = !noticeOn;
                       GStorage().setNoticeOn(noticeOn);
+                    });
+                  }),
+            ),
+          ),
+          if(Breakpoints.small.isActive(context))
+          ListTile(
+            onTap: () {
+              setState(() {
+                noticeOn = !noticeOn;
+                GStorage().setNoticeOn(noticeOn);
+              });
+            },
+            // leading: Icon(Icons.notifications_none, color: iconStyle),
+            title: const Text('侧滑返回（重启生效）'),
+            subtitle: Text('页面任意位置右滑返回上一页', style: subTitleStyle),
+            trailing: Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                          (Set<MaterialState> states) {
+                        if (states.isNotEmpty &&
+                            states.first == MaterialState.selected) {
+                          return const Icon(Icons.done);
+                        }
+                        return null; // All other states will use the default thumbIcon.
+                      }),
+                  value: sideslip,
+                  onChanged: (value) {
+                    setState(() {
+                      sideslip = !sideslip;
+                      GStorage().setSideslip(sideslip);
                     });
                   }),
             ),

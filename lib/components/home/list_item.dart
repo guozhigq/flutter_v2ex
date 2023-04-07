@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
@@ -38,7 +39,8 @@ class _ListItemState extends State<ListItem>
     return Container(
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
       child: Material(
-        color: Theme.of(context).colorScheme.onInverseSurface,
+        color: getBackground(context, 'listItem'),
+        // color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {

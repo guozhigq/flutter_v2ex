@@ -239,13 +239,17 @@ class Utils {
   // 替换innerHtml中的文本链接
   static linkMatch(contentDom) {
     var innerHtml = contentDom.innerHtml;
-    // RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
-    // var linkRes = linkRegExp.firstMatch(innerHtml);
-    // if (linkRes != null) {
-    //   var matchRes = linkRes.group(0);
-    //   innerHtml =
-    //       innerHtml.replaceAll(linkRegExp, "<a href='$matchRes'>$matchRes</a>");
-    // }
+    RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
+    var linkRes = linkRegExp.firstMatch(innerHtml);
+    if (linkRes != null) {
+      var index = innerHtml.indexOf(linkRes!.group(0));
+      var lastWord = innerHtml[index-1];
+      if(lastWord != 'm'){
+        var matchRes = linkRes.group(0);
+        innerHtml =
+            innerHtml.replaceAll(linkRegExp, "<a href='$matchRes'>$matchRes</a>");
+      }
+    }
 
     // base64 替换
     // RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
@@ -300,7 +304,7 @@ class Utils {
     RegExp exp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     RegExp v2exExp =
-        RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))[v2ex.com]");
+        RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))v2ex.com");
     RegExp linkExp = RegExp(r"^/go|/t|/member/");
     bool isValidator = exp.hasMatch(aUrl);
     if (isValidator) {
