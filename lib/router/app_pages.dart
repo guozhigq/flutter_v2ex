@@ -113,7 +113,7 @@ class CustomGetPage extends GetPage {
           page: () => page,
           curve: Curves.linear,
           //  iPad 模式下 Transition.fadeIn mob 模式下 Transition.cupertino
-          transition: sideslip ? Transition.cupertino : Transition.fadeIn,
+          transition: sideslip ? Transition.cupertino : Transition.native,
           // iPad 模式下关闭 | context.width
           gestureWidth: sideslip ? (context) => context.width : null,
           showCupertinoParallax: false,
