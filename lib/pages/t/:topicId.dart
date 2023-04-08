@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/topic/main.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
@@ -88,7 +89,6 @@ class _TopicDetailState extends State<TopicDetail>
 
   @override
   void initState() {
-    print('😊 line 98 : ${widget.topicDetail}');
     super.initState();
 
     autoScrollController = AutoScrollController(
@@ -569,6 +569,7 @@ class _TopicDetailState extends State<TopicDetail>
         Scaffold(
           appBar: !expendAppBar
               ? AppBar(
+                  scrolledUnderElevation: Breakpoints.mediumAndUp.isActive(context) ?  0 : 4,
                   centerTitle: false,
                   title: StreamBuilder(
                     stream: titleStreamC.stream,

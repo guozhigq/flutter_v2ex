@@ -65,61 +65,61 @@ class _ResizeLayoutState extends State<ResizeLayout> {
               ),
               SizedBox(
                 width: rgWidth - _offset,
-                child: DynamicColorBuilder(
-                  builder:
-                      (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-                    ColorScheme? lightColorScheme;
-                    ColorScheme? darkColorScheme;
-                    Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
-                    if (lightDynamic != null && darkDynamic != null) {
-                      print('dynamic取色成功');
-                      // dynamic取色成功
-                      lightColorScheme = lightDynamic.harmonized();
-                      darkColorScheme = darkDynamic.harmonized();
-                    } else {
-                      // dynamic取色失败，采用品牌色
-                      lightColorScheme =
-                          ColorScheme.fromSeed(seedColor: brandColor);
-                      darkColorScheme = ColorScheme.fromSeed(
-                        seedColor: brandColor,
-                        brightness: Brightness.dark,
-                      );
-                    }
-                    return MaterialApp(
-                      useInheritedMediaQuery: true,
-                      debugShowCheckedModeBanner: false,
-                      theme: ThemeData(
-                        fontFamily: 'NotoSansSC',
-                        useMaterial3: true,
-                        colorScheme: lightColorScheme,
-                      ),
-                      darkTheme: ThemeData(
-                        colorScheme: darkColorScheme,
-                      ),
-                      home: SafeArea(
-                        top: true,
-                        bottom: false,
-                        child: Container(
-                          clipBehavior: Clip.hardEdge,
-                          margin: const EdgeInsets.only(top: 10, bottom: 4),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: widget.rightLayout ?? TopicDetail(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                // child: SafeArea(
-                //   child: Container(
-                //     margin: const EdgeInsets.only(top: 4),
-                //     clipBehavior: Clip.hardEdge,
-                //     decoration:
-                //         BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                //     child: widget.rightLayout ?? TopicDetail(),
-                //   ),
+                // child: DynamicColorBuilder(
+                //   builder:
+                //       (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+                //     ColorScheme? lightColorScheme;
+                //     ColorScheme? darkColorScheme;
+                //     Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
+                //     if (lightDynamic != null && darkDynamic != null) {
+                //       print('dynamic取色成功');
+                //       // dynamic取色成功
+                //       lightColorScheme = lightDynamic.harmonized();
+                //       darkColorScheme = darkDynamic.harmonized();
+                //     } else {
+                //       // dynamic取色失败，采用品牌色
+                //       lightColorScheme =
+                //           ColorScheme.fromSeed(seedColor: brandColor);
+                //       darkColorScheme = ColorScheme.fromSeed(
+                //         seedColor: brandColor,
+                //         brightness: Brightness.dark,
+                //       );
+                //     }
+                //     return MaterialApp(
+                //       useInheritedMediaQuery: true,
+                //       debugShowCheckedModeBanner: false,
+                //       theme: ThemeData(
+                //         fontFamily: 'NotoSansSC',
+                //         useMaterial3: true,
+                //         colorScheme: lightColorScheme,
+                //       ),
+                //       darkTheme: ThemeData(
+                //         colorScheme: darkColorScheme,
+                //       ),
+                //       home: SafeArea(
+                //         top: true,
+                //         bottom: false,
+                //         child: Container(
+                //           clipBehavior: Clip.hardEdge,
+                //           margin: const EdgeInsets.only(top: 10),
+                //           decoration: BoxDecoration(
+                //             borderRadius: BorderRadius.circular(14),
+                //           ),
+                //           child: widget.rightLayout ?? TopicDetail(),
+                //         ),
+                //       ),
+                //     );
+                //   },
                 // ),
+                child: SafeArea(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    clipBehavior: Clip.hardEdge,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                    child: widget.rightLayout ?? TopicDetail(),
+                  ),
+                ),
               ),
               SizedBox(width: rightSafeOffest),
             ]

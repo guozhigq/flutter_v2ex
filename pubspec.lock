@@ -177,6 +177,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.17.0"
+  container_tab_indicator:
+    dependency: "direct main"
+    description:
+      name: container_tab_indicator
+      sha256: b0bdd73bb495c31c5711cefa363511b10bb3ebcfc007b603a2599401ebe6b2d9
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.0"
   convert:
     dependency: transitive
     description:

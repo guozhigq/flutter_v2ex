@@ -182,6 +182,7 @@ class _HomePageState extends State<HomePage>
     //   ),
     // );
     return SafeArea(
+      top: Breakpoints.mediumAndUp.isActive(context) ? true : false,
       bottom: Breakpoints.mediumAndUp.isActive(context) ? true : false,
       child: Scaffold(
         backgroundColor: getBackground(context, 'homePage'),
@@ -200,7 +201,7 @@ class _HomePageState extends State<HomePage>
           Column(
             children: <Widget>[
               if (Breakpoints.mediumAndUp.isActive(context))
-                const SizedBox(height: 17),
+                const SizedBox(height: 13),
               HomeStickyBar(tabs: tabs, ctr: _tabController),
               const SizedBox(height: 3),
               Expanded(

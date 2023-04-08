@@ -95,9 +95,6 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
               key: const Key('primaryNavigation'),
               builder: (_) {
                 return AdaptiveScaffold.standardNavigationRail(
-                  // Usually it would be easier to use a builder from
-                  // AdaptiveScaffold for these types of navigation but this
-                  // navigation has custom staggered item animations.
                   onDestinationSelected: (int index) {
                     if (index == 0) {
                       Get.offAllNamed('/');
@@ -120,47 +117,60 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                     });
                   },
                   selectedIndex: _navigationIndex,
-                  backgroundColor: const Color.fromARGB(0, 255, 255, 255),
                   destinations: <NavigationRailDestination>[
                     slideInNavigationItem(
                       begin: -1,
                       controller: _homeIconSlideController,
                       icon: Icons.home_outlined,
-                      label: '主题列表',
+                      label: '主题',
                     ),
                     slideInNavigationItem(
                       begin: -1,
                       controller: _inboxIconSlideController,
                       icon: Icons.whatshot_outlined,
-                      label: '今日热议',
+                      label: '热议',
                     ),
                     slideInNavigationItem(
                       begin: -2,
                       controller: _articleIconSlideController,
                       icon: Icons.history_outlined,
-                      label: '最近浏览',
+                      label: '足迹',
                     ),
                     slideInNavigationItem(
                       begin: -3,
                       controller: _chatIconSlideController,
                       icon: Icons.favorite_outline,
-                      label: '我的关注',
+                      label: '关注',
                     ),
                     slideInNavigationItem(
                       begin: -4,
                       controller: _videoIconSlideController,
                       icon: Icons.star_border_rounded,
-                      label: '我的收藏',
+                      label: '收藏',
                     ),
                   ],
+                  labelType: NavigationRailLabelType.all,
                   trailing: const TrailingNavRail(),
+                  leading: Container(
+                    padding: const EdgeInsets.only(top: 2),
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        'VVEX',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
             Breakpoints.large: SlotLayout.from(
               key: const Key('Large primaryNavigation'),
-              // The AdaptiveScaffold builder here greatly simplifies
-              // navigational elements.
               builder: (_) => AdaptiveScaffold.standardNavigationRail(
                 // leading: const _LargeComposeIcon(),
                 width: 160,
@@ -188,9 +198,25 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                 selectedIndex: _navigationIndex,
                 trailing: const TrailingNavRail(),
                 extended: true,
+                backgroundColor: getBackground(context, 'adaptMain'),
                 destinations: destinationsLarge.map((_) {
                   return AdaptiveScaffold.toRailDestination(_);
                 }).toList(),
+                leading: Container(
+                  padding: const EdgeInsets.only(top: 2),
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      'VVEX',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2),
+                    ),
+                  ),
+                ),
               ),
             ),
           },

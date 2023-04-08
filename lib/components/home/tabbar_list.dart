@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
@@ -167,7 +168,7 @@ class _TabBarListState extends State<TabBarList>
           controller: _controller,
           child: Container(
             clipBehavior: Clip.antiAlias,
-            margin: const EdgeInsets.only(right: 0, top: 8, left: 12),
+            margin: EdgeInsets.only(right: Breakpoints.large.isActive(context) ? 0 : 12, top: 8, left: 12),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
