@@ -18,7 +18,7 @@ typedef DoubleClickAnimationListener = void Function();
 enum SampleItem { share, save, browser }
 
 class ImagePreview extends StatefulWidget {
-  ImagePreview({Key? key}) : super(key: key);
+  const ImagePreview({Key? key}) : super(key: key);
 
   @override
   State<ImagePreview> createState() => _ImagePreviewState();

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/models/tabs.dart';

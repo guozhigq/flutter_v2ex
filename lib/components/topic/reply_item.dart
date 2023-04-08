@@ -14,7 +14,6 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'dart:math' as math;
 
 class ReplyListItem extends StatefulWidget {
   ReplyListItem({

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_v2ex/components/common/image_loading.dart';
 
 class CAvatar extends StatelessWidget {
   final String url;
@@ -38,12 +37,6 @@ class CAvatar extends StatelessWidget {
         errorWidget: (context, url, error) => errAvatar(context),
         placeholder: (context, url) => placeholder(context),
       ),
-      // child: ImageLoading(
-      //   imgUrl: Utils().avatarLarge(url),
-      //   width: size,
-      //   height: size,
-      //   type: 'avatar',
-      // ),
     ) : errAvatar(context);
   }
 

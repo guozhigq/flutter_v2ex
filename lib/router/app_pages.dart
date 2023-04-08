@@ -72,7 +72,7 @@ class AppPages {
     // 图片预览
     GetPage(
       name: '/imgPreview',
-      page: () => ImagePreview(),
+      page: () => const ImagePreview(),
       transition: Transition.cupertino,
     ),
     // 设置

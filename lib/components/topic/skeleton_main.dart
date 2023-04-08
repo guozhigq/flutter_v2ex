@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/components/common/skeleton.dart';
-import 'package:get_storage/get_storage.dart';
 
 class TopicDetailSkeleton extends StatelessWidget {
   const TopicDetailSkeleton({Key? key}) : super(key: key);

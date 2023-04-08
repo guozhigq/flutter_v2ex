@@ -2,7 +2,6 @@ import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
@@ -117,7 +116,6 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 });
                           } else {
                             var res = await Get.toNamed('/login');
-                            print('search_bar: $res');
                             if (res != null) {
                               if (res['loginStatus'] == 'cancel') {
                                 SmartDialog.showToast('取消登录');

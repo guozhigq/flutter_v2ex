@@ -1,12 +1,7 @@
 import 'dart:io';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_v2ex/components/adaptive/main.dart';
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/models/web/item_topic_subtle.dart';
-import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/service/translation.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -26,10 +21,8 @@ import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
 import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
-import 'package:flutter_v2ex/utils/app_theme.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ProxiedHttpOverrides extends HttpOverrides {
   final String _port;

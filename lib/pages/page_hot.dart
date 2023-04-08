@@ -8,9 +8,7 @@ import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:flutter_v2ex/models/network/item_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
-import 'package:get/get.dart';
 
 class HotPage extends StatefulWidget {
   const HotPage({Key? key}) : super(key: key);
@@ -112,7 +110,6 @@ class _HotPageState extends State<HotPage> {
                                 return const FooterTips();
                               } else {
                                 return ListItem(topic: hotTopicList[index]);
-                                ;
                               }
                             },
                           ),

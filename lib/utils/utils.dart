@@ -211,8 +211,8 @@ class Utils {
     try {
       String content = contentDom.text;
       RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
-      RegExp exp2 = RegExp(
-          r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
+      // RegExp exp2 = RegExp(
+      //     r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
       var expMatch = exp.allMatches(content).toList();
       for (var i in expMatch) {
         var value = i.group(0);
@@ -264,7 +264,7 @@ class Utils {
     RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
     var linkRes = linkRegExp.firstMatch(innerHtml);
     if (linkRes != null) {
-      var index = innerHtml.indexOf(linkRes!.group(0));
+      var index = innerHtml.indexOf(linkRes.group(0));
       var lastWord = innerHtml[index-1];
       if(lastWord != 'm'){
         var matchRes = linkRes.group(0);
@@ -367,9 +367,9 @@ class Utils {
       Get.toNamed(aUrl);
     } else {
       // sms tel email schemeUrl
-      final Uri _url = Uri.parse(aUrl);
-      if (await canLaunchUrl(_url)) {
-        launchUrl(_url);
+      final Uri url = Uri.parse(aUrl);
+      if (await canLaunchUrl(url)) {
+        launchUrl(url);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

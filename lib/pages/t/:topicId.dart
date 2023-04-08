@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 import 'dart:io';
-import 'dart:math';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
@@ -13,14 +12,11 @@ import 'package:flutter/rendering.dart';
 
 import 'package:flutter_v2ex/components/topic/bottom_bar.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
 
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/topic/reply_new.dart';
-import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
@@ -114,14 +110,14 @@ class _TopicDetailState extends State<TopicDetail>
     var keys = Get.parameters.keys;
     // 从消息页面进入 跳转至指定楼层
     if (keys.contains('floorNumber')) {
-      routerSource = Get.parameters['source']! ?? '';
-      noticeFloorNumber = int.parse(Get.parameters['floorNumber']!) ?? 0;
+      routerSource = Get.parameters['source'] ?? '';
+      noticeFloorNumber = int.parse(Get.parameters['floorNumber'] ?? '0');
       _currentPage = (noticeFloorNumber / 100).ceil() - 1;
       //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
     }
     // 直接跳转指定楼层
     if (keys.contains('replyId')) {
-      replyId = Get.parameters['replyId']! ?? '';
+      replyId = Get.parameters['replyId'] ?? '';
       _currentPage = int.parse(Get.parameters['p']!) - 1;
     }
     myUserName = GStorage().getUserInfo().isNotEmpty

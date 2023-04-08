@@ -4,14 +4,9 @@ import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/http/init.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/cache.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get_storage/get_storage.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);

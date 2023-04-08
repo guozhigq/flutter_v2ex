@@ -61,7 +61,6 @@ class _ImageLoadingState extends State<ImageLoading>
                       child: Text('图片加载中...'),
                     ),
                   );
-            break;
 
           ///if you don't want override completed widget
           ///please return null or state.completedWidget
@@ -77,7 +76,6 @@ class _ImageLoadingState extends State<ImageLoading>
                 height: widget.type == 'avatar' ? widget.height! : null,
               ),
             );
-            break;
           case LoadState.failed:
             _controller.reset();
             return widget.type == 'avatar'
@@ -97,7 +95,6 @@ class _ImageLoadingState extends State<ImageLoading>
                       ),
                     ),
                   );
-            break;
         }
       },
     );

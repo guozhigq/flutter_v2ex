@@ -72,7 +72,7 @@ class _NodesSortPageState extends State<NodesSortPage>
     final listTiles = tabs
         .map((item) => CheckboxListTile(
               key: Key(item.name),
-              value: item.checked ?? false,
+              value: item.checked,
               onChanged: (bool? newValue) {
                 setState(() => item.checked = newValue!);
                 print('item.checked: ${item.checked}');

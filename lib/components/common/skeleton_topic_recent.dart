@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/common/skeleton.dart';
 
 class TopicItemSkeleton extends StatelessWidget {
   const TopicItemSkeleton({Key? key}) : super(key: key);

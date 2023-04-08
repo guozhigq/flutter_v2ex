@@ -1,42 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_v2ex/models/version.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_v2ex/http/init.dart';
 import 'package:html/dom.dart'
 as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-import 'package:flutter_v2ex/package/xpath/xpath.dart';
 
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
-import 'package:flutter_v2ex/models/web/model_topic_detail.dart'; // 主题详情
-import 'package:flutter_v2ex/models/web/item_topic_reply.dart'; // 主题回复
-import 'package:flutter_v2ex/models/web/item_topic_subtle.dart'; // 主题附言
 import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
-import 'package:flutter_v2ex/models/web/model_topic_fav.dart'; // 收藏的主题
-import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登录字段
-import 'package:flutter_v2ex/models/web/model_node_fav.dart';
-import 'package:flutter_v2ex/models/web/model_member_reply.dart';
-import 'package:flutter_v2ex/models/web/item_member_reply.dart';
-import 'package:flutter_v2ex/models/web/model_member_topic.dart';
-import 'package:flutter_v2ex/models/web/item_member_topic.dart';
-import 'package:flutter_v2ex/models/web/item_member_social.dart';
-import 'package:flutter_v2ex/models/web/model_member_profile.dart';
-import 'package:flutter_v2ex/models/web/model_member_notice.dart';
-import 'package:flutter_v2ex/models/web/item_member_notice.dart';
-import 'package:flutter_v2ex/models/web/model_topic_follow.dart';
-
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 class NodeWebApi {
@@ -114,7 +89,7 @@ class NodeWebApi {
       }
     }
 
-    if(mainBox!.querySelector(
+    if(mainBox.querySelector(
         'div.box:not(.box-title)>div.cell.flex-one-row') !=
         null){
       var favNode = mainBox.querySelector(

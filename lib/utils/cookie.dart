@@ -5,7 +5,7 @@ import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
-class setCookie {
+class SetCookie {
   static onSet(List cookiesList, String url) async {
     // 接收 flutter_inappwebview Cookie List
     // domain url

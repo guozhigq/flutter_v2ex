@@ -2,7 +2,6 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 
 

@@ -86,8 +86,8 @@ class _TabBarListState extends State<TabBarList>
         _isLoading = true;
       });
     }
-    var id = widget.tabItem.id ?? 'all';
-    var type = widget.tabItem.type ?? 'all';
+    var id = widget.tabItem.id;
+    var type = widget.tabItem.type;
     try {
       var res =
       await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);

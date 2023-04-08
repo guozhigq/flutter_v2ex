@@ -5,7 +5,6 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});

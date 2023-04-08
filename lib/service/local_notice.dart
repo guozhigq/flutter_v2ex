@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -404,12 +403,10 @@ class LocalNoticeService {
 
   @pragma('vm:entry-point')
   void notificationTapBackground(NotificationResponse notificationResponse) {
-    // ignore: avoid_print
     print('notification(${notificationResponse.id}) action tapped: '
         '${notificationResponse.actionId} with'
         ' payload: ${notificationResponse.payload}');
     if (notificationResponse.input?.isNotEmpty ?? false) {
-      // ignore: avoid_print
       print(
           'notification action tapped with input: ${notificationResponse.input}');
     }

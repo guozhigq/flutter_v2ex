@@ -13,8 +13,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:html/dom.dart'
-    as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
@@ -406,7 +404,7 @@ class DioRequestWeb {
       "code": code,
     });
     response = await Request().post('/2fa', data: formData);
-    var document = parse(response.data);
+    // var document = parse(response.data);
     // log(document.body!.innerHtml);
     // var menuBodyNode = document.querySelector("div[id='menu-body']");
     // var loginOutNode =
@@ -640,7 +638,6 @@ class DioRequestWeb {
         await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    log('1083 line : ${response}');
     print('1830：${response.headers["location"]}');
     if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
@@ -688,7 +685,7 @@ class DioRequestWeb {
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode != null && mainNode!.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode != null && mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       return false;
     } else {
       return true;
@@ -719,7 +716,7 @@ class DioRequestWeb {
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
     if (mainNode!.querySelector('div.inner') != null &&
-        mainNode!.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
+        mainNode.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
       return false;
     } else {
       return true;
@@ -741,7 +738,6 @@ class DioRequestWeb {
       result['status'] = false;
     } else {
       Map topicDetail = {};
-      print(mainNode!.innerHtml);
       var topicTitle = mainNode.querySelector('#topic_title');
       topicDetail['topicTitle'] = topicTitle!.text;
       var topicContent = mainNode.querySelector('#topic_content');

@@ -30,11 +30,6 @@ class _ListItemState extends State<ListItem>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),

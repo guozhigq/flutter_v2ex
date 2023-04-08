@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
-  AppBarWidget({
+  const AppBarWidget({
     required this.child,
     required this.controller,
     required this.visible,

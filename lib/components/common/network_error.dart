@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class NetworkErrorPage extends StatelessWidget {
   final String? message;
   final VoidCallback? onRetry;
-  NetworkErrorPage({this.message, this.onRetry});
+  const NetworkErrorPage({super.key, this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {

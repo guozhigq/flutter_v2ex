@@ -498,7 +498,7 @@ class TopicWebApi {
     var historyDom = document.body!.querySelector('div[id="my-recent-topics"]');
     if (historyDom != null) {
       var topicNodes =
-          historyDom!.querySelectorAll('div.cell:not(.flex-one-row)');
+          historyDom.querySelectorAll('div.cell:not(.flex-one-row)');
       if (topicNodes.isNotEmpty) {
         for (var aNode in topicNodes) {
           var item = TabTopicItem();
