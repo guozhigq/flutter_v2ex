@@ -22,7 +22,7 @@ class CAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
+    return url != '' ? ClipOval(
       child: CachedNetworkImage(
         imageUrl: quality == 'origin' ? Utils().avatarLarge(url) : url,
         height: size,
@@ -44,7 +44,7 @@ class CAvatar extends StatelessWidget {
       //   height: size,
       //   type: 'avatar',
       // ),
-    );
+    ) : errAvatar(context);
   }
 
   Widget placeholder(context) {

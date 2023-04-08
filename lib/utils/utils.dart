@@ -209,31 +209,53 @@ class Utils {
   static base64Decode(contentDom) {
     List decodeRes = [];
     try {
-      var blacklist = Strings().base64BlackList;
       String content = contentDom.text;
       RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
       RegExp exp2 = RegExp(
           r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
-      var expMatch = exp.allMatches(content);
-      var wechat = '';
+      var expMatch = exp.allMatches(content).toList();
       for (var i in expMatch) {
         var value = i.group(0);
-        if (!blacklist.contains(value) && value!.trim().length % 4 == 0) {
-          wechat = utf8.decode(base64.decode(i.group(0)!));
-          RegExp wechatRegExp = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
-          RegExp emailRegExp =
-              RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
-          if (wechatRegExp.hasMatch(wechat) ||
-              RegExp(r'^\d+$').hasMatch(wechat) ||
-              emailRegExp.hasMatch(wechat)) {
-            decodeRes.add(wechat);
-          }
+        try{
+          decodeRes.addAll(base64Resolve(value!, decodeRes));
+        }catch(err) {
+          // print(err);
         }
       }
       return decodeRes;
     } catch (err) {
       return decodeRes;
     }
+  }
+
+  //
+  static base64Resolve(String str, decodeRes) {
+    var wechat = '';
+    var blacklist = Strings().base64BlackList;
+    RegExp exp = RegExp(r'[a-zA-Z\d=]{4,}');
+    str = str.trim();
+    if (!blacklist.contains(str) && str.length % 4 == 0 || (str.endsWith('%3D') && (str.length-2) % 4 == 0)) {
+      try{
+        wechat = utf8.decode(base64.decode(str)).trim();
+      }catch(err) {
+        print('❌ base64Resolve error: $err');
+      }
+      RegExp wechatRegExp = RegExp(r'^_|[a-zA-Z][a-zA-Z\d_-]{5,19}$');
+      RegExp emailRegExp =
+      RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+      if (wechat != '' && (wechatRegExp.hasMatch(wechat) ||
+          RegExp(r'^\d+$').hasMatch(wechat) ||
+          emailRegExp.hasMatch(wechat))) {
+        decodeRes.add(wechat);
+      }else if(exp.allMatches(wechat).isNotEmpty && !wechatRegExp.hasMatch(wechat) && !RegExp(r'^\d+$').hasMatch(wechat)){
+        decodeRes.addAll(base64Resolve(wechat, decodeRes));
+      }else{
+        print('解析中断： $wechat');
+      }
+    }else{
+      // print('err: 无效base64');
+    }
+    return decodeRes;
   }
 
   // 替换innerHtml中的文本链接
