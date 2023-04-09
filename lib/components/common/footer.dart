@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class FooterTips extends StatelessWidget {
-  const FooterTips({Key? key}) : super(key: key);
+  final String? type;
+  const FooterTips({Key? key, this.type = 'noMore'}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +14,28 @@ class FooterTips extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.auto_awesome),
+            if(type == 'noMore')
+              const Icon(Icons.auto_awesome),
+            if(type == 'loading')
+              SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onBackground,
+                      strokeWidth: 2.0)),
             const SizedBox(width: 16),
             Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('加载完成'),
+                Text(type == 'noMore' ? '加载完成' : '加载中...'),
                 const SizedBox(
                   height: 4,
                 ),
-                Text('更新于刚刚', style: Theme.of(context).textTheme.bodySmall)
+                Text('最后更新于刚刚', style: Theme.of(context).textTheme.bodySmall)
               ],
             )
           ],
