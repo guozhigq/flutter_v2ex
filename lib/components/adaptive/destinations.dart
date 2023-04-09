@@ -8,6 +8,10 @@ const List<NavigationDestination> destinationsLarge = <NavigationDestination>[
     icon: Icon(Icons.home_outlined),
   ),
   NavigationDestination(
+    label: '全部节点',
+    icon: Icon(Icons.window_outlined),
+  ),
+  NavigationDestination(
     label: '今日热议',
     icon: Icon(Icons.whatshot_outlined),
   ),

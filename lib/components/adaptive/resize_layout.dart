@@ -24,11 +24,15 @@ class _ResizeLayoutState extends State<ResizeLayout> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        // ipad 竖屏
+        bool isiPadHorizontal = Breakpoints.large.isActive(context);
+        // ipad 横屏
+        bool isiPadVertical = Breakpoints.medium.isActive(context);
         double maxWidth = constraints.maxWidth;
-        double dividerWidth = 16;
+        double dividerWidth = isiPadVertical ? 8 : 16;
         double rightSafeOffest = 12;
         // 左右比例
-        double lfScale = 0.4;
+        double lfScale = 0.75;
         double rgScale = 1 - lfScale;
         double minScale = 0.35;
         final lfWidth = (maxWidth - 28) * lfScale;
@@ -42,26 +46,25 @@ class _ResizeLayoutState extends State<ResizeLayout> {
           _offset = rgWidth - minWidth;
         }
 
-        bool isiPadHorizontal = Breakpoints.large.isActive(context);
         return Row(
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(
               // 非ipad横屏 使用屏幕宽度
-              width: isiPadHorizontal ? lfWidth + _offset : maxWidth,
+              width: isiPadHorizontal || isiPadVertical ? lfWidth + _offset : maxWidth,
               child: SafeArea(
                 bottom: false,
                 child: widget.leftLayout,
               ),
             ),
-            if (isiPadHorizontal) ...[
+            if (isiPadHorizontal || isiPadVertical) ...[
               SizedBox(
                 width: dividerWidth,
-                child: DragDivider(
+                child: isiPadHorizontal ? DragDivider(
                   onSize: (double delta) => setState(() {
                     _offset = _offset += delta;
                   }),
-                ),
+                ) : null,
               ),
               SizedBox(
                 width: rgWidth - _offset,
@@ -113,10 +116,10 @@ class _ResizeLayoutState extends State<ResizeLayout> {
                 // ),
                 child: SafeArea(
                   child: Container(
-                    margin: const EdgeInsets.only(top: 4),
+                    margin: const EdgeInsets.only(top: 10),
                     clipBehavior: Clip.hardEdge,
                     decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                        BoxDecoration(borderRadius: BorderRadius.circular(10)),
                     child: widget.rightLayout ?? TopicDetail(),
                   ),
                 ),

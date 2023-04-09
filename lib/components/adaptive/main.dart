@@ -85,10 +85,42 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
     showGridView.value = Breakpoints.mediumAndUp.isActive(context);
 
     return Scaffold(
+      // appBar: AppBar(
+      //   title: Container(
+      //     width: double.infinity,
+      //     height: kToolbarHeight,
+      //     child: Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //       children: [
+      //
+      //       ],
+      //     ),
+      //   ),
+      // ),
       backgroundColor: getBackground(context, 'adaptMain'),
       body: AdaptiveLayout(
         internalAnimations: false,
         bodyRatio: Breakpoints.medium.isActive(context) ? 0.52 : 0.45,
+        // topNavigation: SlotLayout(config: <Breakpoint, SlotLayoutConfig?>{
+        //   Breakpoints.medium: SlotLayout.from(
+        //       key: const Key('topNavigation'),
+        //       builder: (_) {
+        //         return
+        //           Container(
+        //             width: double.infinity,
+        //             height: 60 + MediaQuery.of(context).padding.top,
+        //             padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
+        //             decoration: BoxDecoration(
+        //                 border: Border.all()
+        //             ),
+        //             child: Container(
+        //               width: double.infinity,
+        //               height: 20,
+        //               color: Colors.red,
+        //             ),
+        //           );
+        //       })
+        // }),
         primaryNavigation: SlotLayout(
           config: <Breakpoint, SlotLayoutConfig?>{
             Breakpoints.medium: SlotLayout.from(
@@ -125,25 +157,31 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                       label: '主题',
                     ),
                     slideInNavigationItem(
-                      begin: -1,
+                      begin: -2,
+                      controller: _homeIconSlideController,
+                      icon: Icons.window_outlined,
+                      label: '节点',
+                    ),
+                    slideInNavigationItem(
+                      begin: -3,
                       controller: _inboxIconSlideController,
                       icon: Icons.whatshot_outlined,
                       label: '热议',
                     ),
                     slideInNavigationItem(
-                      begin: -2,
+                      begin: -4,
                       controller: _articleIconSlideController,
                       icon: Icons.history_outlined,
                       label: '足迹',
                     ),
                     slideInNavigationItem(
-                      begin: -3,
+                      begin: -5,
                       controller: _chatIconSlideController,
                       icon: Icons.favorite_outline,
                       label: '关注',
                     ),
                     slideInNavigationItem(
-                      begin: -4,
+                      begin: -6,
                       controller: _videoIconSlideController,
                       icon: Icons.star_border_rounded,
                       label: '收藏',
@@ -208,12 +246,8 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
                   child: Center(
                     child: Text(
                       'VVEX',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2),
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          fontWeight: FontWeight.bold, letterSpacing: 1.2),
                     ),
                   ),
                 ),

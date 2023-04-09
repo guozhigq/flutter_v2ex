@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
+import 'package:flutter_v2ex/components/adaptive/slide.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -212,7 +213,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          // rightLayout: TopicDetail(),
+          rightLayout: const AdaptSlide(),
         ),
         // body:
         //   Column(
