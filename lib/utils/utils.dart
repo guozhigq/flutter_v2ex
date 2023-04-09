@@ -9,6 +9,7 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:html/parser.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -69,31 +70,31 @@ class Utils {
       // 2. openWithAppBrowser
       try {
         await Utils().browser.open(
-              url: WebUri(aUrl),
-              settings: ChromeSafariBrowserSettings(
-                  shareState: CustomTabsShareState.SHARE_STATE_OFF,
-                  isSingleInstance: false,
-                  isTrustedWebActivity: false,
-                  keepAliveEnabled: true,
-                  startAnimations: [
-                    AndroidResource.anim(
-                        name: "slide_in_left", defPackage: "android"),
-                    AndroidResource.anim(
-                        name: "slide_out_right", defPackage: "android")
-                  ],
-                  exitAnimations: [
-                    AndroidResource.anim(
-                        name: "abc_slide_in_top",
-                        defPackage:
-                            "com.pichillilorenzo.flutter_inappwebviewexample"),
-                    AndroidResource.anim(
-                        name: "abc_slide_out_top",
-                        defPackage:
-                            "com.pichillilorenzo.flutter_inappwebviewexample")
-                  ],
-                  dismissButtonStyle: DismissButtonStyle.CLOSE,
-                  presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
-            );
+          url: WebUri(aUrl),
+          settings: ChromeSafariBrowserSettings(
+              shareState: CustomTabsShareState.SHARE_STATE_OFF,
+              isSingleInstance: false,
+              isTrustedWebActivity: false,
+              keepAliveEnabled: true,
+              startAnimations: [
+                AndroidResource.anim(
+                    name: "slide_in_left", defPackage: "android"),
+                AndroidResource.anim(
+                    name: "slide_out_right", defPackage: "android")
+              ],
+              exitAnimations: [
+                AndroidResource.anim(
+                    name: "abc_slide_in_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample"),
+                AndroidResource.anim(
+                    name: "abc_slide_out_top",
+                    defPackage:
+                    "com.pichillilorenzo.flutter_inappwebviewexample")
+              ],
+              dismissButtonStyle: DismissButtonStyle.CLOSE,
+              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+        );
       } catch (err) {
         // SmartDialog.showToast(err.toString());
         // https://github.com/guozhigq/flutter_v2ex/issues/49
@@ -106,7 +107,7 @@ class Utils {
   String? encodeQueryParameters(Map<String, String> params) {
     return params.entries
         .map((e) =>
-            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+    '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
         .join('&');
   }
 
@@ -171,9 +172,9 @@ class Utils {
   /// [func]: 要执行的方法
   /// [delay]: 要迟延的时长
   static Function debounce(
-    Function func, [
-    Duration delay = const Duration(milliseconds: 2000),
-  ]) {
+      Function func, [
+        Duration delay = const Duration(milliseconds: 2000),
+      ]) {
     Timer? timer;
     target() {
       if (timer!.isActive) {
@@ -326,8 +327,9 @@ class Utils {
     RegExp exp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     RegExp v2exExp =
-        RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))v2ex.com");
+    RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))v2ex.com");
     RegExp linkExp = RegExp(r"^/go|/t|/member/");
+    RegExp linkExp2 = RegExp(r"^<a(.*?)>(.*?)<\/a>$");
     bool isValidator = exp.hasMatch(aUrl);
     if (isValidator) {
       // http(s) 网址
@@ -370,20 +372,32 @@ class Utils {
       final Uri url = Uri.parse(aUrl);
       if (await canLaunchUrl(url)) {
         launchUrl(url);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(milliseconds: 3000),
-            // showCloseIcon: true,
-            content: const Text('🔗链接打开失败'),
-            action: SnackBarAction(
-              label: '复制',
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: aUrl));
-              },
+      }else if(linkExp2.hasMatch(aUrl)){
+        try{
+          String tagA = parse(aUrl).body!.querySelector('a')!.attributes['href']!;
+          if (context.mounted){
+            openHrefByWebview(tagA, context);
+          }
+        }catch(err){
+          print(err);
+        }
+      }
+      else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(milliseconds: 1000),
+              // showCloseIcon: true,
+              content: const Text('🔗链接打开失败'),
+              action: SnackBarAction(
+                label: '复制',
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: aUrl));
+                },
+              ),
             ),
-          ),
-        );
+          );
+        }
         throw Exception('Could not launch $aUrl');
       }
     }
