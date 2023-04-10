@@ -1,3 +1,4 @@
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -129,9 +130,11 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
         foregroundColor: Theme.of(context).appBarTheme.backgroundColor,
         // title: const Text('节点'),
         actions: [
-          TextButton(onPressed: () {
-            Get.toNamed('/topicNodes', parameters: {'source': 'nodes'});
-          }, child: const Text('全部节点')),
+          TextButton(
+              onPressed: () {
+                Get.toNamed('/topicNodes', parameters: {'source': 'nodes'});
+              },
+              child: const Text('全部节点')),
           // IconButton(onPressed: () {
           //   getFavNodes();
           // }, icon: const Icon(Icons.refresh_rounded)),
@@ -182,26 +185,33 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
                       return e['name'] == '已收藏'
                           ? FavNodes(_isLoadingFav, e)
                           : GridView.count(
-                                  padding: EdgeInsets.zero,
-                                  // 禁止滚动
-                                  physics: e.length < 5
-                                      ? const NeverScrollableClampingScrollPhysics()
-                                      : const ScrollPhysics(),
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 6,
-                                  children: [
-                                    ...nodesChildList(e['childs']),
-                                    if (e['childs'].length > 19)
-                                      IconButton(
-                                          onPressed: () {
-                                            allNodes(e['childs']);
-                                          },
-                                          icon: Icon(Icons.more_horiz,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary)),
-                                  ],
-                                );
+                              padding: EdgeInsets.zero,
+                              // 禁止滚动
+                              physics: e.length < 5
+                                  ? const NeverScrollableClampingScrollPhysics()
+                                  : const ScrollPhysics(),
+                              crossAxisCount:
+                                  Breakpoints.large.isActive(context)
+                                      ? 8
+                                      : Breakpoints.medium.isActive(context)
+                                          ? 6
+                                          : 3,
+                              mainAxisSpacing: 6,
+                              children: [
+                                ...nodesChildList(e['childs']),
+                                if (Breakpoints.small.isActive(context) &&
+                                    e['childs'].length > 19)
+                                  IconButton(
+                                    onPressed: () {
+                                      allNodes(e['childs']);
+                                    },
+                                    icon: Icon(Icons.more_horiz,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
+                                  ),
+                              ],
+                            );
                     }).toList(),
                   ),
                 )
@@ -212,13 +222,15 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
 
   List<Widget> nodesChildList(child) {
     List<Widget>? list = [];
+    int maxCount =
+        Breakpoints.mediumAndUp.isActive(context) ? child.length : 18;
     for (var i = 0; i < child.length; i++) {
       var item = child[i];
-      if (i <= 18) {
+      if (i <= maxCount) {
         list.add(
           InkWell(
             onTap: () {
-                Get.toNamed('/go/${item['nodeId']}');
+              Get.toNamed('/go/${item['nodeId']}');
             },
             borderRadius: BorderRadius.circular(10),
             child: Column(
@@ -272,33 +284,35 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
     return loading
         ? showLoading()
         : nodes.isEmpty
-        ? const Text('没数据')
-        : nodes['childs'].length == 0
-        ? const Center(
-      child:  Center(
-        child: Text('还没有收藏节点'),
-      )
-    )
-        : GridView.count(
-      padding: EdgeInsets.zero,
-      // 禁止滚动
-      physics: nodes.length < 5
-          ? const NeverScrollableClampingScrollPhysics()
-          : const ScrollPhysics(),
-      crossAxisCount: 3,
-      mainAxisSpacing: 6,
-      children: [
-        ...nodesChildList(nodes['childs']),
-        if (nodes['childs'].length > 19)
-          IconButton(
-              onPressed: () {
-                allNodes(nodes['childs']);
-              },
-              icon: Icon(Icons.more_horiz,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary)),
-      ],
-    );
+            ? const Text('没数据')
+            : nodes['childs'].length == 0
+                ? const Center(
+                    child: Center(
+                    child: Text('还没有收藏节点'),
+                  ))
+                : GridView.count(
+                    padding: EdgeInsets.zero,
+                    // 禁止滚动
+                    physics: nodes.length < 5
+                        ? const NeverScrollableClampingScrollPhysics()
+                        : const ScrollPhysics(),
+                    crossAxisCount: Breakpoints.large.isActive(context)
+                        ? 8
+                        : Breakpoints.medium.isActive(context)
+                            ? 6
+                            : 3,
+                    mainAxisSpacing: 6,
+                    children: [
+                      ...nodesChildList(nodes['childs']),
+                      if (Breakpoints.small.isActive(context) &&
+                          nodes['childs'].length > 19)
+                        IconButton(
+                            onPressed: () {
+                              allNodes(nodes['childs']);
+                            },
+                            icon: Icon(Icons.more_horiz,
+                                color: Theme.of(context).colorScheme.primary)),
+                    ],
+                  );
   }
 }

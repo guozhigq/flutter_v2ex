@@ -12,6 +12,7 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 import 'package:flutter_v2ex/components/common/network_error.dart';
+import 'package:get/get.dart';
 
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;
@@ -27,6 +28,7 @@ class _TabBarListState extends State<TabBarList>
   late final ScrollController _controller = ScrollController();
   List<TabTopicItem> topicList = [];
   List<TabTopicItem> tempTopicList = []; // 临时话题列表
+  List childNodeList = [];
   bool _isLoading = true; // 请求状态
   bool _isLoadingMore = false; // 请求状态
   int _currentPage = 0;
@@ -44,7 +46,7 @@ class _TabBarListState extends State<TabBarList>
     getTopics();
 
     _controller.addListener(
-          () {
+      () {
         if (widget.tabItem.id == 'recent') {
           if (_controller.position.pixels >=
               _controller.position.maxScrollExtent - 100) {
@@ -90,15 +92,16 @@ class _TabBarListState extends State<TabBarList>
     var type = widget.tabItem.type;
     try {
       var res =
-      await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
+          await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
       setState(() {
         if (_currentPage == 0) {
-          topicList = res;
+          topicList = res['topicList'];
           _dioError = false;
-          tempTopicList = res;
+          tempTopicList = res['topicList'];
+          childNodeList = res['childNodeList'];
         } else {
           // 去除重复数据
-          List<TabTopicItem> result = List.from(res);
+          List<TabTopicItem> result = List.from(res['topicList']);
           try {
             for (var i in tempTopicList) {
               result.removeWhere((j) => j.topicId == i.topicId);
@@ -153,11 +156,11 @@ class _TabBarListState extends State<TabBarList>
     return _isLoading
         ? const TopicSkeleton()
         : _dioError
-        ? NetworkErrorPage(
-        message: _dioErrorMsg, onRetry: () => getTopics())
-        : topicList.isNotEmpty
-        ? showRes()
-        : emptyData();
+            ? NetworkErrorPage(
+                message: _dioErrorMsg, onRetry: () => getTopics())
+            : topicList.isNotEmpty
+                ? showRes()
+                : emptyData();
   }
 
   Widget showRes() {
@@ -168,7 +171,10 @@ class _TabBarListState extends State<TabBarList>
           controller: _controller,
           child: Container(
             clipBehavior: Clip.antiAlias,
-            margin: EdgeInsets.only(right: Breakpoints.mediumAndUp.isActive(context) ? 0 : 12, top: 8, left: 12),
+            margin: EdgeInsets.only(
+                right: Breakpoints.mediumAndUp.isActive(context) ? 0 : 12,
+                top: 8,
+                left: 12),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -187,59 +193,31 @@ class _TabBarListState extends State<TabBarList>
               // desktop ListView scrollBar
               child: ScrollConfiguration(
                 behavior:
-                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
                 child: ListView.builder(
                   padding: const EdgeInsets.only(top: 1, bottom: 0),
                   physics: const AlwaysScrollableScrollPhysics(
-                    // parent: BouncingScrollPhysics(), // iOS
+                      // parent: BouncingScrollPhysics(), // iOS
                       parent: ClampingScrollPhysics() // Android
-                  ),
+                      ),
                   //重要
                   itemCount: topicList.length + 1,
                   controller: _controller,
-                  // prototypeItem: ListItem(topic: snapshot[0]),
                   itemBuilder: (BuildContext context, int index) {
                     if (index == topicList.length) {
-                      if (widget.tabItem.id == 'recent') {
-                        return Container(
-                          padding: const EdgeInsets.all(30),
-                          child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
-                                          strokeWidth: 2.0)),
-                                  const SizedBox(width: 16),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('加载中...',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '最后更新于刚刚',
-                                        style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                      )
-                                    ],
-                                  )
-                                ],
-                              )),
-                        );
+                      if (childNodeList.isNotEmpty) {
+                        return ChildNodes(childNodeList: childNodeList);
                       } else {
-                        return const FooterTips();
+                        return FooterTips(
+                            type: widget.tabItem.id == 'recent'
+                                ? 'loading'
+                                : 'noMore');
                       }
                     } else {
                       return ListItem(
-                          topic: topicList[index], key: UniqueKey());
+                        topic: topicList[index],
+                        key: UniqueKey(),
+                      );
                     }
                   },
                 ),
@@ -296,6 +274,60 @@ class _TabBarListState extends State<TabBarList>
           Center(
             child: Text('没有数据，下拉刷新看看'),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class ChildNodes extends StatelessWidget {
+  List childNodeList = [];
+
+  ChildNodes({Key? key, required this.childNodeList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var line = Expanded(
+        child: Divider(
+      color: Theme.of(context).primaryColor.withOpacity(0.1),
+    ));
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: MediaQuery.of(context).padding.bottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 25),
+          Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                line,
+                const SizedBox(width: 8),
+                Text('相关节点', style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(width: 8),
+                line
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            children: [
+              for (var i in childNodeList)
+                TextButton(
+                    onPressed: () async {
+                      await Future.delayed(const Duration(milliseconds: 200));
+                      Get.toNamed('/go/${i['nodeId']}');
+                    },
+                    child: Text(i['nodeName']))
+            ],
+          ),
         ],
       ),
     );

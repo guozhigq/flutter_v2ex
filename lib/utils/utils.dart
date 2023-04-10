@@ -373,6 +373,7 @@ class Utils {
       if (await canLaunchUrl(url)) {
         launchUrl(url);
       }else if(linkExp2.hasMatch(aUrl)){
+        print(aUrl);
         try{
           String tagA = parse(aUrl).body!.querySelector('a')!.attributes['href']!;
           if (context.mounted){

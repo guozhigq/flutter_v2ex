@@ -79,6 +79,32 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
     super.initState();
   }
 
+  onDestinationSelected(int index) {
+    if (index == 0) {
+      Get.offAllNamed('/');
+    }
+    if (index == 1) {
+      // Get.toNamed('/hot');
+      Get.offAllNamed('/nodes');
+    }
+    if (index == 2) {
+      // Get.toNamed('/hot');
+      Get.offAllNamed('/hot');
+    }
+    if (index == 3) {
+      Get.offAllNamed('/history');
+    }
+    if (index == 4) {
+      Get.offAllNamed('/my/following');
+    }
+    if (index == 5) {
+      Get.offAllNamed('/my/topics');
+    }
+    setState(() {
+      _navigationIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Updating the listener value.
@@ -127,27 +153,8 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
               key: const Key('primaryNavigation'),
               builder: (_) {
                 return AdaptiveScaffold.standardNavigationRail(
-                  onDestinationSelected: (int index) {
-                    if (index == 0) {
-                      Get.offAllNamed('/');
-                    }
-                    if (index == 1) {
-                      // Get.toNamed('/hot');
-                      Get.offAllNamed('/hot');
-                    }
-                    if (index == 2) {
-                      Get.offAllNamed('/history');
-                    }
-                    if (index == 3) {
-                      Get.offAllNamed('/my/following');
-                    }
-                    if (index == 4) {
-                      Get.offAllNamed('/my/topics');
-                    }
-                    setState(() {
-                      _navigationIndex = index;
-                    });
-                  },
+                  onDestinationSelected: (int index) =>
+                      onDestinationSelected(index),
                   selectedIndex: _navigationIndex,
                   destinations: <NavigationRailDestination>[
                     slideInNavigationItem(
@@ -212,27 +219,8 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
               builder: (_) => AdaptiveScaffold.standardNavigationRail(
                 // leading: const _LargeComposeIcon(),
                 width: 160,
-                onDestinationSelected: (int index) {
-                  if (index == 0) {
-                    Get.offAllNamed('/');
-                  }
-                  if (index == 1) {
-                    // Get.toNamed('/hot');
-                    Get.offAllNamed('/hot');
-                  }
-                  if (index == 2) {
-                    Get.offAllNamed('/history');
-                  }
-                  if (index == 3) {
-                    Get.offAllNamed('/my/following');
-                  }
-                  if (index == 4) {
-                    Get.offAllNamed('/my/topics');
-                  }
-                  setState(() {
-                    _navigationIndex = index;
-                  });
-                },
+                onDestinationSelected: (int index) =>
+                    onDestinationSelected(index),
                 selectedIndex: _navigationIndex,
                 trailing: const TrailingNavRail(),
                 extended: true,
