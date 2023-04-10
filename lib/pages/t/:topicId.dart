@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/topic/main.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,8 @@ class _TopicDetailState extends State<TopicDetail>
 
   String replyId = '';
 
+  final TopicController _topicController = Get.put(TopicController());
+
   @override
   void initState() {
     super.initState();
@@ -92,11 +95,19 @@ class _TopicDetailState extends State<TopicDetail>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
+    _topicController.topicId.listen((value) async{
+      topicId = value;
+      _topicDetail = _topicController.topic.value;
+      _detailModel = null;
+      _currentPage = 0;
+      await getDetailInit();
+    });
+
     // setState(() {
     try{
       topicId = Get.parameters['topicId']!;
     }catch(e){
-      print('err 😠： $e');
+      print('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
     }
     if(widget.topicDetail != null){
       _topicDetail = widget.topicDetail;

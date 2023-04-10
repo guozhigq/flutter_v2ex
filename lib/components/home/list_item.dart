@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,7 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem>
     with SingleTickerProviderStateMixin {
   TabTopicItem topic = TabTopicItem();
+  final TopicController _topicController = Get.put(TopicController());
 
   @override
   void initState() {
@@ -49,7 +51,8 @@ class _ListItemState extends State<ListItem>
               "heroTag": '${topic.topicId}${topic.memberId}'
             };
             if(context.mounted && Breakpoints.large.isActive(context)){
-              eventBus.emit('topicDetail', topic);
+              // eventBus.emit('topicDetail', topic);
+              _topicController.setTopic(topic);
             }else{
               Get.toNamed("/t/${topic.topicId}", arguments: arguments);
             }

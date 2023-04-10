@@ -5,6 +5,8 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/adaptive/slide.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
+import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,9 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController =
       TabController(vsync: this, length: tabs.length);
   final TabStateController _tabStateController = Get.put(TabStateController());
-
+  final TopicController _topicController = Get.put(TopicController());
+  String topicId = '';
+  var _topicDetail;
 
   @override
   void initState() {
@@ -84,6 +88,15 @@ class _HomePageState extends State<HomePage>
       });
     });
     // showPrivacyDialog();
+
+    _topicController.topicId.listen((value) {
+      if(mounted){
+        setState(() {
+          topicId = value;
+          _topicDetail = _topicController.topic.value;
+        });
+      }
+    });
   }
 
   void _loadCustomTabs() {
@@ -153,6 +166,13 @@ class _HomePageState extends State<HomePage>
   bool get wantKeepAlive => true;
 
   @override
+  void dispose() {
+    _topicController.removeListener(() { });
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     num height = MediaQuery.of(context).padding.top;
@@ -214,7 +234,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          rightLayout: const AdaptSlide(),
+          rightLayout: topicId == '' ?  const AdaptSlide() : TopicDetail(topicDetail: _topicDetail),
         ),
         // body:
         //   Column(
