@@ -4,6 +4,7 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/adaptive/slide.dart';
+import 'package:flutter_v2ex/pages/home/controller.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +33,11 @@ class _HomePageState extends State<HomePage>
   String shortcut = 'no action set';
   late TabController _tabController =
       TabController(vsync: this, length: tabs.length);
+  final TabStateController _tabStateController = Get.put(TabStateController());
+
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     eventBus.on('editTabs', (args) {
       _loadCustomTabs();
@@ -196,8 +198,7 @@ class _HomePageState extends State<HomePage>
             ? null
             : const HomeLeftDrawer(),
         body: ResizeLayout(
-          leftLayout:
-          Column(
+          leftLayout: Column(
             children: <Widget>[
               if (Breakpoints.mediumAndUp.isActive(context))
                 const SizedBox(height: 13),
@@ -207,7 +208,7 @@ class _HomePageState extends State<HomePage>
                 child: TabBarView(
                   controller: _tabController,
                   children: tabs.map((e) {
-                    return TabBarList(e);
+                    return TabBarList(tabItem: e, tabIndex: tabs.indexOf(e));
                   }).toList(),
                 ),
               ),
