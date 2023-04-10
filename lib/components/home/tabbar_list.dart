@@ -13,11 +13,15 @@ import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 import 'package:flutter_v2ex/components/common/network_error.dart';
 import 'package:get/get.dart';
+import 'package:flutter_v2ex/pages/home/controller.dart';
+
+
+GlobalKey<_TabBarListState> tabListKey = GlobalKey();
 
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;
-
-  const TabBarList(this.tabItem, {super.key});
+  int tabIndex = 0;
+  TabBarList({Key? key,  required this.tabItem, required this.tabIndex}) : super(key: key);
 
   @override
   State<TabBarList> createState() => _TabBarListState();
@@ -35,12 +39,14 @@ class _TabBarListState extends State<TabBarList>
   bool showBackTopBtn = false;
   bool _dioError = false;
   String _dioErrorMsg = '';
-
+  // late TabStateController? _tabStateController;
+  final TabStateController _tabStateController =  Get.put(TabStateController());
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
+    // _tabStateController = Get.put(TabStateController());
     super.initState();
     // _controller = ScrollController();
     getTopics();
@@ -76,6 +82,11 @@ class _TabBarListState extends State<TabBarList>
     );
 
     eventBus.on('ignoreTopic', (arg) => {print('69: $arg')});
+    _tabStateController.tabIndex.listen((value) {
+      if(value == widget.tabIndex){
+        animateToTop();
+      }
+    });
   }
 
   @override
@@ -151,6 +162,13 @@ class _TabBarListState extends State<TabBarList>
       }
     }
     return res;
+  }
+
+  void animateToTop() async{
+    await _controller.animateTo(0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease);
+    _tabStateController.setTabIndex(999);
   }
 
   @override
@@ -249,11 +267,7 @@ class _TabBarListState extends State<TabBarList>
               child: FloatingActionButton(
                 heroTag: null,
                 child: const Icon(Icons.vertical_align_top_rounded),
-                onPressed: () {
-                  _controller.animateTo(0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease);
-                },
+                onPressed: () => animateToTop(),
               ),
             ),
           ),
