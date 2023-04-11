@@ -1,7 +1,11 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_v2ex/components/adaptive/main.dart';
+import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/service/translation.dart';
+import 'package:flutter_v2ex/utils/proxy.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
@@ -19,26 +23,9 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'router/app_pages.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
-import 'package:system_proxy/system_proxy.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
-
-class ProxiedHttpOverrides extends HttpOverrides {
-  final String _port;
-  final String _host;
-
-  ProxiedHttpOverrides(this._host, this._port);
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      // set proxy
-      ..findProxy = (uri) {
-        return "PROXY $_host:$_port;";
-      };
-  }
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,20 +35,18 @@ void main() async {
   } catch (err) {
     print('LocalNoticeService err: ${err.toString()}');
   }
-  // 代理设置
-  Map<String, String>? proxy = await SystemProxy.getProxySettings();
-  if (proxy != null) {
-    HttpOverrides.global = ProxiedHttpOverrides(proxy['host']!, proxy['port']!);
-  }
+  // 配置代理
+  CustomProxy().init();
   // 本地存储初始化
   try {
     await GetStorage.init();
   } catch (err) {
     print('GetStorage err: ${err.toString()}');
   }
-  // 初始化 Hive 历史浏览box
+  // Hive初始化 历史浏览box
   await initHive();
-
+  // Dio 初始化
+  Request();
   // 高帧率滚动性能优化
   // GestureBinding.instance.resamplingEnabled = true;
   // 入口
@@ -122,7 +107,7 @@ class _MyAppState extends State<MyApp> {
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
   double globalFs = GStorage().getGlobalFs();
-  var _timer;
+  // var _timer;
 
   @override
   void initState() {
@@ -167,9 +152,9 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('themeChange');
     eventBus.off('editTabs');
     // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    // if (_timer.isActive) {
+    //   _timer.cancel();
+    // }
     closeHive();
     super.dispose();
   }
