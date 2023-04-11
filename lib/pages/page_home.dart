@@ -4,7 +4,7 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/adaptive/slide.dart';
-import 'package:flutter_v2ex/pages/home/controller.dart';
+import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/utils/global.dart';
@@ -15,7 +15,7 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:flutter_v2ex/components/home/search_bar.dart';
 import 'package:flutter_v2ex/components/home/sticky_bar.dart';
-import 'package:flutter_v2ex/components/home/tabbar_list.dart';
+import 'package:flutter_v2ex/components/home/tabBar_list.dart';
 import 'package:flutter_v2ex/components/home/left_drawer.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
@@ -35,10 +35,9 @@ class _HomePageState extends State<HomePage>
   String shortcut = 'no action set';
   late TabController _tabController =
       TabController(vsync: this, length: tabs.length);
-  final TabStateController _tabStateController = Get.put(TabStateController());
   final TopicController _topicController = Get.put(TopicController());
   String topicId = '';
-  var _topicDetail;
+  TabTopicItem _topicDetail = TabTopicItem();
 
   @override
   void initState() {
@@ -79,7 +78,10 @@ class _HomePageState extends State<HomePage>
       // NOTE: This second action icon will only work on Android.
       // In a real world project keep the same file name for both platforms.
       const ShortcutItem(
-          type: 'search', localizedTitle: '搜索', icon: 'icon_search'),
+        type: 'search',
+        localizedTitle: '搜索',
+        icon: 'icon_search',
+      ),
     ]).then((void _) {
       setState(() {
         if (shortcut == 'no action set') {
@@ -107,9 +109,6 @@ class _HomePageState extends State<HomePage>
       tabs.clear();
       tabs.addAll(customTabs);
       _tabController = TabController(length: tabs.length, vsync: this);
-
-      /// DefaultTabController在build外无法重新build tabView
-      // DefaultTabController.of(context).animateTo(0);
     });
   }
 
@@ -178,36 +177,11 @@ class _HomePageState extends State<HomePage>
     num height = MediaQuery.of(context).padding.top;
     GStorage().setStatusBarHeight(height);
 
-    /// DefaultTabController在build外无法重新build tabView
-    // return DefaultTabController(
-    //   length: tabs.length,
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       automaticallyImplyLeading: false,
-    //       title: const HomeSearchBar(),
-    //     ),
-    //     drawer: const HomeLeftDrawer(),
-    //     body: Column(
-    //       children: <Widget>[
-    //         HomeStickyBar(tabs: tabs),
-    //         const SizedBox(height: 3),
-    //         Expanded(
-    //           child: TabBarView(
-    //             children: tabs.map((e) {
-    //               return TabBarList(e);
-    //             }).toList(),
-    //           ),
-    //         )
-    //       ],
-    //     ),
-    //   ),
-    // );
     return Scaffold(
       backgroundColor: getBackground(context, 'homePage'),
       appBar: Breakpoints.mediumAndUp.isActive(context)
           ? null
           : AppBar(
-              // backgroundColor: getBackground(context, 'homePage'),
               automaticallyImplyLeading: false,
               title: const HomeSearchBar(),
             ),
@@ -235,23 +209,6 @@ class _HomePageState extends State<HomePage>
             ? const AdaptSlide()
             : TopicDetail(topicDetail: _topicDetail),
       ),
-      // body:
-      //   Column(
-      //     children: <Widget>[
-      //       if (Breakpoints.mediumAndUp.isActive(context))
-      //         const SizedBox(height: 17),
-      //       HomeStickyBar(tabs: tabs, ctr: _tabController),
-      //       const SizedBox(height: 3),
-      //       Expanded(
-      //         child: TabBarView(
-      //           controller: _tabController,
-      //           children: tabs.map((e) {
-      //             return TabBarList(e);
-      //           }).toList(),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
     );
   }
 }

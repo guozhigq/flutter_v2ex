@@ -6,7 +6,6 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
@@ -15,8 +14,6 @@ import 'package:flutter_v2ex/components/common/network_error.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
 
-
-GlobalKey<_TabBarListState> tabListKey = GlobalKey();
 
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;

@@ -196,7 +196,7 @@ class _ImagePreviewState extends State<ImagePreview>
         child: ExtendedImageGesturePageView.builder(
           controller: ExtendedPageController(
             initialPage: initialPage,
-            pageSpacing: 50,
+            pageSpacing: 0,
           ),
           onPageChanged: (int index) => {
             setState(() {

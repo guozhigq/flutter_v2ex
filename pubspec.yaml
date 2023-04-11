@@ -35,52 +35,76 @@ dependencies:
         sdk: flutter
     # The following adds the Cupertino Icons font to your application.
     # Use with the CupertinoIcons class for iOS style icons.
-    #    cupertino_icons: ^1.0.2
+
+    # 动态取色
     dynamic_color: ^1.6.2
+
+    # 网络请求
     dio: ^4.0.6
+    cookie_jar: ^3.0.1
     #    dio_http_cache: ^0.3.0
+    dio_http2_adapter: ^2.0.0
     dio_http_cache:
         git:
             url: https://github.com/guozhigq/dio-http-cache.git
     dio_cookie_manager: ^2.0.0
-    path_provider: ^2.0.12
+
+    # dom解析渲染
     html: ^0.15.1
-    cookie_jar: ^3.0.1
-    cached_network_image: ^3.2.3
-    easy_refresh: ^3.2.2
+    webfeed_plus: ^1.0.0
     flutter_html: 3.0.0-alpha.6
-    flutter_inappwebview: ^6.0.0-beta.22
-    animations: ^2.0.7
-    flutter_smart_dialog: ^4.8.1
-    extended_image: ^7.0.2
+    flutter_html_table: ^3.0.0-alpha.4
     flutter_html_iframe: ^3.0.0-alpha.4
-    get: ^4.6.5
-    get_storage: ^2.0.3
-    device_info_plus: ^8.0.0
-    dio_http2_adapter: ^2.0.0
+
+    # webView
     url_launcher: ^6.1.9
+    flutter_inappwebview: ^6.0.0-beta.22
+
+    # 图片&保存
+    extended_image: ^7.0.2
+    cached_network_image: ^3.2.3
+    image_gallery_saver: ^1.7.1
+
+    # 下拉刷新
+    easy_refresh: ^3.2.2
+    # 动画
+    animations: ^2.0.7
+    # toast提示
+    flutter_smart_dialog: ^4.8.1
+    # 设备信息
+    device_info_plus: ^8.0.0
+    get: ^4.6.5
+
+    # 数据缓存
+    hive: ^2.2.3
+    hive_flutter: ^1.1.0
+    path_provider: ^2.0.12
+    get_storage: ^2.0.3
+
     # 权限
     permission_handler: ^10.2.0
-    image_gallery_saver: ^1.7.1
     # 桌面长按菜单
     quick_actions: ^1.0.1
     # 通知
     flutter_local_notifications: ^13.0.0
+    # 时区
     timezone: ^0.9.1
-    flutter_native_timezone: ^2.0.0
+    # 代理
     system_proxy: ^0.1.0
+    # 分享
     share_plus: ^6.3.1
+
     extended_tabs: ^4.0.2
     extended_text_field: ^11.0.1
     sticky_headers: ^0.3.0+2
-    hive: ^2.2.3
-    hive_flutter: ^1.1.0
+
+    # 外观
+    container_tab_indicator: ^0.3.0
+    # 响应式
+    flutter_adaptive_scaffold: ^0.1.2
+
     scroll_to_index: ^3.0.1
     google_fonts: ^4.0.3
-    flutter_html_table: ^3.0.0-alpha.4
-    webfeed_plus: ^1.0.0
-    flutter_adaptive_scaffold: ^0.1.2
-    container_tab_indicator: ^0.3.0
 
 dev_dependencies:
     flutter_test:
