@@ -130,12 +130,6 @@ class _TabBarListState extends State<TabBarList>
         });
         _currentPage += 1;
 
-        var userInfo = GStorage().getUserInfo();
-        if (userInfo.isNotEmpty) {
-          // 确保dio完成了初始化
-          // 登录状态自动签到
-          DioRequestWeb.dailyMission();
-        }
         _tabStateController.setActionCounts(res['actionCounts']);
         _tabStateController.setBalance(res['balance']);
 

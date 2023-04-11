@@ -46,7 +46,12 @@ void main() async {
   // Hive初始化 历史浏览box
   await initHive();
   // Dio 初始化
-  Request();
+  await Request().setCookie();
+  // 自动签到
+  var userInfo = GStorage().getUserInfo();
+  if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
+    DioRequestWeb.dailyMission();
+  }
   // 高帧率滚动性能优化
   // GestureBinding.instance.resamplingEnabled = true;
   // 入口
@@ -107,6 +112,7 @@ class _MyAppState extends State<MyApp> {
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
   double globalFs = GStorage().getGlobalFs();
+
   // var _timer;
 
   @override

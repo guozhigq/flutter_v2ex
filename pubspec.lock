@@ -387,10 +387,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_adaptive_scaffold
-      sha256: ff5f6568275823def6437b85dfaabdea30bb510dda725b2a8e4c158edb39a84e
+      sha256: f9482e41adaf26d6fa9de02b605adc346961cb4bb34fe9420335df591ce3de6d
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.2"
+    version: "0.1.3"
   flutter_blurhash:
     dependency: transitive
     description:

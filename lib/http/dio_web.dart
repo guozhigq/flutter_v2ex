@@ -135,10 +135,12 @@ class DioRequestWeb {
     }
     res['topicList'] = topicList;
     var childNode = rootDom.querySelector("div[id='SecondaryTabs']");
-    if(childNode != null){
-      var childNodeEls = childNode.querySelectorAll('a').where((el) => el.attributes['href']!.startsWith('/go'));
-      if(childNodeEls.isNotEmpty){
-        for(var i in childNodeEls){
+    if (childNode != null) {
+      var childNodeEls = childNode
+          .querySelectorAll('a')
+          .where((el) => el.attributes['href']!.startsWith('/go'));
+      if (childNodeEls.isNotEmpty) {
+        for (var i in childNodeEls) {
           print(i);
           var nodeItem = {};
           nodeItem['nodeId'] = i.attributes['href']!.split('/go/')[1];
@@ -151,9 +153,10 @@ class DioRequestWeb {
 
     var rightBarNode = rootDom.querySelector('#Rightbar > div.box');
     List tableList = rightBarNode!.querySelectorAll('table');
-    if(tableList.isNotEmpty){
+    print('getTopicsByTabKey 🌹： ${rightBarNode.innerHtml}');
+    if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
-      for(var i in actionNodes){
+      for (var i in actionNodes) {
         actionCounts.add(int.parse(i.text));
       }
       balance = rightBarNode.querySelector('#money >a')!.innerHtml;
@@ -228,9 +231,10 @@ class DioRequestWeb {
     var document = parse(response.data);
     var rightBarNode = document.querySelector('#Rightbar > div.box');
     List tableList = rightBarNode!.querySelectorAll('table');
-    if(tableList.isNotEmpty){
+    print('getTopicsRecent 🌹： ${rightBarNode.innerHtml}');
+    if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
-      for(var i in actionNodes){
+      for (var i in actionNodes) {
         actionCounts.add(int.parse(i.text));
       }
       balance = rightBarNode.querySelector('#money >a')!.innerHtml;
@@ -567,7 +571,6 @@ class DioRequestWeb {
       GStorage().setEightQuery(false);
     }
     if (lastSignDate == currentDate ||
-        !GStorage().getAutoSign() ||
         GStorage().getEightQuery()) {
       print('已签到 / 不自动签到');
       return false;

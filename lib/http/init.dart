@@ -37,13 +37,13 @@ class Request {
   }
 
   /// 设置cookie
-  void _setCookie() async {
+  setCookie() async {
     var cookiePath = await Utils.getCookiePath();
     var cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
     );
-    dio.interceptors.add(CookieManager(cookieJar));
+    Request().dio.interceptors.add(CookieManager(cookieJar));
   }
 
   /*
@@ -70,7 +70,7 @@ class Request {
 
     dio = Dio(options);
 
-    _setCookie();
+    setCookie();
     //添加拦截器
     dio.interceptors
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
