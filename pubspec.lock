@@ -245,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: device_info_plus
-      sha256: "1d6e5a61674ba3a68fb048a7c7b4ff4bebfed8d7379dbe8f2b718231be9a7c95"
+      sha256: "435383ca05f212760b0a70426b5a90354fe6bd65992b3a5e27ab6ede74c02f5c"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.1.0"
+    version: "8.2.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:

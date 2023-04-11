@@ -1,5 +1,6 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_v2ex/pages/help/network.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -95,6 +96,8 @@ class AppPages {
     CustomGetPage('/agreement', const AgreementPage()),
     // 历史热议
     CustomGetPage('/historyHot', const HistoryHotPage()),
+    // 网络
+    CustomGetPage('/networkCheck', const NetworkCheckPage()),
   ];
 }
 
