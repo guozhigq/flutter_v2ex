@@ -2,6 +2,8 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:get/get.dart';
 
 class ResizeLayout extends StatefulWidget {
   Widget leftLayout;
@@ -18,15 +20,15 @@ class ResizeLayout extends StatefulWidget {
 }
 
 class _ResizeLayoutState extends State<ResizeLayout> {
-  double _offset = 0.0;
+  double _offset = GStorage().getDragOffset();
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        // ipad 竖屏
-        bool isiPadHorizontal = Breakpoints.large.isActive(context);
         // ipad 横屏
+        bool isiPadHorizontal = Breakpoints.large.isActive(context);
+        // ipad 竖屏
         bool isiPadVertical = Breakpoints.medium.isActive(context);
         double maxWidth = constraints.maxWidth;
         double dividerWidth = isiPadVertical ? 8 : 16;
@@ -35,9 +37,9 @@ class _ResizeLayoutState extends State<ResizeLayout> {
         double lfScale = 0.75;
         double rgScale = 1 - lfScale;
         double minScale = 0.35;
-        final lfWidth = (maxWidth - 28) * lfScale;
-        final rgWidth = (maxWidth - 28) * rgScale;
-        final minWidth = (maxWidth - 28) * minScale;
+        final lfWidth = (maxWidth - dividerWidth - rightSafeOffest) * lfScale;
+        final rgWidth = (maxWidth - dividerWidth - rightSafeOffest) * rgScale;
+        final minWidth = (maxWidth - dividerWidth - rightSafeOffest) * minScale;
 
         if (lfWidth + _offset < minWidth) {
           _offset = minWidth - lfWidth;
@@ -53,7 +55,8 @@ class _ResizeLayoutState extends State<ResizeLayout> {
               // 非ipad横屏 使用屏幕宽度
               width: isiPadHorizontal ? lfWidth + _offset : maxWidth,
               child: SafeArea(
-                bottom: false,
+                top: Breakpoints.mediumAndUp.isActive(context) ? true : false,
+                bottom: Breakpoints.mediumAndUp.isActive(context) ? true : false,
                 child: widget.leftLayout,
               ),
             ),
@@ -97,6 +100,7 @@ class DragDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onHorizontalDragUpdate: (DragUpdateDetails details) {
+        GStorage().setDragOffset(details.delta.dx);
         onSize(details.delta.dx);
       },
       child: MouseRegion(

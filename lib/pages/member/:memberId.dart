@@ -322,7 +322,8 @@ class _MemberPageState extends State<MemberPage> {
                   SliverToBoxAdapter(
                     child: Container(
                       padding: const EdgeInsets.only(left: 15, right: 10),
-                      child: Html(
+                      child:
+                      Html(
                         data: signDetail['balanceRender'],
                         customRenders: {
                           tagMatcher("img"): CustomRender.widget(

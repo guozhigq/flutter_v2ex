@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/common/skeleton.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 
 class TopicSkeleton extends StatelessWidget {
   const TopicSkeleton({Key? key}) : super(key: key);
@@ -33,9 +35,10 @@ class TopicItemSkeleton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.onInverseSurface,
+        // color: Theme.of(context).colorScheme.onInverseSurface,
+        color: getBackground(context, 'listItem'),
       ),
-      margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
+      margin: EdgeInsets.only(top: 8, right: Breakpoints.mediumAndUp.isActive(context) ? 0 : 12, bottom: 0, left: 12),
       padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

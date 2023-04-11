@@ -1,21 +1,93 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/components/topic/html_render.dart';
+import 'package:flutter_v2ex/pages/home/controller.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/global.dart';
+import 'package:flutter_v2ex/utils/login.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
-class AdaptSlide extends StatelessWidget {
+class AdaptSlide extends StatefulWidget {
   const AdaptSlide({Key? key}) : super(key: key);
+
+  @override
+  State<AdaptSlide> createState() => _AdaptSlideState();
+}
+
+class _AdaptSlideState extends State<AdaptSlide> {
+  final TabStateController _tabStateController = Get.put(TabStateController());
+  bool loginStatus = false;
+  Map userInfo = {};
+  List actionCounts = [];
+  String balance = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _tabStateController.actionCounts.listen((value) {
+      actionCounts = value;
+    });
+    _tabStateController.balance.listen((value) {
+      balance = value;
+    });
+
+    // 初始化时读取用户信息
+    if (GStorage().getLoginStatus()) {
+      loginStatus = true;
+      readUserInfo();
+    }
+
+    eventBus.on('login', (arg) {
+      if (arg != null) {
+        if (arg == 'success') {
+          readUserInfo();
+        }
+        if (arg == 'fail' || arg == 'loginOut') {
+          // GStorage().setLoginStatus(false);
+          // GStorage().setUserInfo({});
+          setState(() {
+            loginStatus = false;
+            userInfo = {};
+          });
+        }
+        if (arg == 'fail') {
+          Login.loginDialog('登录状态失效，请重新登录');
+        }
+      }
+    });
+  }
+
+  void readUserInfo() {
+    if (GStorage().getUserInfo() != {}) {
+      // DioRequestWeb.dailyMission();
+      Map userInfoStorage = GStorage().getUserInfo();
+      setState(() {
+        userInfo = userInfoStorage;
+        loginStatus = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabStateController.removeListener(() {});
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
         children: [
           Container(
             width: double.infinity,
@@ -28,17 +100,63 @@ class AdaptSlide extends StatelessWidget {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: const [
-                      CAvatar(url: '', size: 30),
-                      SizedBox(width: 10),
-                      Text('guozhigq')
-                    ],
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        CAvatar(
+                            url: loginStatus ? userInfo['avatar'] : '',
+                            size: 30),
+                        const SizedBox(width: 10),
+                        Text(loginStatus ? userInfo['userName'] : '未登录')
+                      ],
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('已签到'),
-                  )
+
+                  // 登录后显示余额
+                  if (loginStatus)
+                    Expanded(
+                      flex: 2,
+                      child: Align(
+                        widthFactor: double.infinity,
+                        alignment: Alignment.centerRight,
+                        child: Obx(
+                          () =>
+                              // HtmlRender(htmlContent: _tabStateController.balance.value,)
+                              Html(
+                            data: _tabStateController.balance.value,
+                            customRenders: {
+                              tagMatcher("img"): CustomRender.widget(
+                                widget: (htmlContext, buildChildren) {
+                                  String? imgUrl = htmlContext
+                                      .tree.element!.attributes['src'];
+                                  imgUrl = Utils().imageUrl(imgUrl!);
+                                  return CachedNetworkImage(
+                                    imageUrl: imgUrl,
+                                    height: 15,
+                                    fadeOutDuration:
+                                        const Duration(milliseconds: 100),
+                                    placeholder: (context, url) => Image.asset(
+                                      'assets/images/avatar.png',
+                                      width: 15,
+                                      height: 15,
+                                    ),
+                                  );
+                                },
+                              ),
+                            },
+                            style: {
+                              'a': Style(
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
+                                textDecoration: TextDecoration.none,
+                                margin: Margins.only(right: 2),
+                              ),
+                            },
+                          ),
+                        ),
+                      ),
+                    )
                 ],
               ),
               content: Container(
@@ -50,17 +168,54 @@ class AdaptSlide extends StatelessWidget {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        ActionGrid(count: '16', title: '节点收藏'),
-                        ActionGrid(count: '16', title: '主题收藏'),
-                        ActionGrid(count: '16', title: '特别关注')
+                      children: [
+                        Obx(() => ActionGrid(
+                              count: _tabStateController.actionCounts[0]
+                                      .toString() ??
+                                  '-',
+                              title: '节点收藏',
+                              onTap: () => Get.toNamed('/nodes'),
+                            )),
+                        Obx(() => ActionGrid(
+                            count: _tabStateController.actionCounts[1]
+                                    .toString() ??
+                                '-',
+                            title: '主题收藏',
+                            onTap: () => Get.toNamed('/my/topics'))),
+                        Obx(() => ActionGrid(
+                            count: _tabStateController.actionCounts[2]
+                                    .toString() ??
+                                '-',
+                            title: '特别关注',
+                            onTap: () => Get.toNamed('/my/following'))),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const ElevatedButton(
-                      onPressed: null,
-                      child: Text('发布新主题'),
-                    ),
+                    if (!loginStatus)
+                      ElevatedButton(
+                        onPressed: () async {
+                          var res = await Get.toNamed('/login');
+                          if (res != null) {
+                            if (res['loginStatus'] == 'cancel') {
+                              SmartDialog.showToast('取消登录');
+                            } else {
+                              SmartDialog.showToast('登录成功');
+                              if (GStorage().getLoginStatus()) {
+                                setState(() {
+                                  loginStatus = true;
+                                });
+                                readUserInfo();
+                              }
+                            }
+                          }
+                        },
+                        child: const Text('去登录'),
+                      ),
+                    if (loginStatus)
+                      const ElevatedButton(
+                        onPressed: null,
+                        child: Text('发布新主题'),
+                      ),
                   ],
                 ),
               ),
@@ -115,7 +270,7 @@ class HotList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 50,
+      itemCount: 30,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
@@ -181,8 +336,10 @@ class StickyHeader extends StatelessWidget {
 class ActionGrid extends StatelessWidget {
   final String? count;
   final String? title;
+  var onTap;
 
-  const ActionGrid({Key? key, required this.count, required this.title})
+  ActionGrid(
+      {Key? key, required this.count, required this.title, required this.onTap})
       : super(key: key);
 
   @override
@@ -192,7 +349,7 @@ class ActionGrid extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: () {},
+        onTap: () => onTap(),
         child: Padding(
           padding: Breakpoints.medium.isActive(context)
               ? const EdgeInsets.symmetric(vertical: 10, horizontal: 4)

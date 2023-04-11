@@ -1,6 +1,8 @@
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_network.dart';
@@ -19,6 +21,7 @@ class HotPage extends StatefulWidget {
 
 class _HotPageState extends State<HotPage> {
   final ScrollController _controller = ScrollController();
+  final TopicController _topicController = Get.put(TopicController());
   bool _isLoading = true;
   List<TabTopicItem> hotTopicList = [];
 
@@ -48,6 +51,7 @@ class _HotPageState extends State<HotPage> {
     }
     setState(() {
       hotTopicList = list;
+      _topicController.setTopic(list[0]);
       _isLoading = false;
     });
     return res;
@@ -63,14 +67,17 @@ class _HotPageState extends State<HotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Breakpoints.mediumAndUp.isActive(context) ? null :  AppBar(
-        title: Text(I18nKeyword.todayHot.tr),
-        actions: [
-          TextButton(
-              onPressed: () => Get.toNamed('/historyHot'),
-              child: const Text('历史')),
-        ],
-      ),
+      backgroundColor: getBackground(context, 'homePage'),
+      appBar: Breakpoints.mediumAndUp.isActive(context)
+          ? null
+          : AppBar(
+              title: Text(I18nKeyword.todayHot.tr),
+              actions: [
+                TextButton(
+                    onPressed: () => Get.toNamed('/historyHot'),
+                    child: const Text('历史')),
+              ],
+            ),
       body: ResizeLayout(
         leftLayout: Scrollbar(
           radius: const Radius.circular(10),
@@ -80,8 +87,12 @@ class _HotPageState extends State<HotPage> {
               : hotTopicList.isNotEmpty
                   ? Container(
                       clipBehavior: Clip.antiAlias,
-                      margin:
-                          const EdgeInsets.only(right: 12, top: 8, left: 12),
+                      margin: EdgeInsets.only(
+                          right: Breakpoints.mediumAndUp.isActive(context)
+                              ? 0
+                              : 12,
+                          top: 8,
+                          left: 12),
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(10),

@@ -43,6 +43,8 @@ class DioRequestWeb {
     var res = {};
     List topicList = <TabTopicItem>[];
     List childNodeList = [];
+    List actionCounts = [];
+    String balance = '';
     Response response;
     // type
     // all 默认节点 一页   /?tab=xxx
@@ -146,6 +148,18 @@ class DioRequestWeb {
       }
     }
     res['childNodeList'] = childNodeList;
+
+    var rightBarNode = rootDom.querySelector('#Rightbar > div.box');
+    List tableList = rightBarNode!.querySelectorAll('table');
+    if(tableList.isNotEmpty){
+      var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
+      for(var i in actionNodes){
+        actionCounts.add(int.parse(i.text));
+      }
+      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+    }
+    res['actionCounts'] = actionCounts;
+    res['balance'] = balance;
     return res;
   }
 
@@ -154,6 +168,8 @@ class DioRequestWeb {
     var res = {};
     var topicList = <TabTopicItem>[];
     List childNodeList = [];
+    List<int> actionCounts = [];
+    String balance = '';
     Response response;
     try {
       response = await Request().get(
@@ -209,8 +225,20 @@ class DioRequestWeb {
     } catch (err) {
       print(err);
     }
+    var document = parse(response.data);
+    var rightBarNode = document.querySelector('#Rightbar > div.box');
+    List tableList = rightBarNode!.querySelectorAll('table');
+    if(tableList.isNotEmpty){
+      var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
+      for(var i in actionNodes){
+        actionCounts.add(int.parse(i.text));
+      }
+      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+    }
     res['topicList'] = topicList;
     res['childNodeList'] = childNodeList;
+    res['actionCounts'] = actionCounts;
+    res['balance'] = balance;
     return res;
   }
 
