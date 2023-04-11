@@ -187,7 +187,7 @@ class _TabBarListState extends State<TabBarList>
           child: Container(
             clipBehavior: Clip.antiAlias,
             margin: EdgeInsets.only(
-                right: Breakpoints.mediumAndUp.isActive(context) ? 0 : 12,
+                right: Breakpoints.large.isActive(context) ? 0 : 12,
                 top: 8,
                 left: 12),
             decoration: const BoxDecoration(

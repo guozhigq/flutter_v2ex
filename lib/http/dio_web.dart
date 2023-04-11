@@ -153,7 +153,6 @@ class DioRequestWeb {
 
     var rightBarNode = rootDom.querySelector('#Rightbar > div.box');
     List tableList = rightBarNode!.querySelectorAll('table');
-    print('getTopicsByTabKey 🌹： ${rightBarNode.innerHtml}');
     if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
       for (var i in actionNodes) {
@@ -231,7 +230,6 @@ class DioRequestWeb {
     var document = parse(response.data);
     var rightBarNode = document.querySelector('#Rightbar > div.box');
     List tableList = rightBarNode!.querySelectorAll('table');
-    print('getTopicsRecent 🌹： ${rightBarNode.innerHtml}');
     if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
       for (var i in actionNodes) {

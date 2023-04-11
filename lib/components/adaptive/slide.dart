@@ -4,7 +4,6 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
-import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/global.dart';
@@ -25,7 +24,10 @@ class _AdaptSlideState extends State<AdaptSlide> {
   final TabStateController _tabStateController = Get.put(TabStateController());
   bool loginStatus = false;
   Map userInfo = {};
-  List actionCounts = [];
+  RxString nodeFavCount = '-'.obs;
+  RxString topicFavCount = '-'.obs;
+  RxString followCount = '-'.obs;
+
   String balance = '';
 
   @override
@@ -34,7 +36,11 @@ class _AdaptSlideState extends State<AdaptSlide> {
     super.initState();
 
     _tabStateController.actionCounts.listen((value) {
-      actionCounts = value;
+      setState(() {
+        nodeFavCount = value[0].toString().obs;
+        topicFavCount = value[1].toString().obs;
+        followCount = value[2].toString().obs;
+      });
     });
     _tabStateController.balance.listen((value) {
       balance = value;
@@ -68,7 +74,6 @@ class _AdaptSlideState extends State<AdaptSlide> {
 
   void readUserInfo() {
     if (GStorage().getUserInfo() != {}) {
-      // DioRequestWeb.dailyMission();
       Map userInfoStorage = GStorage().getUserInfo();
       setState(() {
         userInfo = userInfoStorage;
@@ -86,6 +91,28 @@ class _AdaptSlideState extends State<AdaptSlide> {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle titleStyle =
+        TextStyle(color: Theme.of(context).colorScheme.primary);
+    TextStyle subTitleStyle =
+        TextStyle(color: Theme.of(context).colorScheme.outline);
+
+    List actionList = [
+      {
+        'count': nodeFavCount.value,
+        'title': '节点收藏',
+        'onTap': () => Get.toNamed('/nodes'),
+      },
+      {
+        'count': topicFavCount.value,
+        'title': '主题收藏',
+        'onTap': () => Get.toNamed('/nodes'),
+      },
+      {
+        'count': followCount.value,
+        'title': '特别关注',
+        'onTap': () => Get.toNamed('/nodes'),
+      }
+    ];
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -169,25 +196,12 @@ class _AdaptSlideState extends State<AdaptSlide> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Obx(() => ActionGrid(
-                              count: _tabStateController.actionCounts[0]
-                                      .toString() ??
-                                  '-',
-                              title: '节点收藏',
-                              onTap: () => Get.toNamed('/nodes'),
-                            )),
-                        Obx(() => ActionGrid(
-                            count: _tabStateController.actionCounts[1]
-                                    .toString() ??
-                                '-',
-                            title: '主题收藏',
-                            onTap: () => Get.toNamed('/my/topics'))),
-                        Obx(() => ActionGrid(
-                            count: _tabStateController.actionCounts[2]
-                                    .toString() ??
-                                '-',
-                            title: '特别关注',
-                            onTap: () => Get.toNamed('/my/following'))),
+                        for (var i in actionList)
+                          ActionGrid(
+                            count: i['count'],
+                            title: i['title'],
+                            onTap: i['onTap'],
+                          ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -221,43 +235,32 @@ class _AdaptSlideState extends State<AdaptSlide> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              color: getBackground(context, 'listItem'),
-              borderRadius: BorderRadius.circular(10),
+          ContentCard(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('🔥 今日热议主题', style: titleStyle),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('更多', style: subTitleStyle),
+                )
+              ],
             ),
-            child: StickyHeader(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '🔥 今日热议主题',
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      '更多',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline),
-                    ),
-                  )
-                  // IconButton(
-                  //   onPressed: () {},
-                  //   icon: Icon(
-                  //       Icons.refresh,
-                  //       size: 20,
-                  //       color: Theme.of(context).colorScheme.outline),
-                  // ),
-                ],
-              ),
-              content: const HotList(),
-            ),
+            content: const HotList(),
           ),
+          ContentCard(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('❤️ 收藏的节点', style: titleStyle),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('更多', style: subTitleStyle),
+                )
+              ],
+            ),
+            content: const NodeList(),
+          )
         ],
       ),
     );
@@ -270,7 +273,7 @@ class HotList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 30,
+      itemCount: 5,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
@@ -305,31 +308,32 @@ class StickyHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StickyHeaderBuilder(
-        builder: (BuildContext context, double stuckAmount) {
-          stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
-          return Container(
-            width: double.infinity,
-            height: 60,
-            color: getBackground(context, 'listItem'),
-            padding: const EdgeInsets.only(left: 20, right: 0),
-            child: Stack(
-              children: [
-                SizedBox(height: 60, child: title),
-                Positioned(
-                    bottom: 1,
-                    left: 0,
-                    right: 18,
-                    child: Divider(
-                      height: 1,
-                      color: Theme.of(context).dividerColor.withOpacity(0.1),
-                    )),
-              ],
-            ),
-          );
-        },
-        content: Column(
-          children: [const SizedBox(height: 12), content],
-        ));
+      builder: (BuildContext context, double stuckAmount) {
+        stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
+        return Container(
+          width: double.infinity,
+          height: 60,
+          color: getBackground(context, 'listItem'),
+          padding: const EdgeInsets.only(left: 20, right: 0),
+          child: Stack(
+            children: [
+              SizedBox(height: 60, child: title),
+              Positioned(
+                  bottom: 1,
+                  left: 0,
+                  right: 18,
+                  child: Divider(
+                    height: 1,
+                    color: Theme.of(context).dividerColor.withOpacity(0.1),
+                  )),
+            ],
+          ),
+        );
+      },
+      content: Column(
+        children: [const SizedBox(height: 12), content],
+      ),
+    );
   }
 }
 
@@ -357,20 +361,86 @@ class ActionGrid extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                count!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 18,
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Text(
+                  count!,
+                  key: ValueKey<String>(count!),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 18,
+                  ),
                 ),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Text(title!),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class NodeList extends StatelessWidget {
+  const NodeList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List list = ['', '', '', '', ''];
+    return ListView.builder(
+      itemCount: list.length + 1,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemBuilder: (BuildContext context, int index) {
+        if (index == list.length) {
+          return const SizedBox(height: 8);
+        } else {
+          return Material(
+            color: getBackground(context, 'listItem'),
+            child: InkWell(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Row(
+                  children: const [
+                    CAvatar(url: '', size: 40),
+                    SizedBox(width: 10),
+                    Text('节点名称')
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+class ContentCard extends StatelessWidget {
+  final Widget title;
+  final Widget content;
+
+  const ContentCard({Key? key, required this.title, required this.content})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.hardEdge,
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: getBackground(context, 'listItem'),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: StickyHeader(
+        title: title,
+        content: content,
       ),
     );
   }
