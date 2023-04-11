@@ -1,59 +1,31 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_v2ex/components/adaptive/main.dart';
-import 'package:flutter_v2ex/http/init.dart';
-import 'package:flutter_v2ex/service/translation.dart';
-import 'package:flutter_v2ex/utils/proxy.dart';
-import 'package:get/get.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
+import 'package:get/get.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/components/common/custom_loading.dart';
+
+import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/pages/page_home.dart';
+import 'package:flutter_v2ex/utils/hive.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/string.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-
-import 'router/app_pages.dart';
-import 'package:flutter_v2ex/pages/page_home.dart';
+import 'package:flutter_v2ex/utils/event_bus.dart';
+import 'package:flutter_v2ex/router/app_pages.dart';
+import 'package:flutter_v2ex/service/translation.dart';
 import 'package:flutter_v2ex/service/local_notice.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/components/adaptive/main.dart';
+import 'package:flutter_v2ex/components/common/custom_loading.dart';
 import 'package:flutter_v2ex/controller/fontsize_controller.dart';
-import 'package:flutter_v2ex/utils/hive.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // 消息通知初始化
-  try {
-    await LocalNoticeService().init();
-  } catch (err) {
-    print('LocalNoticeService err: ${err.toString()}');
-  }
-  // 配置代理
-  CustomProxy().init();
-  // 本地存储初始化
-  try {
-    await GetStorage.init();
-  } catch (err) {
-    print('GetStorage err: ${err.toString()}');
-  }
-  // Hive初始化 历史浏览box
-  await initHive();
-  // Dio 初始化
-  await Request().setCookie();
-  // 自动签到
-  var userInfo = GStorage().getUserInfo();
-  if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
-    DioRequestWeb.dailyMission();
-  }
-  // 高帧率滚动性能优化
-  // GestureBinding.instance.resamplingEnabled = true;
+  // 初始化配置
+  await Global.init();
   // 入口
   runApp(const MyApp());
   // 配置状态栏
@@ -86,10 +58,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final SystemUiOverlayStyle kDark = SystemUiOverlayStyle(
-    // statusBarColor: Colors.transparent /*Android=23*/,
-    // statusBarBrightness: Brightness.light /*iOS*/,
-    // statusBarIconBrightness: Brightness.dark /*Android=23*/,
-    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
     systemNavigationBarDividerColor:
         Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
@@ -98,10 +66,6 @@ class _MyAppState extends State<MyApp> {
   );
 
   final SystemUiOverlayStyle kLight = SystemUiOverlayStyle(
-    // statusBarColor: Colors.transparent /*Android=23*/,
-    // statusBarBrightness: Brightness.dark /*iOS*/,
-    // statusBarIconBrightness: Brightness.light /*Android=23*/,
-    // systemStatusBarContrastEnforced: false /*Android=29*/,
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
     systemNavigationBarDividerColor:
         Colors.transparent.withAlpha(1) /*Android=28,不能用全透明 */,
@@ -112,8 +76,6 @@ class _MyAppState extends State<MyApp> {
   EventBus eventBus = EventBus();
   DateTime? lastPopTime; //上次点击时间
   double globalFs = GStorage().getGlobalFs();
-
-  // var _timer;
 
   @override
   void initState() {
@@ -135,14 +97,6 @@ class _MyAppState extends State<MyApp> {
       LocalNoticeService().show(arg);
     });
 
-    // 轮询消息 30分钟
-    // if(GStorage().getLoginStatus()){
-    //   const timeInterval = Duration(minutes: 30);
-    //   _timer = Timer.periodic(timeInterval , (timer){
-    //     // 循环一定要记得设置取消条件，手动取消
-    //     DioRequestWeb.queryDaily();
-    //   });
-    // }
     // 检查更新
     if (GStorage().getAutoUpdate()) {
       DioRequestWeb.checkUpdate();
@@ -157,10 +111,6 @@ class _MyAppState extends State<MyApp> {
     eventBus.off('unRead');
     eventBus.off('themeChange');
     eventBus.off('editTabs');
-    // 组件销毁时判断Timer是否仍然处于激活状态，是则取消
-    // if (_timer.isActive) {
-    //   _timer.cancel();
-    // }
     closeHive();
     super.dispose();
   }
@@ -173,9 +123,7 @@ class _MyAppState extends State<MyApp> {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         ColorScheme? lightColorScheme;
         ColorScheme? darkColorScheme;
-        print('dynamic取色失败，采用品牌色');
         if (lightDynamic != null && darkDynamic != null) {
-          print('dynamic取色成功');
           // dynamic取色成功
           lightColorScheme = lightDynamic.harmonized();
           darkColorScheme = darkDynamic.harmonized();
@@ -232,11 +180,9 @@ class _MyAppState extends State<MyApp> {
               child: FlutterSmartDialog(
                 loadingBuilder: (String msg) => CustomLoading(msg: msg),
                 toastBuilder: (String msg) => CustomToast(msg: msg),
-
                 /// 设置文字大小不跟随系统更改
                 child: MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                  // child: child!,
                   child: CAdaptiveLayout(child: child),
                 ),
               ),
