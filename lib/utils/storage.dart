@@ -26,7 +26,8 @@ enum StoreKeys {
   autoUpdate,
   highlightOp,
   tempFs,
-  sideslip
+  sideslip,
+  dragOffset,
 }
 
 class GStorage {
@@ -181,4 +182,9 @@ class GStorage {
   setSideslip(bool value) => _box.write(StoreKeys.sideslip.toString(), value);
 
   bool getSideslip() => _box.read<bool>(StoreKeys.sideslip.toString()) ?? false;
+
+  // iPad横屏拖拽距离
+  setDragOffset(double value) => _box.write(StoreKeys.dragOffset.toString(), value);
+
+  double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
 }

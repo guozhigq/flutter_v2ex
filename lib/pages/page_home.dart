@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage>
     // showPrivacyDialog();
 
     _topicController.topicId.listen((value) {
-      if(mounted){
+      if (mounted) {
         setState(() {
           topicId = value;
           _topicDetail = _topicController.topic.value;
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
-    _topicController.removeListener(() { });
+    _topicController.removeListener(() {});
     // TODO: implement dispose
     super.dispose();
   }
@@ -202,58 +202,56 @@ class _HomePageState extends State<HomePage>
     //     ),
     //   ),
     // );
-    return SafeArea(
-      top: Breakpoints.mediumAndUp.isActive(context) ? true : false,
-      bottom: Breakpoints.mediumAndUp.isActive(context) ? true : false,
-      child: Scaffold(
-        backgroundColor: getBackground(context, 'homePage'),
-        appBar: Breakpoints.mediumAndUp.isActive(context)
-            ? null
-            : AppBar(
-                // backgroundColor: getBackground(context, 'homePage'),
-                automaticallyImplyLeading: false,
-                title: const HomeSearchBar(),
+    return Scaffold(
+      backgroundColor: getBackground(context, 'homePage'),
+      appBar: Breakpoints.mediumAndUp.isActive(context)
+          ? null
+          : AppBar(
+              // backgroundColor: getBackground(context, 'homePage'),
+              automaticallyImplyLeading: false,
+              title: const HomeSearchBar(),
+            ),
+      drawer: Breakpoints.mediumAndUp.isActive(context)
+          ? null
+          : const HomeLeftDrawer(),
+      body: ResizeLayout(
+        leftLayout: Column(
+          children: <Widget>[
+            if (Breakpoints.mediumAndUp.isActive(context))
+              const SizedBox(height: 13),
+            HomeStickyBar(tabs: tabs, ctr: _tabController),
+            const SizedBox(height: 3),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: tabs.map((e) {
+                  return TabBarList(tabItem: e, tabIndex: tabs.indexOf(e));
+                }).toList(),
               ),
-        drawer: Breakpoints.mediumAndUp.isActive(context)
-            ? null
-            : const HomeLeftDrawer(),
-        body: ResizeLayout(
-          leftLayout: Column(
-            children: <Widget>[
-              if (Breakpoints.mediumAndUp.isActive(context))
-                const SizedBox(height: 13),
-              HomeStickyBar(tabs: tabs, ctr: _tabController),
-              const SizedBox(height: 3),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: tabs.map((e) {
-                    return TabBarList(tabItem: e, tabIndex: tabs.indexOf(e));
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-          rightLayout: topicId == '' ?  const AdaptSlide() : TopicDetail(topicDetail: _topicDetail),
+            ),
+          ],
         ),
-        // body:
-        //   Column(
-        //     children: <Widget>[
-        //       if (Breakpoints.mediumAndUp.isActive(context))
-        //         const SizedBox(height: 17),
-        //       HomeStickyBar(tabs: tabs, ctr: _tabController),
-        //       const SizedBox(height: 3),
-        //       Expanded(
-        //         child: TabBarView(
-        //           controller: _tabController,
-        //           children: tabs.map((e) {
-        //             return TabBarList(e);
-        //           }).toList(),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
+        rightLayout: topicId == ''
+            ? const AdaptSlide()
+            : TopicDetail(topicDetail: _topicDetail),
       ),
+      // body:
+      //   Column(
+      //     children: <Widget>[
+      //       if (Breakpoints.mediumAndUp.isActive(context))
+      //         const SizedBox(height: 17),
+      //       HomeStickyBar(tabs: tabs, ctr: _tabController),
+      //       const SizedBox(height: 3),
+      //       Expanded(
+      //         child: TabBarView(
+      //           controller: _tabController,
+      //           children: tabs.map((e) {
+      //             return TabBarList(e);
+      //           }).toList(),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
     );
   }
 }

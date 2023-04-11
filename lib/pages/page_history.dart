@@ -1,4 +1,8 @@
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/service/read.dart';
@@ -15,6 +19,8 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   List historyList = [];
+  final ScrollController _controller = ScrollController();
+  final TopicController _topicController = Get.put(TopicController());
 
   @override
   void initState() {
@@ -28,6 +34,9 @@ class _HistoryPageState extends State<HistoryPage> {
     if (res.isNotEmpty) {
       setState(() {
         historyList = res.reversed.toList();
+        if(historyList.isNotEmpty){
+          _topicController.setTopic(historyList[0]['topicList'][0]['content']);
+        }
       });
     } else {
       historyList = [];
@@ -64,67 +73,83 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(I18nKeyword.history.tr),
-        actions: [
-          IconButton(
-            onPressed: historyList.isNotEmpty ? clearHis : null,
-            tooltip: I18nKeyword.clearHistory.tr,
-            icon: const Icon(Icons.clear_all_rounded),
-          ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: historyList.isEmpty
-          ? noData()
-          : ListView.builder(
-              itemCount: historyList.length+1,
-              itemBuilder: (context, index) {
-                if(index == historyList.length){
-                  return const FooterTips();
-                }else{
-                  return StickyHeaderBuilder(
-                    builder: (BuildContext context, double stuckAmount) {
-                      stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
-                      return Container(
-                        height: 60.0,
-                        color: Theme.of(context).colorScheme.background,
-                        // color: Color.lerp(Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.onInverseSurface, stuckAmount),
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              historyList[index]['date'],
-                              style: Theme.of(context).textTheme.titleLarge,
+      backgroundColor: getBackground(context, 'homePage'),
+      appBar: Breakpoints.mediumAndUp.isActive(context)
+          ? null
+          : AppBar(
+              title: Text(I18nKeyword.history.tr),
+              actions: [
+                IconButton(
+                  onPressed: historyList.isNotEmpty ? clearHis : null,
+                  tooltip: I18nKeyword.clearHistory.tr,
+                  icon: const Icon(Icons.clear_all_rounded),
+                ),
+                const SizedBox(width: 12),
+              ],
+            ),
+      body: ResizeLayout(
+        leftLayout: Scrollbar(
+          radius: const Radius.circular(10),
+          controller: _controller,
+          child: historyList.isEmpty
+              ? noData()
+              : ListView.builder(
+                  itemCount: historyList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == historyList.length) {
+                      return const FooterTips();
+                    } else {
+                      return StickyHeaderBuilder(
+                        builder: (BuildContext context, double stuckAmount) {
+                          stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
+                          return Container(
+                            height: 60.0,
+                            color: Theme.of(context).colorScheme.background,
+                            // color: Color.lerp(Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.onInverseSurface, stuckAmount),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  historyList[index]['date'],
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                Text(
+                                  '${historyList[index]['topicList'].length} 贴',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${historyList[index]['topicList'].length} 贴',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(
-                                  color:
-                                  Theme.of(context).colorScheme.outline),
-                            ),
-                          ],
+                          );
+                        },
+                        content: Container(
+                          padding: EdgeInsets.only(
+                              right: Breakpoints.mediumAndUp.isActive(context)
+                                  ? 0
+                                  : 12,
+                              top: 8,
+                              left: 12),
+                          child: Column(
+                            children: [
+                              for (var i in historyList[index]['topicList'])
+                                ListItem(topic: i['content'])
+                            ],
+                          ),
                         ),
                       );
-                    },
-                    content: Container(
-                      padding: const EdgeInsets.only(left: 12, top: 8, right: 12),
-                      child: Column(
-                        children: [
-                          for (var i in historyList[index]['topicList'])
-                            ListItem(topic: i['content'])
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              },
-            ),
+                    }
+                  },
+                ),
+        ),
+      ),
     );
   }
 

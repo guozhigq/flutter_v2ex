@@ -136,6 +136,9 @@ class _TabBarListState extends State<TabBarList>
           // 登录状态自动签到
           DioRequestWeb.dailyMission();
         }
+        _tabStateController.setActionCounts(res['actionCounts']);
+        _tabStateController.setBalance(res['balance']);
+
       });
     } catch (err) {
       if (_currentPage == 0) {
