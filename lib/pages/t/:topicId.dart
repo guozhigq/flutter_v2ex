@@ -1,8 +1,10 @@
 // ignore_for_file: avoid_print
 import 'dart:io';
-import 'dart:math';
 import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/topic/main.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/service/i18n_keyword.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +13,11 @@ import 'package:flutter/rendering.dart';
 
 import 'package:flutter_v2ex/components/topic/bottom_bar.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
-import 'package:flutter_v2ex/components/common/avatar.dart';
 
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
-import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/components/topic/reply_new.dart';
-import 'package:flutter_v2ex/components/common/node_tag.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
@@ -32,7 +31,8 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 enum SampleItem { ignore, share, report, browse }
 
 class TopicDetail extends StatefulWidget {
-  const TopicDetail({super.key});
+  var topicDetail;
+  TopicDetail({this.topicDetail,  super.key});
 
   @override
   State<TopicDetail> createState() => _TopicDetailState();
@@ -82,6 +82,10 @@ class _TopicDetailState extends State<TopicDetail>
   String routerSource = '';
   int noticeFloorNumber = 0;
 
+  String replyId = '';
+
+  final TopicController _topicController = Get.put(TopicController());
+
   @override
   void initState() {
     super.initState();
@@ -91,8 +95,25 @@ class _TopicDetailState extends State<TopicDetail>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
+    _topicController.topicId.listen((value) async{
+      topicId = value;
+      _topicDetail = _topicController.topic.value;
+      _detailModel = null;
+      _currentPage = 0;
+      await getDetailInit();
+    });
+
     // setState(() {
-    topicId = Get.parameters['topicId']!;
+    try{
+      topicId = Get.parameters['topicId']!;
+    }catch(e){
+      print('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
+    }
+    if(widget.topicDetail != null){
+      _topicDetail = widget.topicDetail;
+      topicId = widget.topicDetail.topicId;
+    }
+
     if (Get.arguments != null) {
       _topicDetail = Get.arguments['topic'];
       heroTag = Get.arguments['heroTag'];
@@ -100,10 +121,15 @@ class _TopicDetailState extends State<TopicDetail>
     var keys = Get.parameters.keys;
     // 从消息页面进入 跳转至指定楼层
     if (keys.contains('floorNumber')) {
-      routerSource = Get.parameters['source']! ?? '';
-      noticeFloorNumber = int.parse(Get.parameters['floorNumber']!) ?? 0;
+      routerSource = Get.parameters['source'] ?? '';
+      noticeFloorNumber = int.parse(Get.parameters['floorNumber'] ?? '0');
       _currentPage = (noticeFloorNumber / 100).ceil() - 1;
       //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
+    }
+    // 直接跳转指定楼层
+    if (keys.contains('replyId')) {
+      replyId = Get.parameters['replyId'] ?? '';
+      _currentPage = int.parse(Get.parameters['p']!) - 1;
     }
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
@@ -163,7 +189,7 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future getDetail({type}) async {
-    if (type == 'init' && routerSource == '') {
+    if (type == 'init' && routerSource == '' && replyId == '') {
       // 初始化加载  正序首页为0 倒序首页为最后一页
       setState(() {
         _currentPage = !reverseSort ? 0 : _totalPage;
@@ -181,6 +207,9 @@ class _TopicDetailState extends State<TopicDetail>
         _totalPage = topicDetailModel.totalPage;
       } else {
         _replyList.addAll(topicDetailModel.replyList);
+      }
+      if(replyId != ''){
+        noticeFloorNumber = topicDetailModel.replyList.where((i) => i.replyId == replyId).first.floorNumber;
       }
       _currentPage += 1;
     });
@@ -526,6 +555,11 @@ class _TopicDetailState extends State<TopicDetail>
     // autoScrollController.highlight(5);
   }
 
+  // 复制链接
+  onCopyTopicLink() {
+    Clipboard.setData(ClipboardData(text: 'https://www.v2ex.com/t/$topicId'));
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -542,6 +576,7 @@ class _TopicDetailState extends State<TopicDetail>
         Scaffold(
           appBar: !expendAppBar
               ? AppBar(
+                  scrolledUnderElevation: Breakpoints.mediumAndUp.isActive(context) ?  0 : 4,
                   centerTitle: false,
                   title: StreamBuilder(
                     stream: titleStreamC.stream,
@@ -557,7 +592,8 @@ class _TopicDetailState extends State<TopicDetail>
                       );
                     },
                   ),
-                  actions: _detailModel != null ? appBarAction() : [],
+                  // actions: _detailModel != null ? appBarAction() : [],
+                  actions: appBarAction(),
                 )
               : null,
           body: _topicDetail == null && _detailModel == null
@@ -620,22 +656,29 @@ class _TopicDetailState extends State<TopicDetail>
   // 顶部操作栏
   List<Widget> appBarAction() {
     List<Widget>? list = [];
-    list.add(
-      IconButton(
-        onPressed: onFavTopic,
-        tooltip: '收藏主题',
-        icon: const Icon(Icons.bookmark_add_outlined),
-        selectedIcon: Icon(
-          Icons.bookmark_add_rounded,
-          color: Theme.of(context).colorScheme.primary,
+    if(_detailModel != null) {
+      list.add(
+        IconButton(
+          onPressed: onFavTopic,
+          tooltip: '收藏主题',
+          icon: const Icon(Icons.bookmark_add_outlined),
+          selectedIcon: Icon(
+            Icons.bookmark_add_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          isSelected: _detailModel!.isFavorite,
         ),
-        isSelected: _detailModel!.isFavorite,
-      ),
-    );
+      );
+    }
     list.add(
       PopupMenuButton<SampleItem>(
         tooltip: 'action',
         itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
+          PopupMenuItem<SampleItem>(
+            value: SampleItem.share,
+            onTap: onCopyTopicLink,
+            child: const Text('复制链接'),
+          ),
           PopupMenuItem<SampleItem>(
             value: SampleItem.ignore,
             onTap: onIgnoreTopic,
@@ -707,7 +750,8 @@ class _TopicDetailState extends State<TopicDetail>
                         );
                       },
                     ),
-                    actions: _detailModel != null ? appBarAction() : [],
+                    // actions: _detailModel != null ? appBarAction() : [],
+                    actions: appBarAction(),
                   ),
                 ],
               ),

@@ -1,3 +1,7 @@
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/user.dart';
@@ -17,6 +21,7 @@ class MyTopicsPage extends StatefulWidget {
 
 class _MyTopicsPageState extends State<MyTopicsPage> {
   final ScrollController _controller = ScrollController();
+  final TopicController _topicController = Get.put(TopicController());
   List<TabTopicItem> topicList = [];
   int _currentPage = 0;
   int _totalPage = 1;
@@ -50,6 +55,7 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
+        _topicController.setTopic(res.topicList[0]);
       } else {
         topicList.addAll(res.topicList);
       }
@@ -70,37 +76,48 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(I18nKeyword.myFavorite.tr),
-      ),
-      body: Stack(
+      backgroundColor: getBackground(context, 'homePage'),
+      appBar: Breakpoints.mediumAndUp.isActive(context)
+          ? null
+          : AppBar(
+              title: Text(I18nKeyword.myFavorite.tr),
+            ),
+      body: ResizeLayout(
+          leftLayout: Stack(
         children: [
           Scrollbar(
             controller: _controller,
             radius: const Radius.circular(10),
             child: _isLoading
-                ? const TopicSkeleton() : Container(
-              margin: const EdgeInsets.only(right: 12, left: 12),
-              child: topicList.isNotEmpty
-                      ? PullRefresh(
-                          totalPage: _totalPage,
-                          currentPage: _currentPage,
-                          onChildLoad:
-                              _totalPage > 1 && _currentPage <= _totalPage
-                                  ? getTopics
-                                  : null,
-                          onChildRefresh: () {
-                            setState(() {
-                              _currentPage = 0;
-                            });
-                            getTopics();
-                          },
-                          child: content(),
-                        )
-                      : Center(
-                child: Text('还没有收藏主题', style: Theme.of(context).textTheme.titleMedium,),
-              ),
-            ),
+                ? const TopicSkeleton()
+                : Container(
+                    margin: EdgeInsets.only(
+                        right:
+                            Breakpoints.mediumAndUp.isActive(context) ? 0 : 12,
+                        left: 12),
+                    child: topicList.isNotEmpty
+                        ? PullRefresh(
+                            totalPage: _totalPage,
+                            currentPage: _currentPage,
+                            onChildLoad:
+                                _totalPage > 1 && _currentPage <= _totalPage
+                                    ? getTopics
+                                    : null,
+                            onChildRefresh: () {
+                              setState(() {
+                                _currentPage = 0;
+                              });
+                              getTopics();
+                            },
+                            child: content(),
+                          )
+                        : Center(
+                            child: Text(
+                              '还没有收藏主题',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                  ),
           ),
           Positioned(
             right: 20,
@@ -121,7 +138,7 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
@@ -130,7 +147,7 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
       controller: _controller,
       slivers: [
         const SliverToBoxAdapter(
-          child:  SizedBox(height: 8),
+          child: SizedBox(height: 8),
         ),
         SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
@@ -139,5 +156,4 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
       ],
     );
   }
-
 }

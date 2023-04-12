@@ -5,7 +5,7 @@
 <div align="center">
     <h1>VVEX</h1>
     <div align="center">
-        <img alt="GitHub" src="https://img.shields.io/badge/Flutter-3.7.4-success?style=flat&logo=flutter">
+        <img alt="GitHub" src="https://img.shields.io/badge/Flutter-3.7.10-success?style=flat&logo=flutter">
         <img alt="GitHub" src="https://img.shields.io/badge/Dart-2.19.2-blue?style=flat">
         <img alt="GitHub" src="https://img.shields.io/badge/Java-11.0.15-green?style=flat">
         <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">
@@ -48,6 +48,7 @@
 - [ ] 图片上传
 - [ ] 数据缓存
 - [ ] 页面骨架屏
+- [ ] 适配Pad布局
 - [ ] markdown 格式发布主题
 
 <br/>
@@ -55,14 +56,14 @@
 ## 环境配置
 
 ```
-[✓] Flutter (Channel stable, 3.7.7, on macOS 12.6 21G115 darwin-arm64, locale
+[✓] Flutter (Channel stable, 3.7.10, on macOS 12.6 21G115 darwin-arm64, locale
     zh-Hans-CN)
 [✓] Android toolchain - develop for Android devices (Android SDK version 33.0.0)
 [✓] Xcode - develop for iOS and macOS (Xcode 14.2)
 [✓] Chrome - develop for the web
 [✓] Android Studio (version 2022.1)
-[✓] VS Code (version 1.76.1)
-[✓] Connected device (3 available)
+[✓] VS Code (version 1.77.1)
+[✓] Connected device (4 available)
 [✓] HTTP Host Availability
 ```
 

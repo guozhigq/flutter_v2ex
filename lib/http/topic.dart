@@ -15,9 +15,7 @@ import 'package:flutter_v2ex/models/web/model_topic_detail.dart'; // 主题详�
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart'; // 主题回复
 import 'package:flutter_v2ex/models/web/item_topic_subtle.dart'; // 主题附言
 
-
 class TopicWebApi {
-
   // 获取帖子详情及下面的评论信息
   static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
     TopicDetailModel detailModel = TopicDetailModel();
@@ -96,12 +94,14 @@ class TopicWebApi {
     //  at 9 小时 26 分钟前，1608 次点击
     var pureStr = document
         .querySelector('$headerQuery > small')!
-        .text
-        .split(' at')[1]
+        .innerHtml
+        .split('a> at ')[1]
         .replaceAll(RegExp(r"\s+"), "");
-    detailModel.createdTime = pureStr.split('·')[0].replaceFirst(' +08:00', '');
-    detailModel.visitorCount =
-        pureStr.split('·')[1].replaceAll(RegExp(r'\D'), '');
+    List pureStrList = pureStr.split('·');
+    detailModel.createdTime = pureStrList[0].replaceFirst(' +08:00', '');
+    detailModel.visitorCount = pureStrList.length >= 2
+        ? pureStrList[1].replaceAll(RegExp(r'\D'), '')
+        : '';
     // APPEND EIDT MOVE
     var opActionNode = document.querySelector('$headerQuery > small');
     if (opActionNode!.querySelector('a.op') != null) {
@@ -149,18 +149,17 @@ class TopicWebApi {
       List decodeRes = Utils.base64Decode(contentDom);
       if (decodeRes.isNotEmpty) {
         var decodeDom = '';
-        for(var i = 0; i < decodeRes.length;  i++){
-          decodeDom += '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-          if(i != decodeRes.length-1){
+        for (var i = 0; i < decodeRes.length; i++) {
+          decodeDom +=
+              '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+          if (i != decodeRes.length - 1) {
             decodeDom += '<span>、</span>';
           }
         }
-        contentDom.nodes.insert(
-            contentDom.nodes.length,
-            parseFragment(
-                '<p>base64解码：$decodeDom</p>'));
+        contentDom.nodes.insert(contentDom.nodes.length,
+            parseFragment('<p>base64解码：$decodeDom</p>'));
       }
-      detailModel.contentRendered = contentDom.innerHtml;
+      detailModel.contentRendered = Utils.linkMatch(contentDom);
       if (contentDom.querySelector('img') != null) {
         var imgNodes = contentDom.querySelectorAll('img');
         var imgLength = imgNodes.length;
@@ -186,16 +185,15 @@ class TopicWebApi {
         List decodeRes = Utils.base64Decode(contentDom);
         if (decodeRes.isNotEmpty) {
           var decodeDom = '';
-          for(var i = 0; i < decodeRes.length;  i++){
-            decodeDom += '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-            if(i != decodeRes.length-1){
+          for (var i = 0; i < decodeRes.length; i++) {
+            decodeDom +=
+                '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+            if (i != decodeRes.length - 1) {
               decodeDom += '<span>、</span>';
             }
           }
-          contentDom.nodes.insert(
-              contentDom.nodes.length,
-              parseFragment(
-                  '<p>base64解码：$decodeDom</p>'));
+          contentDom.nodes.insert(contentDom.nodes.length,
+              parseFragment('<p>base64解码：$decodeDom</p>'));
         }
         subtleItem.content = contentDom.innerHtml;
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
@@ -277,7 +275,7 @@ class TopicWebApi {
           ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
           : 1;
 
-      detailModel.replyCount =  int.parse(replyBoxDom
+      detailModel.replyCount = int.parse(replyBoxDom
           .querySelector('div.cell span')!
           .text
           .replaceAll(RegExp(r"\s+"), "")
@@ -351,18 +349,17 @@ class TopicWebApi {
         List decodeRes = Utils.base64Decode(contentDom);
         if (decodeRes.isNotEmpty) {
           var decodeDom = '';
-          for(var i = 0; i < decodeRes.length;  i++){
-            decodeDom += '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-            if(i != decodeRes.length-1){
+          for (var i = 0; i < decodeRes.length; i++) {
+            decodeDom +=
+                '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+            if (i != decodeRes.length - 1) {
               decodeDom += '<span>、</span>';
             }
           }
-          contentDom.nodes.insert(
-              contentDom.nodes.length,
-              parseFragment(
-                  '<p>base64解码：$decodeDom</p>'));
+          contentDom.nodes.insert(contentDom.nodes.length,
+              parseFragment('<p>base64解码：$decodeDom</p>'));
         }
-        replyItem.contentRendered = contentDom.innerHtml;
+        replyItem.contentRendered = Utils.linkMatch(contentDom);
         replyItem.content = aNode
             .querySelector(
                 '$replyTrQuery > td:nth-child(5) > div.reply_content')!
@@ -475,7 +472,7 @@ class TopicWebApi {
     int once = GStorage().getOnce();
     Response response;
     response =
-    await Request().get('/ignore/topic/$topicId', data: {'once': once});
+        await Request().get('/ignore/topic/$topicId', data: {'once': once});
     SmartDialog.dismiss();
     if (response.statusCode == 200) {
       // 操作成功
@@ -495,18 +492,23 @@ class TopicWebApi {
         extra: {'ua': 'pc'},
       );
     } catch (err) {
-      throw(err);
+      throw (err);
     }
     var document = parse(response.data);
     var historyDom = document.body!.querySelector('div[id="my-recent-topics"]');
-    if(historyDom != null){
-      var topicNodes = historyDom!.querySelectorAll('div.cell:not(.flex-one-row)');
-      if(topicNodes.isNotEmpty){
+    if (historyDom != null) {
+      var topicNodes =
+          historyDom.querySelectorAll('div.cell:not(.flex-one-row)');
+      if (topicNodes.isNotEmpty) {
         for (var aNode in topicNodes) {
           var item = TabTopicItem();
           item.memberId = aNode.querySelector('img')!.attributes['alt']!;
           item.avatar = aNode.querySelector('img')!.attributes['src']!;
-          item.topicId = aNode.querySelectorAll('a').last.attributes['href']!.replaceAll(RegExp(r'\D'), '');
+          item.topicId = aNode
+              .querySelectorAll('a')
+              .last
+              .attributes['href']!
+              .replaceAll(RegExp(r'\D'), '');
           item.topicTitle = aNode.querySelectorAll('a').last.text;
           topics.add(item);
         }
@@ -514,6 +516,7 @@ class TopicWebApi {
     }
     return topics;
   }
+
   // 回复主题
   static Future<String> onSubmitReplyTopic(
       String topicId, String replyContent, int totalPage) async {
@@ -527,7 +530,7 @@ class TopicWebApi {
       'origin': Strings.v2exHost
     };
     FormData formData =
-    FormData.fromMap({'once': once, 'content': replyContent});
+        FormData.fromMap({'once': once, 'content': replyContent});
     Response response;
     response = await Request().post('/t/$topicId',
         data: formData, extra: {'ua': 'mob'}, options: options);
@@ -538,18 +541,16 @@ class TopicWebApi {
       // 获取最后一页最近一条
       SmartDialog.showLoading(msg: '获取最新回复');
       var replyDetail = await getTopicDetail(topicId, totalPage + 1);
-      var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.userName == GStorage().getUserInfo()['userName']);
+      var lastReply = replyDetail.replyList.reversed.firstWhere(
+          (item) => item.userName == GStorage().getUserInfo()['userName']);
       SmartDialog.dismiss();
       GStorage().setReplyItem(lastReply);
       return 'true';
     } else if (response.statusCode == 200) {
       String responseText = '回复失败了';
       var contentDom = bodyDom!.querySelector('#Main');
-      if (contentDom!.querySelector('div.problem') !=
-          null) {
-        responseText = contentDom
-            .querySelector('div.problem')!
-            .text;
+      if (contentDom!.querySelector('div.problem') != null) {
+        responseText = contentDom.querySelector('div.problem')!.text;
       }
       return responseText;
     } else {

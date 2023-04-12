@@ -171,7 +171,6 @@ class _WritePageState extends State<WritePage> {
         'syntax': syntax,
         'content': content,
         'node_name': currentNode!.name,
-        'content': content
       };
       var result = await DioRequestWeb.postTopic(args);
       if (result != false) {

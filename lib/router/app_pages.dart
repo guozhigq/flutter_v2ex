@@ -1,4 +1,6 @@
 import 'package:flutter/animation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_v2ex/pages/help/network.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -20,13 +22,13 @@ import 'package:flutter_v2ex/pages/page_search.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/page_write.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
-import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_history.dart';
 import 'package:flutter_v2ex/pages/page_agreement.dart';
 import 'package:flutter_v2ex/pages/page_history_hot.dart';
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class AppPages {
   static final List<GetPage> getPages = [
@@ -39,15 +41,7 @@ class AppPages {
       curve: Curves.easeInOut,
     ),
     // 话题详情
-    GetPage(
-      name: '/t/:topicId',
-      page: () => const TopicDetail(),
-      // transitionDuration: const Duration(milliseconds: 300),
-      transition: Transition.cupertino,
-      showCupertinoParallax: false,
-      gestureWidth: (context) => context.width,
-      curve: Curves.linear,
-    ),
+    CustomGetPage('/t/:topicId', TopicDetail()),
     // webView
     GetPage(
         name: '/webView',
@@ -56,81 +50,78 @@ class AppPages {
         transitionDuration: const Duration(milliseconds: 300)),
 
     // 节点主页
-    GetPage(
-        name: '/go/:nodeId',
-        page: () => const GoPage(),
-        transition: Transition.cupertino,
-        showCupertinoParallax: false,
-        gestureWidth: (context) => context.width,
-        curve: Curves.linear,
-    ),
+    CustomGetPage('/go/:nodeId', const GoPage()),
     // 所有节点
-    GetPage(
-      name: '/nodes',
-      page: () => const NodesPage(),
-      fullscreenDialog: true,
-      transitionDuration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    ),
+    CustomGetPage('/nodes', const NodesPage()),
     // 帮助页面
-    GetPage(name: '/help', page: () => const HelpPage()),
+    CustomGetPage('/help', const HelpPage()),
 
     // 用户主页
-    GetPage(
-      name: '/member/:memberId',
-      page: () => const MemberPage(),
-      transition: Transition.cupertino,
-      showCupertinoParallax: false,
-      gestureWidth: (context) => context.width,
-      curve: Curves.linear,
-    ),
+    CustomGetPage('/member/:memberId', const MemberPage()),
     // 用户发布的主题
-    GetPage(
-        name: '/member/:memberId/topics', page: () => const MemberTopicsPage()),
+    CustomGetPage('/member/:memberId/topics', const MemberTopicsPage()),
     // 用户发布的回复
-    GetPage(
-        name: '/member/:memberId/replies',
-        page: () => const MemberRepliesPage()),
+    CustomGetPage('/member/:memberId/replies', const MemberRepliesPage()),
 
     // 我收藏的主题
-    GetPage(name: '/my/topics', page: () => const MyTopicsPage()),
+    CustomGetPage('/my/topics', const MyTopicsPage()),
     // 我关注的主题、用户
-    GetPage(name: '/my/following', page: () => const MyFollowPage()),
+    CustomGetPage('/my/following', const MyFollowPage()),
 
     // 消息提醒
-    GetPage(
-        name: '/notifications',
-        page: () => const MessagePage(),
-        transition: Transition.cupertino,
-        showCupertinoParallax: false,
-        gestureWidth: (context) => context.width,
-        curve: Curves.linear,
-    ),
+    CustomGetPage('/notifications', const MessagePage()),
     // 图片预览
     GetPage(
       name: '/imgPreview',
-      page: () => ImagePreview(),
+      page: () => const ImagePreview(),
       transition: Transition.cupertino,
     ),
     // 设置
-    GetPage(name: '/setting', page: () => const SettingPage()),
+    CustomGetPage('/setting', const SettingPage()),
     // 搜索
-    GetPage(name: '/search', page: () => const SearchPage()),
+    CustomGetPage('/search', const SearchPage()),
     // 热议
-    GetPage(name: '/hot', page: () => const HotPage()),
+    CustomGetPage('/hot', const HotPage()),
     // 发布主题
-    GetPage(name: '/write', page: () => const WritePage()),
+    CustomGetPage('/write', const WritePage()),
     // 主题节点
-    GetPage(name: '/topicNodes', page: () => const TopicNodesPage()),
+    CustomGetPage('/topicNodes', const TopicNodesPage()),
     // 主题设置
-    GetPage(name: '/setFont', page: () => const SetFontPage()),
+    CustomGetPage('/setFont', const SetFontPage()),
     // 节点排序
-    GetPage(name: '/nodesSort', page: () => const NodesSortPage()),
+    CustomGetPage('/nodesSort', const NodesSortPage()),
     // 最近浏览
-    GetPage(name: '/history', page: () => const HistoryPage()),
+    CustomGetPage('/history', const HistoryPage()),
     // 隐私协议
-    GetPage(name: '/agreement', page: () => const AgreementPage()),
+    CustomGetPage('/agreement', const AgreementPage()),
     // 历史热议
-    GetPage(name: '/historyHot', page: () => const HistoryHotPage()),
+    CustomGetPage('/historyHot', const HistoryHotPage()),
+    // 网络
+    CustomGetPage('/networkCheck', const NetworkCheckPage()),
   ];
+}
+
+bool sideslip = GStorage().getSideslip();
+
+class CustomGetPage extends GetPage {
+  bool? fullscreen = false;
+
+  CustomGetPage(
+    name,
+    page, {
+    this.fullscreen,
+    transitionDuration,
+  }) : super(
+          name: name,
+          page: () => page,
+          curve: Curves.linear,
+          //  iPad 模式下 Transition.fadeIn mob 模式下 Transition.cupertino
+          transition: sideslip ? Transition.cupertino : Transition.native,
+          // iPad 模式下关闭 | context.width
+          gestureWidth: sideslip ? (context) => context.width : null,
+          showCupertinoParallax: false,
+          popGesture: true,
+          transitionDuration: transitionDuration,
+          fullscreenDialog: fullscreen != null && fullscreen,
+        );
 }

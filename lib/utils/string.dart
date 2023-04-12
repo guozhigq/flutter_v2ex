@@ -25,7 +25,9 @@ class Strings {
     "iMessage",
     "appStore",
     "appStore",
-    "Installation"
+    "Installation",
+    "markdown",
+    "Markdown"
   ];
   static List<TabModel> tabs = [
     TabModel('最近', 'recent', 'recent', true),

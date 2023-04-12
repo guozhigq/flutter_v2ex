@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/common/skeleton.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 
 class TopicItemSkeleton extends StatelessWidget {
   const TopicItemSkeleton({Key? key}) : super(key: key);
@@ -10,7 +10,8 @@ class TopicItemSkeleton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.onInverseSurface,
+        color: getBackground(context, 'listItem'),
+        // color: Theme.of(context).colorScheme.onInverseSurface,
       ),
       margin: const EdgeInsets.only(top: 8, right: 12, bottom: 0, left: 12),
       padding: const EdgeInsets.fromLTRB(15, 18, 15, 15),

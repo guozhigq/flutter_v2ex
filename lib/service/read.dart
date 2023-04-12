@@ -1,7 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
-import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 
 class Read {
   final Box box = Hive.box('recentTopicsBox');

@@ -223,13 +223,14 @@ class UserWebApi {
             .replaceAll('&amp;', '&')
             .replaceAll('&lt;', '<')
             .replaceAll('&gt;', '>');
+        item.topicId = aNode .querySelector('td:nth-child(5) > span.item_title > a')!.attributes['href']!
+            .replaceAll("/t/", "").split("#")[0];
       }
       if (aNode.querySelector('tr > td:last-child > a') != null) {
         String? topicUrl = aNode
             .querySelector('tr > td:last-child > a')!
             .attributes['href']; // 得到是 /t/522540#reply17
-        item.topicId = topicUrl!.replaceAll("/t/", "").split("#")[0];
-        item.replyCount = int.parse(topicUrl
+        item.replyCount = int.parse(topicUrl!
             .replaceAll("/t/", "")
             .split("#")[1]
             .replaceAll(RegExp(r'\D'), ''));

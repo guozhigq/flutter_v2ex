@@ -1,7 +1,6 @@
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_v2ex/utils/cookie.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -110,7 +109,7 @@ class _WebViewState extends State<WebView> {
                         // 使用cookieJar保存cookie
                         List<Cookie> cookies =
                         await cookieManager.getCookies(url: url!);
-                        var res = await setCookie.onSet(cookies, strUrl);
+                        var res = await SetCookie.onSet(cookies, strUrl);
                         if (res && strUrl.contains('/2fa')) {
                           SmartDialog.show(
                             useSystem: true,

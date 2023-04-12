@@ -3,13 +3,11 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_v2ex/utils/cache.dart';
-import 'package:flutter_v2ex/utils/cookie.dart';
 
 import 'event_bus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';

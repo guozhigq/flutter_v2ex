@@ -42,7 +42,6 @@ class CacheManage {
       if(dioCacheFile.existsSync()){
         value = await getTotalSizeOfFilesInDir(dioCacheFile);
       }
-      print('dioCache size：$value');
       // cacheSize += value;
     }
 
@@ -127,12 +126,10 @@ class CacheManage {
     // await DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).clearAll();
     Directory directory = await getApplicationDocumentsDirectory();
     if (directory.existsSync()) {
-      print('clearApplicationCache: $directory');
       String dioCacheFileName =
           '${directory.path}${Platform.pathSeparator}DioCache.db';
       var dioCacheFile = File(dioCacheFileName);
       if (dioCacheFile.existsSync()) {
-        print('DioCache.db 存在');
         dioCacheFile.delete();
       }
     }

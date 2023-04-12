@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
@@ -27,7 +25,9 @@ enum StoreKeys {
   tabs,
   autoUpdate,
   highlightOp,
-  tempFs
+  tempFs,
+  sideslip,
+  dragOffset,
 }
 
 class GStorage {
@@ -177,4 +177,14 @@ class GStorage {
   setTempFs(double value) => _box.write(StoreKeys.tempFs.toString(), value);
 
   double getTempFs() => _box.read<double>(StoreKeys.tempFs.toString()) ?? 14;
+
+  // 侧滑返回
+  setSideslip(bool value) => _box.write(StoreKeys.sideslip.toString(), value);
+
+  bool getSideslip() => _box.read<bool>(StoreKeys.sideslip.toString()) ?? false;
+
+  // iPad横屏拖拽距离
+  setDragOffset(double value) => _box.write(StoreKeys.dragOffset.toString(), value);
+
+  double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
 }

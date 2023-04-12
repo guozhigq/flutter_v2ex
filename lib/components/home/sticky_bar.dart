@@ -1,42 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
+import 'package:container_tab_indicator/container_tab_indicator.dart';
+import 'package:flutter_v2ex/pages/home/controller.dart';
+import 'package:get/get.dart';
 
 class HomeStickyBar extends StatelessWidget {
   const HomeStickyBar({super.key, required this.tabs, required this.ctr});
+
   final List<TabModel> tabs;
   final TabController ctr;
+
   @override
   Widget build(BuildContext context) {
+    final TabStateController tabStateController = Get.put(TabStateController());
     return SizedBox(
       width: double.infinity,
       height: 40,
       child: Row(
         children: [
           Expanded(
-            child: TabBar(
+            child: AdpatTabBar(
               controller: ctr,
-              dividerColor: Colors.transparent,
-              onTap: (index) {},
-              isScrollable: true,
-              enableFeedback: true,
-              splashBorderRadius: BorderRadius.circular(6),
-              tabs: tabs.map((item) {
-                return Tab(text: item.name);
-              }).toList(),
+              tabs: tabs,
+              onTap: (index) {
+                if(!ctr.indexIsChanging){
+                  // tap(index);
+                  tabStateController.setTabIndex(index);
+                }
+              },
             ),
           ),
           // const SizedBox(width: 5),
-          SizedBox(
-            height: 50,
-            child: Center(
-              child: IconButton(
-                onPressed: () => {Navigator.pushNamed(context, '/nodes')},
-                icon: const Icon(Icons.segment_rounded, size: 19),
+          if (!Breakpoints.mediumAndUp.isActive(context))
+            SizedBox(
+              height: 50,
+              child: Center(
+                child: IconButton(
+                  onPressed: () => {Navigator.pushNamed(context, '/nodes')},
+                  icon: const Icon(Icons.segment_rounded, size: 19),
+                ),
               ),
             ),
-          ),
         ],
       ),
+    );
+  }
+}
+
+class AdpatTabBar extends StatelessWidget {
+  final List tabs;
+  TabController? controller;
+  final onTap;
+
+  AdpatTabBar({Key? key, required this.tabs, this.controller, this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    bool isiPad = Breakpoints.mediumAndUp.isActive(context);
+    return TabBar(
+      controller: controller,
+      dividerColor: Colors.transparent,
+      onTap: (index) => onTap(index),
+      isScrollable: true,
+      enableFeedback: true,
+      splashBorderRadius: BorderRadius.circular(6),
+      padding: EdgeInsets.symmetric(horizontal: isiPad ? 10 : 5),
+      tabs: tabs.map((item) {
+        return Tab(text: item.name);
+      }).toList(),
+      // iPad
+      labelColor: isiPad
+          ? Theme.of(context).colorScheme.onBackground
+          : Theme.of(context).colorScheme.primary,
+      indicator: isiPad
+          ? ContainerTabIndicator(
+              width: 60,
+              height: 36,
+              radius: BorderRadius.circular(8.0),
+              color: Theme.of(context).colorScheme.surfaceVariant,
+            )
+          : null,
     );
   }
 }

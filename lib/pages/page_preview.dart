@@ -18,7 +18,7 @@ typedef DoubleClickAnimationListener = void Function();
 enum SampleItem { share, save, browser }
 
 class ImagePreview extends StatefulWidget {
-  ImagePreview({Key? key}) : super(key: key);
+  const ImagePreview({Key? key}) : super(key: key);
 
   @override
   State<ImagePreview> createState() => _ImagePreviewState();
@@ -196,7 +196,7 @@ class _ImagePreviewState extends State<ImagePreview>
         child: ExtendedImageGesturePageView.builder(
           controller: ExtendedPageController(
             initialPage: initialPage,
-            pageSpacing: 50,
+            pageSpacing: 0,
           ),
           onPageChanged: (int index) => {
             setState(() {

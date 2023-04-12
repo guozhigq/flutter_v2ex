@@ -3,10 +3,13 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
+import 'package:flutter_v2ex/pages/t/controller.dart';
+import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
@@ -21,6 +24,7 @@ class GoPage extends StatefulWidget {
 
 class _GoPageState extends State<GoPage> {
   late final ScrollController _controller = ScrollController();
+  final TopicController _topicController = Get.put(TopicController());
   NodeListModel? topicListDetail;
   List topicList = [];
   int _currentPage = 0;
@@ -73,6 +77,7 @@ class _GoPageState extends State<GoPage> {
       if (_currentPage == 0) {
         topicList = res.topicList;
         _totalPage = res.totalPage;
+        _topicController.setTopic(res.topicList[0]);
       } else {
         topicList.addAll(res.topicList);
       }
@@ -96,46 +101,49 @@ class _GoPageState extends State<GoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Scrollbar(
-            controller: _controller,
-            radius: const Radius.circular(10),
-            child: PullRefresh(
-              onChildRefresh: () {
-                setState(() {
-                  _currentPage = 0;
-                });
-                getTopics();
-              },
-              // 上拉
-              onChildLoad: _totalPage > 1 && _currentPage < _totalPage
-                  ? getTopics
-                  : null,
-              currentPage: _currentPage,
-              totalPage: _totalPage,
-              child: topicListDetail != null ? content() : showLoading(),
-            ),
-          ),
-          Positioned(
-            right: 20,
-            bottom: 20,
-            child: AnimatedScale(
-              scale: showBackTopBtn ? 1 : 0,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 300),
-              child: FloatingActionButton(
-                heroTag: null,
-                child: const Icon(Icons.vertical_align_top_rounded),
-                onPressed: () {
-                  _controller.animateTo(0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease);
+      backgroundColor: getBackground(context, 'homePage'),
+      body: ResizeLayout(
+        leftLayout: Stack(
+          children: [
+            Scrollbar(
+              controller: _controller,
+              radius: const Radius.circular(10),
+              child: PullRefresh(
+                onChildRefresh: () {
+                  setState(() {
+                    _currentPage = 0;
+                  });
+                  getTopics();
                 },
+                // 上拉
+                onChildLoad: _totalPage > 1 && _currentPage < _totalPage
+                    ? getTopics
+                    : null,
+                currentPage: _currentPage,
+                totalPage: _totalPage,
+                child: topicListDetail != null ? content() : showLoading(),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              right: 20,
+              bottom: 20,
+              child: AnimatedScale(
+                scale: showBackTopBtn ? 1 : 0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  heroTag: null,
+                  child: const Icon(Icons.vertical_align_top_rounded),
+                  onPressed: () {
+                    _controller.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -145,12 +153,15 @@ class _GoPageState extends State<GoPage> {
       controller: _controller,
       slivers: [
         SliverAppBar(
-          backgroundColor: Get.isDarkMode ?
-          Theme.of(context).colorScheme.primaryContainer :
-     Theme.of(context).colorScheme.primary,
-          expandedHeight: 230,
-          iconTheme:
-              IconThemeData(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
+    automaticallyImplyLeading: Breakpoints.mediumAndUp.isActive(context) ? false : true,
+          backgroundColor: Get.isDarkMode
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.primary,
+          expandedHeight: 280 - MediaQuery.of(context).padding.top,
+          iconTheme: IconThemeData(
+              color: Get.isDarkMode
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.onPrimary),
           pinned: true,
           title: StreamBuilder(
             stream: titleStreamC.stream,
@@ -172,15 +183,22 @@ class _GoPageState extends State<GoPage> {
                                 .textTheme
                                 .titleMedium!
                                 .copyWith(
-                                    color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
+                                    color: Get.isDarkMode
+                                        ? Colors.white
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary)),
                         Text(
                           '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall!
                               .copyWith(
-                                  color:
-                                  Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
                         )
                       ],
                     )
@@ -217,19 +235,20 @@ class _GoPageState extends State<GoPage> {
                     topRight: Radius.circular(20),
                   ),
                 ),
-              )
-          ),
+              )),
           flexibleSpace: FlexibleSpaceBar(
             background: Stack(
               children: [
-                topicListDetail!.nodeCover != '' ? Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(topicListDetail!.nodeCover,),
-                      fit: BoxFit.fitWidth
-                    )
-                  ),
-                ) : const Spacer(),
+                topicListDetail!.nodeCover != ''
+                    ? Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: NetworkImage(
+                                  topicListDetail!.nodeCover,
+                                ),
+                                fit: BoxFit.fitWidth)),
+                      )
+                    : const Spacer(),
                 Positioned.fill(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
@@ -255,9 +274,9 @@ class _GoPageState extends State<GoPage> {
                             // fadeOutDuration: const Duration(milliseconds: 800),
                             // fadeInDuration: const Duration(milliseconds: 300),
                             errorWidget: (context, url, error) =>
-                            const Center(child: Text('加载失败')),
+                                const Center(child: Text('加载失败')),
                             placeholder: (context, url) =>
-                            const Center(child: Text('加载中')),
+                                const Center(child: Text('加载中')),
                           ),
                           const SizedBox(width: 6),
                           Column(
@@ -269,8 +288,7 @@ class _GoPageState extends State<GoPage> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
-                                    .copyWith(
-                                    color: Colors.white),
+                                    .copyWith(color: Colors.white),
                               ),
                               const SizedBox(height: 2),
                               Text(
@@ -278,8 +296,7 @@ class _GoPageState extends State<GoPage> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall!
-                                    .copyWith(
-                                    color: Colors.white),
+                                    .copyWith(color: Colors.white),
                               ),
                             ],
                           ),
@@ -333,4 +350,3 @@ class _GoPageState extends State<GoPage> {
     );
   }
 }
-

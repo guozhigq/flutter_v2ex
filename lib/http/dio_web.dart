@@ -13,8 +13,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:html/dom.dart'
-    as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
@@ -37,12 +35,16 @@ class DioRequestWeb {
   GetStorage storage = GetStorage();
 
   // 获取主页分类内容
-  static Future<List<TabTopicItem>> getTopicsByTabKey(
+  static Future getTopicsByTabKey(
     String type,
     String id,
     int p,
   ) async {
-    var topics = <TabTopicItem>[];
+    var res = {};
+    List topicList = <TabTopicItem>[];
+    List childNodeList = [];
+    List actionCounts = [];
+    String balance = '';
     Response response;
     // type
     // all 默认节点 一页   /?tab=xxx
@@ -61,7 +63,8 @@ class DioRequestWeb {
       case 'changes':
         return await getTopicsRecent('changes', p).then((value) => value);
       case 'go':
-        return await NodeWebApi.getTopicsByNodeId(id, p).then((value) => value.topicList);
+        return await NodeWebApi.getTopicsByNodeId(id, p)
+            .then((value) => value.topicList);
       default:
         response = await Request().get(
           '/',
@@ -74,9 +77,8 @@ class DioRequestWeb {
     // 用户信息解析 mob
     var rootDom = parse(response.data);
 
-    var userCellWrap = rootDom
-        .querySelectorAll('div.tools > a');
-    if(userCellWrap.length >= 6){
+    var userCellWrap = rootDom.querySelectorAll('div.tools > a');
+    if (userCellWrap.length >= 6) {
       var onceHref = userCellWrap.last.attributes['onclick'];
       final RegExp regex = RegExp(r"once=(\d+)");
       final RegExpMatch match = regex.firstMatch(onceHref!)!;
@@ -84,11 +86,11 @@ class DioRequestWeb {
     }
 
     var noticeNode =
-    rootDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+        rootDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -106,35 +108,71 @@ class DioRequestWeb {
         item.replyCount = int.parse(result[1]!);
         item.avatar = aNode.querySelector('img')!.attributes['src']!;
         var topicInfo = aNode.querySelector('span[class="topic_info"]');
-        if(topicInfo!.querySelector('span') != null){
+        if (topicInfo!.querySelector('span') != null) {
           item.lastReplyTime = topicInfo.querySelector('span')!.text;
         }
         var tagANodes = topicInfo.querySelectorAll('a');
-        if(tagANodes[0].attributes['class'] == 'node'){
+        if (tagANodes[0].attributes['class'] == 'node') {
           item.nodeName = tagANodes[0].text;
-          item.nodeId  = tagANodes[0].attributes['href']!.replaceFirst('/go/', '');
+          item.nodeId =
+              tagANodes[0].attributes['href']!.replaceFirst('/go/', '');
         }
-        if(tagANodes[1].attributes['href'] != null) {
-          item.memberId  = tagANodes[1].attributes['href']!.replaceFirst('/member/', '');
+        if (tagANodes[1].attributes['href'] != null) {
+          item.memberId =
+              tagANodes[1].attributes['href']!.replaceFirst('/member/', '');
         }
-        if(tagANodes.length >= 3 && tagANodes[2].attributes['href'] != null){
-          item.lastReplyMId = tagANodes[2].attributes['href']!.replaceFirst('/member/', '');
+        if (tagANodes.length >= 3 && tagANodes[2].attributes['href'] != null) {
+          item.lastReplyMId =
+              tagANodes[2].attributes['href']!.replaceFirst('/member/', '');
         }
-        topics.add(item);
+        topicList.add(item);
       }
     }
-    try{
-      Read().mark(topics);
-    }catch(err){
+    try {
+      Read().mark(topicList);
+    } catch (err) {
       print(err);
     }
-    return topics;
+    res['topicList'] = topicList;
+    var childNode = rootDom.querySelector("div[id='SecondaryTabs']");
+    if (childNode != null) {
+      var childNodeEls = childNode
+          .querySelectorAll('a')
+          .where((el) => el.attributes['href']!.startsWith('/go'));
+      if (childNodeEls.isNotEmpty) {
+        for (var i in childNodeEls) {
+          print(i);
+          var nodeItem = {};
+          nodeItem['nodeId'] = i.attributes['href']!.split('/go/')[1];
+          nodeItem['nodeName'] = i.text;
+          childNodeList.add(nodeItem);
+        }
+      }
+    }
+    res['childNodeList'] = childNodeList;
+
+    var rightBarNode = rootDom.querySelector('#Rightbar > div.box');
+    List tableList = rightBarNode!.querySelectorAll('table');
+    if (tableList.isNotEmpty) {
+      var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
+      for (var i in actionNodes) {
+        actionCounts.add(int.parse(i.text));
+      }
+      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+    }
+    res['actionCounts'] = actionCounts;
+    res['balance'] = balance;
+    return res;
   }
 
   // 获取最新的主题
-  static Future<List<TabTopicItem>> getTopicsRecent(String path, int p) async {
-    var topics = <TabTopicItem>[];
-    var response;
+  static Future getTopicsRecent(String path, int p) async {
+    var res = {};
+    var topicList = <TabTopicItem>[];
+    List childNodeList = [];
+    List<int> actionCounts = [];
+    String balance = '';
+    Response response;
     try {
       response = await Request().get(
         '/$path',
@@ -142,55 +180,68 @@ class DioRequestWeb {
         extra: {'ua': 'pc'},
       );
     } catch (err) {
-      throw(err);
+      throw (err);
     }
-      var tree = ETree.fromString(response.data);
-      var aRootNode = tree.xpath("//*[@class='cell item']");
-      for (var aNode in aRootNode!) {
-        var item = TabTopicItem();
-        item.memberId =
-            aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
-        if(aNode.xpath("/table/tr/td[1]/a[1]/img") != null && aNode.xpath("/table/tr/td[1]/a[1]/img")!.isNotEmpty){
-          item.avatar = Uri.encodeFull(aNode
-              .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-              ?.first
-              .attributes["src"]);
-        }
-        String topicUrl = aNode
-            .xpath("/table/tr/td[3]/span[1]/a")
+    var tree = ETree.fromString(response.data);
+    var aRootNode = tree.xpath("//*[@class='cell item']");
+    for (var aNode in aRootNode!) {
+      var item = TabTopicItem();
+      item.memberId =
+          aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
+      if (aNode.xpath("/table/tr/td[1]/a[1]/img") != null &&
+          aNode.xpath("/table/tr/td[1]/a[1]/img")!.isNotEmpty) {
+        item.avatar = Uri.encodeFull(aNode
+            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
             ?.first
-            .attributes["href"]; // 得到是 /t/522540#reply17
-        item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-        if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
-          item.replyCount =
-              int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-        }
-        item.lastReplyTime =
-            aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
-        item.nodeName =
-            aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
-
-        item.topicTitle = aNode
-            .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
-            .name!
-            .replaceAll('&quot;', '"')
-            .replaceAll('&amp;', '&')
-            .replaceAll('&lt;', '<')
-            .replaceAll('&gt;', '>');
-        item.nodeId = aNode
-            .xpath("/table/tr/td[3]/span[2]/a")
-            ?.first
-            .attributes["href"]
-            .split('/')[2];
-        topics.add(item);
+            .attributes["src"]);
       }
-    try{
-      Read().mark(topics);
-    }catch(err){
+      String topicUrl = aNode
+          .xpath("/table/tr/td[3]/span[1]/a")
+          ?.first
+          .attributes["href"]; // 得到是 /t/522540#reply17
+      item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
+      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
+        item.replyCount =
+            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
+      }
+      item.lastReplyTime =
+          aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
+      item.nodeName = aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
+
+      item.topicTitle = aNode
+          .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
+          .name!
+          .replaceAll('&quot;', '"')
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>');
+      item.nodeId = aNode
+          .xpath("/table/tr/td[3]/span[2]/a")
+          ?.first
+          .attributes["href"]
+          .split('/')[2];
+      topicList.add(item);
+    }
+    try {
+      Read().mark(topicList);
+    } catch (err) {
       print(err);
     }
-      return topics;
-
+    var document = parse(response.data);
+    var rightBarNode = document.querySelector('#Rightbar > div.box');
+    List tableList = rightBarNode!.querySelectorAll('table');
+    if (tableList.isNotEmpty) {
+      var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
+      for (var i in actionNodes) {
+        actionCounts.add(int.parse(i.text));
+      }
+      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+    }
+    res['topicList'] = topicList;
+    res['childNodeList'] = childNodeList;
+    res['actionCounts'] = actionCounts;
+    res['balance'] = balance;
+    return res;
   }
 
   // 获取所有节点 pc
@@ -406,7 +457,7 @@ class DioRequestWeb {
       "code": code,
     });
     response = await Request().post('/2fa', data: formData);
-    var document = parse(response.data);
+    // var document = parse(response.data);
     // log(document.body!.innerHtml);
     // var menuBodyNode = document.querySelector("div[id='menu-body']");
     // var loginOutNode =
@@ -498,10 +549,10 @@ class DioRequestWeb {
       // balance.removeAt(1);
       // balance.removeAt(2);
       // signDetail['balance'] = balance;
-      if(noticeNode.querySelector('div#money') != null){
+      if (noticeNode.querySelector('div#money') != null) {
         signDetail['balanceRender'] =
             noticeNode.querySelector('div#money')!.innerHtml;
-      }else{
+      } else {
         signDetail['balanceRender'] = null;
       }
     }
@@ -518,7 +569,6 @@ class DioRequestWeb {
       GStorage().setEightQuery(false);
     }
     if (lastSignDate == currentDate ||
-        !GStorage().getAutoSign() ||
         GStorage().getEightQuery()) {
       print('已签到 / 不自动签到');
       return false;
@@ -573,17 +623,18 @@ class DioRequestWeb {
     var nodesBox;
     if (type == 'mob') {
       // 【设置】中可能关闭【首页显示节点导航】
-      if(document.querySelector('#Wrapper > div.content')!.children.length >= 4) {
+      if (document.querySelector('#Wrapper > div.content')!.children.length >=
+          4) {
         nodesBox = document.querySelector('#Main')!.children.last;
       }
     }
     if (type == 'pc') {
       // 【设置】中可能关闭【首页显示节点导航】
-      if(document.querySelector('#Main')!.children.length >= 4) {
+      if (document.querySelector('#Main')!.children.length >= 4) {
         nodesBox = document.querySelector('#Main')!.children.last;
       }
     }
-    if(nodesBox != null){
+    if (nodesBox != null) {
       nodesBox.children.removeAt(0);
       var nodeTd = nodesBox.children;
       for (var i in nodeTd) {
@@ -640,7 +691,6 @@ class DioRequestWeb {
         await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    log('1083 line : ${response}');
     print('1830：${response.headers["location"]}');
     if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
@@ -688,7 +738,8 @@ class DioRequestWeb {
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode != null && mainNode!.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode != null &&
+        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       return false;
     } else {
       return true;
@@ -719,7 +770,7 @@ class DioRequestWeb {
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
     if (mainNode!.querySelector('div.inner') != null &&
-        mainNode!.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
+        mainNode.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
       return false;
     } else {
       return true;
@@ -741,7 +792,6 @@ class DioRequestWeb {
       result['status'] = false;
     } else {
       Map topicDetail = {};
-      print(mainNode!.innerHtml);
       var topicTitle = mainNode.querySelector('#topic_title');
       topicDetail['topicTitle'] = topicTitle!.text;
       var topicContent = mainNode.querySelector('#topic_content');
@@ -811,61 +861,59 @@ class DioRequestWeb {
   }
 
   // 检测更新
-  static  Future<Map> checkUpdate() async {
+  static Future<Map> checkUpdate() async {
     Map updata = {
       'lastVersion': '',
       'downloadHref': '',
       'needUpdate': false,
     };
-    Response response = await Request().get('https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
+    Response response = await Request().get(
+        'https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
     var versionDetail = VersionModel.fromJson(response.data);
     print(versionDetail.tag_name);
     // 版本号
     var version = versionDetail.tag_name;
     var updateLog = versionDetail.body;
     List<String> updateLogList = updateLog.split('\r\n');
-      var needUpdate = Utils.needUpdate(Strings.currentVersion, version);
-      if(needUpdate) {
-        SmartDialog.show(
-          useSystem: true,
-          animationType: SmartAnimationType.centerFade_otherSlide,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('🎉 发现新版本 '),
-              content: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(version, style: const TextStyle(
-                    fontSize: 20
-                  ),),
-                 const SizedBox(height: 8),
-                 for(var i in updateLogList) ... [
-                   Text(i)
-                 ]
-                ],
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () => SmartDialog.dismiss(),
-                    child: const Text('取消')),
-                TextButton(
-                  // TODO
-                    onPressed: ()
-                    {
-                      SmartDialog.dismiss();
-                      Utils.openURL('${Strings.remoteUrl}/releases');
-                    },
-                    child: const Text('去更新'))
+    var needUpdate = Utils.needUpdate(Strings.currentVersion, version);
+    if (needUpdate) {
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('🎉 发现新版本 '),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  version,
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(height: 8),
+                for (var i in updateLogList) ...[Text(i)]
               ],
-            );
-          },
-        );
-      }
-      else{
-        updata[needUpdate] = true;
-      }
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => SmartDialog.dismiss(),
+                  child: const Text('取消')),
+              TextButton(
+                  // TODO
+                  onPressed: () {
+                    SmartDialog.dismiss();
+                    Utils.openURL('${Strings.remoteUrl}/releases');
+                  },
+                  child: const Text('去更新'))
+            ],
+          );
+        },
+      );
+    } else {
+      updata[needUpdate] = true;
+    }
     return updata;
   }
 }

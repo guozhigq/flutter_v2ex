@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class NetworkErrorPage extends StatelessWidget {
   final String? message;
   final VoidCallback? onRetry;
-  NetworkErrorPage({this.message, this.onRetry});
+  const NetworkErrorPage({super.key, this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +22,11 @@ class NetworkErrorPage extends StatelessWidget {
             '网络请求失败',
             style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text(
-              message ?? '请检查您的网络连接，然后重试',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16.0),
-            ),
+          const SizedBox(height: 2.0),
+          Text(
+            message ?? '请检查您的网络连接，然后重试',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14.0),
           ),
           const SizedBox(height: 20.0),
           ElevatedButton(

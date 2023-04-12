@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -72,7 +73,6 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ListTile(
             onTap: () =>
                 Utils.openURL('https://t.me/+lm_oOVmF0RJiODk1'),
-            // leading: Icon(Icons.group_add_outlined, color: iconStyle,),
             title: const Text('加入讨论'),
             subtitle: Text('来TG跟开发者面对面', style: subTitleStyle),
           ),
@@ -83,9 +83,23 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               Clipboard.setData( ClipboardData(text: Strings.remoteUrl));
               SmartDialog.showToast('已复制内容');
             },
-            // leading: Icon(Icons.settings_ethernet, color: iconStyle,),
             title: const Text('Github 仓库'),
             subtitle: Text('欢迎 star & pr', style: subTitleStyle),
+          ),
+          ListTile(
+            onTap: () => Get.toNamed('/networkCheck'),
+            title: const Text('网络检测'),
+          ),
+          ListTile(
+            onTap: () async{
+              final deviceInfoPlugin = DeviceInfoPlugin();
+              final deviceInfo = await deviceInfoPlugin.deviceInfo;
+              final allInfo = deviceInfo.data;
+              Clipboard.setData( ClipboardData(text: allInfo.toString()));
+              SmartDialog.showToast('已复制');
+            },
+            title: const Text('设备信息'),
+            subtitle: Text('点击复制到粘贴板', style: subTitleStyle),
           ),
           ListTile(
             onTap: () => Utils.openURL('${Strings.remoteUrl}/issues/new'),
@@ -93,7 +107,6 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               Clipboard.setData( ClipboardData(text:'${Strings.remoteUrl}/issues/new'));
               SmartDialog.showToast('已复制内容');
             },
-            // leading: Icon(Icons.feedback_outlined, color: iconStyle),
             title: const Text('意见反馈'),
             subtitle: Text('issues', style: subTitleStyle),
           ),
@@ -106,7 +119,6 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                 SmartDialog.showToast('已经是最新版了 😊');
               }
             },
-            // leading: Icon(Icons.info_outline, color: iconStyle),
             title: const Text('版本'),
             subtitle: Text(Strings.currentVersion, style: subTitleStyle),
           )

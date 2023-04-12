@@ -38,13 +38,13 @@ class Request {
   }
 
   /// 设置cookie
-  void _setCookie() async {
+  setCookie() async {
     var cookiePath = await Utils.getCookiePath();
     var cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
     );
-    dio.interceptors.add(CookieManager(cookieJar));
+    Request().dio.interceptors.add(CookieManager(cookieJar));
   }
 
   /*
@@ -71,13 +71,17 @@ class Request {
 
     dio = Dio(options);
 
-    _setCookie();
+    setCookie();
     //添加拦截器
     dio.interceptors
       ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
       ..add(ApiInterceptor())
       // 日志拦截器 输出请求、响应内容
-      ..add(LogInterceptor());
+      ..add(LogInterceptor(
+        request: false,
+        requestHeader: false,
+        responseHeader: false,
+      ));
     // (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         (HttpClient client) {
@@ -223,5 +227,4 @@ class Request {
     }
     return headerUa;
   }
-
 }

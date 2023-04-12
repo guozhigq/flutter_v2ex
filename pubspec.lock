@@ -177,6 +177,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.17.0"
+  container_tab_indicator:
+    dependency: "direct main"
+    description:
+      name: container_tab_indicator
+      sha256: b0bdd73bb495c31c5711cefa363511b10bb3ebcfc007b603a2599401ebe6b2d9
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.0"
   convert:
     dependency: transitive
     description:
@@ -237,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: device_info_plus
-      sha256: "1d6e5a61674ba3a68fb048a7c7b4ff4bebfed8d7379dbe8f2b718231be9a7c95"
+      sha256: "435383ca05f212760b0a70426b5a90354fe6bd65992b3a5e27ab6ede74c02f5c"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.1.0"
+    version: "8.2.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -261,10 +269,10 @@ packages:
     dependency: "direct main"
     description:
       name: dio_cookie_manager
-      sha256: "326f2940d2dc48428350615b53cbda6904934e0900fbf791d36be0c72e05e39f"
+      sha256: b45f11c2fcbccf39c5952ab68910b3a155486c4fa730ceb4ce867c4943169ea1
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.4"
   dio_http2_adapter:
     dependency: "direct main"
     description:
@@ -375,6 +383,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_adaptive_scaffold:
+    dependency: "direct main"
+    description:
+      name: flutter_adaptive_scaffold
+      sha256: f9482e41adaf26d6fa9de02b605adc346961cb4bb34fe9420335df591ce3de6d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.3"
   flutter_blurhash:
     dependency: transitive
     description:
@@ -476,14 +492,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_native_timezone:
-    dependency: "direct main"
-    description:
-      name: flutter_native_timezone
-      sha256: ed7bfb982f036243de1c068e269182a877100c994f05143c8b26a325e28c1b02
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.0"
   flutter_smart_dialog:
     dependency: "direct main"
     description:
