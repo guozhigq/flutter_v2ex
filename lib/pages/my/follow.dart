@@ -52,7 +52,7 @@ class _MyFollowPageState extends State<MyFollowPage> {
   }
 
   Future<FollowTopicModel> getTopics() async {
-    FollowTopicModel res = await UserWebApi.getFollowTopics(1);
+    FollowTopicModel res = await UserWebApi.getFollowTopics(_currentPage+1);
     setState(() {
       if (_currentPage == 0) {
         topicList = res.topicList;
