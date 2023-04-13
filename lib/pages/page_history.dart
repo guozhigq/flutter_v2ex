@@ -19,7 +19,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   List historyList = [];
-  final ScrollController _controller = ScrollController();
+  // final ScrollController _controller = ScrollController();
   final TopicController _topicController = Get.put(TopicController());
 
   @override
@@ -90,7 +90,7 @@ class _HistoryPageState extends State<HistoryPage> {
       body: ResizeLayout(
         leftLayout: Scrollbar(
           radius: const Radius.circular(10),
-          controller: _controller,
+          // controller: _controller,
           child: historyList.isEmpty
               ? noData()
               : ListView.builder(

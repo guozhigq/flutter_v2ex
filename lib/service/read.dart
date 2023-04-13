@@ -28,7 +28,7 @@ class Read {
     // 获取年、月、日
     int year = now.year;
     int month = now.month;
-    int day = now.day;
+    String day = now.day < 10 ? '0${now.day}' : '${now.day}';
 
     String topicId = topicDetail.topicId;
     int replyCount = topicDetail.replyCount;
@@ -83,9 +83,9 @@ class Read {
     // 缓存的keys List
     var keys = box.keys;
     int len = keys.length;
-    if (len >= 3) {
+    if (len >= 4) {
       // 删除最旧的那条
-      box.delete(0);
+      box.delete(keys.first);
     }
   }
 
