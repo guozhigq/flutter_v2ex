@@ -36,11 +36,13 @@ class DioRequestWeb {
 
   // 获取主页分类内容
   static Future getTopicsByTabKey(
-    String type,
-    String id,
-    int p,
-  ) async {
+      String type,
+      String id,
+      int p,
+      ) async {
     var res = {};
+    var path = '/';
+    Map<String, dynamic> data = {};
     List topicList = <TabTopicItem>[];
     List childNodeList = [];
     List actionCounts = [];
@@ -52,27 +54,34 @@ class DioRequestWeb {
     // go 子节点 翻页 /go/xxx
     switch (type) {
       case 'tab':
-        response = await Request().get(
-          '/',
-          data: {'tab': id},
-          extra: {'ua': 'pc'},
-        );
+        path = '/';
+        data = {'tab': id};
         break;
       case 'recent':
-        return await getTopicsRecent('recent', p).then((value) => value);
+        path = '/recent';
+        data = {'p': p};
+        break;
       case 'changes':
-        return await getTopicsRecent('changes', p).then((value) => value);
+        path = '/changes';
+        data = {'p': p};
+        break;
       case 'go':
-        return await NodeWebApi.getTopicsByNodeId(id, p)
-            .then((value) => value.topicList);
+        path = '/$id';
+        data = {'p': p};
+        break;
       default:
         response = await Request().get(
           '/',
           data: {'tab': 'all'},
-          extra: {'ua': 'mob'},
+          extra: {'ua': 'pc'},
         );
         break;
     }
+    response = await Request().get(
+      path,
+      data: data,
+      extra: {'ua': 'pc'},
+    );
     DioRequestWeb().resolveNode(response, 'pc');
     // 用户信息解析 mob
     var rootDom = parse(response.data);
@@ -96,7 +105,9 @@ class DioRequestWeb {
         final result = match.map((m) => m.group(0)).toList();
         item.topicId = result[0]!;
         item.replyCount = int.parse(result[1]!);
-        item.avatar = aNode.querySelector('img')!.attributes['src']!;
+        if(aNode.querySelector('img') != null){
+          item.avatar = aNode.querySelector('img')!.attributes['src']!;
+        }
         var topicInfo = aNode.querySelector('span[class="topic_info"]');
         if (topicInfo!.querySelector('span') != null) {
           item.lastReplyTime = topicInfo.querySelector('span')!.text;
@@ -161,96 +172,6 @@ class DioRequestWeb {
         }
       }
     }
-    res['actionCounts'] = actionCounts;
-    res['balance'] = balance;
-    return res;
-  }
-
-  // 获取最新的主题
-  static Future getTopicsRecent(String path, int p) async {
-    var res = {};
-    var topicList = <TabTopicItem>[];
-    List childNodeList = [];
-    List<int> actionCounts = [];
-    String balance = '';
-    Response response;
-    try {
-      response = await Request().get(
-        '/$path',
-        data: {'p': p},
-        extra: {'ua': 'pc'},
-      );
-    } catch (err) {
-      throw (err);
-    }
-    var tree = ETree.fromString(response.data);
-    var aRootNode = tree.xpath("//*[@class='cell item']");
-    for (var aNode in aRootNode!) {
-      var item = TabTopicItem();
-      item.memberId =
-          aNode.xpath("/table/tr/td[3]/span[2]/strong/a/text()")![0].name!;
-      if (aNode.xpath("/table/tr/td[1]/a[1]/img") != null &&
-          aNode.xpath("/table/tr/td[1]/a[1]/img")!.isNotEmpty) {
-        item.avatar = Uri.encodeFull(aNode
-            .xpath("/table/tr/td[1]/a[1]/img[@class='avatar']")
-            ?.first
-            .attributes["src"]);
-      }
-      String topicUrl = aNode
-          .xpath("/table/tr/td[3]/span[1]/a")
-          ?.first
-          .attributes["href"]; // 得到是 /t/522540#reply17
-      item.topicId = topicUrl.replaceAll("/t/", "").split("#")[0];
-      if (aNode.xpath("/table/tr/td[4]")!.first.children.isNotEmpty) {
-        item.replyCount =
-            int.parse(aNode.xpath("/table/tr/td[4]/a/text()")![0].name!);
-      }
-      item.lastReplyTime =
-          aNode.xpath("/table/tr/td[3]/span[2]/span/text()")![0].name!;
-      item.nodeName = aNode.xpath("/table/tr/td[3]/span[2]/a/text()")![0].name!;
-
-      item.topicTitle = aNode
-          .xpath("/table/tr/td[3]/span[1]/a/text()")![0]
-          .name!
-          .replaceAll('&quot;', '"')
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>');
-      item.nodeId = aNode
-          .xpath("/table/tr/td[3]/span[2]/a")
-          ?.first
-          .attributes["href"]
-          .split('/')[2];
-      topicList.add(item);
-    }
-    try {
-      Read().mark(topicList);
-    } catch (err) {
-      print(err);
-    }
-    var document = parse(response.data);
-    var rightBarNode = document.querySelector('#Rightbar > div.box');
-    List tableList = rightBarNode!.querySelectorAll('table');
-    if (tableList.isNotEmpty) {
-      var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
-      for (var i in actionNodes) {
-        actionCounts.add(int.parse(i.text ?? 0));
-      }
-      if(rightBarNode.querySelector('#money') != null){
-        balance = rightBarNode.querySelector('#money >a')!.innerHtml;
-      }
-      var noticeEl = rightBarNode.querySelectorAll('a.fade');
-      if(noticeEl.isNotEmpty){
-        var unRead =
-        noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
-        // print('$unRead条未读消息');
-        if (int.parse(unRead) > 0) {
-          eventBus.emit('unRead', int.parse(unRead));
-        }
-      }
-    }
-    res['topicList'] = topicList;
-    res['childNodeList'] = childNodeList;
     res['actionCounts'] = actionCounts;
     res['balance'] = balance;
     return res;
@@ -325,21 +246,21 @@ class DioRequestWeb {
       if (keyName.isNotEmpty) {
         if (keyName == '用户名') {
           loginKeyMap.userNameHash =
-              aNode.querySelector('input')!.attributes['name']!;
+          aNode.querySelector('input')!.attributes['name']!;
         }
         if (keyName == '密码') {
           loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
           loginKeyMap.passwordHash =
-              aNode.querySelector('input.sl')!.attributes['name']!;
+          aNode.querySelector('input.sl')!.attributes['name']!;
         }
         if (keyName.contains('机器')) {
           loginKeyMap.codeHash =
-              aNode.querySelector('input')!.attributes['name']!;
+          aNode.querySelector('input')!.attributes['name']!;
         }
       }
       if (aNode.querySelector('img') != null) {
         loginKeyMap.captchaImg =
-            '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
+        '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
       }
     }
 
@@ -376,7 +297,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/signin',
       'Origin': Strings.v2exHost,
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -388,7 +309,7 @@ class DioRequestWeb {
     });
 
     response =
-        await Request().post('/signin', data: formData, options: options);
+    await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
     if (response.statusCode == 302) {
       // 登录成功，重定向
@@ -444,7 +365,7 @@ class DioRequestWeb {
         // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
         String once = tree
             .xpath(
-                "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
+            "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
             .first
             .attributes["value"];
         GStorage().setOnce(int.parse(once));
@@ -546,11 +467,11 @@ class DioRequestWeb {
       signDetail['signDays'] = '已领取$day天';
     }
     var noticeNode =
-        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (noticeNode != null) {
       // 未读消息
       var unRead =
-          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       // print('$unRead条未读消息');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
@@ -687,7 +608,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/write?node=${args['node_name']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -700,7 +621,7 @@ class DioRequestWeb {
     });
 
     Response response =
-        await Request().post('/write', data: formData, options: options);
+    await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
     print('1830：${response.headers["location"]}');
@@ -737,7 +658,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/edit/topic/${args['topicId']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
     FormData formData = FormData.fromMap({
       'title': args['title'], // 标题
@@ -769,7 +690,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/move/topic/$topicId',
       'Origin': Strings.v2exHost,
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -794,7 +715,7 @@ class DioRequestWeb {
     SmartDialog.showLoading();
     Map result = {};
     Response response =
-        await Request().get('/edit/topic/$topicId', extra: {'ua': 'pc'});
+    await Request().get('/edit/topic/$topicId', extra: {'ua': 'pc'});
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
@@ -827,7 +748,7 @@ class DioRequestWeb {
   static Future appendStatus(topicId) async {
     SmartDialog.showLoading();
     Response response =
-        await Request().get('/append/topic/$topicId', extra: {'ua': 'mob'});
+    await Request().get('/append/topic/$topicId', extra: {'ua': 'mob'});
     SmartDialog.dismiss();
     print(response);
     var document = parse(response.data);
@@ -851,7 +772,7 @@ class DioRequestWeb {
       'Referer': '${Strings.v2exHost}/append/topic/${args['topicId']}',
       'Origin': Strings.v2exHost,
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -913,7 +834,7 @@ class DioRequestWeb {
                   onPressed: () => SmartDialog.dismiss(),
                   child: const Text('取消')),
               TextButton(
-                  // TODO
+                // TODO
                   onPressed: () {
                     SmartDialog.dismiss();
                     Utils.openURL('${Strings.remoteUrl}/releases');
