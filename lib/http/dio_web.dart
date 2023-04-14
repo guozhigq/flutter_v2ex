@@ -85,16 +85,6 @@ class DioRequestWeb {
       GStorage().setOnce(int.parse(match.group(1)!));
     }
 
-    var noticeNode =
-        rootDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    if (noticeNode != null) {
-      // 未读消息
-      var unRead =
-          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-      if (int.parse(unRead) > 0) {
-        eventBus.emit('unRead', int.parse(unRead));
-      }
-    }
     var aRootNode = rootDom.querySelectorAll("div[class='cell item']");
     if (aRootNode.isNotEmpty) {
       for (var aNode in aRootNode) {
@@ -156,9 +146,20 @@ class DioRequestWeb {
     if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
       for (var i in actionNodes) {
-        actionCounts.add(int.parse(i.text));
+        actionCounts.add(int.parse(i.text ?? 0));
       }
-      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+      if(rightBarNode.querySelector('#money') != null){
+        balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+      }
+      var noticeEl = rightBarNode.querySelectorAll('a.fade');
+      if(noticeEl.isNotEmpty){
+        var unRead =
+        noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+        print('$unRead条未读消息');
+        if (int.parse(unRead) > 0) {
+          eventBus.emit('unRead', int.parse(unRead));
+        }
+      }
     }
     res['actionCounts'] = actionCounts;
     res['balance'] = balance;
@@ -233,9 +234,20 @@ class DioRequestWeb {
     if (tableList.isNotEmpty) {
       var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
       for (var i in actionNodes) {
-        actionCounts.add(int.parse(i.text));
+        actionCounts.add(int.parse(i.text ?? 0));
       }
-      balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+      if(rightBarNode.querySelector('#money') != null){
+        balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+      }
+      var noticeEl = rightBarNode.querySelectorAll('a.fade');
+      if(noticeEl.isNotEmpty){
+        var unRead =
+        noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+        // print('$unRead条未读消息');
+        if (int.parse(unRead) > 0) {
+          eventBus.emit('unRead', int.parse(unRead));
+        }
+      }
     }
     res['topicList'] = topicList;
     res['childNodeList'] = childNodeList;

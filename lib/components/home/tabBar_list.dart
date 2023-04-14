@@ -11,6 +11,7 @@ import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 import 'package:flutter_v2ex/components/common/network_error.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
 
@@ -126,6 +127,12 @@ class _TabBarListState extends State<TabBarList>
           _isLoadingMore = false;
         });
         _currentPage += 1;
+
+        var userInfo = GStorage().getUserInfo();
+        if (userInfo.isNotEmpty) {
+          // 登录状态自动签到 补充用
+          DioRequestWeb.dailyMission();
+        }
 
         _tabStateController.setActionCounts(res['actionCounts']);
         _tabStateController.setBalance(res['balance']);
@@ -304,7 +311,7 @@ class ChildNodes extends StatelessWidget {
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
-        bottom: MediaQuery.of(context).padding.bottom,
+        bottom: MediaQuery.of(context).padding.bottom + 20,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
