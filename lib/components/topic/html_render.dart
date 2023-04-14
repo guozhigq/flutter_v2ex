@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:flutter_v2ex/components/common/image_loading.dart';
 
 // ignore: must_be_immutable
-class HtmlRender extends StatefulWidget {
+class HtmlRender extends StatelessWidget {
   String? htmlContent;
   final int? imgCount;
   final List? imgList;
@@ -17,24 +18,9 @@ class HtmlRender extends StatefulWidget {
       {this.htmlContent, this.imgCount, this.imgList, this.fs, super.key});
 
   @override
-  _HtmlRenderState createState() => _HtmlRenderState();
-}
-
-class _HtmlRenderState extends State<HtmlRender> {
-  double? htmlFs;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.fs != null) {
-      htmlFs = widget.fs;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Html(
-      data: widget.htmlContent,
+      data: htmlContent,
       tagsList: Html.tags..addAll(["form", "label", "input"]),
       onLinkTap: (url, buildContext, attributes, element) =>
           {Utils.openHrefByWebview(url!, context)},
@@ -55,8 +41,8 @@ class _HtmlRenderState extends State<HtmlRender> {
               child: GestureDetector(
                 onTap: () {
                   Map<dynamic, dynamic> arguments = {
-                    "imgList": widget.imgList!,
-                    "initialPage": widget.imgList!.indexOf(imgUrl),
+                    "imgList": imgList!,
+                    "initialPage": imgList!.indexOf(imgUrl),
                   };
                   Get.toNamed('/imgPreview', arguments: arguments);
                 },
@@ -88,6 +74,7 @@ class _HtmlRenderState extends State<HtmlRender> {
                   // ),
                   child: ImageLoading(
                     imgUrl: imgUrl,
+                    quality: 'preview',
                   ),
                 ),
               ),
@@ -138,7 +125,7 @@ class _HtmlRenderState extends State<HtmlRender> {
       },
       style: {
         "html": Style(
-          fontSize: htmlFs != null ? FontSize(htmlFs!) : FontSize.medium,
+          fontSize: fs != null ? FontSize(fs!) : FontSize.medium,
           lineHeight: LineHeight.percent(140),
         ),
         "body": Style(margin: Margins.zero, padding: EdgeInsets.zero),

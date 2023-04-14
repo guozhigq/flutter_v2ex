@@ -4,13 +4,14 @@ import 'package:flutter_v2ex/utils/utils.dart';
 
 class ImageLoading extends StatefulWidget {
   ImageLoading(
-      {required this.imgUrl, this.width, this.height, this.type, Key? key})
+      {required this.imgUrl, this.width, this.height, this.type, this.quality, Key? key})
       : super(key: key);
 
   String imgUrl = '';
   double? width;
   double? height;
   String? type;
+  String? quality;
 
   @override
   State<ImageLoading> createState() => _ImageLoadingState();
@@ -40,32 +41,34 @@ class _ImageLoadingState extends State<ImageLoading>
 
   @override
   Widget build(BuildContext context) {
-    return ExtendedImage.network(
-      widget.imgUrl,
-      width: widget.type == 'avatar' ? widget.width! : null,
-      height: widget.type == 'avatar' ? widget.height! : null,
-      fit: BoxFit.cover,
-      cache: true,
-      headers: const {'sec-fetch-dest': 'image'},
-      loadStateChanged: (ExtendedImageState state) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return ExtendedImage.network(
+          widget.imgUrl,
+          width: widget.type == 'avatar' ? widget.width! : null,
+          height: widget.type == 'avatar' ? widget.height! : null,
+          fit: BoxFit.cover,
+          cacheWidth: widget.quality != ''&& widget.quality == 'preview' ? constraints.maxWidth.toInt()*3 : null,
+          cache: true,
+          headers: const {'sec-fetch-dest': 'image'},
+          loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             _controller.reset();
             return widget.type == 'avatar'
                 ? placeholder(context)
                 : Container(
-                    width: double.infinity,
-                    height: 60,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    child: const Center(
-                      child: Text('图片加载中...'),
-                    ),
-                  );
+              width: double.infinity,
+              height: 60,
+              color: Theme.of(context).colorScheme.onInverseSurface,
+              child: const Center(
+                child: Text('图片加载中...'),
+              ),
+            );
 
-          ///if you don't want override completed widget
-          ///please return null or state.completedWidget
-          //return null;
-          //return state.completedWidget;
+        ///if you don't want override completed widget
+        ///please return null or state.completedWidget
+        //return null;
+        //return state.completedWidget;
           case LoadState.completed:
             _controller.forward();
             return FadeTransition(
@@ -81,23 +84,24 @@ class _ImageLoadingState extends State<ImageLoading>
             return widget.type == 'avatar'
                 ? placeholder(context)
                 : InkWell(
-                    onTap: () {
-                      Utils.openURL(widget.imgUrl);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 60,
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                      child: Center(
-                        child: Text('加载失败 | 点击浏览器打开',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.error)),
-                      ),
-                    ),
-                  );
+              onTap: () {
+                Utils.openURL(widget.imgUrl);
+              },
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                color: Theme.of(context).colorScheme.onInverseSurface,
+                child: Center(
+                  child: Text('加载失败 | 点击浏览器打开',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error)),
+                ),
+              ),
+            );
         }
       },
-    );
+      );
+    });
   }
 
   Widget placeholder(context) {
