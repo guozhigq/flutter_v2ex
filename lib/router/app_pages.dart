@@ -120,7 +120,7 @@ class CustomGetPage extends GetPage {
           // iPad 模式下关闭 | context.width
           gestureWidth: sideslip ? (context) => context.width : null,
           showCupertinoParallax: false,
-          popGesture: true,
+          popGesture: false,
           transitionDuration: transitionDuration,
           fullscreenDialog: fullscreen != null && fullscreen,
         );

@@ -183,7 +183,8 @@ class _MyAppState extends State<MyApp> {
                 /// 设置文字大小不跟随系统更改
                 child: MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                  child: CAdaptiveLayout(child: child),
+                  // child: CAdaptiveLayout(child: child),
+                  child: child!,
                 ),
               ),
             );
