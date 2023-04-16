@@ -643,7 +643,7 @@ class _TopicDetailState extends State<TopicDetail>
             child: FloatingActionButton(
               heroTag: null,
               elevation: 4,
-              onPressed: showReplySheet,
+              onPressed: _detailModel != null ? showReplySheet : null,
               tooltip: '回复',
               child: const Icon(Icons.edit),
             ),

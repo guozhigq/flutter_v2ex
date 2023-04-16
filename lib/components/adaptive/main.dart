@@ -123,6 +123,8 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
       //     ),
       //   ),
       // ),
+      // 可能需要根据设备做判断
+      resizeToAvoidBottomInset: false,
       backgroundColor: getBackground(context, 'adaptMain'),
       body: AdaptiveLayout(
         internalAnimations: false,
