@@ -201,7 +201,7 @@ class Utils {
     List decodeRes = [];
     try {
       String content = contentDom.text;
-      RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
+      RegExp exp = RegExp(r'[a-zA-Z+\d=]{8,}');
       // RegExp exp2 = RegExp(
       //     r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$');
       var expMatch = exp.allMatches(content).toList();
@@ -223,7 +223,7 @@ class Utils {
   static base64Resolve(String str, decodeRes) {
     var wechat = '';
     var blacklist = Strings().base64BlackList;
-    RegExp exp = RegExp(r'[a-zA-Z\d=]{4,}');
+    RegExp exp = RegExp(r'[a-zA-Z+\d=]{4,}');
     str = str.trim();
     if (!blacklist.contains(str) && str.length % 4 == 0 || (str.endsWith('%3D') && (str.length-2) % 4 == 0)) {
       try{
@@ -265,7 +265,7 @@ class Utils {
     }
 
     // base64 替换
-    // RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
+    // RegExp base64RegExp = RegExp(r'[a-zA-Z+\d=]{8,}');
     // var base64Res = base64RegExp.allMatches(innerHtml);
     // var wechat = '';
     // for (var i in base64Res) {
@@ -277,7 +277,7 @@ class Utils {
     //       print(e);
     //     }
     //     if(wechat != ''){
-    //       innerHtml = innerHtml.replaceAll(base64RegExp,'${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+    //       innerHtml = innerHtml.replaceAll(i.group(0),'${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
     //     }
     //     print(wechat);
     //   }

@@ -195,7 +195,7 @@ class TopicWebApi {
           contentDom.nodes.insert(contentDom.nodes.length,
               parseFragment('<p>base64解码：$decodeDom</p>'));
         }
-        subtleItem.content = contentDom.innerHtml;
+        subtleItem.content = Utils.linkMatch(contentDom);
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
             null) {
           var subImgNodes =
