@@ -26,8 +26,9 @@
 <br/>
 
 
-## 功能
-[开发计划](https://github.com/users/guozhigq/projects/2)
+## 功能  
+
+[开发计划](https://github.com/users/guozhigq/projects/2)  / <a target="_blank" href="https://t.me/+lm_oOVmF0RJiODk1">加入讨论组</a>
 <br/>
 - [x] 夜间模式
 - [x] 动态主题
