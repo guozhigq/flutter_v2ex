@@ -95,8 +95,7 @@ class TopicWebApi {
     var pureStr = document
         .querySelector('$headerQuery > small')!
         .innerHtml
-        .split('a> at ')[1]
-        .replaceAll(RegExp(r"\s+"), "");
+        .split('a> at ')[1];
     List pureStrList = pureStr.split('·');
     detailModel.createdTime = pureStrList[0].replaceFirst(' +08:00', '');
     detailModel.visitorCount = pureStrList.length >= 2
