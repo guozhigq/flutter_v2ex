@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter_v2ex/http/github.dart';
 
 import 'package:get/get.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -99,7 +100,7 @@ class _MyAppState extends State<MyApp> {
 
     // 检查更新
     if (GStorage().getAutoUpdate()) {
-      DioRequestWeb.checkUpdate();
+      GithubApi.checkUpdate();
     }
   }
 

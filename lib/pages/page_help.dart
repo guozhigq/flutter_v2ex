@@ -2,6 +2,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
+import 'package:flutter_v2ex/http/github.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -91,6 +92,10 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             title: const Text('网络检测'),
           ),
           ListTile(
+            onTap: () => Get.toNamed('/changeLog'),
+            title: const Text('更新日志'),
+          ),
+          ListTile(
             onTap: () async{
               final deviceInfoPlugin = DeviceInfoPlugin();
               final deviceInfo = await deviceInfoPlugin.deviceInfo;
@@ -113,7 +118,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ListTile(
             onTap: () async {
               SmartDialog.showLoading(msg: '正在检查更新');
-              Map update = await DioRequestWeb.checkUpdate();
+              Map update = await GithubApi.checkUpdate();
               SmartDialog.dismiss();
               if(!update['needUpdate'] && context.mounted) {
                 SmartDialog.showToast('已经是最新版了 😊');

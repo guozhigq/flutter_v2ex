@@ -1,0 +1,6 @@
+class ChangeLogModel {
+
+    ChangeLogModel(
+
+  );
+}
