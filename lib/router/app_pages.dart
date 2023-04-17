@@ -25,6 +25,7 @@ import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_history.dart';
 import 'package:flutter_v2ex/pages/page_agreement.dart';
 import 'package:flutter_v2ex/pages/page_history_hot.dart';
+import 'package:flutter_v2ex/pages/help/change_log/index.dart';
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
@@ -98,6 +99,8 @@ class AppPages {
     CustomGetPage('/historyHot', const HistoryHotPage()),
     // 网络
     CustomGetPage('/networkCheck', const NetworkCheckPage()),
+    // 更新日志
+    CustomGetPage('/changeLog', const ChangeLogPage()),
   ];
 }
 
