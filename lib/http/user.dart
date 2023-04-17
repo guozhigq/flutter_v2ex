@@ -333,11 +333,11 @@ class UserWebApi {
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelector('#Main > div.box');
     if (contentDom!.querySelector('div.cell > table') != null) {
-      memberReply.totalPage = contentDom
+      memberReply.totalPage = int.parse(contentDom
           .querySelector('div.cell > table')!
           .querySelectorAll('a')
           .last
-          .text;
+          .text);
     }
 
     var dockAreaDom = contentDom.querySelectorAll('div.dock_area');

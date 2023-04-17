@@ -58,7 +58,7 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
       }
       _isLoading = false;
       _currentPage += 1;
-      _totalPage = int.parse(res.totalPage);
+      _totalPage = res.totalPage;
       replyListData = res;
     });
     return res;

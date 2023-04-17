@@ -590,7 +590,6 @@ class DioRequestWeb {
       int once = GStorage().getOnce();
       response = await Request()
           .get("/mission/daily/redeem?once=$once", extra: {'ua': 'mob'});
-
       if (response.statusCode == 302) {
         SmartDialog.showToast('签到成功');
       } else if (response.statusCode == 200) {
@@ -604,6 +603,8 @@ class DioRequestWeb {
           if (tipsText.contains('你要查看的页面需要先登录')) {
             SmartDialog.showToast('登录状态失效');
             // eventBus.emit('login', 'fail');
+          }else{
+            return mainBox.querySelector('div.message')!.text;
           }
         }
 
