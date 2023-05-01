@@ -154,9 +154,9 @@ class _SearchMenuState extends State<SearchMenu> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Text(
-            '高级搜索: ',
-          ),
+          // const Text(
+          //   '高级搜索: ',
+          // ),
           const SizedBox(width: 6),
           Expanded(
               child: SingleChildScrollView(

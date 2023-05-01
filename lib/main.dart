@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_v2ex/http/github.dart';
+import 'package:flutter_v2ex/service/search.dart';
 
 import 'package:get/get.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/hive.dart';
 import 'package:flutter_v2ex/utils/global.dart';

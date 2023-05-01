@@ -16,7 +16,9 @@ Future<void> initHive() async {
   Hive.registerAdapter(TopicSubtleItemAdapter()); // 附言item
 
   // 打开历史浏览盒子
-   await Hive.openBox('recentTopicsBox');
+  await Hive.openBox('recentTopicsBox');
+  // 历史搜索
+  await Hive.openBox('recentSearchBox');
 }
 
 void closeHive() {
