@@ -14,16 +14,6 @@ class WebView extends StatefulWidget {
 class _WebViewState extends State<WebView> {
   InAppWebViewController? webViewController;
 
-  InAppWebViewSettings settings = InAppWebViewSettings(
-    // mediaPlaybackRequiresUserGesture: false,
-    // allowsInlineMediaPlayback: true,
-    // iframeAllow: "camera; microphone",
-    // iframeAllowFullscreen: true,
-    allowContentAccess: true,
-    userAgent: 'random',
-    javaScriptEnabled: true,
-  );
-
   PullToRefreshController? pullToRefreshController;
 
   String aUrl = "";
@@ -34,24 +24,6 @@ class _WebViewState extends State<WebView> {
   void initState() {
     super.initState();
     aUrl = Get.parameters['aUrl']!;
-
-    // pullToRefreshController = kIsWeb || ![TargetPlatform.iOS, TargetPlatform.android].contains(defaultTargetPlatform)
-    //     ? null
-    //     : PullToRefreshController(
-    //   settings: PullToRefreshSettings(
-    //     color: Theme.of(context).colorScheme.primary,
-    //   ),
-    //   onRefresh: () async {
-    //     if (defaultTargetPlatform == TargetPlatform.android) {
-    //       webViewController?.reload();
-    //     } else if (defaultTargetPlatform == TargetPlatform.iOS ||
-    //         defaultTargetPlatform == TargetPlatform.macOS) {
-    //       webViewController?.loadUrl(
-    //           urlRequest:
-    //           URLRequest(url: await webViewController?.getUrl()));
-    //     }
-    //   },
-    // );
   }
 
   @override
@@ -83,16 +55,16 @@ class _WebViewState extends State<WebView> {
               child: Stack(
                 children: [
                   InAppWebView(
-                    initialUrlRequest: URLRequest(url: WebUri(aUrl)),
+                    initialUrlRequest: URLRequest(url:  Uri.parse(aUrl)),
                     pullToRefreshController: pullToRefreshController,
-                    initialSettings: settings,
+                    // initialSettings: settings,
                     onWebViewCreated: (controller) async {
                       webViewController = controller;
                       // print(await controller.getHtml());
                     },
                     // 加载url时触发
                     onLoadStart: (controller, url) async {
-                      URLRequest(url: WebUri(aUrl));
+                      URLRequest(url: Uri.parse(aUrl));
                     },
                     // 触发多次 页面内可能会有跳转
                     onLoadStop: (controller, url) async {

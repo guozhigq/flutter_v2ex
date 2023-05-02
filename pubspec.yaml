@@ -58,7 +58,7 @@ dependencies:
 
     # webView
     url_launcher: ^6.1.9
-    flutter_inappwebview: ^6.0.0-beta.22
+    flutter_inappwebview: 5.4.4
 
     # 图片&保存
     extended_image: ^7.0.2

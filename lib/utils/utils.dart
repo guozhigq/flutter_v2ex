@@ -20,8 +20,6 @@ class Utils {
 //   static IosDeviceInfo iosInfo;
 //   static AndroidDeviceInfo androidInfo;
 
-  final ChromeSafariBrowser browser = MyChromeSafariBrowser();
-
   // // 获取设备系统版本号
   static deviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -60,44 +58,21 @@ class Utils {
     if (!linkOpenType) {
       // 1. openWithSystemBrowser
       try {
-        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+        await InAppBrowser.openWithSystemBrowser(url: Uri.parse(aUrl));
       } catch (err) {
         SmartDialog.showToast(err.toString());
       }
     } else {
       // 2. openWithAppBrowser
       try {
-        await Utils().browser.open(
-          url: WebUri(aUrl),
-          settings: ChromeSafariBrowserSettings(
-              shareState: CustomTabsShareState.SHARE_STATE_OFF,
-              isSingleInstance: false,
-              isTrustedWebActivity: false,
-              keepAliveEnabled: true,
-              startAnimations: [
-                AndroidResource.anim(
-                    name: "slide_in_left", defPackage: "android"),
-                AndroidResource.anim(
-                    name: "slide_out_right", defPackage: "android")
-              ],
-              exitAnimations: [
-                AndroidResource.anim(
-                    name: "abc_slide_in_top",
-                    defPackage:
-                    "com.pichillilorenzo.flutter_inappwebviewexample"),
-                AndroidResource.anim(
-                    name: "abc_slide_out_top",
-                    defPackage:
-                    "com.pichillilorenzo.flutter_inappwebviewexample")
-              ],
-              dismissButtonStyle: DismissButtonStyle.CLOSE,
-              presentationStyle: ModalPresentationStyle.OVER_FULL_SCREEN),
+        await ChromeSafariBrowser().open(
+          url: Uri.parse(aUrl)
         );
       } catch (err) {
         // SmartDialog.showToast(err.toString());
         // https://github.com/guozhigq/flutter_v2ex/issues/49
         GStorage().setLinkOpenInApp(false);
-        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
+        await InAppBrowser.openWithSystemBrowser(url: Uri.parse(aUrl));
       }
     }
   }
@@ -392,37 +367,5 @@ class Utils {
         throw Exception('Could not launch $aUrl');
       }
     }
-  }
-}
-
-class MyChromeSafariBrowser extends ChromeSafariBrowser {
-  @override
-  void onOpened() {
-    // print("😊flutter ChromeSafari browser opened");
-  }
-
-  @override
-  void onLoadStart() {
-    // print('😊flutter flutter onloadStart');
-  }
-
-  // 加载完成
-  @override
-  void onCompletedInitialLoad(didLoadSuccessfully) async {
-    // print("😊flutter ChromeSafari browser initial load completed");
-    // final cookieManager = CookieManager.instance();
-    // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com/signin')));
-    // print('😊flutter: $cookies');
-  }
-
-  @override
-  void onInitialLoadDidRedirect(WebUri? url) {}
-
-  @override
-  void onClosed() async {
-    // final cookieManager = CookieManager.instance();
-    // List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse('https://www.v2ex.com')));
-    // print('😊flutter: $cookies');
-    // print("😊flutter ChromeSafari browser closed");
   }
 }
