@@ -230,9 +230,11 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           WidgetsBinding.instance.window.viewInsets,
           WidgetsBinding.instance.window.devicePixelRatio);
       _debouncer.run(() {
-        setState(() {
+        if(mounted) {
+          setState(() {
           _keyboardHeight = viewInsets.bottom;
         });
+        }
       });
     });
   }

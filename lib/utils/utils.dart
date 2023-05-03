@@ -244,12 +244,11 @@ class Utils {
     // base64 替换
     RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
     var base64Res = base64RegExp.allMatches(innerHtml);
-    print(base64Res);
     var wechat = '';
     for (var i in base64Res) {
       if (!Strings().base64BlackList.contains(i.group(0)) &&
           i.group(0)!.trim().length % 4 == 0) {
-        print('🔥：${i.group(0)}');
+        // print('🔥：${i.group(0)}');
         try {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         } catch (e) {
