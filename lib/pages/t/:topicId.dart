@@ -100,7 +100,9 @@ class _TopicDetailState extends State<TopicDetail>
       _topicDetail = _topicController.topic.value;
       _detailModel = null;
       _currentPage = 0;
-      await getDetailInit();
+      if(mounted){
+        await getDetailInit();
+      }
     });
 
     // setState(() {
