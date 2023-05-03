@@ -27,7 +27,9 @@ class Strings {
     "appStore",
     "Installation",
     "markdown",
-    "Markdown"
+    "Markdown",
+    "nofollow",
+    "noopener",
   ];
   static List<TabModel> tabs = [
     TabModel('最近', 'recent', 'recent', true),

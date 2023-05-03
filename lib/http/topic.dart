@@ -145,19 +145,19 @@ class TopicWebApi {
       var contentDom =
           document.querySelector('$mainBoxQuery > div.cell > div')!;
       detailModel.content = contentDom.text;
-      List decodeRes = Utils.base64Decode(contentDom);
-      if (decodeRes.isNotEmpty) {
-        var decodeDom = '';
-        for (var i = 0; i < decodeRes.length; i++) {
-          decodeDom +=
-              '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-          if (i != decodeRes.length - 1) {
-            decodeDom += '<span>、</span>';
-          }
-        }
-        contentDom.nodes.insert(contentDom.nodes.length,
-            parseFragment('<p>base64解码：$decodeDom</p>'));
-      }
+      // List decodeRes = Utils.base64Decode(contentDom);
+      // if (decodeRes.isNotEmpty) {
+      //   var decodeDom = '';
+      //   for (var i = 0; i < decodeRes.length; i++) {
+      //     decodeDom +=
+      //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+      //     if (i != decodeRes.length - 1) {
+      //       decodeDom += '<span>、</span>';
+      //     }
+      //   }
+      //   contentDom.nodes.insert(contentDom.nodes.length,
+      //       parseFragment('<p>base64解码：$decodeDom</p>'));
+      // }
       detailModel.contentRendered = Utils.linkMatch(contentDom);
       if (contentDom.querySelector('img') != null) {
         var imgNodes = contentDom.querySelectorAll('img');
@@ -181,19 +181,19 @@ class TopicWebApi {
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
         var contentDom = node.querySelector('div.topic_content')!;
-        List decodeRes = Utils.base64Decode(contentDom);
-        if (decodeRes.isNotEmpty) {
-          var decodeDom = '';
-          for (var i = 0; i < decodeRes.length; i++) {
-            decodeDom +=
-                '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-            if (i != decodeRes.length - 1) {
-              decodeDom += '<span>、</span>';
-            }
-          }
-          contentDom.nodes.insert(contentDom.nodes.length,
-              parseFragment('<p>base64解码：$decodeDom</p>'));
-        }
+        // List decodeRes = Utils.base64Decode(contentDom);
+        // if (decodeRes.isNotEmpty) {
+        //   var decodeDom = '';
+        //   for (var i = 0; i < decodeRes.length; i++) {
+        //     decodeDom +=
+        //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+        //     if (i != decodeRes.length - 1) {
+        //       decodeDom += '<span>、</span>';
+        //     }
+        //   }
+        //   contentDom.nodes.insert(contentDom.nodes.length,
+        //       parseFragment('<p>base64解码：$decodeDom</p>'));
+        // }
         subtleItem.content = contentDom.innerHtml;
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
             null) {
@@ -345,19 +345,19 @@ class TopicWebApi {
             .text);
         var contentDom = aNode.querySelector(
             '$replyTrQuery > td:nth-child(5) > div.reply_content')!;
-        List decodeRes = Utils.base64Decode(contentDom);
-        if (decodeRes.isNotEmpty) {
-          var decodeDom = '';
-          for (var i = 0; i < decodeRes.length; i++) {
-            decodeDom +=
-                '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-            if (i != decodeRes.length - 1) {
-              decodeDom += '<span>、</span>';
-            }
-          }
-          contentDom.nodes.insert(contentDom.nodes.length,
-              parseFragment('<p>base64解码：$decodeDom</p>'));
-        }
+        // List decodeRes = Utils.base64Decode(contentDom);
+        // if (decodeRes.isNotEmpty) {
+        //   var decodeDom = '';
+        //   for (var i = 0; i < decodeRes.length; i++) {
+        //     decodeDom +=
+        //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
+        //     if (i != decodeRes.length - 1) {
+        //       decodeDom += '<span>、</span>';
+        //     }
+        //   }
+        //   contentDom.nodes.insert(contentDom.nodes.length,
+        //       parseFragment('<p>base64解码：$decodeDom</p>'));
+        // }
         replyItem.contentRendered = Utils.linkMatch(contentDom);
         replyItem.content = aNode
             .querySelector(

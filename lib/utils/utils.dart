@@ -65,9 +65,7 @@ class Utils {
     } else {
       // 2. openWithAppBrowser
       try {
-        await ChromeSafariBrowser().open(
-          url: Uri.parse(aUrl)
-        );
+        await ChromeSafariBrowser().open(url: Uri.parse(aUrl));
       } catch (err) {
         // SmartDialog.showToast(err.toString());
         // https://github.com/guozhigq/flutter_v2ex/issues/49
@@ -80,7 +78,7 @@ class Utils {
   String? encodeQueryParameters(Map<String, String> params) {
     return params.entries
         .map((e) =>
-    '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
         .join('&');
   }
 
@@ -145,9 +143,9 @@ class Utils {
   /// [func]: 要执行的方法
   /// [delay]: 要迟延的时长
   static Function debounce(
-      Function func, [
-        Duration delay = const Duration(milliseconds: 2000),
-      ]) {
+    Function func, [
+    Duration delay = const Duration(milliseconds: 2000),
+  ]) {
     Timer? timer;
     target() {
       if (timer!.isActive) {
@@ -182,9 +180,9 @@ class Utils {
       var expMatch = exp.allMatches(content).toList();
       for (var i in expMatch) {
         var value = i.group(0);
-        try{
+        try {
           decodeRes.addAll(base64Resolve(value!, decodeRes));
-        }catch(err) {
+        } catch (err) {
           // print(err);
         }
       }
@@ -200,25 +198,29 @@ class Utils {
     var blacklist = Strings().base64BlackList;
     RegExp exp = RegExp(r'[a-zA-Z\d=]{4,}');
     str = str.trim();
-    if (!blacklist.contains(str) && str.length % 4 == 0 || (str.endsWith('%3D') && (str.length-2) % 4 == 0)) {
-      try{
+    if (!blacklist.contains(str) && str.length % 4 == 0 ||
+        (str.endsWith('%3D') && (str.length - 2) % 4 == 0)) {
+      try {
         wechat = utf8.decode(base64.decode(str)).trim();
-      }catch(err) {
+      } catch (err) {
         print('❌ base64Resolve error: $err');
       }
       RegExp wechatRegExp = RegExp(r'^_|[a-zA-Z][a-zA-Z\d_-]{5,19}$');
       RegExp emailRegExp =
-      RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
-      if (wechat != '' && (wechatRegExp.hasMatch(wechat) ||
-          RegExp(r'^\d+$').hasMatch(wechat) ||
-          emailRegExp.hasMatch(wechat))) {
+          RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+      if (wechat != '' &&
+          (wechatRegExp.hasMatch(wechat) ||
+              RegExp(r'^\d+$').hasMatch(wechat) ||
+              emailRegExp.hasMatch(wechat))) {
         decodeRes.add(wechat);
-      }else if(exp.allMatches(wechat).isNotEmpty && !wechatRegExp.hasMatch(wechat) && !RegExp(r'^\d+$').hasMatch(wechat)){
+      } else if (exp.allMatches(wechat).isNotEmpty &&
+          !wechatRegExp.hasMatch(wechat) &&
+          !RegExp(r'^\d+$').hasMatch(wechat)) {
         decodeRes.addAll(base64Resolve(wechat, decodeRes));
-      }else{
+      } else {
         print('解析中断： $wechat');
       }
-    }else{
+    } else {
       // print('err: 无效base64');
     }
     return decodeRes;
@@ -231,32 +233,35 @@ class Utils {
     var linkRes = linkRegExp.firstMatch(innerHtml);
     if (linkRes != null) {
       var index = innerHtml.indexOf(linkRes.group(0));
-      var lastWord = innerHtml[index-1];
-      if(lastWord != 'm'){
+      var lastWord = innerHtml[index - 1];
+      if (lastWord != 'm') {
         var matchRes = linkRes.group(0);
-        innerHtml =
-            innerHtml.replaceAll(linkRegExp, "<a href='$matchRes'>$matchRes</a>");
+        innerHtml = innerHtml.replaceAll(
+            linkRegExp, "<a href='$matchRes'>$matchRes</a>");
       }
     }
 
     // base64 替换
-    // RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
-    // var base64Res = base64RegExp.allMatches(innerHtml);
-    // var wechat = '';
-    // for (var i in base64Res) {
-    //   if (!Strings().base64BlackList.contains(i.group(0)) && i.group(0)!.trim().length % 4 == 0) {
-    //     print('🔥：${i.group(0)}');
-    //     try{
-    //       wechat = utf8.decode(base64.decode(i.group(0)!));
-    //     }catch(e){
-    //       print(e);
-    //     }
-    //     if(wechat != ''){
-    //       innerHtml = innerHtml.replaceAll(base64RegExp,'${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
-    //     }
-    //     print(wechat);
-    //   }
-    // }
+    RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
+    var base64Res = base64RegExp.allMatches(innerHtml);
+    print(base64Res);
+    var wechat = '';
+    for (var i in base64Res) {
+      if (!Strings().base64BlackList.contains(i.group(0)) &&
+          i.group(0)!.trim().length % 4 == 0) {
+        print('🔥：${i.group(0)}');
+        try {
+          wechat = utf8.decode(base64.decode(i.group(0)!));
+        } catch (e) {
+          print(e);
+        }
+        if (wechat != '') {
+          innerHtml = innerHtml.replaceAll(i.group(0),
+              '${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+        }
+        print(wechat);
+      }
+    }
 
     return innerHtml;
   }
@@ -291,8 +296,7 @@ class Utils {
     }
     RegExp exp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
-    RegExp v2exExp =
-    RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))v2ex.com");
+    RegExp v2exExp = RegExp(r"((https?:www\.)|(https?:\/\/)|(www\.))v2ex.com");
     RegExp linkExp = RegExp(r"^/go|/t|/member/");
     RegExp linkExp2 = RegExp(r"^<a(.*?)>(.*?)<\/a>$");
     bool isValidator = exp.hasMatch(aUrl);
@@ -337,18 +341,18 @@ class Utils {
       final Uri url = Uri.parse(aUrl);
       if (await canLaunchUrl(url)) {
         launchUrl(url);
-      }else if(linkExp2.hasMatch(aUrl)){
+      } else if (linkExp2.hasMatch(aUrl)) {
         print(aUrl);
-        try{
-          String tagA = parse(aUrl).body!.querySelector('a')!.attributes['href']!;
-          if (context.mounted){
+        try {
+          String tagA =
+              parse(aUrl).body!.querySelector('a')!.attributes['href']!;
+          if (context.mounted) {
             openHrefByWebview(tagA, context);
           }
-        }catch(err){
+        } catch (err) {
           print(err);
         }
-      }
-      else {
+      } else {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
