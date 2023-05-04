@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/network/item_node_topic.dart';
+import 'package:flutter_v2ex/package/markdown_editable_textinput/format_markdown.dart';
+import 'package:flutter_v2ex/package/markdown_editable_textinput/markdown_text_input.dart';
 
 enum SampleItem { draft, cancel, tips }
 
@@ -16,6 +18,7 @@ class WritePage extends StatefulWidget {
 class _WritePageState extends State<WritePage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  TextEditingController mdEditController = TextEditingController();
   final GlobalKey _formKey = GlobalKey<FormState>();
 
   final FocusNode titleTextFieldNode = FocusNode();
@@ -29,6 +32,9 @@ class _WritePageState extends State<WritePage> {
   // 接收到的参数
   String source = '';
   String topicId = '';
+
+  String description = '';
+  String contentMode = 'default';
 
   @override
   void initState() {
@@ -92,8 +98,8 @@ class _WritePageState extends State<WritePage> {
   // 是否可以增加附言
   void queryAppendStatus() async {
     var res = await DioRequestWeb.appendStatus(topicId);
-    if(!res) {
-      if(context.mounted) {
+    if (!res) {
+      if (context.mounted) {
         showDialog(
           context: context,
           builder: (context) {
@@ -114,30 +120,33 @@ class _WritePageState extends State<WritePage> {
           },
         );
       }
-
     }
   }
 
   void appendDialog() {
-    showDialog(context: context, builder: (context) {
-      return AlertDialog(
-        title: const Text('关于为主题创建附言'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const[
-            Text('- 请在确有必要的情况下再使用此功能为原主题补充信息'),
-            Text('- 每个主题至多可以附加 3 条附言'),
-            Text('- 创建附言价格为每千字 20 铜币'),
-            // Text('- 每个主题至多可以附加 3 条附言'),
-            // Text('- 创建附言价格为每千字 20 铜币'),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('了解了'))
-        ],
-      );
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('关于为主题创建附言'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('- 请在确有必要的情况下再使用此功能为原主题补充信息'),
+                Text('- 每个主题至多可以附加 3 条附言'),
+                Text('- 创建附言价格为每千字 20 铜币'),
+                // Text('- 每个主题至多可以附加 3 条附言'),
+                // Text('- 创建附言价格为每千字 20 铜币'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('了解了'))
+            ],
+          );
+        });
   }
 
   void onSubmit() {
@@ -156,7 +165,7 @@ class _WritePageState extends State<WritePage> {
     }
   }
 
-  Future onPost() async{
+  Future onPost() async {
     if (currentNode == null) {
       SmartDialog.showToast('请选择节点', alignment: Alignment.center);
       return;
@@ -203,7 +212,7 @@ class _WritePageState extends State<WritePage> {
   }
 
   // 编辑主题
-  Future onEdit() async{
+  Future onEdit() async {
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
@@ -236,7 +245,7 @@ class _WritePageState extends State<WritePage> {
             },
           );
         }
-      }else{
+      } else {
         SmartDialog.show(
           useSystem: true,
           animationType: SmartAnimationType.centerFade_otherSlide,
@@ -260,7 +269,7 @@ class _WritePageState extends State<WritePage> {
   }
 
   // 添加附言
-  Future onAppend() async{
+  Future onAppend() async {
     if ((_formKey.currentState as FormState).validate()) {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
@@ -274,30 +283,50 @@ class _WritePageState extends State<WritePage> {
       var result = await DioRequestWeb.appendContent(args);
       if (result) {
         if (context.mounted) {
-          SmartDialog.showToast('发布成功', displayTime: const Duration(milliseconds: 800)).then((value) {
+          SmartDialog.showToast('发布成功',
+                  displayTime: const Duration(milliseconds: 800))
+              .then((value) {
             Get.back(result: {'refresh': true});
           });
         }
-      }else{
-
-      }
+      } else {}
     }
+  }
+
+  // 正文格式
+  modeChange() {
+    if (contentMode == 'default') {
+      contentMode = 'markdown';
+    } else {
+      contentMode = 'default';
+    }
+    setState(() {});
+    SmartDialog.showToast('当前正文格式：$contentMode');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(source == 'edit' ? '编辑主题内容' : source == 'append' ? '增加附言' : '创作新主题'),
+        title: Text(source == 'edit'
+            ? '编辑主题内容'
+            : source == 'append'
+                ? '增加附言'
+                : '创作新主题'),
         actions: [
+          IconButton(
+              onPressed: () => modeChange(),
+              icon: const Icon(Icons.sync_alt),
+              tooltip: '正文格式'),
           IconButton(
               onPressed: () => onSubmit(),
               icon: const Icon(Icons.send),
               tooltip: '发布'),
-          if(source == 'append')
+          if (source == 'append')
             IconButton(
-                onPressed: ()=> appendDialog(), icon: const Icon(Icons.info_outline_rounded)),
-            const SizedBox(width: 10),
+                onPressed: () => appendDialog(),
+                icon: const Icon(Icons.info_outline_rounded)),
+          const SizedBox(width: 10),
           // if(source != 'append')
           // PopupMenuButton<SampleItem>(
           //   icon: const Icon(Icons.more_vert),
@@ -328,7 +357,7 @@ class _WritePageState extends State<WritePage> {
         autovalidateMode: AutovalidateMode.disabled,
         child: Column(
           children: [
-            if(source == '') ... [
+            if (source == '') ...[
               InkWell(
                 onTap: () async {
                   var result = await Get.toNamed('/topicNodes');
@@ -337,90 +366,99 @@ class _WritePageState extends State<WritePage> {
                   });
                 },
                 child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 20),
                     decoration: BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
-                                color: Theme
-                                    .of(context)
+                                color: Theme.of(context)
                                     .dividerColor
                                     .withOpacity(0.2)))),
                     child: Row(
                       children: [
                         Text(
                           '主题节点:',
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(width: 20),
                         Text(
                           currentNode != null ? currentNode!.title! : '选择节点',
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .titleMedium!
                               .copyWith(
-                              color: Theme
-                                  .of(context)
-                                  .colorScheme
-                                  .primary),
+                                  color: Theme.of(context).colorScheme.primary),
                         ),
                       ],
                     )),
               ),
             ],
-            if(source != 'append')
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
-              decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          color: Theme
-                              .of(context)
-                              .dividerColor
-                              .withOpacity(0.2)))),
-              child: TextFormField(
-                autofocus: true,
-                controller: titleController,
-                focusNode: titleTextFieldNode,
-                decoration: const InputDecoration(
-                  hintText: "主题标题",
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
+            if (source != 'append')
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            color: Theme.of(context)
+                                .dividerColor
+                                .withOpacity(0.2)))),
+                child: TextFormField(
+                  autofocus: true,
+                  controller: titleController,
+                  focusNode: titleTextFieldNode,
+                  decoration: const InputDecoration(
+                    hintText: "主题标题",
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  // 校验用户名
+                  validator: (v) {
+                    return v!.trim().isNotEmpty ? null : "请输入主题标题";
+                  },
+                  onSaved: (val) {
+                    title = val!;
+                  },
                 ),
-                // 校验用户名
-                validator: (v) {
-                  return v!.trim().isNotEmpty ? null : "请输入主题标题";
-                },
-                onSaved: (val) {
-                  title = val!;
-                },
               ),
-            ),
             Expanded(
               child: Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                child: TextFormField(
-                  controller: contentController,
-                  minLines: 1,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      hintText: source == 'append' ? '输入附言内容' : '输入正文内容', border: InputBorder.none),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyLarge,
-                  validator: (v) {
-                    return v!.trim().isNotEmpty ? null : "请输入正文内容";
-                  },
-                  onSaved: (val) {
-                    content = val!;
-                  },
-                ),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                child: contentMode == 'default'
+                    ? TextFormField(
+                        controller: contentController,
+                        minLines: 1,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                            hintText:
+                                source == 'append' ? '输入附言内容' : '输入正文内容（原生格式）',
+                            border: InputBorder.none),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        validator: (v) {
+                          return v!.trim().isNotEmpty ? null : "请输入正文内容";
+                        },
+                        onSaved: (val) {
+                          content = val!;
+                        },
+                      )
+                    : MarkdownTextInput(
+                        (String value) => setState(() => description = value),
+                        description,
+                        label: '请输入正文内容（markdown格式）',
+                        actions: const [
+                          MarkdownType.image,
+                          MarkdownType.bold,
+                          MarkdownType.italic,
+                          MarkdownType.link,
+                          MarkdownType.title,
+                          MarkdownType.list,
+                          MarkdownType.code,
+                          MarkdownType.blockquote,
+                          MarkdownType.separator,
+                        ],
+                        controller: mdEditController,
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
               ),
             ),
           ],
