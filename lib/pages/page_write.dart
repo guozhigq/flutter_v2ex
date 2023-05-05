@@ -1,3 +1,4 @@
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -295,13 +296,16 @@ class _WritePageState extends State<WritePage> {
 
   // 正文格式
   modeChange() {
-    if (contentMode == 'default') {
-      contentMode = 'markdown';
+    if (syntax == 'default') {
+      syntax = 'markdown';
     } else {
-      contentMode = 'default';
+      syntax = 'default';
     }
     setState(() {});
-    SmartDialog.showToast('当前正文格式：$contentMode');
+    SmartDialog.showToast(
+      '当前正文格式：$syntax',
+      alignment: Alignment.center,
+    );
   }
 
   @override
@@ -411,7 +415,7 @@ class _WritePageState extends State<WritePage> {
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
                   ),
-                  // 校验用户名
+                  // 校验标题
                   validator: (v) {
                     return v!.trim().isNotEmpty ? null : "请输入主题标题";
                   },
@@ -424,7 +428,7 @@ class _WritePageState extends State<WritePage> {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                child: contentMode == 'default'
+                child: syntax == 'default'
                     ? TextFormField(
                         controller: contentController,
                         minLines: 1,
@@ -442,7 +446,7 @@ class _WritePageState extends State<WritePage> {
                         },
                       )
                     : MarkdownTextInput(
-                        (String value) => setState(() => description = value),
+                        (String value) => setState(() => content = value),
                         description,
                         label: '请输入正文内容（markdown格式）',
                         actions: const [
@@ -458,6 +462,63 @@ class _WritePageState extends State<WritePage> {
                         ],
                         controller: mdEditController,
                         textStyle: const TextStyle(fontSize: 16),
+                        customActions: [
+                          InkWell(
+                            onTap: () {
+                              showModalBottomSheet<void>(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (BuildContext context) {
+                                  // return
+                                  // SafeArea(
+                                  //     child: Scaffold(
+                                  //   appBar: AppBar(),
+                                  //   body: MarkdownBody(
+                                  //     data: description,
+                                  //   ),
+                                  // ));
+                                  return Container(
+                                    clipBehavior: Clip.hardEdge,
+                                    height: MediaQuery.of(context).size.height -
+                                        kTextTabBarHeight,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(25),
+                                        topRight: Radius.circular(25),
+                                      ),
+                                    ),
+                                    child: SafeArea(
+                                        child: Scaffold(
+                                      appBar: AppBar(
+                                        automaticallyImplyLeading: false,
+                                        title: const Text('Markdown内容预览'),
+                                        centerTitle: false,
+                                        toolbarHeight: 80,
+                                        actions: [
+                                          IconButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              icon: const Icon(Icons.close))
+                                        ],
+                                      ),
+                                      body: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 12, right: 12),
+                                        child: MarkdownBody(
+                                          data: content,
+                                        ),
+                                      ),
+                                    )),
+                                  );
+                                },
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(18, 10, 12, 10),
+                              child: Icon(Icons.remove_red_eye),
+                            ),
+                          )
+                        ],
                       ),
               ),
             ),

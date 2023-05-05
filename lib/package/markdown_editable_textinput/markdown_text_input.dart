@@ -4,8 +4,10 @@ import 'dart:ui';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:translator/translator.dart';
 import './format_markdown.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// Widget with markdown buttons
 class MarkdownTextInput extends StatefulWidget {
@@ -349,11 +351,19 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                       case MarkdownType.image:
                         return InkWell(
                           key: Key((type as MarkdownType).key),
-                          onTap: () {
-                            print('图片选择&上传');
+                          onTap: () => onTap(type),
+                          onLongPress: () async {
+                            final res = await Utils().uploadImage();
+                            if (res is Map) {
+                              onTap(
+                                type,
+                                link: res['link'],
+                                selectedText: res['link'],
+                              );
+                            }
                           },
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(18, 10, 12, 10),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                             child: Icon(type.icon),
                           ),
                         );

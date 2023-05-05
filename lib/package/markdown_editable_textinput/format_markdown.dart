@@ -68,9 +68,14 @@ class FormatMarkdown {
         replaceCursorIndex = 0;
         break;
       case MarkdownType.image:
-        changedData =
-            '![${data.substring(fromIndex, toIndex)}](${data.substring(fromIndex, toIndex)})';
-        replaceCursorIndex = 3;
+        if (link != '' && link != null) {
+          changedData = '![$selectedText](${link ?? selectedText})';
+          replaceCursorIndex = 0;
+        } else {
+          changedData =
+              '![${data.substring(fromIndex, toIndex)}](${data.substring(fromIndex, toIndex)})';
+          replaceCursorIndex = 3;
+        }
         break;
     }
 

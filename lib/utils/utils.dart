@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/upload.dart';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -370,5 +372,20 @@ class Utils {
         throw Exception('Could not launch $aUrl');
       }
     }
+  }
+
+  Future uploadImage() async {
+    final List<AssetEntity>? assets = await AssetPicker.pickAssets(
+      Get.context!,
+      pickerConfig: const AssetPickerConfig(maxAssets: 1),
+    );
+    if (assets != null && assets.isNotEmpty) {
+      SmartDialog.showLoading(msg: '上传中...');
+      AssetEntity? file = assets[0];
+      var res = await Upload.uploadImage('1', file);
+      SmartDialog.dismiss();
+      return res;
+    }
+    return ('no image selected');
   }
 }
