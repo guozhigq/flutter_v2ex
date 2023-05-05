@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:translator/translator.dart';
 import './format_markdown.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// Widget with markdown buttons
 class MarkdownTextInput extends StatefulWidget {
@@ -153,7 +152,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             ),
           ),
           SizedBox(
-            height: 50,
+            height: 44,
             child: Material(
               clipBehavior: Clip.hardEdge,
               color: Theme.of(context).colorScheme.onInverseSurface,

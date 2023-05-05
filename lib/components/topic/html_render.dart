@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
@@ -27,10 +28,12 @@ class HtmlRender extends StatelessWidget {
       customRenders: {
         tagMatcher("iframe"): iframeRender(),
         // SingleChildScrollView 跟侧滑返回有冲突
-        tagMatcher("table"): CustomRender.widget(widget: (context, buildChildren) => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: tableRender.call().widget!.call(context, buildChildren),
-        )),
+        tagMatcher("table"): CustomRender.widget(
+            widget: (context, buildChildren) => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child:
+                      tableRender.call().widget!.call(context, buildChildren),
+                )),
         tagMatcher("img"): CustomRender.widget(
           widget: (htmlContext, buildChildren) {
             String? imgUrl = htmlContext.tree.element!.attributes['src'];
@@ -38,46 +41,54 @@ class HtmlRender extends StatelessWidget {
             // ignore: avoid_print
             // todo 多张图片轮播
             return SelectionContainer.disabled(
-              child: GestureDetector(
-                onTap: () {
-                  Map<dynamic, dynamic> arguments = {
-                    "imgList": imgList!,
-                    "initialPage": imgList!.indexOf(imgUrl),
-                  };
-                  Get.toNamed('/imgPreview', arguments: arguments);
-                },
-                child: Container(
-                  clipBehavior: Clip.hardEdge,
-                  // margin: const EdgeInsets.only(top: 4, bottom: 4),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(4)),
-                  // child: CachedNetworkImage(
-                  //   imageUrl: imgUrl,
-                  //   httpHeaders: const {
-                  //     'Referrer-Policy': 'no-referrer',
-                  //     'sec-fetch-dest': 'image',
-                  //     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-                  //   },
-                  //   // width: double.infinity,
-                  //   // fit: BoxFit.fitHeight,
-                  //   fadeOutDuration: const Duration(milliseconds: 500),
-                  //   placeholder: (htmlContext, url) {
-                  //     return Container(
-                  //       width: double.infinity,
-                  //       height: 60,
-                  //       color: Theme.of(context).colorScheme.onInverseSurface,
-                  //       child: const Center(
-                  //         child: Text('图片加载中...'),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
-                  child: ImageLoading(
-                    imgUrl: imgUrl,
-                    quality: 'preview',
-                  ),
-                ),
-              ),
+              child: Strings.coolapkEmoticon.values.contains(imgUrl)
+                  ? SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: ImageLoading(
+                        imgUrl: imgUrl,
+                      ),
+                    )
+                  : GestureDetector(
+                      onTap: () {
+                        Map<dynamic, dynamic> arguments = {
+                          "imgList": imgList!,
+                          "initialPage": imgList!.indexOf(imgUrl),
+                        };
+                        Get.toNamed('/imgPreview', arguments: arguments);
+                      },
+                      child: Container(
+                        clipBehavior: Clip.hardEdge,
+                        // margin: const EdgeInsets.only(top: 4, bottom: 4),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4)),
+                        // child: CachedNetworkImage(
+                        //   imageUrl: imgUrl,
+                        //   httpHeaders: const {
+                        //     'Referrer-Policy': 'no-referrer',
+                        //     'sec-fetch-dest': 'image',
+                        //     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+                        //   },
+                        //   // width: double.infinity,
+                        //   // fit: BoxFit.fitHeight,
+                        //   fadeOutDuration: const Duration(milliseconds: 500),
+                        //   placeholder: (htmlContext, url) {
+                        //     return Container(
+                        //       width: double.infinity,
+                        //       height: 60,
+                        //       color: Theme.of(context).colorScheme.onInverseSurface,
+                        //       child: const Center(
+                        //         child: Text('图片加载中...'),
+                        //       ),
+                        //     );
+                        //   },
+                        // ),
+                        child: ImageLoading(
+                          imgUrl: imgUrl,
+                          quality: 'preview',
+                        ),
+                      ),
+                    ),
             );
           },
         ),
@@ -96,11 +107,13 @@ class HtmlRender extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(4),
                   color: Theme.of(context).colorScheme.onInverseSurface,
                   border: Border.all(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3))
-              ),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3))),
               child: Html(data: htmlContext.tree.element!.outerHtml),
             );
           },

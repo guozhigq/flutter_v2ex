@@ -98,6 +98,7 @@ dependencies:
 
     extended_tabs: ^4.0.2
     extended_text_field: ^11.0.1
+    extended_text_library: ^10.0.0
     sticky_headers: ^0.3.0+2
 
     # 外观
