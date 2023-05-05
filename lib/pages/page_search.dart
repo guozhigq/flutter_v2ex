@@ -54,8 +54,8 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<SoV2exRes> search() async {
     setState(() {
-        _isLoading = true;
-      });
+      _isLoading = true;
+    });
     SoV2exRes res = SoV2exRes();
     if (searchKeyWord.isEmpty || searchKeyWord == '') {
       setState(() {
@@ -126,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
     search();
   }
 
-  void onSelect(text) async{
+  void onSelect(text) async {
     searchKeyWord = text;
     controller.text = text;
     // 移动光标
@@ -137,9 +137,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void onClear() {
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -170,6 +168,7 @@ class _SearchPageState extends State<SearchPage> {
                       controller.clear();
                       searchKeyWord = '';
                       setState(() {
+                        _currentPage = 0;
                         hitsList = [];
                       });
                     })
@@ -199,7 +198,7 @@ class _SearchPageState extends State<SearchPage> {
           Scrollbar(
             controller: _controller,
             radius: const Radius.circular(10),
-            child: _isLoading
+            child: _isLoading && _currentPage == 0
                 ? const TopicSkeleton()
                 : Container(
                     child: hitsList!.isNotEmpty
@@ -223,13 +222,14 @@ class _SearchPageState extends State<SearchPage> {
                             : FutureBuilder(
                                 future: Search().queryList(),
                                 builder: (context, snapshot) {
-                                  if(snapshot.connectionState  == ConnectionState.done  &&  snapshot.data!.isNotEmpty){
-                                      return SearchHistory(
-                                      searchHisList: snapshot.data!,
-                                      onSelect: (text) => onSelect(text),
-                                      onClear: () => onClear()
-                                    );
-                                  }else{
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.done &&
+                                      snapshot.data!.isNotEmpty) {
+                                    return SearchHistory(
+                                        searchHisList: snapshot.data!,
+                                        onSelect: (text) => onSelect(text),
+                                        onClear: () => onClear());
+                                  } else {
                                     return SizedBox();
                                   }
                                 },
