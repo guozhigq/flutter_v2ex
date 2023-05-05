@@ -347,7 +347,7 @@ packages:
     source: hosted
     version: "11.0.1"
   extended_text_library:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: extended_text_library
       sha256: "6d06b0ac53a09989e9864549f133c19c676d1456c5ee9470e2483f3cb1900f6e"

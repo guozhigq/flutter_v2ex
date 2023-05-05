@@ -514,7 +514,7 @@ class _WritePageState extends State<WritePage> {
                               );
                             },
                             child: const Padding(
-                              padding: EdgeInsets.fromLTRB(18, 10, 12, 10),
+                              padding: EdgeInsets.fromLTRB(16, 10, 12, 10),
                               child: Icon(Icons.remove_red_eye),
                             ),
                           )

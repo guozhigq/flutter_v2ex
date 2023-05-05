@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_v2ex/components/common/image_loading.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -9,6 +11,8 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter_v2ex/components/extended_text/selection_controls.dart';
 import 'package:flutter_v2ex/components/extended_text/text_span_builder.dart';
 import 'package:flutter_v2ex/http/topic.dart';
+import 'package:flutter_v2ex/utils/string.dart';
+import 'package:flutter_v2ex/utils/utils.dart';
 
 class ReplyNew extends StatefulWidget {
   List? replyMemberList;
@@ -31,7 +35,9 @@ class ReplyNew extends StatefulWidget {
 class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   final TextEditingController _replyContentController = TextEditingController();
   final MyTextSelectionControls _myExtendedMaterialTextSelectionControls =
-  MyTextSelectionControls();
+      MyTextSelectionControls();
+  final GlobalKey<ExtendedTextFieldState> _key =
+      GlobalKey<ExtendedTextFieldState>();
 
   final GlobalKey _formKey = GlobalKey<FormState>();
   // late String _replyContent = '';
@@ -39,12 +45,14 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   List atReplyList = []; // @用户列表
   List atMemberList = []; // 选中的用户列表
   final FocusNode replyContentFocusNode = FocusNode();
-  bool _isKeyboardActived = false; // 当前键盘是否是激活状态
+  bool _isKeyboardActived = true; // 当前键盘是否是激活状态
   double _keyboardHeight = 0.0; // 键盘高度
-  final _debouncer = Debouncer(milliseconds: 200); // 设置延迟时间
+  final _debouncer = Debouncer(milliseconds: 100); // 设置延迟时间
   Timer? timer;
   String myUserName = '';
   bool ableClean = false;
+  double _emoticonHeight = 0.0;
+  String toolbarType = 'input';
 
   @override
   void initState() {
@@ -67,6 +75,15 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       (_formKey.currentState as FormState).save();
 
       String _replyContent = _replyContentController.text;
+      _replyContent = _replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
+          onMatch: (match) {
+            String matched = match[0]!.substring(1, match[0]!.length - 1);
+            if (Strings.coolapkEmoticon.keys.contains(matched)) {
+              return '${Strings.coolapkEmoticon[matched]!} ';
+            }
+            return matched;
+          },
+          onNonMatch: (String str) => str);
       String replyUser = '';
       // 有且只有一个
       if (widget.replyMemberList!.isNotEmpty) {
@@ -74,6 +91,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
       }
+      // print(_replyContent);
+      // return;
       var res = await TopicWebApi.onSubmitReplyTopic(
           widget.topicId, replyUser + _replyContent, widget.totalPage!);
       if (res == 'true') {
@@ -106,8 +125,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     }
   }
 
-  void onShowMember(context) {
-    if(widget.replyList == null){
+  void onShowMember(context, {type = 'input'}) {
+    if (widget.replyList == null) {
       print('reply_new: widget.replyList为null');
       return;
     }
@@ -149,7 +168,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             for (int i = 0; i < newAtMemberList.length; i++) {
               String atUserName = '';
               if (i == 0) {
-                atUserName = newAtMemberList[i];
+                atUserName = type == 'input'
+                    ? newAtMemberList[i]
+                    : '@${newAtMemberList[i]}';
               } else {
                 atUserName = '@${newAtMemberList[i]}';
               }
@@ -163,7 +184,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               String atUserName = atMemberList[0].userName;
               int atFloor = atMemberList[0].floorNumber;
               _replyContentController.text =
-                  '${_replyContentController.text}$atUserName #$atFloor ';
+                  '${_replyContentController.text} ${type == "input" ? atUserName : "@$atUserName"} #$atFloor ';
             });
           }
         }
@@ -203,7 +224,10 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('提示'),
-          content: Text('将清空所输入的内容', style: TextStyle(color: Theme.of(context).colorScheme.error),),
+          content: Text(
+            '将清空所输入的内容',
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
           actions: [
             TextButton(
                 onPressed: () => {SmartDialog.dismiss()},
@@ -230,10 +254,13 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           WidgetsBinding.instance.window.viewInsets,
           WidgetsBinding.instance.window.devicePixelRatio);
       _debouncer.run(() {
-        if(mounted) {
+        if (mounted) {
           setState(() {
-          _keyboardHeight = viewInsets.bottom;
-        });
+            _keyboardHeight =
+                _keyboardHeight == 0.0 ? viewInsets.bottom : _keyboardHeight;
+            _emoticonHeight =
+                _emoticonHeight == 0.0 ? viewInsets.bottom : _emoticonHeight;
+          });
         }
       });
     });
@@ -242,16 +269,54 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   _onFocus() {
     if (replyContentFocusNode.hasFocus) {
       // 聚焦时候的操作
+      _isKeyboardActived = true;
+      toolbarType = 'input';
       return;
     }
     // 失去焦点时候的操作
     _isKeyboardActived = false;
+    setState(() {});
   }
 
   _printLatestValue() {
-      setState(() {
-        ableClean = _replyContentController.text != '';
-      });
+    setState(() {
+      ableClean = _replyContentController.text != '';
+    });
+  }
+
+  void insertText(String text) {
+    final TextEditingValue value = _replyContentController.value;
+    final int start = value.selection.baseOffset;
+    int end = value.selection.extentOffset;
+    if (value.selection.isValid) {
+      String newText = '';
+      if (value.selection.isCollapsed) {
+        if (end > 0) {
+          newText += value.text.substring(0, end);
+        }
+        newText += text;
+        if (value.text.length > end) {
+          newText += value.text.substring(end, value.text.length);
+        }
+      } else {
+        newText = value.text.replaceRange(start, end, text);
+        end = start;
+      }
+
+      _replyContentController.value = value.copyWith(
+          text: newText,
+          selection: value.selection.copyWith(
+              baseOffset: end + text.length, extentOffset: end + text.length));
+    } else {
+      _replyContentController.value = TextEditingValue(
+          text: text,
+          selection:
+              TextSelection.fromPosition(TextPosition(offset: text.length)));
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+      _key.currentState?.bringIntoView(_replyContentController.selection.base);
+    });
   }
 
   @override
@@ -300,7 +365,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               ),
               IconButton(
                 tooltip: '发送',
-                onPressed: ableClean ?  onSubmit : null,
+                onPressed: ableClean ? onSubmit : null,
                 icon: const Icon(Icons.send_outlined),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
@@ -334,8 +399,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           if (widget.replyMemberList!.length == 1) ...[
             const SizedBox(height: 15),
             Container(
-              padding: const EdgeInsets.only(
-                  top: 0, right: 10, bottom: 0, left: 10),
+              padding:
+                  const EdgeInsets.only(top: 0, right: 10, bottom: 0, left: 10),
               alignment: Alignment.topLeft,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 150),
@@ -354,35 +419,23 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               // child: Text(widget.replyMemberList![0].content, maxLines: 5),
             ),
           ],
-          Align(
-            alignment: FractionalOffset.topRight,
-            child: TextButton(
-              onPressed: ableClean ? onCleanInput : null,
-              child: const Text('清空输入'),
-            ),
-          ),
           Expanded(
             child: Container(
-              // width: double.infinity,
-              // height: double.infinity,
+              margin: const EdgeInsets.only(top: 15),
               padding: const EdgeInsets.only(
                   top: 12, right: 15, left: 15, bottom: 10),
-              // margin: EdgeInsets.only(bottom: _keyboardHeight),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: ExtendedTextField(
+                  key: _key,
                   selectionControls: _myExtendedMaterialTextSelectionControls,
-                  specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: _replyContentController),
+                  specialTextSpanBuilder: MySpecialTextSpanBuilder(
+                      controller: _replyContentController),
                   controller: _replyContentController,
                   minLines: 1,
                   maxLines: null,
@@ -403,10 +456,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   // onSaved: (val) {
                   //   _replyContent = val!;
                   // },
-                  toolbarOptions: ToolbarOptions(copy: true, paste: true, ),
                   textSelectionGestureDetectorBuilder: ({
                     required ExtendedTextSelectionGestureDetectorBuilderDelegate
-                    delegate,
+                        delegate,
                     required Function showToolbar,
                     required Function hideToolbar,
                     required Function? onTap,
@@ -426,13 +478,154 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               ),
             ),
           ),
+          SizedBox(
+            height: 52,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          toolbarType = 'input';
+                        });
+                        // replyContentFocusNode.requestFocus();
+                        FocusScope.of(context)
+                            .requestFocus(replyContentFocusNode);
+                      },
+                      icon: Icon(
+                        Icons.keyboard,
+                        size: 22,
+                        color: toolbarType == 'input'
+                            ? Theme.of(context).colorScheme.onBackground
+                            : Theme.of(context).colorScheme.outline,
+                      ),
+                      highlightColor:
+                          Theme.of(context).colorScheme.onInverseSurface,
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith((states) {
+                          return toolbarType == 'input'
+                              ? Theme.of(context).highlightColor
+                              : null;
+                        }),
+                      )),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                      onPressed: () => onShowMember(context, type: 'click'),
+                      icon: Icon(
+                        Icons.alternate_email_rounded,
+                        size: 22,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      highlightColor:
+                          Theme.of(context).colorScheme.onInverseSurface,
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      )),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                      onPressed: () {
+                        toolbarType = 'emoticon';
+                        replyContentFocusNode.unfocus();
+                      },
+                      icon: Icon(
+                        Icons.emoji_emotions,
+                        size: 22,
+                        color: toolbarType == 'emoticon'
+                            ? Theme.of(context).colorScheme.onBackground
+                            : Theme.of(context).colorScheme.outline,
+                      ),
+                      highlightColor:
+                          Theme.of(context).colorScheme.onInverseSurface,
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith((states) {
+                          return toolbarType == 'emoticon'
+                              ? Theme.of(context).highlightColor
+                              : null;
+                        }),
+                      )),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                    onPressed: () async {
+                      var res = await Utils().uploadImage();
+                      _replyContentController.text =
+                          '${_replyContentController.text}${res['link']}';
+                      _replyContentController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: _replyContentController.text.length));
+                    },
+                    icon: Icon(
+                      Icons.image,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                    onPressed: ableClean ? onCleanInput : null,
+                    child: const Text('清空输入'))
+                // IconButton(
+                //     onPressed: () {}, icon: const Icon(Icons.clear_all)),
+              ],
+            ),
+          ),
+          // 表情选择框 键盘高度
           AnimatedSize(
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 30),
-            child: SizedBox(
+            curve: Curves.linear,
+            duration: const Duration(milliseconds: 300),
+            child: Container(
               width: double.infinity,
               height:
-                  MediaQuery.of(context).padding.bottom + 15 + _keyboardHeight,
+                  toolbarType == 'input' ? _keyboardHeight : _emoticonHeight,
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              // decoration: BoxDecoration(border: Border.all()),
+              child: GridView.builder(
+                padding: EdgeInsets.only(
+                    top: 4, bottom: MediaQuery.of(context).padding.bottom),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 8,
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                    childAspectRatio: 1),
+                itemCount: Strings.coolapkEmoticon.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return InkWell(
+                    onTap: () {
+                      insertText(
+                          '[${Strings.coolapkEmoticon.keys.toList()[index]}]');
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: ImageLoading(
+                        imgUrl: Strings.coolapkEmoticon.values.toList()[index],
+                      ),
+                    ),
+                  );
+                  // return CustomLoading();
+                },
+              ),
             ),
           ),
         ],
@@ -471,27 +664,25 @@ class Debouncer {
       callback();
     });
   }
-
-
 }
 
 class MyCommonTextSelectionGestureDetectorBuilder
     extends CommonTextSelectionGestureDetectorBuilder {
   MyCommonTextSelectionGestureDetectorBuilder(
       {required ExtendedTextSelectionGestureDetectorBuilderDelegate delegate,
-        required Function showToolbar,
-        required Function hideToolbar,
-        required Function? onTap,
-        required BuildContext context,
-        required Function? requestKeyboard})
+      required Function showToolbar,
+      required Function hideToolbar,
+      required Function? onTap,
+      required BuildContext context,
+      required Function? requestKeyboard})
       : super(
-    delegate: delegate,
-    showToolbar: showToolbar,
-    hideToolbar: hideToolbar,
-    onTap: onTap,
-    context: context,
-    requestKeyboard: requestKeyboard,
-  );
+          delegate: delegate,
+          showToolbar: showToolbar,
+          hideToolbar: hideToolbar,
+          onTap: onTap,
+          context: context,
+          requestKeyboard: requestKeyboard,
+        );
 
   @override
   void onTapDown(TapDownDetails details) {
