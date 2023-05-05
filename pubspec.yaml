@@ -64,6 +64,8 @@ dependencies:
     extended_image: ^7.0.2
     cached_network_image: ^3.2.3
     image_gallery_saver: ^1.7.1
+    # 图片选择&上传
+    wechat_assets_picker: ^8.4.2
 
     # 下拉刷新
     easy_refresh: ^3.2.2
@@ -106,6 +108,11 @@ dependencies:
     scroll_to_index: ^3.0.1
     google_fonts: ^4.0.3
 
+    # markdown 输入
+    expandable: ^5.0.1
+    translator: ^0.1.7
+    flutter_markdown: ^0.6.14
+    
 dev_dependencies:
     flutter_test:
         sdk: flutter
