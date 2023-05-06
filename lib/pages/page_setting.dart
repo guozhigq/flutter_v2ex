@@ -237,21 +237,19 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 25, 20, 5),
+            padding: const EdgeInsets.fromLTRB(16, 25, 20, 15),
             child: Text('显示设置', style: groupTitleStyle),
           ),
           ListTile(
+            dense: false,
             onTap: () => Get.toNamed('/setFont'),
-            // leading: Icon(Icons.font_download_outlined, color: iconStyle),
             title: const Text('字体设置'),
-            subtitle: Text('设置字体大小', style: subTitleStyle),
           ),
           if (Platform.isAndroid)
             ListTile(
+              dense: false,
               onTap: () => Get.toNamed('/setDisplayMode'),
-              // leading: Icon(Icons.font_download_outlined, color: iconStyle),
               title: const Text('屏幕帧率设置'),
-              subtitle: Text('当前 120Hz', style: subTitleStyle),
             ),
           if (platform == 'mob')
             ListTile(

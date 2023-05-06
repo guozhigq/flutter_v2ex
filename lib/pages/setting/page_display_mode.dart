@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:flutter_v2ex/utils/storage.dart';
 
 class SetDiaplayMode extends StatefulWidget {
   const SetDiaplayMode({super.key});
@@ -23,40 +24,28 @@ class _SetDiaplayModeState extends State<SetDiaplayMode> {
   @override
   void initState() {
     super.initState();
+    init();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       fetchAll();
     });
   }
 
   Future<void> fetchAll() async {
+    preferred = await FlutterDisplayMode.preferred;
+    active = await FlutterDisplayMode.active;
+    GStorage().setDisplayModeType(preferred!);
+    setState(() {});
+  }
+
+  Future<void> init() async {
     try {
       modes = await FlutterDisplayMode.supported;
-      modes.forEach(print);
-
-      /// On OnePlus 7 Pro:
-      /// #1 1080x2340 @ 60Hz
-      /// #2 1080x2340 @ 90Hz
-      /// #3 1440x3120 @ 90Hz
-      /// #4 1440x3120 @ 60Hz
-
-      /// On OnePlus 8 Pro:
-      /// #1 1080x2376 @ 60Hz
-      /// #2 1440x3168 @ 120Hz
-      /// #3 1440x3168 @ 60Hz
-      /// #4 1080x2376 @ 120Hz
     } on PlatformException catch (e) {
       print(e);
-
-      /// e.code =>
-      /// noAPI - No API support. Only Marshmallow and above.
-      /// noActivity - Activity is not available. Probably app is in background
     }
-
-    preferred = await FlutterDisplayMode.preferred;
-
-    active = await FlutterDisplayMode.active;
-
-    setState(() {});
+    var res = await GStorage().getDisplayModeType();
+    preferred = modes.toList().firstWhere((el) => el == res);
+    FlutterDisplayMode.setPreferredMode(preferred!);
   }
 
   @override
@@ -68,26 +57,14 @@ class _SetDiaplayModeState extends State<SetDiaplayMode> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            if (modes.isEmpty) const Text('Nothing here'),
             Padding(
-              padding: const EdgeInsets.only(left: 20, top: 15),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    '可用模式',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(width: 10),
-                  TextButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () {
-                      fetchAll();
-                    },
-                    label: const Text('刷新'),
-                  ),
-                ],
+              padding: const EdgeInsets.only(left: 25, top: 10, bottom: 5),
+              child: Text(
+                '没有生效？重启app试试',
+                style: TextStyle(color: Theme.of(context).colorScheme.outline),
               ),
             ),
-            if (modes.isEmpty) const Text('Nothing here'),
             Expanded(
               child: ListView.builder(
                 itemCount: modes.length,
@@ -97,7 +74,7 @@ class _SetDiaplayModeState extends State<SetDiaplayMode> {
                     value: mode,
                     title: mode == DisplayMode.auto
                         ? const Text('自动')
-                        : Text(mode.toString()),
+                        : Text('$mode${mode == active ? "  [系统]" : ""}'),
                     groupValue: preferred,
                     onChanged: (DisplayMode? newMode) async {
                       await FlutterDisplayMode.setPreferredMode(newMode!);
@@ -105,42 +82,11 @@ class _SetDiaplayModeState extends State<SetDiaplayMode> {
                         const Duration(milliseconds: 100),
                       );
                       await fetchAll();
-                      setState(() {});
                     },
                   );
                 },
               ),
             ),
-            if (modes.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FlutterDisplayMode.setHighRefreshRate();
-                      await Future<dynamic>.delayed(
-                        const Duration(milliseconds: 100),
-                      );
-                      await fetchAll();
-                      setState(() {});
-                    },
-                    child: const Text('高刷新率'),
-                  ),
-                  const SizedBox(width: 18),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FlutterDisplayMode.setLowRefreshRate();
-                      await Future<dynamic>.delayed(
-                        const Duration(milliseconds: 100),
-                      );
-                      await fetchAll();
-                      setState(() {});
-                    },
-                    child: const Text('低刷新率'),
-                  ),
-                ],
-              ),
-            // const Divider(),
           ],
         ),
       ),

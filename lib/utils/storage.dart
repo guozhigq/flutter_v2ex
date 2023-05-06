@@ -1,3 +1,4 @@
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
@@ -28,6 +29,7 @@ enum StoreKeys {
   tempFs,
   sideslip,
   dragOffset,
+  displayModeType
 }
 
 class GStorage {
@@ -187,4 +189,23 @@ class GStorage {
   setDragOffset(double value) => _box.write(StoreKeys.dragOffset.toString(), value);
 
   double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
+
+  // 屏幕帧率
+  // setDisplayModeType() => _box.write(key, value)
+
+  setDisplayModeType(DisplayMode type) {
+    return _box.write(StoreKeys.displayModeType.toString(), type.toString());
+  }
+
+
+  Future<DisplayMode> getDisplayModeType() async{
+    var value = _box.read(StoreKeys.displayModeType.toString());
+    DisplayMode f = DisplayMode.auto;
+    if (value != null) {
+      List<DisplayMode> modes = await FlutterDisplayMode.supported;
+      f = modes.firstWhere((e) => e.toString() == value);
+    }
+    return f;
+  }
+
 }
