@@ -113,6 +113,9 @@ dependencies:
     expandable: ^5.0.1
     translator: ^0.1.7
     flutter_markdown: ^0.6.14
+
+    # 高帧率
+    flutter_displaymode: ^0.6.0
     
 dev_dependencies:
     flutter_test:

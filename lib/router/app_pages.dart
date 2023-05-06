@@ -29,6 +29,7 @@ import 'package:flutter_v2ex/pages/help/change_log/index.dart';
 
 import 'package:flutter_v2ex/pages/setting/page_font.dart';
 import 'package:flutter_v2ex/pages/setting/page_nodes_sort.dart';
+import 'package:flutter_v2ex/pages/setting/page_display_mode.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 class AppPages {
@@ -101,6 +102,8 @@ class AppPages {
     CustomGetPage('/networkCheck', const NetworkCheckPage()),
     // 更新日志
     CustomGetPage('/changeLog', const ChangeLogPage()),
+    // 设置帧率
+    CustomGetPage('/setDisplayMode', const SetDiaplayMode()),
   ];
 }
 

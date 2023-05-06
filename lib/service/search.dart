@@ -10,8 +10,8 @@ class Search {
 
   void add(String searchText) {
     List historyList = box.get('history') ?? [];
-    if (historyList.contains(searchText)) {
-      historyList.remove(searchText);
+    if (historyList.contains(searchText.trim())) {
+      historyList.remove(searchText.trim());
     }
     historyList.insert(0, searchText);
     box.put('history', historyList);

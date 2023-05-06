@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_v2ex/http/github.dart';
-import 'package:flutter_v2ex/service/search.dart';
 
 import 'package:get/get.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -181,6 +180,7 @@ class _MyAppState extends State<MyApp> {
               child: FlutterSmartDialog(
                 loadingBuilder: (String msg) => CustomLoading(msg: msg),
                 toastBuilder: (String msg) => CustomToast(msg: msg),
+
                 /// 设置文字大小不跟随系统更改
                 child: MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
