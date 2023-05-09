@@ -64,9 +64,8 @@ class ReplyItem extends StatelessWidget {
                     replyItem.memberId,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  // TODO 节点
                   Text(
-                    '问与答',
+                    replyItem.nodeName,
                     style: Theme.of(context)
                         .textTheme
                         .labelMedium!

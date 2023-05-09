@@ -21,7 +21,8 @@ class MemberPage extends StatefulWidget {
 }
 
 class _MemberPageState extends State<MemberPage> {
-  final MemberController _memberController = Get.put(MemberController());
+  final MemberController _memberController =
+      Get.put(MemberController(), tag: Get.parameters['memberId']);
   final GlobalKey signStatusKey = GlobalKey();
   final GlobalKey followBtnKey = GlobalKey();
   final GlobalKey blockBtnKey = GlobalKey();

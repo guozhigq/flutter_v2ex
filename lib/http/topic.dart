@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:html/dom.dart' as dom;
@@ -194,7 +195,7 @@ class TopicWebApi {
         //   contentDom.nodes.insert(contentDom.nodes.length,
         //       parseFragment('<p>base64解码：$decodeDom</p>'));
         // }
-        subtleItem.content = contentDom.innerHtml;
+        subtleItem.content = Utils.linkMatch(contentDom);
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
             null) {
           var subImgNodes =
@@ -273,7 +274,6 @@ class TopicWebApi {
       detailModel.totalPage = totalPageDom != null
           ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
           : 1;
-
       detailModel.replyCount = int.parse(replyBoxDom
           .querySelector('div.cell span')!
           .text

@@ -250,15 +250,22 @@ class Utils {
     for (var i in base64Res) {
       if (!Strings().base64BlackList.contains(i.group(0)) &&
           i.group(0)!.trim().length % 4 == 0) {
-        // print('🔥：${i.group(0)}');
         try {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         } catch (e) {
           print(e);
         }
-        if (wechat != '') {
-          innerHtml = innerHtml.replaceAll(i.group(0),
-              '${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+        RegExp wechatRegExp = RegExp(r'^_|[a-zA-Z][a-zA-Z\d_-]{5,19}$');
+        RegExp emailRegExp =
+            RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
+        if (wechat != '' &&
+            (wechatRegExp.hasMatch(wechat) ||
+                RegExp(r'^\d+$').hasMatch(wechat) ||
+                emailRegExp.hasMatch(wechat))) {
+          try {
+            innerHtml = innerHtml.replaceAll(i.group(0),
+                '${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
+          } catch (e) {}
         }
         print(wechat);
       }

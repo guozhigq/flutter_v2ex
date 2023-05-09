@@ -31,6 +31,8 @@ class Strings {
     "Markdown",
     "nofollow",
     "noopener",
+    "referrer",
+    "loading="
   ];
   static List<TabModel> tabs = [
     TabModel('最近', 'recent', 'recent', true),
