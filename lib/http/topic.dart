@@ -93,10 +93,8 @@ class TopicWebApi {
     detailModel.nodeName =
         document.querySelector('$headerQuery > a:nth-child(6)')!.text;
     //  at 9 小时 26 分钟前，1608 次点击
-    var pureStr = document
-        .querySelector('$headerQuery > small')!
-        .innerHtml
-        .split('a> at ')[1];
+    var pureStr =
+        document.querySelector('$headerQuery > small')!.text.split('at ')[1];
     List pureStrList = pureStr.split('·');
     detailModel.createdTime = pureStrList[0].replaceFirst(' +08:00', '');
     detailModel.visitorCount = pureStrList.length >= 2
