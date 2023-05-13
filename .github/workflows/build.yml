@@ -37,7 +37,7 @@ jobs:
 #                   key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
 
             - name: 安装Flutter
-              if: steps.cache-flutter.outputs.cache-hit != 'true'
+#               if: steps.cache-flutter.outputs.cache-hit != 'true'
               uses: subosito/flutter-action@v2
               with:
                     flutter-version: 3.7.12
