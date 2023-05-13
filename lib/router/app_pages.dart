@@ -18,7 +18,7 @@ import 'package:flutter_v2ex/pages/member/:memberId/replies.dart';
 import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
-import 'package:flutter_v2ex/pages/page_search.dart';
+import 'package:flutter_v2ex/pages/search/index.dart';
 import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/page_write.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';

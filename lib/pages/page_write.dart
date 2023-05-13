@@ -200,7 +200,11 @@ class _WritePageState extends State<WritePage> {
                   //     child: const Text('返回上一页')),
                   TextButton(
                       onPressed: () {
-                        Get.offAndToNamed(result);
+                        try {
+                          Get.offAndToNamed(result[0]);
+                        } catch (e) {
+                          print(e);
+                        }
                       },
                       child: const Text('去查看'))
                 ],
