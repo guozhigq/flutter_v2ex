@@ -41,7 +41,7 @@ jobs:
               uses: subosito/flutter-action@v2
               with:
                    flutter-version: '3.7.12'
-                   channel: 'master'
+                   channel: 'any'
             - run: flutter --version
 
             # 签名文件
