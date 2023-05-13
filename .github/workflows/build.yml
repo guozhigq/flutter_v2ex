@@ -12,6 +12,20 @@ on:
     #     branches: [main]
 
 # 可以有多个jobs
+jobs: 
+    build_ios:
+        runs-on: macos-latest
+        steps:
+        - uses: action/checkout@v3
+        - uses: subosito/flutter-action@v2
+          with:
+            flutter-version: 3.7.12
+            architecture: x64
+            
+        - run: flutter pub get
+        - run: flutter test
+        - run: flutter build ios --release --no-codesign
+    ,
 jobs:
     build_apk:
         # 运行环境 ubuntu-latest window-latest mac-latest
@@ -40,8 +54,9 @@ jobs:
 #               if: steps.cache-flutter.outputs.cache-hit != 'true'
               uses: subosito/flutter-action@v2
               with:
-                flutter-version: 3.7.12
-#               channel: stable
+                   flutter-version: 3.7.12
+                   channel: 'master'
+            - run: flutter --version
 
             # 签名文件
             # - name: Decode keystore
