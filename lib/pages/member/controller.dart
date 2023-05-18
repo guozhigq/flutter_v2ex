@@ -6,7 +6,7 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 
-class MemberController extends GetxController{
+class MemberController extends GetxController {
   ModelMemberProfile memberProfile = ModelMemberProfile();
   Map signDetail = {};
   String memberId = '';
@@ -18,33 +18,29 @@ class MemberController extends GetxController{
   Function()? onRefreshBlock;
 
   @override
-  void onInit() async{
+  void onInit() async {
     // TODO: implement onInit
     super.onInit();
 
     var mapKey = Get.parameters.keys;
-      memberId = mapKey.contains('memberId') ? Get.parameters['memberId']! : '';
-      memberAvatar = mapKey.contains('memberAvatar')
-          ? Get.parameters['memberAvatar']!
-          : '';
-      heroTag = mapKey.contains('heroTag') ? Get.parameters['heroTag']! : '';
+    memberId = mapKey.contains('memberId') ? Get.parameters['memberId']! : '';
+    memberAvatar =
+        mapKey.contains('memberAvatar') ? Get.parameters['memberAvatar']! : '';
+    heroTag = mapKey.contains('heroTag') ? Get.parameters['heroTag']! : '';
 
     if (GStorage().getUserInfo().isNotEmpty) {
       if (memberId == GStorage().getUserInfo()['userName']) {
-          isOwner = true;
+        isOwner = true;
       }
       // 查询签到状态、余额、消息提醒
       await queryDaily();
     }
-    // 查询用户信息
-    queryMemberProfile();
-
   }
 
   Future<Map<dynamic, dynamic>> queryDaily() async {
     var res = await DioRequestWeb.queryDaily();
     signDetail = res;
-    if(onRefreshSign != null){
+    if (onRefreshSign != null) {
       onRefreshSign!.call();
     }
     return res;
@@ -57,14 +53,13 @@ class MemberController extends GetxController{
   }
 
   //  签到领取奖励
-  void dailyMission() async{
+  void dailyMission() async {
     SmartDialog.showLoading(msg: '领取中...');
     var res = await DioRequestWeb.dailyMission();
     SmartDialog.dismiss();
     SmartDialog.showToast(res);
     queryDaily();
   }
-
 
   // 关注用户
   void onFollowMemeber(context) {
@@ -166,11 +161,11 @@ class MemberController extends GetxController{
     bool res = await UserWebApi.onBlockMember(blockId, blockStatus);
     if (res) {
       SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
-        memberProfile.isBlock = !blockStatus;
-        onRefreshBlock!.call();
-        // if(!blockStatus && followStatus){
-        //   memberProfile.isFollow = false;
-        // }
+      memberProfile.isBlock = !blockStatus;
+      onRefreshBlock!.call();
+      // if(!blockStatus && followStatus){
+      //   memberProfile.isFollow = false;
+      // }
     } else {
       SmartDialog.showToast('操作失败');
     }

@@ -231,17 +231,19 @@ class Utils {
   // 替换innerHtml中的文本链接
   static linkMatch(contentDom) {
     var innerHtml = contentDom.innerHtml;
-    RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
-    var linkRes = linkRegExp.firstMatch(innerHtml);
-    if (linkRes != null) {
-      var index = innerHtml.indexOf(linkRes.group(0));
-      var lastWord = innerHtml[index - 1];
-      if (lastWord != 'm') {
-        var matchRes = linkRes.group(0);
-        innerHtml = innerHtml.replaceAll(
-            linkRegExp, "<a href='$matchRes'>$matchRes</a>");
-      }
-    }
+
+    // 暂时取消链接解析 https://www.v2ex.com/t/940105
+    // RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
+    // var linkRes = linkRegExp.firstMatch(innerHtml);
+    // if (linkRes != null) {
+    //   var index = innerHtml.indexOf(linkRes.group(0));
+    //   var lastWord = innerHtml[index - 1];
+    //   if (lastWord != 'm') {
+    //     var matchRes = linkRes.group(0);
+    //     innerHtml = innerHtml.replaceAll(
+    //         linkRegExp, "<a href='$matchRes'>$matchRes</a>");
+    //   }
+    // }
 
     // base64 替换
     RegExp base64RegExp = RegExp(r'[a-zA-Z\d=]{8,}');
