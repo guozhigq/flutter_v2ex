@@ -71,6 +71,6 @@ jobs:
             - name: 发布
               uses: ncipollo/release-action@v1
               with:
-                  artifacts: "build/app/outputs/flutter-apk/app-*.apk"
+                  artifacts: "build/app/outputs/flutter-apk/vvex-*.apk"
                   token: ${{ secrets.GIT_TOKEN }}
                   allowUpdates: true
