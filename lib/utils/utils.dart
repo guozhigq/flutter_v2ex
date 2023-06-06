@@ -72,7 +72,11 @@ class Utils {
         // SmartDialog.showToast(err.toString());
         // https://github.com/guozhigq/flutter_v2ex/issues/49
         GStorage().setLinkOpenInApp(false);
-        await InAppBrowser.openWithSystemBrowser(url: Uri.parse(aUrl));
+        try {
+          await InAppBrowser.openWithSystemBrowser(url: Uri.parse(aUrl));
+        } catch (err) {
+          SmartDialog.showToast('openURL: $err');
+        }
       }
     }
   }
@@ -360,6 +364,7 @@ class Utils {
             openHrefByWebview(tagA, context);
           }
         } catch (err) {
+          SmartDialog.showToast('openHref: $err');
           print(err);
         }
       } else {
