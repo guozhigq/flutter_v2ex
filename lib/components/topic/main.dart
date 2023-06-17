@@ -151,7 +151,8 @@ class TopicMain extends StatelessWidget {
         // ),
         // 内容
         if (detailModel != null) ...[
-          if (detailModel!.content != '') ...[
+          if (detailModel!.content != '' ||
+              detailModel!.contentRendered != '') ...[
             Divider(
               endIndent: 20,
               indent: 20,
@@ -213,8 +214,12 @@ class TopicMain extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
               border: Border(
-                left: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.7), width: 4)
-              ),
+                  left: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.7),
+                      width: 4)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
