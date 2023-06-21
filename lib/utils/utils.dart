@@ -235,6 +235,7 @@ class Utils {
   // 替换innerHtml中的文本链接
   static linkMatch(contentDom) {
     var innerHtml = contentDom.innerHtml;
+    var innerContent = contentDom.text;
 
     // 暂时取消链接解析 https://www.v2ex.com/t/940105
     // RegExp linkRegExp = RegExp(r"^/go|/t/(\d+)");
@@ -265,6 +266,7 @@ class Utils {
         RegExp emailRegExp =
             RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
         if (wechat != '' &&
+            innerContent.contains(i.group(0)!) &&
             (wechatRegExp.hasMatch(wechat) ||
                 RegExp(r'^\d+$').hasMatch(wechat) ||
                 emailRegExp.hasMatch(wechat))) {
