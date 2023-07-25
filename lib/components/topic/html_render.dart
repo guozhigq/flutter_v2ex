@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_highlighting/flutter_highlighting.dart';
+import 'package:flutter_highlighting/themes/docco.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:get/get.dart';
@@ -27,34 +29,15 @@ class HtmlRender extends StatelessWidget {
           {Utils.openHrefByWebview(url!, context)},
 
       extensions: [
-        // TagExtension(
-        //   tagsToExtend: {"iframe"},
-        //   builder: (extensionContext) {
-        //     return iframeRender();
-        //   },
-        // ),
-        //           IframeHtmlExtension(
-        //   navigationDelegate: (request) {
-        //     //Return decision here
-        //     return Text('123');
-        //   },
-        // ),
-        // TagExtension(
-        //   tagsToExtend: {"table"},
-        //   builder: (extensionContext) {
-        //     return SingleChildScrollView(
-        //       scrollDirection: Axis.horizontal,
-        //       child:
-        //           tableRender.call().widget!.call(extensionContext, buildChildren),
-        //     );
-        //   },
-        // ),
         const IframeHtmlExtension(),
         const TableHtmlExtension(),
         TagExtension(
           tagsToExtend: {"img"},
           builder: (extensionContext) {
             String? imgUrl = extensionContext.attributes['src'];
+            bool inTable =
+                extensionContext.element!.previousElementSibling == null ||
+                    extensionContext.element!.nextElementSibling == null;
             imgUrl = Utils().imageUrl(imgUrl!);
             // ignore: avoid_print
             // todo 多张图片轮播
@@ -80,73 +63,79 @@ class HtmlRender extends StatelessWidget {
                         // margin: const EdgeInsets.only(top: 4, bottom: 4),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4)),
-                        // child: CachedNetworkImage(
-                        //   imageUrl: imgUrl,
-                        //   httpHeaders: const {
-                        //     'Referrer-Policy': 'no-referrer',
-                        //     'sec-fetch-dest': 'image',
-                        //     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-                        //   },
-                        //   // width: double.infinity,
-                        //   // fit: BoxFit.fitHeight,
-                        //   fadeOutDuration: const Duration(milliseconds: 500),
-                        //   placeholder: (htmlContext, url) {
-                        //     return Container(
-                        //       width: double.infinity,
-                        //       height: 60,
-                        //       color: Theme.of(context).colorScheme.onInverseSurface,
-                        //       child: const Center(
-                        //         child: Text('图片加载中...'),
-                        //       ),
-                        //     );
-                        //   },
+                        // child: ImageLoading(
+                        //   imgUrl: imgUrl,
+                        //   quality: 'preview',
                         // ),
-                        child: ImageLoading(
-                          imgUrl: imgUrl,
-                          quality: 'preview',
-                        ),
+                        child: inTable
+                            ? Image.network(imgUrl)
+                            : ImageLoading(
+                                imgUrl: imgUrl,
+                                quality: 'preview',
+                              ),
                       ),
                     ),
             );
           },
         ),
         TagExtension(
-            tagsToExtend: {"pre"},
-            builder: (extensionContext) {
-              return Container(
-                margin: const EdgeInsets.only(top: 10, bottom: 10),
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.3))),
-                child: Html(data: extensionContext.innerHtml),
-              );
-            }),
-        TagExtension(
-            tagsToExtend: {"input"},
-            builder: (extensionContext) {
-              switch (extensionContext.attributes["type"]) {
-                case "text":
-                  return TextField(
-                      controller: TextEditingController(
-                          text: extensionContext.attributes["value"]));
-                case "checkbox":
-
-                  /// TODO 渲染多选框
-                  // return Checkbox(
-                  //     value:
-                  //         extensionContext.attributes["checked"] == "checked",
-                  //     onChanged: null);
-                  return SizedBox();
-                default:
-                  return extensionContext.parser;
+          tagsToExtend: {"pre"},
+          builder: (extensionContext) {
+            var codeEle = extensionContext.node.firstChild;
+            var text = codeEle!.text;
+            String language = 'text';
+            try {
+              if (codeEle.attributes['class'] != null) {
+                language = codeEle.attributes['class']!.split('-')[1];
+                language = language == 'js' ? 'javascript' : language;
               }
-            })
+            } catch (err) {
+              print(err);
+            }
+            return Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3))),
+              child: language == 'text' || language == 'html'
+                  ? Html(data: extensionContext.innerHtml)
+                  : HighlightView(
+                      text!,
+                      languageId: language,
+                      theme: doccoTheme,
+                      textStyle: Theme.of(context).textTheme.labelLarge,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 10),
+                    ),
+            );
+          },
+        ),
+        TagExtension(
+          tagsToExtend: {"input"},
+          builder: (extensionContext) {
+            switch (extensionContext.attributes["type"]) {
+              case "text":
+                return TextField(
+                    controller: TextEditingController(
+                        text: extensionContext.attributes["value"]));
+              case "checkbox":
+
+                /// TODO 渲染多选框
+                // return Checkbox(
+                //     value:
+                //         extensionContext.attributes["checked"] == "checked",
+                //     onChanged: null);
+                return SizedBox();
+              default:
+                return extensionContext.parser;
+            }
+          },
+        )
       ],
       style: {
         "html": Style(

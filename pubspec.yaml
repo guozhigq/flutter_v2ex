@@ -118,6 +118,8 @@ dependencies:
 
     # 高帧率
     flutter_displaymode: ^0.6.0
+    # 代码高亮
+    flutter_highlighting: ^0.9.0+11.8.0
     
 dev_dependencies:
     flutter_test:
