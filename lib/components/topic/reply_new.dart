@@ -456,24 +456,24 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   // onSaved: (val) {
                   //   _replyContent = val!;
                   // },
-                  textSelectionGestureDetectorBuilder: ({
-                    required ExtendedTextSelectionGestureDetectorBuilderDelegate
-                        delegate,
-                    required Function showToolbar,
-                    required Function hideToolbar,
-                    required Function? onTap,
-                    required BuildContext context,
-                    required Function? requestKeyboard,
-                  }) {
-                    return MyCommonTextSelectionGestureDetectorBuilder(
-                      delegate: delegate,
-                      showToolbar: showToolbar,
-                      hideToolbar: hideToolbar,
-                      onTap: () {},
-                      context: context,
-                      requestKeyboard: requestKeyboard,
-                    );
-                  },
+                  // textSelectionGestureDetectorBuilder: ({
+                  //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
+                  //       delegate,
+                  //   required Function showToolbar,
+                  //   required Function hideToolbar,
+                  //   required Function? onTap,
+                  //   required BuildContext context,
+                  //   required Function? requestKeyboard,
+                  // }) {
+                  //   return MyCommonTextSelectionGestureDetectorBuilder(
+                  //     delegate: delegate,
+                  //     showToolbar: showToolbar,
+                  //     hideToolbar: hideToolbar,
+                  //     onTap: () {},
+                  //     context: context,
+                  //     requestKeyboard: requestKeyboard,
+                  //   );
+                  // },
                 ),
               ),
             ),
@@ -666,32 +666,32 @@ class Debouncer {
   }
 }
 
-class MyCommonTextSelectionGestureDetectorBuilder
-    extends CommonTextSelectionGestureDetectorBuilder {
-  MyCommonTextSelectionGestureDetectorBuilder(
-      {required ExtendedTextSelectionGestureDetectorBuilderDelegate delegate,
-      required Function showToolbar,
-      required Function hideToolbar,
-      required Function? onTap,
-      required BuildContext context,
-      required Function? requestKeyboard})
-      : super(
-          delegate: delegate,
-          showToolbar: showToolbar,
-          hideToolbar: hideToolbar,
-          onTap: onTap,
-          context: context,
-          requestKeyboard: requestKeyboard,
-        );
+// class MyCommonTextSelectionGestureDetectorBuilder
+//     extends CommonTextSelectionGestureDetectorBuilder {
+//   MyCommonTextSelectionGestureDetectorBuilder(
+//       {required ExtendedTextSelectionGestureDetectorBuilderDelegate delegate,
+//       required Function showToolbar,
+//       required Function hideToolbar,
+//       required Function? onTap,
+//       required BuildContext context,
+//       required Function? requestKeyboard})
+//       : super(
+//           delegate: delegate,
+//           showToolbar: showToolbar,
+//           hideToolbar: hideToolbar,
+//           onTap: onTap,
+//           context: context,
+//           requestKeyboard: requestKeyboard,
+//         );
 
-  @override
-  void onTapDown(TapDownDetails details) {
-    super.onTapDown(details);
+//   @override
+//   void onTapDown(TapDownDetails details) {
+//     super.onTapDown(details);
 
-    /// always show toolbar
-    shouldShowSelectionToolbar = true;
-  }
+//     /// always show toolbar
+//     shouldShowSelectionToolbar = true;
+//   }
 
-  @override
-  bool get showToolbarInWeb => true;
-}
+//   @override
+//   bool get showToolbarInWeb => true;
+// }

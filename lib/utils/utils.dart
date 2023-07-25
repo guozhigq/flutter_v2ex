@@ -379,7 +379,7 @@ class Utils {
               action: SnackBarAction(
                 label: '复制',
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: aUrl));
+                  Clipboard.setData(ClipboardData(text: aUrl!));
                 },
               ),
             ),

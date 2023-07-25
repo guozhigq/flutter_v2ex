@@ -3,7 +3,7 @@ import 'package:flutter_v2ex/http/soV2ex.dart';
 import 'package:flutter_v2ex/service/search.dart';
 import 'package:get/get.dart';
 
-class SearchController extends GetxController {
+class SSearchController extends GetxController {
   SoV2exRes searchRes = SoV2exRes();
   List<HitsList>? hitsList = [];
   int pageCount = 20;

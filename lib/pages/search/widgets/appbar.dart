@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 class SAppBar extends StatelessWidget implements PreferredSizeWidget {
   SAppBar({super.key});
-  final SearchController _searchController = Get.put(SearchController());
+  final SSearchController _searchController = Get.put(SSearchController());
 
   @override
   Size get preferredSize => AppBar().preferredSize + const Offset(0, 50);

@@ -16,7 +16,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final SearchController _searchController = Get.put(SearchController());
+  final SSearchController _searchController = Get.put(SSearchController());
   final ScrollController _controller = ScrollController();
   bool showBackTopBtn = false;
 

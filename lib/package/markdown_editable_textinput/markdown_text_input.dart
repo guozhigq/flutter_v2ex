@@ -5,7 +5,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:translator/translator.dart';
+// import 'package:translator/translator.dart';
 import './format_markdown.dart';
 
 /// Widget with markdown buttons
@@ -239,20 +239,20 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
 
                                   var textLabel = 'Text';
                                   var linkLabel = 'Link';
-                                  try {
-                                    var textTranslation =
-                                        await GoogleTranslator()
-                                            .translate(textLabel, to: language);
-                                    textLabel = textTranslation.text;
+                                  // try {
+                                  //   var textTranslation =
+                                  //       await GoogleTranslator()
+                                  //           .translate(textLabel, to: language);
+                                  //   textLabel = textTranslation.text;
 
-                                    var linkTranslation =
-                                        await GoogleTranslator()
-                                            .translate(linkLabel, to: language);
-                                    linkLabel = linkTranslation.text;
-                                  } catch (e) {
-                                    textLabel = 'Text';
-                                    linkLabel = 'Link';
-                                  }
+                                  //   var linkTranslation =
+                                  //       await GoogleTranslator()
+                                  //           .translate(linkLabel, to: language);
+                                  //   linkLabel = linkTranslation.text;
+                                  // } catch (e) {
+                                  //   textLabel = 'Text';
+                                  //   linkLabel = 'Link';
+                                  // }
                                   if (context.mounted) {}
                                   await showDialog<void>(
                                       context: context,

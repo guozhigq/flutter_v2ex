@@ -37,7 +37,7 @@ dependencies:
     # Use with the CupertinoIcons class for iOS style icons.
 
     # 动态取色
-    dynamic_color: ^1.6.2
+    dynamic_color: ^1.6.6
 
     # 网络请求
     dio: ^4.0.6
@@ -50,8 +50,10 @@ dependencies:
     dio_cookie_manager: ^2.0.0
 
     # dom解析渲染
-    html: ^0.15.1
-    webfeed_plus: ^1.0.0
+    html: ^0.15.4
+    webfeed_plus: 
+        git:
+            url: https://github.com/guozhigq/webfeed_plus.git
     flutter_html: 3.0.0-alpha.6
     flutter_html_table: ^3.0.0-alpha.4
     flutter_html_iframe: ^3.0.0-alpha.4
@@ -61,7 +63,7 @@ dependencies:
     flutter_inappwebview: 5.4.4
 
     # 图片&保存
-    extended_image: ^7.0.2
+    extended_image: ^8.0.2
     cached_network_image: ^3.2.3
     image_gallery_saver: ^1.7.1
     # 图片选择&上传
@@ -96,22 +98,22 @@ dependencies:
     # 分享
     share_plus: ^6.3.1
 
-    extended_tabs: ^4.0.2
-    extended_text_field: ^11.0.1
-    extended_text_library: ^10.0.0
+    extended_tabs: ^4.1.0
+    extended_text_field: ^12.0.1
+    extended_text_library: ^11.0.2
     sticky_headers: ^0.3.0+2
 
     # 外观
     container_tab_indicator: ^0.3.0
     # 响应式
-    flutter_adaptive_scaffold: ^0.1.2
+    flutter_adaptive_scaffold: ^0.1.6
 
     scroll_to_index: ^3.0.1
-    google_fonts: ^4.0.3
+    google_fonts: ^5.1.0
 
     # markdown 输入
     expandable: ^5.0.1
-    translator: ^0.1.7
+    # translator: ^0.1.7
     flutter_markdown: ^0.6.14
 
     # 高帧率
