@@ -195,11 +195,11 @@ class _MemberPageState extends State<MemberPage> {
               padding: const EdgeInsets.only(left: 15, right: 10),
               child: Html(
                 data: _memberController.signDetail['balanceRender'],
-                customRenders: {
-                  tagMatcher("img"): CustomRender.widget(
-                    widget: (htmlContext, buildChildren) {
-                      String? imgUrl =
-                          htmlContext.tree.element!.attributes['src'];
+                extensions: [
+                  TagExtension(
+                    tagsToExtend: {"img"},
+                    builder: (extensionContext) {
+                      String? imgUrl = extensionContext.attributes['src'];
                       imgUrl = Utils().imageUrl(imgUrl!);
                       return CachedNetworkImage(
                         imageUrl: imgUrl,
@@ -212,8 +212,27 @@ class _MemberPageState extends State<MemberPage> {
                         ),
                       );
                     },
-                  ),
-                },
+                  )
+                ],
+                // customRenders: {
+                //   tagMatcher("img"): CustomRender.widget(
+                //     widget: (htmlContext, buildChildren) {
+                //       String? imgUrl =
+                //           htmlContext.tree.element!.attributes['src'];
+                //       imgUrl = Utils().imageUrl(imgUrl!);
+                //       return CachedNetworkImage(
+                //         imageUrl: imgUrl,
+                //         height: 20,
+                //         fadeOutDuration: const Duration(milliseconds: 100),
+                //         placeholder: (context, url) => Image.asset(
+                //           'assets/images/avatar.png',
+                //           width: 20,
+                //           height: 20,
+                //         ),
+                //       );
+                //     },
+                //   ),
+                // },
                 style: {
                   'a': Style(
                     color: Theme.of(context).colorScheme.onBackground,

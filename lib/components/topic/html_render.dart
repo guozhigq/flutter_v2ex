@@ -22,21 +22,39 @@ class HtmlRender extends StatelessWidget {
   Widget build(BuildContext context) {
     return Html(
       data: htmlContent,
-      tagsList: Html.tags..addAll(["form", "label", "input"]),
-      onLinkTap: (url, buildContext, attributes, element) =>
+      // tagsList: Html.tags..addAll(["form", "label", "input"]),
+      onLinkTap: (url, buildContext, attributes) =>
           {Utils.openHrefByWebview(url!, context)},
-      customRenders: {
-        tagMatcher("iframe"): iframeRender(),
-        // SingleChildScrollView 跟侧滑返回有冲突
-        tagMatcher("table"): CustomRender.widget(
-            widget: (context, buildChildren) => SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child:
-                      tableRender.call().widget!.call(context, buildChildren),
-                )),
-        tagMatcher("img"): CustomRender.widget(
-          widget: (htmlContext, buildChildren) {
-            String? imgUrl = htmlContext.tree.element!.attributes['src'];
+
+      extensions: [
+        // TagExtension(
+        //   tagsToExtend: {"iframe"},
+        //   builder: (extensionContext) {
+        //     return iframeRender();
+        //   },
+        // ),
+        //           IframeHtmlExtension(
+        //   navigationDelegate: (request) {
+        //     //Return decision here
+        //     return Text('123');
+        //   },
+        // ),
+        // TagExtension(
+        //   tagsToExtend: {"table"},
+        //   builder: (extensionContext) {
+        //     return SingleChildScrollView(
+        //       scrollDirection: Axis.horizontal,
+        //       child:
+        //           tableRender.call().widget!.call(extensionContext, buildChildren),
+        //     );
+        //   },
+        // ),
+        const IframeHtmlExtension(),
+        const TableHtmlExtension(),
+        TagExtension(
+          tagsToExtend: {"img"},
+          builder: (extensionContext) {
+            String? imgUrl = extensionContext.attributes['src'];
             imgUrl = Utils().imageUrl(imgUrl!);
             // ignore: avoid_print
             // todo 多张图片轮播
@@ -92,56 +110,50 @@ class HtmlRender extends StatelessWidget {
             );
           },
         ),
-        // tagMatcher("pre"):
-        //     CustomRender.widget(widget: (htmlContext, buildChildren) {
-        //   var code = htmlContext.tree.element!.children[0].innerHtml;
-        //   return HighlightView(
-        //     code,
-        //     language: 'clojure',
-        //     theme: ideaTheme,
-        //   );
-        // }),
-        tagMatcher("pre"): CustomRender.widget(
-          widget: (htmlContext, buildChildren) {
-            // var code = htmlContext.tree.element!.children[0].innerHtml;
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.3))),
-              child: Html(data: htmlContext.tree.element!.outerHtml),
-            );
-          },
-        ),
-        tagMatcher("input"): CustomRender.widget(
-          widget: (htmlContext, buildChildren) {
-            switch (htmlContext.tree.element!.attributes["type"]) {
-              case "text":
-                return TextField(
-                    controller: TextEditingController(
-                        text: htmlContext.tree.element!.attributes["value"]));
-              case "checkbox":
-                return Checkbox(
-                    value: htmlContext.tree.element!.attributes["checked"] ==
-                        "checked",
-                    onChanged: null);
-              default:
-                return htmlContext.parser;
-            }
-          },
-        ),
-      },
+        TagExtension(
+            tagsToExtend: {"pre"},
+            builder: (extensionContext) {
+              return Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.3))),
+                child: Html(data: extensionContext.innerHtml),
+              );
+            }),
+        TagExtension(
+            tagsToExtend: {"input"},
+            builder: (extensionContext) {
+              switch (extensionContext.attributes["type"]) {
+                case "text":
+                  return TextField(
+                      controller: TextEditingController(
+                          text: extensionContext.attributes["value"]));
+                case "checkbox":
+
+                  /// TODO 渲染多选框
+                  // return Checkbox(
+                  //     value:
+                  //         extensionContext.attributes["checked"] == "checked",
+                  //     onChanged: null);
+                  return SizedBox();
+                default:
+                  return extensionContext.parser;
+              }
+            })
+      ],
       style: {
         "html": Style(
           fontSize: fs != null ? FontSize(fs!) : FontSize.medium,
           lineHeight: LineHeight.percent(140),
         ),
-        "body": Style(margin: Margins.zero, padding: EdgeInsets.zero),
+        "body": Style(margin: Margins.zero, padding: HtmlPaddings.zero),
         "a": Style(
           color: Theme.of(context).colorScheme.primary,
           textDecoration: TextDecoration.none,
@@ -153,24 +165,17 @@ class HtmlRender extends StatelessWidget {
           display: Display.inline,
         ),
         "li": Style(
-          padding: const EdgeInsets.only(bottom: 4),
+          padding: HtmlPaddings.only(bottom: 4),
           textAlign: TextAlign.justify,
         ),
         "image": Style(margin: Margins.only(top: 4, bottom: 4)),
         "p > img": Style(margin: Margins.only(top: 4, bottom: 4)),
-        // "pre": Style(
-        //   margin: Margins.only(top: 0),
-        //   padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-        //   backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-        //   border: Border.all(
-        //       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
-        // ),
         "code": Style(
             backgroundColor: Theme.of(context).colorScheme.onInverseSurface),
         "code > span": Style(textAlign: TextAlign.start),
         "hr": Style(
           margin: Margins.zero,
-          padding: EdgeInsets.zero,
+          padding: HtmlPaddings.zero,
           border: Border(
             top: BorderSide(
               width: 1.0,
@@ -211,16 +216,16 @@ class HtmlRender extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.background,
         ),
         'th': Style(
-          padding: const EdgeInsets.only(left: 3, right: 3),
+          padding: HtmlPaddings.only(left: 3, right: 3),
         ),
         'td': Style(
-          padding: const EdgeInsets.all(4.0),
+          padding: HtmlPaddings.all(4.0),
           alignment: Alignment.center,
           textAlign: TextAlign.center,
         ),
         'blockquote': Style(
           margin: Margins.zero,
-          padding: EdgeInsets.zero,
+          padding: HtmlPaddings.zero,
           // lineHeight: LineHeight.normal
         ),
       },

@@ -42,64 +42,60 @@ class _HistoryHotPageState extends State<HistoryHotPage> {
     Get.toNamed(tHref);
   }
 
-    @override
-    void initState() {
-      // TODO: implement initState
-      super.initState();
-      getHistoryHot();
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return DefaultTabController(
-        length: _tabs.length,
-        child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: TabBar(
-              isScrollable: true,
-              enableFeedback: true,
-              splashBorderRadius: BorderRadius.circular(6),
-              dividerColor: Colors.transparent,
-              tabs: _tabs.map((item) {
-                return Tab(text: item['name']);
-              }).toList(),
-            ),
-          ),
-          body: _atomFeed != null ? TabBarView(
-            children: _atomFeed!.items!.map((e) {
-              return SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                      top: 0, left: 20, right: 20, bottom: 30),
-                  child:
-                  Html(
-                    data: e.content,
-                    onLinkTap: (url, buildContext, attributes, element) =>
-                    {openHrefByWebview(url!)},
-                    style: {
-                      "html": Style(
-                        fontSize: FontSize
-                            .medium,
-                        lineHeight: LineHeight.percent(140),
-                      ),
-                      "body": Style(
-                          margin: Margins.zero, padding: EdgeInsets.zero),
-                      "a": Style(
-                        before: '「 ',
-                        after: ' 」',
-                        fontSize: FontSize(15),
-                        color: Theme
-                            .of(context)
-                            .colorScheme
-                            .primary,
-                        textDecoration: TextDecoration.none,
-                      ),
-                    },
-                  )
-              );
-            }).toList(),
-          ): null,
-        ),
-      );
-    }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getHistoryHot();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: TabBar(
+            isScrollable: true,
+            enableFeedback: true,
+            splashBorderRadius: BorderRadius.circular(6),
+            dividerColor: Colors.transparent,
+            tabs: _tabs.map((item) {
+              return Tab(text: item['name']);
+            }).toList(),
+          ),
+        ),
+        body: _atomFeed != null
+            ? TabBarView(
+                children: _atomFeed!.items!.map((e) {
+                  return SingleChildScrollView(
+                      padding: const EdgeInsets.only(
+                          top: 0, left: 20, right: 20, bottom: 30),
+                      child: Html(
+                        data: e.content,
+                        onLinkTap: (url, buildContext, attributes) =>
+                            {openHrefByWebview(url!)},
+                        style: {
+                          "html": Style(
+                            fontSize: FontSize.medium,
+                            lineHeight: LineHeight.percent(140),
+                          ),
+                          "body": Style(
+                              margin: Margins.zero, padding: HtmlPaddings.zero),
+                          "a": Style(
+                            before: '「 ',
+                            after: ' 」',
+                            fontSize: FontSize(15),
+                            color: Theme.of(context).colorScheme.primary,
+                            textDecoration: TextDecoration.none,
+                          ),
+                        },
+                      ));
+                }).toList(),
+              )
+            : null,
+      ),
+    );
+  }
+}

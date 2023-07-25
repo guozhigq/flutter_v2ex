@@ -152,26 +152,27 @@ class _AdaptSlideState extends State<AdaptSlide> {
                               // HtmlRender(htmlContent: _tabStateController.balance.value,)
                               Html(
                             data: _tabStateController.balance.value,
-                            customRenders: {
-                              tagMatcher("img"): CustomRender.widget(
-                                widget: (htmlContext, buildChildren) {
-                                  String? imgUrl = htmlContext
-                                      .tree.element!.attributes['src'];
-                                  imgUrl = Utils().imageUrl(imgUrl!);
-                                  return CachedNetworkImage(
-                                    imageUrl: imgUrl,
-                                    height: 15,
-                                    fadeOutDuration:
-                                        const Duration(milliseconds: 100),
-                                    placeholder: (context, url) => Image.asset(
-                                      'assets/images/avatar.png',
-                                      width: 15,
+                            extensions: [
+                              TagExtension(
+                                  tagsToExtend: {"img"},
+                                  builder: (extensionContext) {
+                                    String? imgUrl =
+                                        extensionContext.attributes['src'];
+                                    imgUrl = Utils().imageUrl(imgUrl!);
+                                    return CachedNetworkImage(
+                                      imageUrl: imgUrl,
                                       height: 15,
-                                    ),
-                                  );
-                                },
-                              ),
-                            },
+                                      fadeOutDuration:
+                                          const Duration(milliseconds: 100),
+                                      placeholder: (context, url) =>
+                                          Image.asset(
+                                        'assets/images/avatar.png',
+                                        width: 15,
+                                        height: 15,
+                                      ),
+                                    );
+                                  })
+                            ],
                             style: {
                               'a': Style(
                                 color:
