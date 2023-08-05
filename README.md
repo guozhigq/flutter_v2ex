@@ -18,7 +18,7 @@
     <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">去下载</a>
     <br/>
     <br/>
-    <img src="https://files.catbox.moe/w3pnbd.png" width="49%"></img>
+    <img src="https://raw.githubusercontent.com/guozhigq/flutter_v2ex/main/assets/preview/preview_1.png" width="49%"></img>
     <img src="https://files.catbox.moe/kpuks8.png" width="49%"></img>
     <img src="https://files.catbox.moe/dkf8qt.png" width="49%"></img>
     <img src="https://files.catbox.moe/xij4ov.png" width="49%"></img>
