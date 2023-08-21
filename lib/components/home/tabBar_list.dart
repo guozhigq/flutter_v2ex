@@ -2,10 +2,12 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/common/footer.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
+import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
@@ -15,11 +17,11 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
 
-
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;
   int tabIndex = 0;
-  TabBarList({Key? key,  required this.tabItem, required this.tabIndex}) : super(key: key);
+  TabBarList({Key? key, required this.tabItem, required this.tabIndex})
+      : super(key: key);
 
   @override
   State<TabBarList> createState() => _TabBarListState();
@@ -38,7 +40,7 @@ class _TabBarListState extends State<TabBarList>
   bool _dioError = false;
   String _dioErrorMsg = '';
   // late TabStateController? _tabStateController;
-  final TabStateController _tabStateController =  Get.put(TabStateController());
+  final TabStateController _tabStateController = Get.put(TabStateController());
   @override
   bool get wantKeepAlive => true;
 
@@ -48,7 +50,8 @@ class _TabBarListState extends State<TabBarList>
     super.initState();
     // _controller = ScrollController();
     getTopics();
-
+    StreamController<bool> homeStream =
+        Get.find<HomeController>().searchBarStream;
     _controller.addListener(
       () {
         if (widget.tabItem.id == 'recent') {
@@ -73,12 +76,22 @@ class _TabBarListState extends State<TabBarList>
             showBackTopBtn = false;
           });
         }
+
+        final ScrollDirection direction =
+            _controller.position.userScrollDirection;
+        if (direction == ScrollDirection.forward) {
+          print(_controller.offset);
+          homeStream.add(true);
+        } else if (direction == ScrollDirection.reverse) {
+          print(_controller.offset);
+          homeStream.add(false);
+        }
       },
     );
 
     eventBus.on('ignoreTopic', (arg) => {print('69: $arg')});
     _tabStateController.tabIndex.listen((value) {
-      if(value == widget.tabIndex){
+      if (value == widget.tabIndex) {
         animateToTop();
       }
     });
@@ -136,7 +149,6 @@ class _TabBarListState extends State<TabBarList>
 
         _tabStateController.setActionCounts(res['actionCounts']);
         _tabStateController.setBalance(res['balance']);
-
       });
     } catch (err) {
       if (_currentPage == 0) {
@@ -162,10 +174,9 @@ class _TabBarListState extends State<TabBarList>
     return res;
   }
 
-  void animateToTop() async{
+  void animateToTop() async {
     await _controller.animateTo(0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.ease);
+        duration: const Duration(milliseconds: 500), curve: Curves.ease);
     _tabStateController.setTabIndex(999);
   }
 

@@ -81,11 +81,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Get.toNamed('/search'),
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
-        height: 115,
-        margin: const EdgeInsets.only(top: 3),
-        padding: const EdgeInsets.only(top: 33, right: 0, left: 0, bottom: 33),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),
           child: Container(
@@ -172,7 +169,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                       right: 38,
                       top: 0,
                       child: IconButton(
-                        tooltip: I18nKeyword.notice.tr,
+                          tooltip: I18nKeyword.notice.tr,
                           onPressed: () {
                             setState(() {
                               unRead = false;

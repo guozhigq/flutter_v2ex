@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/adaptive/slide.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
+import 'package:flutter_v2ex/pages/home/controller.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/utils/global.dart';
@@ -38,6 +41,8 @@ class _HomePageState extends State<HomePage>
   final TopicController _topicController = Get.put(TopicController());
   String topicId = '';
   TabTopicItem _topicDetail = TabTopicItem();
+  late final HomeController _homeController = Get.put(HomeController());
+  late Stream<bool> stream;
 
   @override
   void initState() {
@@ -99,6 +104,8 @@ class _HomePageState extends State<HomePage>
         });
       }
     });
+
+    stream = _homeController.searchBarStream.stream;
   }
 
   void _loadCustomTabs() {
@@ -179,18 +186,20 @@ class _HomePageState extends State<HomePage>
 
     return Scaffold(
       backgroundColor: getBackground(context, 'homePage'),
-      appBar: Breakpoints.mediumAndUp.isActive(context)
-          ? null
-          : AppBar(
-              automaticallyImplyLeading: false,
-              title: const HomeSearchBar(),
-            ),
+      // appBar: Breakpoints.mediumAndUp.isActive(context)
+      //     ? null
+      //     : AppBar(
+      //         automaticallyImplyLeading: false,
+      //         title: const HomeSearchBar(),
+      //       ),
+      appBar: AppBar(toolbarHeight: 0, elevation: 0),
       drawer: Breakpoints.mediumAndUp.isActive(context)
           ? null
           : const HomeLeftDrawer(),
       body: ResizeLayout(
         leftLayout: Column(
           children: <Widget>[
+            CustomAppBar(stream: stream),
             if (Breakpoints.mediumAndUp.isActive(context))
               const SizedBox(height: 13),
             HomeStickyBar(tabs: tabs, ctr: _tabController),
@@ -211,4 +220,53 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+}
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final double height;
+  final Stream<bool>? stream;
+
+  const CustomAppBar({
+    super.key,
+    this.height = kToolbarHeight,
+    this.stream,
+  });
+
+  @override
+  Size get preferredSize => Size.fromHeight(height);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: stream,
+      initialData: true,
+      builder: (context, AsyncSnapshot snapshot) {
+        return AnimatedOpacity(
+          opacity: snapshot.data ? 1 : 0,
+          duration: const Duration(milliseconds: 300),
+          child: AnimatedContainer(
+            curve: Curves.easeInOutCubicEmphasized,
+            duration: const Duration(milliseconds: 500),
+            height: snapshot.data
+                ? MediaQuery.of(context).padding.top + 52
+                : MediaQuery.of(context).padding.top,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 2,
+                top: MediaQuery.of(context).padding.top + 5,
+              ),
+              child: const HomeSearchBar(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class HomeController extends GetxController {
+  final StreamController<bool> searchBarStream =
+      StreamController<bool>.broadcast();
 }
