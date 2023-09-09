@@ -80,16 +80,13 @@ class _TabBarListState extends State<TabBarList>
         final ScrollDirection direction =
             _controller.position.userScrollDirection;
         if (direction == ScrollDirection.forward) {
-          print(_controller.offset);
           homeStream.add(true);
         } else if (direction == ScrollDirection.reverse) {
-          print(_controller.offset);
           homeStream.add(false);
         }
       },
     );
 
-    eventBus.on('ignoreTopic', (arg) => {print('69: $arg')});
     _tabStateController.tabIndex.listen((value) {
       if (value == widget.tabIndex) {
         animateToTop();
