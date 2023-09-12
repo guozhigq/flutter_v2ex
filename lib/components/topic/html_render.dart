@@ -85,7 +85,9 @@ class HtmlRender extends StatelessWidget {
             var text = codeEle!.text;
             String language = 'text';
             try {
-              if (codeEle.attributes['class'] != null) {
+              RegExp regExp = RegExp(r'^[a-zA-Z]+$');
+              if (codeEle.attributes['class'] != null &&
+                  regExp.hasMatch(codeEle.attributes['class']!)) {
                 language = codeEle.attributes['class']!.split('-')[1];
                 language = language == 'js' ? 'javascript' : language;
               }
