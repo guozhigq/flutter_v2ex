@@ -54,8 +54,8 @@ class _SetFontPageState extends State<SetFontPage> {
             ),
             Slider(
               value: _currentGlobalSize,
-              max: 18,
-              divisions: 5,
+              max: 22,
+              divisions: 9,
               min: 13,
               label: _currentGlobalSize.round().toString(),
               onChanged: (double value) {
