@@ -16,10 +16,10 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class Request {
   static final Request _instance = Request._internal();
-
+  static late CookieManager cookieManager;
+  static late final Dio dio;
   factory Request() => _instance;
 
-  Dio dio = Dio();
   // ..httpClientAdapter = Http2Adapter(
   //   ConnectionManager(
   //     idleTimeout: 10000,
@@ -43,7 +43,8 @@ class Request {
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
     );
-    Request().dio.interceptors.add(CookieManager(cookieJar));
+    cookieManager = CookieManager(cookieJar);
+    dio.interceptors.add(cookieManager);
   }
 
   /*
