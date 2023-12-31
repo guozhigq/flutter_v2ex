@@ -57,13 +57,13 @@
 ## 环境配置
 
 ```
-[✓] Flutter (Channel stable, 3.10.6, on macOS 12.1 21C52 darwin-arm64, locale
+[✓] Flutter (Channel stable, 3.16.4, on macOS 14.1.2 23B92 darwin-arm64, locale
     zh-Hans-CN)
-[✓] Android toolchain - develop for Android devices (Android SDK version 33.0.2)
-[✓] Xcode - develop for iOS and macOS (Xcode 13.4)
+[✓] Android toolchain - develop for Android devices (Android SDK version 34.0.0)
+[✓] Xcode - develop for iOS and macOS (Xcode 15.1)
 [✓] Chrome - develop for the web
-[✓] Android Studio (version 2022.2)
-[✓] VS Code (version 1.77.3)
+[✓] Android Studio (version 2022.3)
+[✓] VS Code (version 1.85.1)
 [✓] Connected device (3 available)
 [✓] Network resources
 ```
