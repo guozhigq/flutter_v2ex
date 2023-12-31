@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
+// import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter_v2ex/models/network/item_node.dart';
 import 'package:flutter_v2ex/models/network/item_topic.dart';
 import 'package:flutter_v2ex/models/network/item_node_topic.dart';
@@ -16,16 +16,16 @@ class DioRequestNet {
   // 热议
   final String hotTopics = '/api/topics/hot.json';
 
-  var cacheOptions = buildCacheOptions(
-    const Duration(days: 4),
-    forceRefresh: false,
-  );
+  // var cacheOptions = buildCacheOptions(
+  //   const Duration(days: 4),
+  //   forceRefresh: false,
+  // );
 
   // 所有节点
   static Future<List<NodeItem>> getAllNodes() async {
     Response response = await Request().get(
       DioRequestNet().allNodes,
-      cacheOptions: DioRequestNet().cacheOptions,
+      // cacheOptions: DioRequestNet().cacheOptions,
     );
     List<dynamic> list = response.data;
     return list.map((e) => NodeItem.fromJson(e)).toList();
@@ -49,7 +49,7 @@ class DioRequestNet {
         'sort_by': 'topics',
         'reverse': 1
       },
-      cacheOptions: DioRequestNet().cacheOptions,
+      // cacheOptions: DioRequestNet().cacheOptions,
     );
     List<dynamic> list = response.data;
     return list.map((e) => TopicNodeItem.fromJson(e)).toList();

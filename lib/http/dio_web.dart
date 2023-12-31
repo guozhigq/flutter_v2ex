@@ -508,9 +508,9 @@ class DioRequestWeb {
       }
       // 操作成功
       return responseStatus;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       SmartDialog.dismiss();
-      SmartDialog.showToast(e.message);
+      SmartDialog.showToast(e.message!);
     }
   }
 
@@ -624,8 +624,8 @@ class DioRequestWeb {
           }
         }
       }
-    } on DioError catch (e) {
-      log(e.message);
+    } on DioException catch (e) {
+      log(e.message!);
       SmartDialog.showToast('领取每日奖励失败：${e.message}');
     }
   }

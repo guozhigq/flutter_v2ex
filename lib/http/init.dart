@@ -4,13 +4,13 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
+// import 'package:dio/adapter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/http/interceptor.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
+// import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
@@ -56,9 +56,9 @@ class Request {
       //请求基地址,可以包含子路径
       baseUrl: Strings.v2exHost,
       //连接服务器超时时间，单位是毫秒.
-      connectTimeout: 12000,
+      connectTimeout: const Duration(milliseconds: 12000),
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
-      receiveTimeout: 12000,
+      receiveTimeout: const Duration(milliseconds: 12000),
       //Http请求头.
       // headers: {
       //   'cookie': '',
@@ -74,7 +74,7 @@ class Request {
     setCookie();
     //添加拦截器
     dio.interceptors
-      ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
+      // ..add(DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).interceptor)
       ..add(ApiInterceptor())
       // 日志拦截器 输出请求、响应内容
       ..add(LogInterceptor(
@@ -135,9 +135,9 @@ class Request {
         cancelToken: cancelToken,
       );
       return response;
-    } on DioError catch (e, handler) {
+    } on DioException catch (e, handler) {
       print('get error---------$e');
-      return Future.error(_dioError(e));
+      return Future.error(ApiInterceptor.dioError(e));
     }
   }
 
@@ -156,9 +156,9 @@ class Request {
       );
       print('post success---------${response.data}');
       return response;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print('post error---------$e');
-      return Future.error(_dioError(e));
+      return Future.error(ApiInterceptor.dioError(e));
     }
   }
 
@@ -176,29 +176,9 @@ class Request {
       print('downloadFile success---------${response.data}');
 
       return response.data;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print('downloadFile error---------$e');
-      return Future.error(_dioError(e));
-    }
-  }
-
-  // 处理 Dio 异常
-  static String _dioError(DioError error) {
-    switch (error.type) {
-      case DioErrorType.connectTimeout:
-        return "网络连接超时，请检查网络设置";
-      case DioErrorType.receiveTimeout:
-        return "响应超时，请稍后重试！";
-      case DioErrorType.sendTimeout:
-        return "发送请求超时，请检查网络设置";
-      case DioErrorType.response:
-        return "服务器异常，请稍后重试！";
-      case DioErrorType.cancel:
-        return "请求已被取消，请重新请求";
-      case DioErrorType.other:
-        return "网络异常，请稍后重试！";
-      default:
-        return "Dio异常";
+      return Future.error(ApiInterceptor.dioError(e));
     }
   }
 

@@ -40,13 +40,13 @@ dependencies:
     dynamic_color: ^1.6.6
 
     # 网络请求
-    dio: ^4.0.6
+    dio: ^5.3.3
     cookie_jar: ^3.0.1
     #    dio_http_cache: ^0.3.0
     dio_http2_adapter: ^2.0.0
-    dio_http_cache:
-        git:
-            url: https://github.com/guozhigq/dio-http-cache.git
+    # dio_http_cache:
+    #     git:
+    #         url: https://github.com/guozhigq/dio-http-cache.git
     dio_cookie_manager: ^2.0.0
 
     # dom解析渲染
@@ -67,7 +67,8 @@ dependencies:
     cached_network_image: ^3.2.3
     image_gallery_saver: ^1.7.1
     # 图片选择&上传
-    wechat_assets_picker: ^8.4.2
+    wechat_assets_picker: ^8.8.1+1
+    photo_manager: 3.0.0-dev.1
 
     # 下拉刷新
     easy_refresh: ^3.2.2
@@ -99,8 +100,8 @@ dependencies:
     share_plus: ^6.3.1
 
     extended_tabs: ^4.1.0
-    extended_text_field: ^12.0.1
-    extended_text_library: ^11.0.2
+    extended_text_field: ^13.0.0
+    extended_text_library: ^12.0.0
     sticky_headers: ^0.3.0+2
 
     # 外观

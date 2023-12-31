@@ -205,7 +205,6 @@ class _ImagePreviewState extends State<ImagePreview>
           },
           canScrollPage: (GestureDetails? gestureDetails) =>
           gestureDetails!.totalScale! <= 1.0,
-          preloadPagesCount: 2,
           itemCount: imgList.length,
           itemBuilder: (BuildContext context, int index) {
             return ExtendedImage.network(

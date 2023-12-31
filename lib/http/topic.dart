@@ -9,7 +9,7 @@ import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart'; // 常量
 import 'package:flutter_v2ex/utils/storage.dart'; // 本地存储
-import 'package:dio_http_cache/dio_http_cache.dart'; // dio缓存
+// import 'package:dio_http_cache/dio_http_cache.dart'; // dio缓存
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart'; // 弹窗
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart'; // 主题详情
@@ -25,8 +25,8 @@ class TopicWebApi {
     var response = await Request().get(
       "/t/$topicId",
       data: {'p': p},
-      cacheOptions:
-          buildCacheOptions(const Duration(days: 4), forceRefresh: true),
+      // cacheOptions:
+      //     buildCacheOptions(const Duration(days: 4), forceRefresh: true),
       extra: {'ua': 'mob'},
     );
     // Use html parser and query selector
@@ -414,7 +414,7 @@ class TopicWebApi {
       return responseStatus;
     } on DioError catch (e) {
       SmartDialog.dismiss();
-      SmartDialog.showToast(e.message);
+      SmartDialog.showToast(e.message!);
     }
   }
 
