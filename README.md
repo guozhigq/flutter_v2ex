@@ -5,8 +5,7 @@
 <div align="center">
     <h1>VVEX</h1>
     <div align="center">
-        <img alt="GitHub" src="https://img.shields.io/badge/Flutter-3.7.10-success?style=flat&logo=flutter">
-        <img alt="GitHub" src="https://img.shields.io/badge/Dart-2.19.2-blue?style=flat">
+        <img alt="GitHub" src="https://img.shields.io/badge/Flutter-3.16.4-success?style=flat&logo=flutter">
         <img alt="GitHub" src="https://img.shields.io/badge/Java-11.0.15-green?style=flat">
         <a target="_blank" href="https://github.com/guozhigq/flutter_v2ex/releases">
             <img alt="Version" src="https://img.shields.io/github/v/release/guozhigq/flutter_v2ex?color=c3e7ff&label=version&style=flat">
