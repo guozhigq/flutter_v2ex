@@ -1,7 +1,5 @@
-import 'package:extended_image/extended_image.dart';
 import 'package:extended_text_library/extended_text_library.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/components/common/image_loading.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 
 ///emoji/image text

@@ -31,8 +31,8 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 enum SampleItem { ignore, share, report, browse }
 
 class TopicDetail extends StatefulWidget {
-  var topicDetail;
-  TopicDetail({this.topicDetail,  super.key});
+  final dynamic topicDetail;
+  const TopicDetail({this.topicDetail, super.key});
 
   @override
   State<TopicDetail> createState() => _TopicDetailState();
@@ -42,7 +42,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
-  var _topicDetail;
+  late dynamic _topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
@@ -95,23 +95,23 @@ class _TopicDetailState extends State<TopicDetail>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
-    _topicController.topicId.listen((value) async{
+    _topicController.topicId.listen((value) async {
       topicId = value;
       _topicDetail = _topicController.topic.value;
       _detailModel = null;
       _currentPage = 0;
-      if(mounted){
+      if (mounted) {
         await getDetailInit();
       }
     });
 
     // setState(() {
-    try{
+    try {
       topicId = Get.parameters['topicId']!;
-    }catch(e){
+    } catch (e) {
       print('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
     }
-    if(widget.topicDetail != null){
+    if (widget.topicDetail != null) {
       _topicDetail = widget.topicDetail;
       topicId = widget.topicDetail.topicId;
     }
@@ -179,7 +179,7 @@ class _TopicDetailState extends State<TopicDetail>
     } else if (Platform.isIOS) {
       platform = 'ios';
     }
-    if(Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       platform = 'desktop';
     }
   }
@@ -210,8 +210,11 @@ class _TopicDetailState extends State<TopicDetail>
       } else {
         _replyList.addAll(topicDetailModel.replyList);
       }
-      if(replyId != ''){
-        noticeFloorNumber = topicDetailModel.replyList.where((i) => i.replyId == replyId).first.floorNumber;
+      if (replyId != '') {
+        noticeFloorNumber = topicDetailModel.replyList
+            .where((i) => i.replyId == replyId)
+            .first
+            .floorNumber;
       }
       _currentPage += 1;
     });
@@ -578,7 +581,8 @@ class _TopicDetailState extends State<TopicDetail>
         Scaffold(
           appBar: !expendAppBar
               ? AppBar(
-                  scrolledUnderElevation: Breakpoints.mediumAndUp.isActive(context) ?  0 : 4,
+                  scrolledUnderElevation:
+                      Breakpoints.mediumAndUp.isActive(context) ? 0 : 4,
                   centerTitle: false,
                   title: StreamBuilder(
                     stream: titleStreamC.stream,
@@ -658,7 +662,7 @@ class _TopicDetailState extends State<TopicDetail>
   // 顶部操作栏
   List<Widget> appBarAction() {
     List<Widget>? list = [];
-    if(_detailModel != null) {
+    if (_detailModel != null) {
       list.add(
         IconButton(
           onPressed: onFavTopic,
@@ -724,7 +728,9 @@ class _TopicDetailState extends State<TopicDetail>
           SliverAppBar(
             toolbarHeight: platform == 'android'
                 ? (MediaQuery.of(context).padding.top + 6)
-                : platform == 'ios' ? MediaQuery.of(context).padding.top - 2 : kToolbarHeight,
+                : platform == 'ios'
+                    ? MediaQuery.of(context).padding.top - 2
+                    : kToolbarHeight,
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
             automaticallyImplyLeading: false,
             elevation: 1,

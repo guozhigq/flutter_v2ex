@@ -3,12 +3,10 @@ import 'package:flutter_v2ex/utils/global.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 
 class HomeSearchBarAdaptive extends StatefulWidget {
   final userInfo;
@@ -105,9 +103,13 @@ class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
                       ),
                       const SizedBox(width: 10),
                       Text(I18nKeyword.search.tr,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant
-                          )),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant)),
                     ],
                   ),
                 ),

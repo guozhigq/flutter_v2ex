@@ -14,8 +14,6 @@ class _ChangeLogPageState extends State<ChangeLogPage> {
   final ChangeLogController _changeLogController =
       Get.put(ChangeLogController());
 
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -37,9 +35,7 @@ class _ChangeLogPageState extends State<ChangeLogPage> {
                 if (snapshot.data.isNotEmpty) {
                   return _buildView(context, snapshot.data);
                 } else {
-                  return const Center(
-                    child: Text('没有数据')
-                  );
+                  return const Center(child: Text('没有数据'));
                 }
               } else {
                 return const Center(
@@ -75,7 +71,8 @@ class _ChangeLogPageState extends State<ChangeLogPage> {
             ),
             // if(i['body'] != '')
             Container(
-              padding: const EdgeInsets.only(left: 15, right: 15, top: 20, bottom: 20),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 15, top: 20, bottom: 20),
               alignment: Alignment.centerLeft,
               child: Text(i['body'] != '' ? i['body'] : '无说明'),
             ),

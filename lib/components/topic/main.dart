@@ -9,8 +9,8 @@ import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/topic/skeleton_main.dart';
 
 class TopicMain extends StatelessWidget {
-  var detailModel;
-  var topicDetail;
+  final detailModel;
+  final topicDetail;
   String? heroTag;
 
   TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key})

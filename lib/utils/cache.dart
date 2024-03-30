@@ -14,7 +14,6 @@ class CacheManage {
 
   // 获取缓存目录
   Future<String> loadApplicationCache() async {
-
     /// clear all of image in memory
     // clearMemoryImageCache();
     /// get ImageCache
@@ -39,10 +38,10 @@ class CacheManage {
       String dioCacheFileName =
           '${docDirectory.path}${Platform.pathSeparator}DioCache.db';
       var dioCacheFile = File(dioCacheFileName);
-      if(dioCacheFile.existsSync()){
+      if (dioCacheFile.existsSync()) {
         value = await getTotalSizeOfFilesInDir(dioCacheFile);
       }
-      // cacheSize += value;
+      cacheSize += value;
     }
 
     return formatSize(cacheSize);
@@ -114,7 +113,7 @@ class CacheManage {
           ],
         );
       },
-    ).then((res){
+    ).then((res) {
       return true;
     });
     return cleanStatus;

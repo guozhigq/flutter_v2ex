@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:flutter_v2ex/components/member/topic_item.dart';

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_highlighting/flutter_highlighting.dart';
 import 'package:flutter_highlighting/themes/docco.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';

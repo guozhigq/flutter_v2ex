@@ -8,10 +8,10 @@ import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 
 // TODO 样式
 class NoticeItem extends StatefulWidget {
-  MemberNoticeItem noticeItem = MemberNoticeItem();
-  final onDeleteNotice;
+  final MemberNoticeItem noticeItem;
+  final Function? onDeleteNotice;
 
-  NoticeItem({required this.noticeItem, this.onDeleteNotice, Key? key})
+  const NoticeItem({required this.noticeItem, this.onDeleteNotice, Key? key})
       : super(key: key);
 
   @override
@@ -43,9 +43,9 @@ class _NoticeItemState extends State<NoticeItem> {
               color: Theme.of(context).colorScheme.errorContainer,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(Icons.clear_all_rounded),
                 SizedBox(width: 6),
                 Text('删除')
@@ -54,14 +54,14 @@ class _NoticeItemState extends State<NoticeItem> {
         direction: DismissDirection.endToStart,
         key: ValueKey<String>(widget.noticeItem.delIdOne),
         onDismissed: (DismissDirection direction) {
-          widget.onDeleteNotice();
+          widget.onDeleteNotice?.call();
         },
         child: Material(
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
               String floorNumber =
-              widget.noticeItem.topicHref.split('#reply')[1];
+                  widget.noticeItem.topicHref.split('#reply')[1];
               NoticeType noticeType = widget.noticeItem.noticeType;
               Map<String, String> parameters = {};
               if (noticeType.name == NoticeType.reply.name ||

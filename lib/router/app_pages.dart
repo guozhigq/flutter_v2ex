@@ -110,12 +110,12 @@ class AppPages {
 bool sideslip = GStorage().getSideslip();
 
 class CustomGetPage extends GetPage {
-  bool? fullscreen = false;
+  final bool? fullscreen;
 
   CustomGetPage(
     name,
     page, {
-    this.fullscreen,
+    this.fullscreen = false,
     transitionDuration,
   }) : super(
           name: name,

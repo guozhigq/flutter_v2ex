@@ -69,7 +69,7 @@ class FormatMarkdown {
         break;
       case MarkdownType.image:
         if (link != '' && link != null) {
-          changedData = '![$selectedText](${link ?? selectedText})';
+          changedData = '![$selectedText]($link)';
           replaceCursorIndex = 0;
         } else {
           changedData =

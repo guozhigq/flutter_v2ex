@@ -16,7 +16,7 @@ import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ReplyListItem extends StatefulWidget {
-  ReplyListItem({
+  const ReplyListItem({
     required this.reply,
     required this.topicId,
     this.queryReplyList,
@@ -28,14 +28,12 @@ class ReplyListItem extends StatefulWidget {
   }) : super(key: key);
 
   final ReplyItem reply;
-  final String topicId;
-  final queryReplyList;
-  int? totalPage;
-  String? source;
-  List? replyList;
-  int? floorNumber;
-
-
+  final String? topicId;
+  final dynamic queryReplyList;
+  final int? totalPage;
+  final String? source;
+  final List? replyList;
+  final int? floorNumber;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -109,21 +107,21 @@ class _ReplyListItemState extends State<ReplyListItem>
     });
 
     _controller = AnimationController(
-        lowerBound: 0.95,
+      lowerBound: 0.95,
       duration: const Duration(milliseconds: 600),
       vsync: this,
     )..addListener(() {
-    if (_controller.status == AnimationStatus.completed) {
-    _animationCount++;
-      if (_animationCount >= _maxAnimationCount) {
-        _controller.stop();
-      } else {
-        _controller.reverse();
-    }
-    } else if (_controller.status == AnimationStatus.dismissed) {
-      _controller.forward();
-    }
-    });
+        if (_controller.status == AnimationStatus.completed) {
+          _animationCount++;
+          if (_animationCount >= _maxAnimationCount) {
+            _controller.stop();
+          } else {
+            _controller.reverse();
+          }
+        } else if (_controller.status == AnimationStatus.dismissed) {
+          _controller.forward();
+        }
+      });
     _controller.forward();
   }
 
@@ -171,7 +169,7 @@ class _ReplyListItemState extends State<ReplyListItem>
       builder: (BuildContext context) {
         return ReplyNew(
           replyMemberList: [reply],
-          topicId: widget.topicId,
+          topicId: widget.topicId!,
           totalPage: widget.totalPage,
           replyList: widget.replyList,
         );
@@ -233,7 +231,7 @@ class _ReplyListItemState extends State<ReplyListItem>
 
   // 感谢回复 request
   void onThankReply() async {
-    var res = await DioRequestWeb.thankReply(reply.replyId, widget.topicId);
+    var res = await DioRequestWeb.thankReply(reply.replyId, widget.topicId!);
     if (res) {
       setState(() {
         reply.favoritesStatus = true;
@@ -291,7 +289,10 @@ class _ReplyListItemState extends State<ReplyListItem>
                     indent: 55,
                     endIndent: 15,
                     height: 0.3,
-                    color: Theme.of(context).colorScheme.onInverseSurface.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onInverseSurface
+                        .withOpacity(0.5),
                   )
                 ],
               )
@@ -308,7 +309,8 @@ class _ReplyListItemState extends State<ReplyListItem>
       margin: const EdgeInsets.only(top: 5),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.03)),
+          border: Border.all(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.03)),
           borderRadius: const BorderRadius.all(Radius.circular(18))),
       child: Hero(
         tag: reply.userName + heroTag,
@@ -406,7 +408,8 @@ class _ReplyListItemState extends State<ReplyListItem>
                                 .textTheme
                                 .labelSmall!
                                 .copyWith(
-                                color: Theme.of(context).colorScheme.outline),
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
                           ),
                           Text(
                             '${reply.floorNumber}L',

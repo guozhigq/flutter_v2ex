@@ -15,7 +15,6 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   List topicNodesList = [];
   List tempNodesList = [];
   List searchResList = [];
-  bool _isLoading = false;
   TextEditingController controller = TextEditingController();
 
   // 接收的参数
@@ -36,14 +35,10 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   }
 
   Future<List> getTopicNodes() async {
-    setState(() {
-      _isLoading = true;
-    });
     var res = await DioRequestNet.getAllNodesT();
     setState(() {
       topicNodesList = res;
       tempNodesList = res;
-      _isLoading = false;
     });
     return res;
   }
@@ -114,147 +109,147 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(source == 'move'
-            ? '移动节点'
-            : source == 'nodes'
-            ? '全部节点'
-            : '选择节点'),
-      ),
+        appBar: AppBar(
+          title: Text(source == 'move'
+              ? '移动节点'
+              : source == 'nodes'
+                  ? '全部节点'
+                  : '选择节点'),
+        ),
         body: Stack(
-      children: [
-        CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              leading: null,
-              leadingWidth: 0,
-              expandedHeight: 70,
-              title: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 15),
-                padding: const EdgeInsets.only(
-                    top: 10, right: 5, left: 5, bottom: 20),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: Container(
+          children: [
+            CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  leading: null,
+                  leadingWidth: 0,
+                  expandedHeight: 70,
+                  title: Container(
                     width: double.infinity,
-                    height: 50,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    margin: const EdgeInsets.only(top: 15),
                     padding: const EdgeInsets.only(
-                        top: 0, right: 0, left: 20, bottom: 0),
-                    child: Center(
-                      child: TextField(
-                        controller: controller,
-                        autofocus: false,
-                        textInputAction: TextInputAction.search,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '搜索节点',
-                          suffixIcon: controller.text.isNotEmpty
-                              ? IconButton(
-                              icon: Icon(
-                                Icons.clear,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline,
-                              ),
-                              onPressed: () {
-                                controller.clear();
-                                setState(() {
-                                  topicNodesList = tempNodesList;
-                                });
-                              })
-                              : null,
+                        top: 10, right: 5, left: 5, bottom: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        padding: const EdgeInsets.only(
+                            top: 0, right: 0, left: 20, bottom: 0),
+                        child: Center(
+                          child: TextField(
+                            controller: controller,
+                            autofocus: false,
+                            textInputAction: TextInputAction.search,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: '搜索节点',
+                              suffixIcon: controller.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(
+                                        Icons.clear,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline,
+                                      ),
+                                      onPressed: () {
+                                        controller.clear();
+                                        setState(() {
+                                          topicNodesList = tempNodesList;
+                                        });
+                                      })
+                                  : null,
+                            ),
+                            onChanged: (String value) {
+                              search(value);
+                            },
+                          ),
                         ),
-                        onChanged: (String value) {
-                          search(value);
-                        },
                       ),
                     ),
                   ),
+                  elevation: 1,
+                  pinned: false,
+                  floating: true,
+                  // flexibleSpace: FlexibleSpaceBar(
+                  //   background: Column(
+                  //     children: [
+                  //       const SizedBox(height: kToolbarHeight),
+                  //       Container(
+                  //         width: double.infinity,
+                  //         padding: const EdgeInsets.only(
+                  //             top: 0, right: 12, left: 12, bottom: 0),
+                  //         child: ClipRRect(
+                  //           borderRadius: BorderRadius.circular(50),
+                  //           child: Container(
+                  //             width: double.infinity,
+                  //             height: 50,
+                  //             color: Theme.of(context).colorScheme.onInverseSurface,
+                  //             padding: const EdgeInsets.only(
+                  //                 top: 0, right: 0, left: 20, bottom: 0),
+                  //             child: Center(
+                  //               child: TextField(
+                  //                 controller: controller,
+                  //                 autofocus: true,
+                  //                 textInputAction: TextInputAction.search,
+                  //                 decoration: InputDecoration(
+                  //                   border: InputBorder.none,
+                  //                   hintText: '搜索节点',
+                  //                   suffixIcon: controller.text.isNotEmpty
+                  //                       ? IconButton(
+                  //                           icon: Icon(
+                  //                             Icons.clear,
+                  //                             color: Theme.of(context)
+                  //                                 .colorScheme
+                  //                                 .outline,
+                  //                           ),
+                  //                           onPressed: () {
+                  //                             controller.clear();
+                  //                             setState(() {
+                  //                               topicNodesList = tempNodesList;
+                  //                             });
+                  //                           })
+                  //                       : null,
+                  //                 ),
+                  //                 onChanged: (String value) {
+                  //                   search(value);
+                  //                 },
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ),
-              ),
-              elevation: 1,
-              pinned: false,
-              floating: true,
-              // flexibleSpace: FlexibleSpaceBar(
-              //   background: Column(
-              //     children: [
-              //       const SizedBox(height: kToolbarHeight),
-              //       Container(
-              //         width: double.infinity,
-              //         padding: const EdgeInsets.only(
-              //             top: 0, right: 12, left: 12, bottom: 0),
-              //         child: ClipRRect(
-              //           borderRadius: BorderRadius.circular(50),
-              //           child: Container(
-              //             width: double.infinity,
-              //             height: 50,
-              //             color: Theme.of(context).colorScheme.onInverseSurface,
-              //             padding: const EdgeInsets.only(
-              //                 top: 0, right: 0, left: 20, bottom: 0),
-              //             child: Center(
-              //               child: TextField(
-              //                 controller: controller,
-              //                 autofocus: true,
-              //                 textInputAction: TextInputAction.search,
-              //                 decoration: InputDecoration(
-              //                   border: InputBorder.none,
-              //                   hintText: '搜索节点',
-              //                   suffixIcon: controller.text.isNotEmpty
-              //                       ? IconButton(
-              //                           icon: Icon(
-              //                             Icons.clear,
-              //                             color: Theme.of(context)
-              //                                 .colorScheme
-              //                                 .outline,
-              //                           ),
-              //                           onPressed: () {
-              //                             controller.clear();
-              //                             setState(() {
-              //                               topicNodesList = tempNodesList;
-              //                             });
-              //                           })
-              //                       : null,
-              //                 ),
-              //                 onChanged: (String value) {
-              //                   search(value);
-              //                 },
-              //               ),
-              //             ),
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+                SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                  return ListTile(
+                      onTap: () {
+                        if (source != '' && source == 'move') {
+                          // 移动节点
+                          moveTopicNode(topicNodesList[index]);
+                        } else if (source == 'nodes') {
+                          Get.toNamed('/go/${topicNodesList[index].name}');
+                        } else {
+                          // 新建主题
+                          Get.back(result: {'node': topicNodesList[index]});
+                        }
+                      },
+                      title: Text(
+                        topicNodesList[index].title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(topicNodesList[index].name),
+                      enableFeedback: true,
+                      trailing: Text('主题数：${topicNodesList[index].topics}'));
+                }, childCount: topicNodesList.length)),
+              ],
             ),
-            SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-              return ListTile(
-                  onTap: () {
-                    if (source != '' && source == 'move') {
-                      // 移动节点
-                      moveTopicNode(topicNodesList[index]);
-                    } else if (source == 'nodes') {
-                      Get.toNamed('/go/${topicNodesList[index].name}');
-                    } else {
-                      // 新建主题
-                      Get.back(result: {'node': topicNodesList[index]});
-                    }
-                  },
-                  title: Text(
-                    topicNodesList[index].title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  subtitle: Text(topicNodesList[index].name),
-                  enableFeedback: true,
-                  trailing: Text('主题数：${topicNodesList[index].topics}'));
-            }, childCount: topicNodesList.length)),
           ],
-        ),
-      ],
-    ));
+        ));
   }
 }

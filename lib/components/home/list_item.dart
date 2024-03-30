@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/pages/t/controller.dart';
-import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -44,16 +43,17 @@ class _ListItemState extends State<ListItem>
             setState(() {
               topic.readStatus = 'read';
             });
+
             /// 增加200毫秒延迟 水波纹动画
             await Future.delayed(const Duration(milliseconds: 200));
             var arguments = <String, dynamic>{
               "topic": topic,
               "heroTag": '${topic.topicId}${topic.memberId}'
             };
-            if(context.mounted && Breakpoints.large.isActive(context)){
+            if (context.mounted && Breakpoints.large.isActive(context)) {
               // eventBus.emit('topicDetail', topic);
               _topicController.setTopic(topic);
-            }else{
+            } else {
               Get.toNamed("/t/${topic.topicId}", arguments: arguments);
             }
           },
@@ -153,7 +153,8 @@ class _ListItemState extends State<ListItem>
                     )
                   ],
                 ),
-                if (topic.nodeName.isNotEmpty && constraints.maxWidth > 280) ...[
+                if (topic.nodeName.isNotEmpty &&
+                    constraints.maxWidth > 280) ...[
                   Opacity(
                     opacity: topic.readStatus == 'unread' ? 1 : 0.6,
                     child: NodeTag(

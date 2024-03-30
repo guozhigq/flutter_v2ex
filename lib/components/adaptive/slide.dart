@@ -341,11 +341,14 @@ class StickyHeader extends StatelessWidget {
 class ActionGrid extends StatelessWidget {
   final String? count;
   final String? title;
-  var onTap;
+  final Function? onTap;
 
-  ActionGrid(
-      {Key? key, required this.count, required this.title, required this.onTap})
-      : super(key: key);
+  const ActionGrid({
+    Key? key,
+    required this.count,
+    required this.title,
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +357,7 @@ class ActionGrid extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: () => onTap(),
+        onTap: () => onTap?.call(),
         child: Padding(
           padding: Breakpoints.medium.isActive(context)
               ? const EdgeInsets.symmetric(vertical: 10, horizontal: 4)
@@ -404,10 +407,10 @@ class NodeList extends StatelessWidget {
             color: getBackground(context, 'listItem'),
             child: InkWell(
               onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                 child: Row(
-                  children: const [
+                  children: [
                     CAvatar(url: '', size: 40),
                     SizedBox(width: 10),
                     Text('节点名称')

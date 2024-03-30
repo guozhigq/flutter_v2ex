@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
 
@@ -6,8 +8,8 @@ class ReplySheet extends StatefulWidget {
   List resultList = []; // 回复列表
   String topicId = ''; // 主题id
   List replyMemberList = []; // user列表
-  int? totalPage;
-  List? replyList;
+  final int? totalPage;
+  final List? replyList;
 
   ReplySheet(
       {required this.height,

@@ -6,19 +6,15 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_v2ex/models/version.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
+import 'package:html/parser.dart';
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
 import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登录字段
-
-import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import './node.dart';
@@ -148,13 +144,12 @@ class DioRequestWeb {
       for (var i in actionNodes) {
         actionCounts.add(int.parse(i.text ?? 0));
       }
-      if(rightBarNode.querySelector('#money') != null){
+      if (rightBarNode.querySelector('#money') != null) {
         balance = rightBarNode.querySelector('#money >a')!.innerHtml;
       }
       var noticeEl = rightBarNode.querySelectorAll('a.fade');
-      if(noticeEl.isNotEmpty){
-        var unRead =
-        noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+      if (noticeEl.isNotEmpty) {
+        var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
         print('$unRead条未读消息');
         if (int.parse(unRead) > 0) {
           eventBus.emit('unRead', int.parse(unRead));
@@ -236,13 +231,12 @@ class DioRequestWeb {
       for (var i in actionNodes) {
         actionCounts.add(int.parse(i.text ?? 0));
       }
-      if(rightBarNode.querySelector('#money') != null){
+      if (rightBarNode.querySelector('#money') != null) {
         balance = rightBarNode.querySelector('#money >a')!.innerHtml;
       }
       var noticeEl = rightBarNode.querySelectorAll('a.fade');
-      if(noticeEl.isNotEmpty){
-        var unRead =
-        noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+      if (noticeEl.isNotEmpty) {
+        var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
         // print('$unRead条未读消息');
         if (int.parse(unRead) > 0) {
           eventBus.emit('unRead', int.parse(unRead));
@@ -580,8 +574,7 @@ class DioRequestWeb {
     if (currentHour >= 8) {
       GStorage().setEightQuery(false);
     }
-    if (lastSignDate == currentDate ||
-        GStorage().getEightQuery()) {
+    if (lastSignDate == currentDate || GStorage().getEightQuery()) {
       print('已签到 / 不自动签到');
       return false;
     }
@@ -603,7 +596,7 @@ class DioRequestWeb {
           if (tipsText.contains('你要查看的页面需要先登录')) {
             SmartDialog.showToast('登录状态失效');
             // eventBus.emit('login', 'fail');
-          }else{
+          } else {
             return mainBox.querySelector('div.message')!.text;
           }
         }
@@ -694,7 +687,6 @@ class DioRequestWeb {
     FormData formData = FormData.fromMap({
       'title': args['title'], // 标题
       'syntax': args['syntax'], // 语法 default markdown
-      'content': args['content'], // 内容
       'content': args['content'], // 内容
       'node_name': args['node_name'], // 节点名称 en
       'once': GStorage().getOnce()

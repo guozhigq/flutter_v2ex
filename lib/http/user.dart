@@ -7,7 +7,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_v2ex/http/init.dart';
 import 'package:html/dom.dart'
-as dom; // Contains DOM related classes for extracting data from elements
+    as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
 import 'package:flutter_v2ex/package/xpath/xpath.dart';
 
@@ -27,7 +27,6 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 class UserWebApi {
-
   // 获取用户信息
   static Future queryMemberProfile(String memberId) async {
     ModelMemberProfile memberProfile = ModelMemberProfile();
@@ -44,7 +43,7 @@ class UserWebApi {
     var replysNode = contentDom[2];
 
     var menuBodyNode =
-    bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
     var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
     if (loginOutNode.attributes['onclick'] != null) {
       // 登录状态
@@ -58,7 +57,7 @@ class UserWebApi {
     // 头像、昵称、在线状态、加入时间、关注状态
     var profileCellNode = profileNode.querySelector('div.cell > table');
     memberProfile.mbAvatar =
-    profileCellNode!.querySelector('img')!.attributes['src']!;
+        profileCellNode!.querySelector('img')!.attributes['src']!;
     memberProfile.memberId = memberId;
     if (profileCellNode.querySelector('tr>td>strong.online') != null) {
       memberProfile.isOnline = true;
@@ -68,13 +67,13 @@ class UserWebApi {
       var buttonDom = profileNode.querySelectorAll('input[type=button]');
       var followBtn = buttonDom[0];
       memberProfile.isFollow =
-      followBtn.attributes['value'] == '取消特别关注' ? true : false;
+          followBtn.attributes['value'] == '取消特别关注' ? true : false;
       print('line 1195: ${memberProfile.isFollow}');
 
       var blockBtn = buttonDom[1];
       // true 已屏蔽
       memberProfile.isBlock =
-      blockBtn.attributes['value'] == 'Unblock' ? true : false;
+          blockBtn.attributes['value'] == 'Unblock' ? true : false;
       print('line 1199: ${blockBtn.attributes['value']}');
     }
     // else {
@@ -88,7 +87,7 @@ class UserWebApi {
     // 社交
     if (profileNode.querySelector('div.widgets') != null) {
       var socialNodes =
-      profileNode.querySelector('div.widgets')!.querySelectorAll('a');
+          profileNode.querySelector('div.widgets')!.querySelectorAll('a');
       for (var aNode in socialNodes) {
         MemberSocialItem item = MemberSocialItem();
         item.name = aNode.text;
@@ -122,8 +121,8 @@ class UserWebApi {
         memberProfile.isEmptyTopic = true;
       } else {
         for (int i = 0;
-        i < (topicNodes.length > 3 ? 3 : topicNodes.length);
-        i++) {
+            i < (topicNodes.length > 3 ? 3 : topicNodes.length);
+            i++) {
           MemberTopicItem item = MemberTopicItem();
           var itemNode = topicNodes[i].querySelector('table');
           String topicHref = itemNode!
@@ -156,8 +155,8 @@ class UserWebApi {
     } else {
       var innerDom = replysNode.querySelectorAll('div.reply_content');
       for (int i = 0;
-      i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
-      i++) {
+          i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length);
+          i++) {
         MemberReplyItem item = MemberReplyItem();
         item.time = dockAreaDom[i].querySelector('span.fade')!.text;
         item.memberId =
@@ -201,7 +200,7 @@ class UserWebApi {
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main div.box:not(.box-title)');
     var totalPageNode =
-    mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
+        mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
       if (totalPageNode.querySelectorAll('a.page_normal').isNotEmpty) {
         favTopicDetail.totalPage = int.parse(
@@ -223,8 +222,11 @@ class UserWebApi {
             .replaceAll('&amp;', '&')
             .replaceAll('&lt;', '<')
             .replaceAll('&gt;', '>');
-        item.topicId = aNode .querySelector('td:nth-child(5) > span.item_title > a')!.attributes['href']!
-            .replaceAll("/t/", "").split("#")[0];
+        item.topicId = aNode
+            .querySelector('td:nth-child(5) > span.item_title > a')!
+            .attributes['href']!
+            .replaceAll("/t/", "")
+            .split("#")[0];
       }
       if (aNode.querySelector('tr > td:last-child > a') != null) {
         String? topicUrl = aNode
@@ -281,11 +283,11 @@ class UserWebApi {
     }
 
     var noticeNode =
-    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+        bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -298,7 +300,7 @@ class UserWebApi {
     SmartDialog.showLoading();
     int once = GStorage().getOnce();
     var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
-    Response response = await Request().get(url, data: {'once': once});
+    final Response response = await Request().get(url, data: {'once': once});
     SmartDialog.dismiss();
     // if(response.statusCode == 302){
     // 操作成功
@@ -426,7 +428,7 @@ class UserWebApi {
     var document = parse(response.data);
     var mainBox = document.querySelector('#Main > div.box:not(.box-title)');
     var totalPageNode =
-    mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
+        mainBox!.querySelector('div.cell:not(.tab-alt-container):not(.item)');
     if (totalPageNode != null) {
       if (totalPageNode.querySelectorAll('a.page_normal').isNotEmpty) {
         followTopicModel.totalPage = int.parse(
@@ -516,9 +518,9 @@ class UserWebApi {
       var aNode = noticeCells[i];
       MemberNoticeItem noticeItem = MemberNoticeItem();
       noticeItem.memberAvatar =
-      aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+          aNode.querySelector('tr>td>a>img')!.attributes['src']!;
       noticeItem.memberId =
-      aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+          aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
 
       var td2Node = aNode.querySelectorAll('tr>td')[1];
 
@@ -530,9 +532,12 @@ class UserWebApi {
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
-      if(noticeItem.topicTitleHtml != null){
+      if (noticeItem.topicTitleHtml != null) {
         // print(noticeItem.topicTitleHtml.querySelectorAll('a'));
-        noticeItem.topicHref = td2Node.querySelector('span.fade')!.querySelectorAll('a')[1].attributes['href']!;
+        noticeItem.topicHref = td2Node
+            .querySelector('span.fade')!
+            .querySelectorAll('a')[1]
+            .attributes['href']!;
       }
       if (noticeTypeStr.text!.contains('在回复')) {
         noticeItem.noticeType = NoticeType.reply;
@@ -580,7 +585,7 @@ class UserWebApi {
       'Referer': '${Strings.v2exHost}/notifications',
       'Origin': Strings.v2exHost,
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
     FormData formData = FormData.fromMap({'once': once});
     var res = await Request().post('/delete/notification/$noticeId?once=$once',

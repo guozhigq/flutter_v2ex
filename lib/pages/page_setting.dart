@@ -87,9 +87,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle titleStyle = Theme.of(context).textTheme.titleLarge!;
     TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
-    Color iconStyle = Theme.of(context).colorScheme.onBackground;
     TextStyle groupTitleStyle = Theme.of(context)
         .textTheme
         .titleSmall!

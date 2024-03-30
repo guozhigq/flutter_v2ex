@@ -11,7 +11,6 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/http/interceptor.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class Request {
@@ -135,7 +134,7 @@ class Request {
         cancelToken: cancelToken,
       );
       return response;
-    } on DioException catch (e, handler) {
+    } on DioException catch (e) {
       print('get error---------$e');
       return Future.error(ApiInterceptor.dioError(e));
     }

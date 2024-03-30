@@ -6,9 +6,9 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 
 class ReplyMemberList extends StatefulWidget {
-  List? replyList;
+  final List? replyList;
 
-  ReplyMemberList({required this.replyList, Key? key}) : super(key: key);
+  const ReplyMemberList({required this.replyList, Key? key}) : super(key: key);
 
   @override
   State<ReplyMemberList> createState() => _ReplyMemberListState();
@@ -49,6 +49,7 @@ class _ReplyMemberListState extends State<ReplyMemberList>
       if (_currentIndex >= widget.replyList!.length) {
         return;
       }
+
       /// TODO 频繁 setState
       setState(() {
         widget.replyList![_currentIndex].isChoose = !checkStatus;
@@ -57,10 +58,8 @@ class _ReplyMemberListState extends State<ReplyMemberList>
           checkStatus = !checkStatus;
           _currentIndex = 0;
           timer.cancel();
-          Navigator.pop(context, {
-            'atMemberList': widget.replyList,
-            'checkStatus': true
-          });
+          Navigator.pop(
+              context, {'atMemberList': widget.replyList, 'checkStatus': true});
         }
         iconData = !checkStatus ? Icons.done : Icons.done_all;
       });
@@ -132,24 +131,24 @@ class _ReplyMemberListState extends State<ReplyMemberList>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text.rich(
+          TextSpan(
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(letterSpacing: 1),
+            children: [
+              const TextSpan(text: '选择要'),
               TextSpan(
+                text: '@',
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium!
-                    .copyWith(letterSpacing: 1),
-                children: [
-                  const TextSpan(text: '选择要'),
-                  TextSpan(
-                    text: '@',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontWeight: FontWeight.w900),
-                  ),
-                  const TextSpan(text: '的用户')
-                ],
+                    .copyWith(fontWeight: FontWeight.w900),
               ),
-            ),
+              const TextSpan(text: '的用户')
+            ],
+          ),
+        ),
         IconButton(
           tooltip: '全部选中',
           onPressed: () {

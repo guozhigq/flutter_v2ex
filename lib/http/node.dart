@@ -4,18 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-
 import 'package:flutter_v2ex/http/init.dart';
-import 'package:html/dom.dart'
-as dom; // Contains DOM related classes for extracting data from elements
 import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
 import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
 import 'package:flutter_v2ex/utils/storage.dart';
 
 class NodeWebApi {
-
   // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeId(String nodeId, int p) async {
     // print('------getTopicsByNodeKey---------');
@@ -30,7 +25,7 @@ class NodeWebApi {
       extra: {'ua': 'pc'},
     );
     var document = parse(response.data);
-    if(response.realUri.toString() == '/'){
+    if (response.realUri.toString() == '/') {
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -41,12 +36,12 @@ class NodeWebApi {
             actions: [
               TextButton(
                   onPressed: (() =>
-                  {SmartDialog.dismiss(), Navigator.pop(context)}),
+                      {SmartDialog.dismiss(), Navigator.pop(context)}),
                   child: const Text('返回上一页')),
               TextButton(
-                // TODO
+                  // TODO
                   onPressed: (() =>
-                  {Navigator.of(context).pushNamed('/login')}),
+                      {Navigator.of(context).pushNamed('/login')}),
                   child: const Text('去登录'))
             ],
           );
@@ -57,10 +52,10 @@ class NodeWebApi {
     var mainBox = document.body!.children[1].querySelector('#Main');
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover =
-    mainHeader!.querySelector('img')!.attributes['src']!;
+        mainHeader!.querySelector('img')!.attributes['src']!;
     // 节点名称
     detailModel.nodeName =
-    mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+        mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
     detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
@@ -79,7 +74,7 @@ class NodeWebApi {
           .replaceAll(RegExp(r'\D'), '');
     }
     if (mainBox!.querySelector(
-        'div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') !=
+            'div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') !=
         null) {
       var totalpageNode = mainBox.querySelector(
           'div.box:not(.box-title)>div.cell:not(.tab-alt-container)');
@@ -89,18 +84,19 @@ class NodeWebApi {
       }
     }
 
-    if(mainBox.querySelector(
-        'div.box:not(.box-title)>div.cell.flex-one-row') !=
-        null){
-      var favNode = mainBox.querySelector(
-          'div.box:not(.box-title)>div.cell.flex-one-row>div');
-      detailModel.favoriteCount = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), '')) ;
+    if (mainBox
+            .querySelector('div.box:not(.box-title)>div.cell.flex-one-row') !=
+        null) {
+      var favNode = mainBox
+          .querySelector('div.box:not(.box-title)>div.cell.flex-one-row>div');
+      detailModel.favoriteCount =
+          int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), ''));
     }
 
     if (document.querySelector('#TopicsNode') != null) {
       // 主题
       var topicEle =
-      document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
+          document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
       for (var aNode in topicEle) {
         var item = TabTopicItem();
 
@@ -108,7 +104,7 @@ class NodeWebApi {
         if (aNode.querySelector('td > a > img') != null) {
           item.avatar = aNode.querySelector('td > a > img')!.attributes['src']!;
           item.memberId =
-          aNode.querySelector('td > a > img')!.attributes['alt']!;
+              aNode.querySelector('td > a > img')!.attributes['alt']!;
         }
 
         if (aNode.querySelector('tr > td:nth-child(5)') != null) {
@@ -148,19 +144,19 @@ class NodeWebApi {
         topics.add(item);
       }
     }
-    try{
+    try {
       Read().mark(topics);
-    }catch(err){
+    } catch (err) {
       print(err);
     }
     detailModel.topicList = topics;
 
     var noticeNode =
-    document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+        document.body!.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (noticeNode != null) {
       // 未读消息
       var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+          noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -175,7 +171,7 @@ class NodeWebApi {
     int once = GStorage().getOnce();
     Response response;
     var reqUrl =
-    isFavorite ? '/unfavorite/node/$nodeId' : '/favorite/node/$nodeId';
+        isFavorite ? '/unfavorite/node/$nodeId' : '/favorite/node/$nodeId';
     response = await Request().get(
       reqUrl,
       data: {'once': once},
@@ -188,5 +184,4 @@ class NodeWebApi {
       return false;
     }
   }
-
 }

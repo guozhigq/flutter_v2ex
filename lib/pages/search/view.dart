@@ -92,7 +92,7 @@ class _SearchPageState extends State<SearchPage> {
                                           onClear: () =>
                                               _searchController.onClear());
                                     } else {
-                                      return SizedBox();
+                                      return const SizedBox();
                                     }
                                   },
                                 ),

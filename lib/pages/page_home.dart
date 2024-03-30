@@ -7,7 +7,6 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/adaptive/resize_layout.dart';
 import 'package:flutter_v2ex/components/adaptive/slide.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/pages/home/controller.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/pages/t/controller.dart';
 import 'package:flutter_v2ex/utils/global.dart';

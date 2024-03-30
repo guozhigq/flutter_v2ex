@@ -15,12 +15,12 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 
 class ReplyNew extends StatefulWidget {
-  List? replyMemberList;
+  final List? replyMemberList;
   final String topicId;
-  int? totalPage;
-  List? replyList;
+  final int? totalPage;
+  final List? replyList;
 
-  ReplyNew({
+  const ReplyNew({
     this.replyMemberList,
     required this.topicId,
     this.totalPage,
@@ -45,7 +45,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   List atReplyList = []; // @用户列表
   List atMemberList = []; // 选中的用户列表
   final FocusNode replyContentFocusNode = FocusNode();
-  bool _isKeyboardActived = true; // 当前键盘是否是激活状态
+  // bool _isKeyboardActived = true; // 当前键盘是否是激活状态
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 100); // 设置延迟时间
   Timer? timer;
@@ -269,12 +269,12 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   _onFocus() {
     if (replyContentFocusNode.hasFocus) {
       // 聚焦时候的操作
-      _isKeyboardActived = true;
+      // _isKeyboardActived = true;
       toolbarType = 'input';
       return;
     }
     // 失去焦点时候的操作
-    _isKeyboardActived = false;
+    // _isKeyboardActived = false;
     setState(() {});
   }
 

@@ -31,7 +31,6 @@ class _ImagePreviewState extends State<ImagePreview>
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   late AnimationController animationController;
-  Animation<double>? _animationValue;
   late AnimationController _doubleClickAnimationController;
   Animation<double>? _doubleClickAnimation;
   late DoubleClickAnimationListener _doubleClickAnimationListener;
@@ -60,7 +59,6 @@ class _ImagePreviewState extends State<ImagePreview>
     }
     _doubleClickAnimationController = AnimationController(
         duration: const Duration(milliseconds: 250), vsync: this);
-
   }
 
   android() async {
@@ -115,14 +113,15 @@ class _ImagePreviewState extends State<ImagePreview>
         options: Options(responseType: ResponseType.bytes));
 
     final temp = await getTemporaryDirectory();
-    String imgName = "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
+    String imgName =
+        "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
     var path = '${temp.path}/$imgName';
     File(path).writeAsBytesSync(response.data);
     Share.shareXFiles([XFile(path)], subject: imgList[initialPage]);
   }
 
   void onBrowserImg() async {
-      Utils.openURL(imgList[initialPage]);
+    Utils.openURL(imgList[initialPage]);
   }
 
   @override
@@ -133,6 +132,7 @@ class _ImagePreviewState extends State<ImagePreview>
     clearGestureDetailsCache();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,7 +148,10 @@ class _ImagePreviewState extends State<ImagePreview>
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.background],
+                colors: [
+                  Theme.of(context).colorScheme.background,
+                  Theme.of(context).colorScheme.background
+                ],
               ),
             ),
           ),
@@ -204,7 +207,7 @@ class _ImagePreviewState extends State<ImagePreview>
             })
           },
           canScrollPage: (GestureDetails? gestureDetails) =>
-          gestureDetails!.totalScale! <= 1.0,
+              gestureDetails!.totalScale! <= 1.0,
           itemCount: imgList.length,
           itemBuilder: (BuildContext context, int index) {
             return ExtendedImage.network(
@@ -214,8 +217,7 @@ class _ImagePreviewState extends State<ImagePreview>
               onDoubleTap: (ExtendedImageGestureState state) {
                 ///you can use define pointerDownPosition as you can,
                 ///default value is double tap pointer down postion.
-                final Offset? pointerDownPosition =
-                    state.pointerDownPosition;
+                final Offset? pointerDownPosition = state.pointerDownPosition;
                 final double? begin = state.gestureDetails!.totalScale;
                 double end;
 
@@ -273,6 +275,7 @@ class _ImagePreviewState extends State<ImagePreview>
                     ),
                   );
                 }
+                return null;
               },
               initGestureConfigHandler: (ExtendedImageState state) {
                 return GestureConfig(

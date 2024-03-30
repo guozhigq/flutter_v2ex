@@ -1,7 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/http/github.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/string.dart';
@@ -22,7 +21,6 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     TextStyle subTitleStyle = Theme.of(context).textTheme.labelMedium!;
-    Color iconStyle = Theme.of(context).colorScheme.onBackground;
     return Scaffold(
       appBar: AppBar(
         title: const Text('帮助'),
@@ -43,13 +41,13 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               scale: 0.8,
               child: Switch(
                   thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                          (Set<MaterialState> states) {
-                        if (states.isNotEmpty &&
-                            states.first == MaterialState.selected) {
-                          return const Icon(Icons.done);
-                        }
-                        return null; // All other states will use the default thumbIcon.
-                      }),
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null; // All other states will use the default thumbIcon.
+                  }),
                   value: autoUpdate,
                   onChanged: (value) {
                     setState(() {
@@ -72,16 +70,14 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           //   title: const Text('用户协议'),
           // ),
           ListTile(
-            onTap: () =>
-                Utils.openURL('https://t.me/+lm_oOVmF0RJiODk1'),
+            onTap: () => Utils.openURL('https://t.me/+lm_oOVmF0RJiODk1'),
             title: const Text('加入讨论'),
             subtitle: Text('来TG跟开发者面对面', style: subTitleStyle),
           ),
           ListTile(
-            onTap: () =>
-                Utils.openURL(Strings.remoteUrl),
+            onTap: () => Utils.openURL(Strings.remoteUrl),
             onLongPress: () {
-              Clipboard.setData( ClipboardData(text: Strings.remoteUrl));
+              Clipboard.setData(ClipboardData(text: Strings.remoteUrl));
               SmartDialog.showToast('已复制内容');
             },
             title: const Text('Github 仓库'),
@@ -96,11 +92,11 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             title: const Text('更新日志'),
           ),
           ListTile(
-            onTap: () async{
+            onTap: () async {
               final deviceInfoPlugin = DeviceInfoPlugin();
               final deviceInfo = await deviceInfoPlugin.deviceInfo;
               final allInfo = deviceInfo.data;
-              Clipboard.setData( ClipboardData(text: allInfo.toString()));
+              Clipboard.setData(ClipboardData(text: allInfo.toString()));
               SmartDialog.showToast('已复制');
             },
             title: const Text('设备信息'),
@@ -109,7 +105,8 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
           ListTile(
             onTap: () => Utils.openURL('${Strings.remoteUrl}/issues/new'),
             onLongPress: () {
-              Clipboard.setData( ClipboardData(text:'${Strings.remoteUrl}/issues/new'));
+              Clipboard.setData(
+                  ClipboardData(text: '${Strings.remoteUrl}/issues/new'));
               SmartDialog.showToast('已复制内容');
             },
             title: const Text('意见反馈'),
@@ -120,7 +117,7 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
               SmartDialog.showLoading(msg: '正在检查更新');
               Map update = await GithubApi.checkUpdate();
               SmartDialog.dismiss();
-              if(!update['needUpdate'] && context.mounted) {
+              if (!update['needUpdate'] && context.mounted) {
                 SmartDialog.showToast('已经是最新版了 😊');
               }
             },

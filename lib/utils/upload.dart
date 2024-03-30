@@ -1,11 +1,10 @@
-import 'dart:io' as io;
 import 'dart:math';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_v2ex/http/init.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Upload {
-  static const client_id = ["0db8b3c3e10d89b", "6b91ec71f6af441"];
+  static const clientId = ["0db8b3c3e10d89b", "6b91ec71f6af441"];
   static const String uploadBaseUrl = 'https://api.imgur.com/3/image';
   static Future uploadImage(String key, AssetEntity file) async {
     dio.FormData formData = dio.FormData.fromMap(
@@ -16,7 +15,7 @@ class Upload {
     );
     dio.Options options = dio.Options();
     options.headers = {
-      'Authorization': "Client-ID ${client_id[Random().nextInt(2)]}"
+      'Authorization': "Client-ID ${clientId[Random().nextInt(2)]}"
     };
     options.contentType = 'multipart/form-data';
     var result =

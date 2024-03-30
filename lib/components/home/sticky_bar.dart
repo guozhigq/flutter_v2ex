@@ -24,7 +24,7 @@ class HomeStickyBar extends StatelessWidget {
               controller: ctr,
               tabs: tabs,
               onTap: (index) {
-                if(!ctr.indexIsChanging){
+                if (!ctr.indexIsChanging) {
                   // tap(index);
                   tabStateController.setTabIndex(index);
                 }
@@ -50,11 +50,15 @@ class HomeStickyBar extends StatelessWidget {
 
 class AdpatTabBar extends StatelessWidget {
   final List tabs;
-  TabController? controller;
-  final onTap;
+  final TabController? controller;
+  final Function? onTap;
 
-  AdpatTabBar({Key? key, required this.tabs, this.controller, this.onTap})
-      : super(key: key);
+  const AdpatTabBar({
+    Key? key,
+    required this.tabs,
+    this.controller,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +66,8 @@ class AdpatTabBar extends StatelessWidget {
     return TabBar(
       controller: controller,
       dividerColor: Colors.transparent,
-      onTap: (index) => onTap(index),
+      tabAlignment: tabs.length > 4 ? TabAlignment.start : TabAlignment.center,
+      onTap: (index) => onTap?.call(index),
       isScrollable: true,
       enableFeedback: true,
       splashBorderRadius: BorderRadius.circular(6),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:expandable/expandable.dart';
@@ -233,9 +232,6 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
 
                                   var color =
                                       Theme.of(context).colorScheme.secondary;
-                                  var language = kIsWeb
-                                      ? window.locale.languageCode
-                                      : Platform.localeName.substring(0, 2);
 
                                   var textLabel = 'Text';
                                   var linkLabel = 'Link';
