@@ -8,13 +8,14 @@ class Search {
     return box.get('history') ?? [];
   }
 
-  void add(String searchText) {
+  Future<List> add(String searchText) async {
     List historyList = box.get('history') ?? [];
     if (historyList.contains(searchText.trim())) {
       historyList.remove(searchText.trim());
     }
     historyList.insert(0, searchText);
-    box.put('history', historyList);
+    await box.put('history', historyList);
+    return historyList;
   }
 
   void move(String searchText) {
