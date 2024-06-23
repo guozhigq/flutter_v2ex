@@ -5,7 +5,6 @@ import 'package:flutter_v2ex/components/adaptive/destinations.dart';
 import 'package:flutter_v2ex/components/adaptive/second_body.dart';
 import 'package:flutter_v2ex/components/adaptive/trailing.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
-import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
