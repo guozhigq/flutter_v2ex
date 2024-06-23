@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_v2ex/http/github.dart';
+import 'package:flutter_v2ex/utils/app_scheme.dart';
 
 import 'package:get/get.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -100,6 +101,7 @@ class _MyAppState extends State<MyApp> {
     if (GStorage().getAutoUpdate()) {
       GithubApi.checkUpdate();
     }
+    VvexScheme.init();
   }
 
   @override

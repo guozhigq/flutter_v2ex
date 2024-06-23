@@ -43,7 +43,7 @@ class AppPages {
       curve: Curves.easeInOut,
     ),
     // 话题详情
-    CustomGetPage('/t/:topicId', TopicDetail()),
+    CustomGetPage('/t/:topicId', const TopicDetail()),
     // webView
     GetPage(
         name: '/webView',

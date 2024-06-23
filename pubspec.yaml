@@ -51,7 +51,7 @@ dependencies:
 
     # dom解析渲染
     html: ^0.15.4
-    webfeed_plus: 
+    webfeed_plus:
         git:
             url: https://github.com/guozhigq/webfeed_plus.git
     flutter_html: ^3.0.0-beta.2
@@ -65,10 +65,10 @@ dependencies:
     # 图片&保存
     extended_image: ^8.0.2
     cached_network_image: ^3.2.3
-    image_gallery_saver: ^1.7.1
+    image_gallery_saver: ^2.0.3
     # 图片选择&上传
-    wechat_assets_picker: ^8.8.1+1
-    photo_manager: 3.0.0-dev.1
+    wechat_assets_picker: ^9.1.0
+    photo_manager: ^3.2.0
 
     # 下拉刷新
     easy_refresh: ^3.2.2
@@ -107,7 +107,7 @@ dependencies:
     # 外观
     container_tab_indicator: ^0.3.0
     # 响应式
-    flutter_adaptive_scaffold: ^0.1.6
+    flutter_adaptive_scaffold: ^0.1.11
 
     scroll_to_index: ^3.0.1
     google_fonts: ^5.1.0
@@ -121,7 +121,8 @@ dependencies:
     flutter_displaymode: ^0.6.0
     # 代码高亮
     flutter_highlighting: ^0.9.0+11.8.0
-    
+    appscheme: ^1.0.8
+
 dev_dependencies:
     flutter_test:
         sdk: flutter

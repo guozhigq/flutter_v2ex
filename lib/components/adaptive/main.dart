@@ -74,8 +74,6 @@ class _CAdaptiveLayoutState extends State<CAdaptiveLayout>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     )..forward();
-    // TODO: implement initState
-    print('line 78🔥${widget.child}');
     super.initState();
   }
 

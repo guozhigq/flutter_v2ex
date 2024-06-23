@@ -42,7 +42,7 @@ class _TopicDetailState extends State<TopicDetail>
     with TickerProviderStateMixin {
   // TabTopicItem? topic;
   String topicId = '';
-  late dynamic _topicDetail;
+  dynamic _topicDetail;
   late EasyRefreshController _controller;
 
   // 待回复用户
