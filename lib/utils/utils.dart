@@ -393,7 +393,10 @@ class Utils {
   Future uploadImage() async {
     final List<AssetEntity>? assets = await AssetPicker.pickAssets(
       Get.context!,
-      pickerConfig: const AssetPickerConfig(maxAssets: 1),
+      pickerConfig: const AssetPickerConfig(
+        maxAssets: 1,
+        requestType: RequestType.image,
+      ),
     );
     if (assets != null && assets.isNotEmpty) {
       SmartDialog.showLoading(msg: '上传中...');
