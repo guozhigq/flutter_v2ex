@@ -1,6 +1,7 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_v2ex/pages/help/network.dart';
+import 'package:flutter_v2ex/pages/hot/index.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
@@ -19,7 +20,6 @@ import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';
 import 'package:flutter_v2ex/pages/page_preview.dart';
 import 'package:flutter_v2ex/pages/search/index.dart';
-import 'package:flutter_v2ex/pages/page_hot.dart';
 import 'package:flutter_v2ex/pages/page_write.dart';
 import 'package:flutter_v2ex/pages/page_nodes_topic.dart';
 import 'package:flutter_v2ex/pages/page_history.dart';
