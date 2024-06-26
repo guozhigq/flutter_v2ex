@@ -203,8 +203,8 @@ class _SettingPageState extends State<SettingPage> {
             ListTile(
               onTap: () {
                 setState(() {
-                  noticeOn = !noticeOn;
-                  GStorage().setNoticeOn(noticeOn);
+                  sideslip = !sideslip;
+                  GStorage().setSideslip(sideslip);
                 });
               },
               // leading: Icon(Icons.notifications_none, color: iconStyle),
