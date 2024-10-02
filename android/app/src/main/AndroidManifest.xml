@@ -75,8 +75,22 @@
                 <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="v2ex.com"
-                    android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.cn.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="cn.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.hk.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="hk.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.s.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="s.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.origin.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="origin.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.global.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="global.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.fast.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="fast.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="www.staging.v2ex.com" android:pathPattern="/t/.*" />
+                <data android:scheme="https" android:host="staging.v2ex.com" android:pathPattern="/t/.*" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
