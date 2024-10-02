@@ -38,7 +38,7 @@ class Request {
   /// 设置cookie
   setCookie() async {
     var cookiePath = await Utils.getCookiePath();
-    var cookieJar = PersistCookieJar(
+    final PersistCookieJar cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
     );
