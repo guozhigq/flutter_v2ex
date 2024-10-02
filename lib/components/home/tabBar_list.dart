@@ -141,7 +141,7 @@ class _TabBarListState extends State<TabBarList>
         _currentPage += 1;
 
         var userInfo = GStorage().getUserInfo();
-        if (userInfo.isNotEmpty) {
+        if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
           // 登录状态自动签到 补充用
           DioRequestWeb.dailyMission();
         }
