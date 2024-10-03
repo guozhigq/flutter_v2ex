@@ -11,7 +11,7 @@ class Strings {
   static String remoteUrl = "https://github.com/guozhigq/flutter_v2ex";
 
   /// 提交tag时 记得更改
-  static String currentVersion = 'v1.2.6';
+  static String currentVersion = 'v1.2.7';
   List base64BlackList = [
     "bilibili",
     "Bilibili",
