@@ -91,7 +91,7 @@ dependencies:
     # 桌面长按菜单
     quick_actions: ^1.0.1
     # 通知
-    flutter_local_notifications: ^13.0.0
+    flutter_local_notifications: ^17.2.1+2
     # 时区
     timezone: ^0.9.1
     # 代理

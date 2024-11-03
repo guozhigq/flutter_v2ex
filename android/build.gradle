@@ -1,9 +1,16 @@
 buildscript {
-    ext.kotlin_version = '1.7.22'
+    ext.kotlin_version = '2.0.10'
     repositories {
         google()
         mavenCentral()
     }
+
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core-ktx:1.6.0'
+        }
+    }
+
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.2'
@@ -29,6 +36,17 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.application") ||
+                project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                compileSdkVersion 34
+                buildToolsVersion "34.0.0"
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')

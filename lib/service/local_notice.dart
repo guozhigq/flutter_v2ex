@@ -148,7 +148,7 @@ class LocalNoticeService {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           _localNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
-      await androidImplementation?.requestPermission();
+      await androidImplementation?.requestNotificationsPermission();
     }
   }
 
