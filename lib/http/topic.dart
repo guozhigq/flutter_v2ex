@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:html/dom.dart' as dom;
@@ -60,8 +61,7 @@ class TopicWebApi {
       return detailModel;
     }
 
-    var rootDom = parse(response.data);
-    var userCellWrap = rootDom
+    var userCellWrap = document
         .querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
     var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
     int once = int.parse(onceHref!.split('once=')[1]);
@@ -139,9 +139,9 @@ class TopicWebApi {
     }
 
     // 判断是否有正文
-    if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
-      var contentDom =
-          document.querySelector('$mainBoxQuery > div.cell > div')!;
+    final dom.Element? contentDom =
+        document.querySelector('$mainBoxQuery > div.cell > div');
+    if (contentDom != null) {
       detailModel.content = contentDom.text;
       // List decodeRes = Utils.base64Decode(contentDom);
       // if (decodeRes.isNotEmpty) {
@@ -179,19 +179,6 @@ class TopicWebApi {
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
         var contentDom = node.querySelector('div.topic_content')!;
-        // List decodeRes = Utils.base64Decode(contentDom);
-        // if (decodeRes.isNotEmpty) {
-        //   var decodeDom = '';
-        //   for (var i = 0; i < decodeRes.length; i++) {
-        //     decodeDom +=
-        //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-        //     if (i != decodeRes.length - 1) {
-        //       decodeDom += '<span>、</span>';
-        //     }
-        //   }
-        //   contentDom.nodes.insert(contentDom.nodes.length,
-        //       parseFragment('<p>base64解码：$decodeDom</p>'));
-        // }
         subtleItem.content = Utils.linkMatch(contentDom);
         if (node.querySelector('div.topic_content')!.querySelector('img') !=
             null) {
@@ -209,15 +196,13 @@ class TopicWebApi {
     detailModel.subtleList = subtleList;
 
     // 收藏、感谢、屏蔽区域 未登录为null
-    if (document.querySelector("$innerQuery > div > a[class='op']") != null) {
+    var opElement = document.querySelector("$innerQuery > div > a[class='op']");
+    if (opElement != null) {
       // 收藏状态  isFavorite:true 已收藏
-      String collect = document
-          .querySelector("$innerQuery > div > a[class='op']")!
-          .attributes["href"]!;
+      String collect = opElement.attributes["href"]!;
       detailModel.isFavorite = collect.startsWith('/unfavorite');
 
       // once
-
       var menuBodyNode = document.querySelector("div[id='menu-body']");
       var loginOutNode =
           menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
@@ -226,10 +211,12 @@ class TopicWebApi {
       GStorage().setOnce(once);
 
       // 收藏人数
-      if (document.querySelector("$innerQuery > div > span") != null) {
-        String count = document.querySelector("$innerQuery > div > span")!.text;
-        if (count.contains('人收藏')) {
-          detailModel.favoriteCount = int.parse(count.trim().split('人收藏')[0]);
+      var spanElement = document.querySelector("$innerQuery > div > span");
+      if (spanElement != null) {
+        final regex = RegExp(r'(\d+)');
+        final match = regex.firstMatch(spanElement.text);
+        if (match != null) {
+          detailModel.favoriteCount = int.parse(match.group(1)!);
         }
       }
 
@@ -280,32 +267,29 @@ class TopicWebApi {
       /// 回复楼层
       /// first td user avatar
       /// third td main content
-      List<dom.Element> rootNode = document
-          .querySelectorAll("#Wrapper > div > div[class='box'] > div[id]");
+      List<dom.Element> rootNode =
+          document.querySelectorAll("#Wrapper .box > div[id].cell");
       var replyTrQuery = 'table > tbody > tr';
       for (var aNode in rootNode) {
         ReplyItem replyItem = ReplyItem();
-        replyItem.avatar = Uri.encodeFull(aNode
-            .querySelector('$replyTrQuery > td:nth-child(1) > img')!
+        final dom.Element replyItemEl = aNode.querySelector(replyTrQuery)!;
+        final dom.Element mainContentEl =
+            replyItemEl.querySelector('td:nth-child(5)')!;
+
+        replyItem.avatar = Uri.encodeFull(replyItemEl
+            .querySelector('td:nth-child(1) > img')!
             .attributes["src"]!);
-        replyItem.userName = aNode
-            .querySelector('$replyTrQuery > td:nth-child(5) > strong > a')!
-            .text;
-        if (aNode.querySelector(
-                '$replyTrQuery > td:nth-child(5) > div.badges > div.badge') !=
-            null) {
-          String status = aNode
-              .querySelector(
-                  '$replyTrQuery > td:nth-child(5) > div.badges > div.badge')!
-              .text;
-          if (status == 'MOD') {
-            replyItem.isMod = true;
-          } else if (status == 'OP') {
-            replyItem.isOwner = true;
-          }
+        replyItem.userName = mainContentEl.querySelector('strong > a')!.text;
+        var badgeElement =
+            mainContentEl.querySelector('div.badges > div.badge');
+        String? status = badgeElement?.text;
+        if (status == 'MOD') {
+          replyItem.isMod = true;
+        } else if (status == 'OP') {
+          replyItem.isOwner = true;
         }
-        replyItem.lastReplyTime = aNode
-            .querySelector('$replyTrQuery > td:nth-child(5) > span')!
+        replyItem.lastReplyTime = mainContentEl
+            .querySelector('span.fade.small')!
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
         if (replyItem.lastReplyTime.contains('via')) {
@@ -318,63 +302,35 @@ class TopicWebApi {
         }
 
         /// @user
-        if (aNode.querySelector(
-                "$replyTrQuery > td:nth-child(5) > span[class='small fade']") !=
-            null) {
-          replyItem.favorites = int.parse(aNode
-              .querySelector(
-                  "$replyTrQuery > td:nth-child(5) > span[class='small fade']")!
+        if (mainContentEl.querySelector("span[class='small fade']") != null) {
+          replyItem.favorites = int.parse(mainContentEl
+              .querySelector("span[class='small fade']")!
               .text
               .split(" ")[1]);
           // 感谢状态
-          if (aNode.querySelector(
-                  "$replyTrQuery > td:nth-child(5) > div.fr > div.thanked") !=
-              null) {
+          if (mainContentEl.querySelector("div.fr > div.thanked") != null) {
             replyItem.favoritesStatus = true;
           }
         }
-        // replyItem.number = aNode
-        //     .querySelector(
-        //         '$replyTrQuery > td:nth-child(5) > div.fr > span')!
-        //     .text;
-        replyItem.floorNumber = int.parse(aNode
-            .querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!
-            .text);
-        var contentDom = aNode.querySelector(
-            '$replyTrQuery > td:nth-child(5) > div.reply_content')!;
-        // List decodeRes = Utils.base64Decode(contentDom);
-        // if (decodeRes.isNotEmpty) {
-        //   var decodeDom = '';
-        //   for (var i = 0; i < decodeRes.length; i++) {
-        //     decodeDom +=
-        //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-        //     if (i != decodeRes.length - 1) {
-        //       decodeDom += '<span>、</span>';
-        //     }
-        //   }
-        //   contentDom.nodes.insert(contentDom.nodes.length,
-        //       parseFragment('<p>base64解码：$decodeDom</p>'));
-        // }
+        replyItem.floorNumber =
+            int.parse(mainContentEl.querySelector('div.fr > span')!.text);
+        var contentDom = mainContentEl.querySelector('div.reply_content')!;
         replyItem.contentRendered = Utils.linkMatch(contentDom);
-        replyItem.content = aNode
-            .querySelector(
-                '$replyTrQuery > td:nth-child(5) > div.reply_content')!
-            .text;
-        if (aNode
-                .querySelector(
-                    '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+        replyItem.content =
+            mainContentEl.querySelector('div.reply_content')!.text;
+        if (mainContentEl
+                .querySelector('div.reply_content')!
                 .querySelector('img') !=
             null) {
-          var imgNodes = aNode
-              .querySelector(
-                  '$replyTrQuery > td:nth-child(5) > div.reply_content')!
+          var imgNodes = mainContentEl
+              .querySelector('div.reply_content')!
               .querySelectorAll('img');
           for (var imgNode in imgNodes) {
             replyItem.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
           }
         }
-        var replyMemberNodes = aNode.querySelectorAll(
-            '$replyTrQuery > td:nth-child(5) > div.reply_content > a');
+        var replyMemberNodes =
+            mainContentEl.querySelectorAll('div.reply_content > a');
         if (replyMemberNodes.isNotEmpty) {
           for (var aNode in replyMemberNodes) {
             if (aNode.attributes['href']!.startsWith('/member')) {
