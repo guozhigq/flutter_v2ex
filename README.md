@@ -56,14 +56,23 @@
 ## 环境配置
 
 ```
-[✓] Flutter (Channel stable, 3.16.4, on macOS 14.1.2 23B92 darwin-arm64, locale
-    zh-Hans-CN)
+[!] Flutter (Channel [user-branch], 3.24.4, on macOS 14.6.1 23G93 darwin-arm64,
+    locale zh-Hans-CN)
+    ! Flutter version 3.24.4 on channel [user-branch] at
+      /Users/rr/Documents/sdk/flutter
+      Currently on an unknown channel. Run `flutter channel` to switch to an
+      official channel.
+      If that doesn't fix the issue, reinstall Flutter by following instructions
+      at https://flutter.dev/setup.
+    ! Upstream repository unknown source is not a standard remote.
+      Set environment variable "FLUTTER_GIT_URL" to unknown source to dismiss
+      this error.
 [✓] Android toolchain - develop for Android devices (Android SDK version 34.0.0)
 [✓] Xcode - develop for iOS and macOS (Xcode 15.1)
 [✓] Chrome - develop for the web
-[✓] Android Studio (version 2022.3)
-[✓] VS Code (version 1.85.1)
-[✓] Connected device (3 available)
+[✓] Android Studio (version 2023.2)
+[✓] VS Code (version 1.95.1)
+[✓] Connected device (4 available)
 [✓] Network resources
 ```
 
