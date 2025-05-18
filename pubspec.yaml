@@ -97,7 +97,7 @@ dependencies:
     # 代理
     system_proxy: ^0.1.0
     # 分享
-    share_plus: ^6.3.1
+    share_plus: ^7.2.0
 
     extended_tabs: ^4.1.0
     extended_text_field: ^16.0.0
@@ -136,9 +136,6 @@ dev_dependencies:
     #    flutter_launcher_icons: ^0.9.3
     hive_generator: ^2.0.0
     build_runner: ^2.3.3
-
-dependency_overrides:
-    win32: ^5.5.4
 
 flutter_icons:
     android: true
