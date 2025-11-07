@@ -37,45 +37,46 @@ dependencies:
     # Use with the CupertinoIcons class for iOS style icons.
 
     # 动态取色
-    dynamic_color: ^1.6.6
+    dynamic_color: ^1.8.1
 
     # 网络请求
-    dio: ^5.4.1
+    dio: ^5.9.0
     cookie_jar: ^4.0.8
     #    dio_http_cache: ^0.3.0
-    dio_http2_adapter: ^2.3.1+1
+    dio_http2_adapter: ^2.6.0
     # dio_http_cache:
     #     git:
     #         url: https://github.com/guozhigq/dio-http-cache.git
-    dio_cookie_manager: ^3.1.1
+    dio_cookie_manager: ^3.3.0
 
     # dom解析渲染
-    html: ^0.15.4
+    html: ^0.15.6
     webfeed_plus:
         git:
             url: https://github.com/guozhigq/webfeed_plus.git
-    flutter_html: ^3.0.0-beta.2
-    flutter_html_table: ^3.0.0-beta.2
-    flutter_html_iframe: ^3.0.0-beta.2
+            ref: master
+    flutter_html: ^3.0.0
+    flutter_html_table: ^3.0.0
+    flutter_html_iframe: ^3.0.0
 
     # webView
-    url_launcher: ^6.1.9
-    flutter_inappwebview: 5.4.4
+    url_launcher: ^6.3.2
+    flutter_inappwebview: ^6.1.5
 
     # 图片&保存
-    extended_image: ^8.0.2
-    cached_network_image: ^3.2.3
+    extended_image: ^10.0.1
+    cached_network_image: ^3.4.1
     image_gallery_saver: ^2.0.3
     # 图片选择&上传
-    wechat_assets_picker: ^9.1.0
-    photo_manager: ^3.2.0
+    wechat_assets_picker: ^9.8.0
+    photo_manager: ^3.7.1
 
     # 下拉刷新
-    easy_refresh: ^3.2.2
+    easy_refresh: ^3.4.0
     # 动画
-    animations: ^2.0.7
+    animations: ^2.1.0
     # toast提示
-    flutter_smart_dialog: ^4.8.1
+    flutter_smart_dialog: ^4.9.8+9
     # 设备信息
     device_info_plus: ^10.0.1
     get: ^4.6.5
@@ -87,21 +88,21 @@ dependencies:
     get_storage: ^2.0.3
 
     # 权限
-    permission_handler: ^10.2.0
+    permission_handler: ^12.0.1
     # 桌面长按菜单
-    quick_actions: ^1.0.1
+    quick_actions: ^1.1.0
     # 通知
     flutter_local_notifications: ^17.2.1+2
     # 时区
-    timezone: ^0.9.1
+    timezone: ^0.9.4
     # 代理
     system_proxy: ^0.1.0
     # 分享
-    share_plus: ^7.2.0
+    share_plus: ^12.0.1
 
-    extended_tabs: ^4.1.0
-    extended_text_field: ^16.0.0
-    extended_text_library: ^12.0.0
+    extended_tabs: ^5.0.0
+    extended_text_field: ^16.0.2
+    extended_text_library: ^12.0.1
     sticky_headers: ^0.3.0+2
 
     # 外观
@@ -110,7 +111,7 @@ dependencies:
     flutter_adaptive_scaffold: ^0.1.11
 
     scroll_to_index: ^3.0.1
-    google_fonts: ^5.1.0
+    google_fonts: ^6.3.2
 
     # markdown 输入
     expandable: ^5.0.1

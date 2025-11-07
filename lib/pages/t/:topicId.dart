@@ -484,12 +484,14 @@ class _TopicDetailState extends State<TopicDetail>
     );
   }
 
-  Future<void> onShareTopic() async {
+  Future<ShareResult> onShareTopic() async {
     final box = context.findRenderObject() as RenderBox?;
-    var result = await Share.share(
-      'https://www.v2ex.com/t/$topicId',
+    var result = await SharePlus.instance
+        .share(ShareParams(
+      text: 'https://www.v2ex.com/t/$topicId',
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-    ).whenComplete(() {
+    ))
+        .whenComplete(() {
       print("share completion block ");
     });
     return result;

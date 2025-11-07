@@ -61,7 +61,7 @@ class _WebViewState extends State<WebView> {
                       cacheEnabled: true,
                     )),
                     initialUrlRequest: URLRequest(
-                      url: Uri.parse(aUrl),
+                      url: WebUri(aUrl),
                       headers: {
                         'refer':
                             'https://www.v2ex.com//signin?next=/mission/daily',
@@ -77,7 +77,7 @@ class _WebViewState extends State<WebView> {
                     },
                     // 加载url时触发
                     onLoadStart: (controller, url) async {
-                      URLRequest(url: Uri.parse(aUrl));
+                      URLRequest(url: WebUri(aUrl));
                     },
                     // 触发多次 页面内可能会有跳转
                     onLoadStop: (controller, url) async {
