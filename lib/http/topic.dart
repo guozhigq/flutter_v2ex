@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:html/dom.dart' as dom;
@@ -61,50 +60,58 @@ class TopicWebApi {
       return detailModel;
     }
 
-    var userCellWrap = document
-        .querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
-    var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
-    int once = int.parse(onceHref!.split('once=')[1]);
-    GStorage().setOnce(once);
+    void updateOnceFromMenu() {
+      final menuCells = document.querySelectorAll('#menu-body > div.cell');
+      if (menuCells.isEmpty) {
+        return;
+      }
+      final href = menuCells.last.querySelector('a')?.attributes['href'];
+      if (href == null || !href.contains('once=')) {
+        return;
+      }
+      final onceStr = href.split('once=').last;
+      final onceValue = int.tryParse(onceStr);
+      if (onceValue != null) {
+        GStorage().setOnce(onceValue);
+      }
+    }
 
-    /// 头部内容
-    /// 查询头部内容公共头
+    updateOnceFromMenu();
 
-    const String wrapperQuery = '#Wrapper';
+    final dom.Element wrapperEl = document.querySelector('#Wrapper')!;
+    final dom.Element wrapperContent = wrapperEl.querySelector('div')!;
+    final dom.Element mainBox = wrapperContent.children.first;
 
-    /// main box 正文
-    const String mainBoxQuery = '$wrapperQuery > div > div:nth-child(1)';
-    const String headerQuery = '$mainBoxQuery > div.header';
-    const String innerQuery = '$mainBoxQuery > div.inner';
+    /// 标题、头像、昵称、发布时间、浏览量
+    final dom.Element headerEl = mainBox.querySelector('.header')!;
 
-    detailModel.avatar = document
-        .querySelector('$headerQuery > div.fr > a > img')!
-        .attributes["src"]!;
+    final dom.Element? innerEl = mainBox.querySelector('.inner');
 
-    detailModel.createdId =
-        document.querySelector('$headerQuery > small > a')!.text;
+    /// 头像
+    detailModel.avatar =
+        headerEl.querySelector('div.fr > a > img')!.attributes["src"]!;
 
-    detailModel.nodeId = document
-        .querySelector('$headerQuery > a:nth-child(6)')!
-        .attributes["href"]!
-        .replaceAll('/go/', '');
+    /// 昵称
+    detailModel.createdId = headerEl.querySelector('small > a')!.text;
 
-    detailModel.nodeName =
-        document.querySelector('$headerQuery > a:nth-child(6)')!.text;
-    //  at 9 小时 26 分钟前，1608 次点击
-    var pureStr =
-        document.querySelector('$headerQuery > small')!.text.split('at ')[1];
+    /// 节点id 和 节点名称
+    final dom.Element nodeAnchor = headerEl.querySelector('a[href^="/go/"]')!;
+    detailModel.nodeId = nodeAnchor.attributes["href"]!.replaceAll('/go/', '');
+    detailModel.nodeName = nodeAnchor.text;
+
+    ///  at 9 小时 26 分钟前，1608 次点击
+    var pureStr = headerEl.querySelector('small')!.text.split('at ')[1];
     List pureStrList = pureStr.split('·');
     detailModel.createdTime = pureStrList[0].replaceFirst(' +08:00', '');
     detailModel.visitorCount = pureStrList.length >= 2
         ? pureStrList[1].replaceAll(RegExp(r'\D'), '')
         : '';
-    // APPEND EIDT MOVE
-    var opActionNode = document.querySelector('$headerQuery > small');
+
+    /// APPEND EIDT MOVE
+    var opActionNode = headerEl.querySelector('small');
     if (opActionNode!.querySelector('a.op') != null) {
       var opNodes = opActionNode.querySelectorAll('a.op');
       for (var i in opNodes) {
-        print(i.text);
         if (i.text.contains('APPEND')) {
           detailModel.isAPPEND = true;
         }
@@ -116,7 +123,7 @@ class TopicWebApi {
         }
       }
     }
-    detailModel.topicTitle = document.querySelector('$headerQuery > h1')!.text;
+    detailModel.topicTitle = headerEl.querySelector('h1')!.text;
 
     // [email_protected] 转码回到正确的邮件字符串
     List<dom.Element> aRootNode =
@@ -139,28 +146,13 @@ class TopicWebApi {
     }
 
     // 判断是否有正文
-    final dom.Element? contentDom =
-        document.querySelector('$mainBoxQuery > div.cell > div');
+    final dom.Element? contentDom = mainBox.querySelector('div.cell > div');
     if (contentDom != null) {
       detailModel.content = contentDom.text;
-      // List decodeRes = Utils.base64Decode(contentDom);
-      // if (decodeRes.isNotEmpty) {
-      //   var decodeDom = '';
-      //   for (var i = 0; i < decodeRes.length; i++) {
-      //     decodeDom +=
-      //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-      //     if (i != decodeRes.length - 1) {
-      //       decodeDom += '<span>、</span>';
-      //     }
-      //   }
-      //   contentDom.nodes.insert(contentDom.nodes.length,
-      //       parseFragment('<p>base64解码：$decodeDom</p>'));
-      // }
       detailModel.contentRendered = Utils.linkMatch(contentDom);
-      if (contentDom.querySelector('img') != null) {
-        var imgNodes = contentDom.querySelectorAll('img');
-        var imgLength = imgNodes.length;
-        detailModel.imgCount += imgLength;
+      var imgNodes = contentDom.querySelectorAll('img');
+      if (imgNodes.isNotEmpty) {
+        detailModel.imgCount += imgNodes.length;
         detailModel.imgList = [];
         for (var imgNode in imgNodes) {
           detailModel.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
@@ -169,8 +161,7 @@ class TopicWebApi {
     }
 
     // 附言
-    List<dom.Element> appendNodes =
-        document.querySelectorAll("$mainBoxQuery > div[class='subtle']");
+    List<dom.Element> appendNodes = mainBox.querySelectorAll("div.subtle");
     if (appendNodes.isNotEmpty) {
       for (var node in appendNodes) {
         TopicSubtleItem subtleItem = TopicSubtleItem();
@@ -178,12 +169,10 @@ class TopicWebApi {
             .querySelector('span.fade')!
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
-        var contentDom = node.querySelector('div.topic_content')!;
-        subtleItem.content = Utils.linkMatch(contentDom);
-        if (node.querySelector('div.topic_content')!.querySelector('img') !=
-            null) {
-          var subImgNodes =
-              node.querySelector('div.topic_content')!.querySelectorAll('img');
+        var topicContentDom = node.querySelector('div.topic_content')!;
+        subtleItem.content = Utils.linkMatch(topicContentDom);
+        var subImgNodes = topicContentDom.querySelectorAll('img');
+        if (subImgNodes.isNotEmpty) {
           detailModel.imgCount += subImgNodes.length;
           for (var subImgNode in subImgNodes) {
             detailModel.imgList
@@ -195,23 +184,18 @@ class TopicWebApi {
     }
     detailModel.subtleList = subtleList;
 
-    // 收藏、感谢、屏蔽区域 未登录为null
-    var opElement = document.querySelector("$innerQuery > div > a[class='op']");
+    /// 收藏、感谢、屏蔽区域 未登录为null
+    var opElement = innerEl?.querySelector("div > a.op");
     if (opElement != null) {
-      // 收藏状态  isFavorite:true 已收藏
+      /// 收藏状态  isFavorite:true 已收藏
       String collect = opElement.attributes["href"]!;
       detailModel.isFavorite = collect.startsWith('/unfavorite');
 
       // once
-      var menuBodyNode = document.querySelector("div[id='menu-body']");
-      var loginOutNode =
-          menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
-      var loginOutHref = loginOutNode!.attributes['href'];
-      int once = int.parse(loginOutHref!.split('once=')[1]);
-      GStorage().setOnce(once);
+      updateOnceFromMenu();
 
-      // 收藏人数
-      var spanElement = document.querySelector("$innerQuery > div > span");
+      /// 收藏人数
+      var spanElement = innerEl?.querySelector("div > span");
       if (spanElement != null) {
         final regex = RegExp(r'(\d+)');
         final match = regex.firstMatch(spanElement.text);
@@ -220,55 +204,50 @@ class TopicWebApi {
         }
       }
 
-      // 是否感谢 isThank: true已感谢
-      detailModel.isThank = document.querySelector(
-              "$innerQuery > div > div[id='topic_thank'] > span") !=
-          null;
-      print('585 - thank: ${detailModel.isThank}');
+      /// 是否感谢 isThank: true已感谢
+      detailModel.isThank =
+          innerEl?.querySelector("#topic_thank > span") != null;
     }
 
-    // 判断是否有评论
+    /// 判断是否有评论
     if (document.querySelector('#no-comments-yet') == null) {
-      // 表示有评论
-      // tag 标签
-      // var tagBoxDom =
-      //     document.querySelector('$wrapperQuery > div')!.children[2];
-
-      // 回复数 发布时间 评论
+      /// 回复数 发布时间 评论
       dom.Element replyBoxDom;
       dom.Element? totalPageDom;
 
-      // tag标签判断
-      var isHasTag = document
-              .querySelector('$wrapperQuery > div')!
-              .children[2]
-              .querySelector('a.tag') !=
-          null;
-      if (isHasTag) {
-        replyBoxDom =
-            document.querySelector('$wrapperQuery > div')!.children[4];
-      } else {
-        replyBoxDom =
-            document.querySelector('$wrapperQuery > div')!.children[2];
-      }
-      if (replyBoxDom.querySelectorAll('div.cell > div.fr.fade').isNotEmpty) {
-        totalPageDom =
-            replyBoxDom.querySelectorAll('div.cell > div.fr.fade').last;
+      /// tag标签判断：过滤掉分隔符
+      final wrapperChildren = wrapperContent.children
+          .where((element) => !(element.localName == 'div' &&
+              (element.classes.contains('sep') ||
+                  element.id.contains('topic-tip-box'))))
+          .toList();
+      // var isHasTag = wrapperChildren.length > 2 &&
+      //     wrapperChildren[2].querySelector('a.tag') != null;
+
+      replyBoxDom = wrapperChildren[2];
+      final replyInfoCell = replyBoxDom.querySelector('div.cell');
+      if (replyInfoCell != null) {
+        final replyInfoSpan = replyInfoCell.querySelector('span');
+        if (replyInfoSpan != null) {
+          detailModel.replyCount = int.parse(replyInfoSpan.text
+              .replaceAll(RegExp(r"\s+"), "")
+              .split('条回复')[0]);
+        }
+
+        final pageNodes = replyInfoCell.querySelectorAll('div.fr.fade');
+        if (pageNodes.isNotEmpty) {
+          totalPageDom = pageNodes.last;
+        }
       }
       detailModel.totalPage = totalPageDom != null
           ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
           : 1;
-      detailModel.replyCount = int.parse(replyBoxDom
-          .querySelector('div.cell span')!
-          .text
-          .replaceAll(RegExp(r"\s+"), "")
-          .split('条回复')[0]);
 
       /// 回复楼层
       /// first td user avatar
       /// third td main content
       List<dom.Element> rootNode =
-          document.querySelectorAll("#Wrapper .box > div[id].cell");
+          replyBoxDom.querySelectorAll(".box > div[id].cell");
       var replyTrQuery = 'table > tbody > tr';
       for (var aNode in rootNode) {
         ReplyItem replyItem = ReplyItem();
@@ -276,6 +255,7 @@ class TopicWebApi {
         final dom.Element mainContentEl =
             replyItemEl.querySelector('td:nth-child(5)')!;
 
+        /// 用户资料
         replyItem.avatar = Uri.encodeFull(replyItemEl
             .querySelector('td:nth-child(1) > img')!
             .attributes["src"]!);
@@ -283,15 +263,16 @@ class TopicWebApi {
         var badgeElement =
             mainContentEl.querySelector('div.badges > div.badge');
         String? status = badgeElement?.text;
-        if (status == 'MOD') {
-          replyItem.isMod = true;
-        } else if (status == 'OP') {
-          replyItem.isOwner = true;
-        }
+        replyItem.isMod = status == 'MOD';
+        replyItem.isOwner = status == 'OP';
+
+        /// 回复时间
         replyItem.lastReplyTime = mainContentEl
             .querySelector('span.fade.small')!
             .text
             .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
+
+        /// 平台
         if (replyItem.lastReplyTime.contains('via')) {
           var platform = replyItem.lastReplyTime
               .split('via')[1]
@@ -301,36 +282,30 @@ class TopicWebApi {
           replyItem.platform = platform;
         }
 
-        /// @user
-        if (mainContentEl.querySelector("span[class='small fade']") != null) {
-          replyItem.favorites = int.parse(mainContentEl
-              .querySelector("span[class='small fade']")!
-              .text
-              .split(" ")[1]);
-          // 感谢状态
+        /// 感谢数 和 状态
+        var smallFade = mainContentEl.querySelector("span[class='small fade']");
+        if (smallFade != null) {
+          replyItem.favorites = int.parse(smallFade.text.split(" ")[1]);
           if (mainContentEl.querySelector("div.fr > div.thanked") != null) {
             replyItem.favoritesStatus = true;
           }
         }
+
+        /// 楼层
         replyItem.floorNumber =
             int.parse(mainContentEl.querySelector('div.fr > span')!.text);
+
+        /// 评论内容
         var contentDom = mainContentEl.querySelector('div.reply_content')!;
         replyItem.contentRendered = Utils.linkMatch(contentDom);
-        replyItem.content =
-            mainContentEl.querySelector('div.reply_content')!.text;
-        if (mainContentEl
-                .querySelector('div.reply_content')!
-                .querySelector('img') !=
-            null) {
-          var imgNodes = mainContentEl
-              .querySelector('div.reply_content')!
-              .querySelectorAll('img');
-          for (var imgNode in imgNodes) {
+        replyItem.content = contentDom.text;
+        var replyImgs = contentDom.querySelectorAll('img');
+        if (replyImgs.isNotEmpty) {
+          for (var imgNode in replyImgs) {
             replyItem.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
           }
         }
-        var replyMemberNodes =
-            mainContentEl.querySelectorAll('div.reply_content > a');
+        var replyMemberNodes = contentDom.querySelectorAll('a');
         if (replyMemberNodes.isNotEmpty) {
           for (var aNode in replyMemberNodes) {
             if (aNode.attributes['href']!.startsWith('/member')) {
