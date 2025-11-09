@@ -17,7 +17,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.8
+version: 1.2.9
 
 environment:
     sdk: ">=3.0.0 <4.0.0"
@@ -66,7 +66,7 @@ dependencies:
     # 图片&保存
     extended_image: ^10.0.1
     cached_network_image: ^3.4.1
-    image_gallery_saver: ^2.0.3
+    saver_gallery: ^3.0.1
     # 图片选择&上传
     wechat_assets_picker: ^9.8.0
     photo_manager: ^3.7.1
@@ -96,7 +96,10 @@ dependencies:
     # 时区
     timezone: ^0.9.4
     # 代理
-    system_proxy: ^0.1.0
+    system_proxy: 
+        git:
+            url: https://github.com/deepansh-maersk/system_proxy.git
+            ref: master
     # 分享
     share_plus: ^12.0.1
 
@@ -122,7 +125,10 @@ dependencies:
     flutter_displaymode: ^0.6.0
     # 代码高亮
     flutter_highlighting: ^0.9.0+11.8.0
-    appscheme: ^1.0.8
+    appscheme: 
+        git:
+            url: https://github.com/skeyboy/flutter-scheme.git
+            ref: master
 
 dev_dependencies:
     flutter_test:

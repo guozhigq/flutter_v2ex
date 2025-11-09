@@ -33,11 +33,12 @@ packages:
   appscheme:
     dependency: "direct main"
     description:
-      name: appscheme
-      sha256: b885b65219f3839ebafc937024a1bc5ce5a75b0e458fd249ef15e80e81235b6f
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.8"
+      path: "."
+      ref: master
+      resolved-ref: "6c71b03782ea2e07875070938c5a3bbb0cebeac3"
+      url: "https://github.com/skeyboy/flutter-scheme.git"
+    source: git
+    version: "1.0.7"
   args:
     dependency: transitive
     description:
@@ -730,14 +731,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.2"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.3"
   intl:
     dependency: transitive
     description:
@@ -1130,6 +1123,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.7"
+  saver_gallery:
+    dependency: "direct main"
+    description:
+      name: saver_gallery
+      sha256: "5f4123ec1cd5ed9fcd93198ab30ffe0c7746afcbf6846445432de93240fa7b4e"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.6"
   scroll_to_index:
     dependency: "direct main"
     description:
@@ -1306,10 +1307,11 @@ packages:
   system_proxy:
     dependency: "direct main"
     description:
-      name: system_proxy
-      sha256: bbdfc9736a963409941fb0e7c494606c1f13c2be34de15833ee385da83cf7ab0
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: cf7edb2e07131c3091874ee196a2ac7c40e6465e
+      url: "https://github.com/deepansh-maersk/system_proxy.git"
+    source: git
     version: "0.1.0"
   term_glyph:
     dependency: transitive

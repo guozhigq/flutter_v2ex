@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/appbar.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -94,15 +95,15 @@ class _ImagePreviewState extends State<ImagePreview>
     SmartDialog.showLoading(msg: '保存中');
     var response = await Dio().get(imgList[initialPage],
         options: Options(responseType: ResponseType.bytes));
-    final result = await ImageGallerySaver.saveImage(
-        Uint8List.fromList(response.data),
-        quality: 100,
-        name: "pic_vvex${DateTime.now().toString().split('-').join()}");
+    final result = await SaverGallery.saveImage(
+      Uint8List.fromList(response.data),
+      quality: 100,
+      name: "pic_vvex${DateTime.now().toString().split('-').join()}",
+      androidExistNotSave: false,
+    );
     SmartDialog.dismiss();
-    if (result != null) {
-      if (result['isSuccess']) {
-        SmartDialog.showToast('已保存到相册');
-      }
+    if (result.isSuccess) {
+      SmartDialog.showToast('已保存到相册');
     }
   }
 

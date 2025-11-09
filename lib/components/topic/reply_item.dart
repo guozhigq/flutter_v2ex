@@ -13,7 +13,7 @@ import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class ReplyListItem extends StatefulWidget {
   const ReplyListItem({
@@ -251,16 +251,16 @@ class _ReplyListItemState extends State<ReplyListItem>
         await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
-    final result = await ImageGallerySaver.saveImage(
-        Uint8List.fromList(pngBytes),
-        quality: 100,
-        name:
-            "reply${reply.userName}_vvex${DateTime.now().toString().split('-').join()}");
+    final result = await SaverGallery.saveImage(
+      Uint8List.fromList(pngBytes),
+      quality: 100,
+      name:
+          "reply${reply.userName}_vvex${DateTime.now().toString().split('-').join()}",
+      androidExistNotSave: false,
+    );
     SmartDialog.dismiss();
-    if (result != null) {
-      if (result['isSuccess']) {
-        SmartDialog.showToast('已保存到相册');
-      }
+    if (result.isSuccess) {
+      SmartDialog.showToast('已保存到相册');
     }
   }
 
