@@ -7,7 +7,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // print("请求之前");
+    // 请求之前
     // 在请求之前添加头部或认证信息
     // options.headers['Authorization'] = 'Bearer token';
     // options.headers['Content-Type'] = 'application/json';
@@ -17,7 +17,6 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // print("响应之前");
     loginAuth(
       // response.realUri.toString(),
       response.requestOptions.path,
@@ -56,8 +55,6 @@ class ApiInterceptor extends Interceptor {
         return "发送请求超时，请检查网络设置";
       case DioExceptionType.unknown:
         return "网络异常，请稍后重试！";
-      default:
-        return "Dio异常";
     }
   }
   // 登录验证
@@ -90,9 +87,10 @@ class ApiInterceptor extends Interceptor {
                   child: const Text('返回')),
               TextButton(
                   // TODO
-                  onPressed: () {
-                    SmartDialog.dismiss().then(
-                        (res) => {Navigator.of(context).pushNamed('/login')});
+                      onPressed: () {
+                        final navigator = Navigator.of(context);
+                        SmartDialog.dismiss()
+                            .then((res) => navigator.pushNamed('/login'));
                   },
                   child: const Text('去登录'))
             ],

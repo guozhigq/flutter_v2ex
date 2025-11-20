@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/components/common/appbar.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 typedef DoubleClickAnimationListener = void Function();
 
@@ -87,8 +87,8 @@ class _ImagePreviewState extends State<ImagePreview>
     final info = statuses[Permission.storage].toString();
     // final photosInfo = statuses[Permission.photos].toString();
 
-    print('授权状态：$info');
-    // print('相册授权状态：$photosInfo');
+    logDebug('授权状态：$info');
+    // logDebug('相册授权状态：$photosInfo');
   }
 
   void onSaveImg() async {
@@ -118,7 +118,8 @@ class _ImagePreviewState extends State<ImagePreview>
         "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
     var path = '${temp.path}/$imgName';
     File(path).writeAsBytesSync(response.data);
-    Share.shareXFiles([XFile(path)], subject: imgList[initialPage]);
+    SharePlus.instance.share(ShareParams(
+        files: [XFile(path)], subject: imgList[initialPage], text: '分享图片'));
   }
 
   void onBrowserImg() async {
@@ -150,8 +151,8 @@ class _ImagePreviewState extends State<ImagePreview>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Theme.of(context).colorScheme.background,
-                  Theme.of(context).colorScheme.background
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).colorScheme.surface
                 ],
               ),
             ),
@@ -239,7 +240,7 @@ class _ImagePreviewState extends State<ImagePreview>
                 }
 
                 _doubleClickAnimationListener = () {
-                  //print(_animation.value);
+                  //logDebug(_animation.value);
                   state.handleDoubleTap(
                       scale: _doubleClickAnimation!.value,
                       doubleTapPosition: pointerDownPosition);

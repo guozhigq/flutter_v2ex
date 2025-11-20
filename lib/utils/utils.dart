@@ -17,6 +17,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class Utils {
 //   static IosDeviceInfo iosInfo;
@@ -27,10 +28,10 @@ class Utils {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      print('Running on ${androidInfo.version.sdkInt}');
+      logDebug('Running on ${androidInfo.version.sdkInt}');
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      print('Running on ${iosInfo.systemVersion}');
+      logDebug('Running on ${iosInfo.systemVersion}');
     }
   }
 
@@ -130,13 +131,12 @@ class Utils {
   // https://usamaejaz.com/cloudflare-email-decoding/
   // cloudflare email 转码
   static String cfDecodeEmail(String encodedString) {
-    var email = "",
-        r = int.parse(encodedString.substring(0, 2), radix: 16),
-        n,
-        i;
-    for (n = 2; encodedString.length - n > 0; n += 2) {
-      i = int.parse(encodedString.substring(n, n + 2), radix: 16) ^ r;
-      email += String.fromCharCode(i);
+    var email = '';
+    final int r = int.parse(encodedString.substring(0, 2), radix: 16);
+    for (int n = 2; encodedString.length - n > 0; n += 2) {
+      final int charCode =
+          int.parse(encodedString.substring(n, n + 2), radix: 16) ^ r;
+      email += String.fromCharCode(charCode);
     }
     return email;
   }
@@ -164,8 +164,8 @@ class Utils {
     return target;
   }
 
-  static stringToMap(str) {
-    Map result = {};
+  static Map<String, String> stringToMap(String str) {
+    final Map<String, String> result = {};
     var strArr = str.split('#');
     for (var i in strArr) {
       var keyValue = i.split(':');
@@ -175,8 +175,8 @@ class Utils {
   }
 
   // base64 解析 wechat
-  static base64Decode(contentDom) {
-    List decodeRes = [];
+  static List<dynamic> base64Decode(dynamic contentDom) {
+    List<dynamic> decodeRes = [];
     try {
       String content = contentDom.text;
       RegExp exp = RegExp(r'[a-zA-Z\d=]{8,}');
@@ -188,7 +188,7 @@ class Utils {
         try {
           decodeRes.addAll(base64Resolve(value!, decodeRes));
         } catch (err) {
-          // print(err);
+          // logDebug(err);
         }
       }
       return decodeRes;
@@ -198,7 +198,7 @@ class Utils {
   }
 
   //
-  static base64Resolve(String str, decodeRes) {
+  static List<dynamic> base64Resolve(String str, List<dynamic> decodeRes) {
     var wechat = '';
     var blacklist = Strings().base64BlackList;
     RegExp exp = RegExp(r'[a-zA-Z\d=]{4,}');
@@ -208,7 +208,7 @@ class Utils {
       try {
         wechat = utf8.decode(base64.decode(str)).trim();
       } catch (err) {
-        print('❌ base64Resolve error: $err');
+        logDebug('❌ base64Resolve error: $err');
       }
       RegExp wechatRegExp = RegExp(r'^_|[a-zA-Z][a-zA-Z\d_-]{5,19}$');
       RegExp emailRegExp =
@@ -223,16 +223,16 @@ class Utils {
           !RegExp(r'^\d+$').hasMatch(wechat)) {
         decodeRes.addAll(base64Resolve(wechat, decodeRes));
       } else {
-        print('解析中断： $wechat');
+        logDebug('解析中断： $wechat');
       }
     } else {
-      // print('err: 无效base64');
+      // logDebug('err: 无效base64');
     }
     return decodeRes;
   }
 
   // 替换innerHtml中的文本链接
-  static linkMatch(contentDom) {
+  static String linkMatch(dynamic contentDom) {
     var innerHtml = contentDom.innerHtml;
     var innerContent = contentDom.text;
 
@@ -259,7 +259,7 @@ class Utils {
         try {
           wechat = utf8.decode(base64.decode(i.group(0)!));
         } catch (e) {
-          print(e);
+          logDebug(e);
         }
         RegExp wechatRegExp = RegExp(r'^_|[a-zA-Z][a-zA-Z\d_-]{5,19}$');
         RegExp emailRegExp =
@@ -272,9 +272,11 @@ class Utils {
           try {
             innerHtml = innerHtml.replaceAll(i.group(0),
                 '${i.group(0)} (<a href="base64Wechat: $wechat">$wechat</a>)');
-          } catch (e) {}
+          } catch (e) {
+            logDebug('linkMatch replace error: $e');
+          }
         }
-        print(wechat);
+        logDebug(wechat);
       }
     }
 
@@ -282,9 +284,9 @@ class Utils {
   }
 
   // 版本比较
-  static bool needUpdate(localVersion, _emoteVersion) {
+  static bool needUpdate(String localVersion, String remoteVersion) {
     List<String> localVersionList = localVersion.split('v')[1].split('.');
-    List<String> remoteVersionList = _emoteVersion.split('v')[1].split('.');
+    List<String> remoteVersionList = remoteVersion.split('v')[1].split('.');
     for (int i = 0; i < localVersionList.length; i++) {
       int localVersion = int.parse(localVersionList[i]);
       int remoteVersion = int.parse(remoteVersionList[i]);
@@ -357,7 +359,7 @@ class Utils {
       if (await canLaunchUrl(url)) {
         launchUrl(url);
       } else if (linkExp2.hasMatch(aUrl)) {
-        print(aUrl);
+        logDebug(aUrl);
         try {
           String tagA =
               parse(aUrl).body!.querySelector('a')!.attributes['href']!;
@@ -366,7 +368,7 @@ class Utils {
           }
         } catch (err) {
           SmartDialog.showToast('openHref: $err');
-          print(err);
+          logDebug(err);
         }
       } else {
         if (context.mounted) {

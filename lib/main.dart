@@ -50,7 +50,14 @@ void main() async {
 Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Widget? homeOverride;
+  final bool enableBackgroundTasks;
+
+  const MyApp({
+    super.key,
+    this.homeOverride,
+    this.enableBackgroundTasks = true,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -98,7 +105,7 @@ class _MyAppState extends State<MyApp> {
     });
 
     // 检查更新
-    if (GStorage().getAutoUpdate()) {
+    if (widget.enableBackgroundTasks && GStorage().getAutoUpdate()) {
       GithubApi.checkUpdate();
     }
     VvexScheme.init();
@@ -162,7 +169,7 @@ class _MyAppState extends State<MyApp> {
           locale: const Locale("zh", "CN"),
           supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
           fallbackLocale: const Locale("zh", "CN"),
-          home: const HomePage(),
+          home: widget.homeOverride ?? const HomePage(),
           navigatorKey: Routes.navigatorKey,
           routingCallback: (routing) {
             if (routing!.previous == '/login') {
@@ -180,7 +187,9 @@ class _MyAppState extends State<MyApp> {
                 /// 设置文字大小不跟随系统更改
                 child: MediaQuery(
                   data: MediaQuery.of(context).copyWith(
-                      textScaleFactor: GStorage().getGlobalFs() / 14.0),
+                    textScaler:
+                        TextScaler.linear(GStorage().getGlobalFs() / 14.0),
+                  ),
                   // 适配 pad 布局
                   child: CAdaptiveLayout(child: child),
                   // mob布局

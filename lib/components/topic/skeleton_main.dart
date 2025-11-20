@@ -9,8 +9,8 @@ class TopicDetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Skeleton(
-      child: Column(
-        children: const [
+      child: const Column(
+        children: [
           TopicItemSkeleton(),
           TopicItemSkeleton(),
           TopicItemSkeleton()
@@ -63,4 +63,3 @@ class TopicItemSkeleton extends StatelessWidget {
     );
   }
 }
-

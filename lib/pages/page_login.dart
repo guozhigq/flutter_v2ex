@@ -10,6 +10,7 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/models/web/model_login_detail.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -286,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
                     // 登录失败
                     SmartDialog.showToast('登录失败了');
                   } else if (result == '2fa') {
-                    print('login 需要两步验证 $result');
+                    logDebug('login 需要两步验证 $result');
                     Login.twoFADialog();
                   }
                 } else {

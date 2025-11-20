@@ -9,11 +9,12 @@ import 'package:html/parser.dart'; // Contains HTML parsers to generate a Docume
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart'; // 首页tab主题列表
 import 'package:flutter_v2ex/models/web/model_node_list.dart'; // 节点列表
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class NodeWebApi {
   // 获取节点下的主题
   static Future<NodeListModel> getTopicsByNodeId(String nodeId, int p) async {
-    // print('------getTopicsByNodeKey---------');
+    // logDebug('------getTopicsByNodeKey---------');
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
     Response response;
@@ -147,7 +148,7 @@ class NodeWebApi {
     try {
       Read().mark(topics);
     } catch (err) {
-      print(err);
+      logDebug(err);
     }
     detailModel.topicList = topics;
 

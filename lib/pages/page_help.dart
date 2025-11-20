@@ -40,10 +40,10 @@ class HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             trailing: Transform.scale(
               scale: 0.8,
               child: Switch(
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                      (Set<MaterialState> states) {
+                  thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                      (Set<WidgetState> states) {
                     if (states.isNotEmpty &&
-                        states.first == MaterialState.selected) {
+                        states.first == WidgetState.selected) {
                       return const Icon(Icons.done);
                     }
                     return null; // All other states will use the default thumbIcon.

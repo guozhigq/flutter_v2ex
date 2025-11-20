@@ -27,6 +27,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter_v2ex/http/topic.dart';
 import 'package:flutter_v2ex/service/read.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 enum SampleItem { ignore, share, report, browse }
 
@@ -109,7 +110,7 @@ class _TopicDetailState extends State<TopicDetail>
     try {
       topicId = Get.parameters['topicId']!;
     } catch (e) {
-      print('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
+      logDebug('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
     }
     if (widget.topicDetail != null) {
       _topicDetail = widget.topicDetail;
@@ -147,7 +148,7 @@ class _TopicDetailState extends State<TopicDetail>
     autoScrollController.addListener(_listen);
     getDetailInit();
     eventBus.on('topicReply', (status) {
-      print('eventON: $status');
+      logDebug('eventON: $status');
       String msg = '回复成功';
       if (status == 'cancel') {
         msg = '取消回复';
@@ -252,7 +253,7 @@ class _TopicDetailState extends State<TopicDetail>
     if (!reverseSort || _currentPage == 0) {
       return;
     }
-    // print('line 155: $_currentPage');
+    // logDebug('line 155: $_currentPage');
     TopicDetailModel topicDetailModel =
         await TopicWebApi.getTopicDetail(topicId, _currentPage);
     setState(() {
@@ -263,7 +264,7 @@ class _TopicDetailState extends State<TopicDetail>
         _replyList.addAll(topicDetailModel.replyList.reversed);
       }
       _currentPage -= 1;
-      print('---_totalPage---:$_totalPage');
+      logDebug('---_totalPage---:$_totalPage');
     });
     if (type == 'init') {
       autoScrollController.animateTo(pinScrollHeight!,
@@ -357,7 +358,7 @@ class _TopicDetailState extends State<TopicDetail>
     //  {'userName1': [ReplyItem, ReplyItem]},
     //  {'userName2': [ReplyItem, ReplyItem]},
     // ]
-    print('resultList: ${resultList[0].userName}');
+    logDebug('resultList: ${resultList[0].userName}');
 
     // 获取之前楼层的所有回复
     List<ReplyItem> replyList =
@@ -492,7 +493,7 @@ class _TopicDetailState extends State<TopicDetail>
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ))
         .whenComplete(() {
-      print("share completion block ");
+      logDebug("share completion block ");
     });
     return result;
   }
@@ -537,7 +538,7 @@ class _TopicDetailState extends State<TopicDetail>
               onPressed: (() async {
                 Navigator.pop(context, 'OK');
                 var res = await TopicWebApi.thankTopic(_detailModel!.topicId);
-                print('54: $res');
+                logDebug('54: $res');
                 if (res) {
                   setState(() {
                     _detailModel!.isThank = true;
@@ -609,15 +610,17 @@ class _TopicDetailState extends State<TopicDetail>
               : Scrollbar(
                   radius: const Radius.circular(10),
                   controller: autoScrollController,
-                  child: PullRefresh(
-                    key: _globalKey,
-                    onChildRefresh: getDetailInit,
-                    // 上拉
-                    onChildLoad: !reverseSort
-                        ? (_totalPage > 1 && _currentPage < _totalPage
-                            ? getDetail
-                            : null)
-                        : (_currentPage > 0 ? getDetailReverst : null),
+                    child: PullRefresh(
+                      key: _globalKey,
+                      onChildRefresh: () async => await getDetailInit(),
+                      // 上拉
+                      onChildLoad: !reverseSort
+                          ? (_totalPage > 1 && _currentPage < _totalPage
+                              ? () async => await getDetail()
+                              : null)
+                          : (_currentPage > 0
+                              ? () async => await getDetailReverst()
+                              : null),
                     currentPage: _currentPage,
                     totalPage: _totalPage,
                     ctr: _controller,
@@ -777,7 +780,7 @@ class _TopicDetailState extends State<TopicDetail>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               color:
-                  Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6),
+                  Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -889,7 +892,7 @@ class _TopicDetailState extends State<TopicDetail>
                             side: BorderSide(
                                 color: Theme.of(context)
                                     .colorScheme
-                                    .surfaceVariant),
+                                    .surfaceContainerHighest),
                           ),
                           selectedColor:
                               Theme.of(context).colorScheme.outlineVariant,
@@ -1036,14 +1039,14 @@ class _MySliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
     //overlapsContent：SliverPersistentHeader覆盖其他子组件返回true，否则返回false
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
                   color: Theme.of(context)
                       .colorScheme
                       .background
-                      .withOpacity(0.15),
+                      .withValues(alpha: 0.15),
                   spreadRadius: 2,
                   blurRadius: 20,
                   offset: const Offset(0, 3),

@@ -4,6 +4,7 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class NodesSortPage extends StatefulWidget {
   const NodesSortPage({Key? key}) : super(key: key);
@@ -39,9 +40,10 @@ class _NodesSortPageState extends State<NodesSortPage>
     tabs.insert(0, firstTab);
     GStorage().setTabs(tabs);
     eventBus.emit('editTabs', 'success');
+    final navigator = Navigator.of(context);
     SmartDialog.showToast('保存成功',
             displayTime: const Duration(milliseconds: 500))
-        .then((res) => {Navigator.pop(context)});
+        .then((res) => navigator.pop());
   }
 
   void reset() {
@@ -75,7 +77,7 @@ class _NodesSortPageState extends State<NodesSortPage>
               value: item.checked,
               onChanged: (bool? newValue) {
                 setState(() => item.checked = newValue!);
-                print('item.checked: ${item.checked}');
+                logDebug('item.checked: ${item.checked}');
               },
               title: Text(item.name),
               secondary: const Icon(Icons.drag_indicator_rounded),

@@ -2,14 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 // onChildLoad 中传入_currentPage < _totalPage，开启PullRefresh 【没有更多内容了】的提示
 //
 class PullRefresh extends StatefulWidget {
   // final EasyRefreshController? ctr; // 控制器
   final Widget? child;
-  final onChildRefresh;
-  final onChildLoad;
+  final Future<void> Function()? onChildRefresh;
+  final Future<void> Function()? onChildLoad;
   final int? currentPage;
   final int? totalPage;
   final EasyRefreshController? ctr;
@@ -65,7 +66,7 @@ class _PullRefreshState extends State<PullRefresh> {
       clipBehavior: Clip.none,
       controller: _controller,
       header: MaterialHeader(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         clamping: _headerProperties.clamping,
         showBezierBackground: _headerProperties.background,
         bezierBackgroundAnimation: _headerProperties.animation,
@@ -76,7 +77,7 @@ class _PullRefreshState extends State<PullRefresh> {
       footer: ClassicFooter(
         clamping: _footerProperties.clamping,
         backgroundColor: _footerProperties.background
-            ? Theme.of(context).colorScheme.surfaceVariant
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
             : null,
         mainAxisAlignment: _footerProperties.alignment,
         showMessage: _footerProperties.message,
@@ -100,8 +101,8 @@ class _PullRefreshState extends State<PullRefresh> {
       ),
       onRefresh: widget.onChildRefresh != null
           ? () async {
-              await widget.onChildRefresh();
-              print('onRefresh Finish');
+              await widget.onChildRefresh!.call();
+              logDebug('onRefresh Finish');
               _controller.finishRefresh();
               _controller.resetFooter();
             }
@@ -109,19 +110,19 @@ class _PullRefreshState extends State<PullRefresh> {
       // 下拉
       onLoad: widget.onChildLoad != null
           ? () async {
-              print('---------------------');
-              print('-------${widget.currentPage}');
-              print('-------${widget.totalPage}');
+              logDebug('---------------------');
+              logDebug('-------${widget.currentPage}');
+              logDebug('-------${widget.totalPage}');
 
               if (widget.currentPage == widget.totalPage!) {
                 _controller.finishLoad();
                 _controller.resetFooter();
                 return IndicatorResult.noMore;
               }
-              await widget.onChildLoad!();
-              print('onLoad Finish');
-              print('widget.currentPage: ${widget.currentPage}');
-              print('widget.totalPage: ${widget.totalPage}');
+              await widget.onChildLoad!.call();
+              logDebug('onLoad Finish');
+              logDebug('widget.currentPage: ${widget.currentPage}');
+              logDebug('widget.totalPage: ${widget.totalPage}');
               _controller.finishLoad();
               _controller.resetFooter();
             }

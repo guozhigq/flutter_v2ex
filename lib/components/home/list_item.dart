@@ -36,7 +36,7 @@ class _ListItemState extends State<ListItem>
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
       child: Material(
         color: getBackground(context, 'listItem'),
-        // color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        // color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {

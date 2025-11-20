@@ -164,7 +164,7 @@ class _ReplyMemberListState extends State<ReplyMemberList>
           // icon: Icon(!checkStatus ? Icons.done : Icons.done_all, color: Theme.of(context).colorScheme.primary,),
           style: IconButton.styleFrom(
             padding: const EdgeInsets.all(9),
-            // backgroundColor: Theme.of(context).colorScheme.background
+            // backgroundColor: Theme.of(context).colorScheme.surface
           ),
         ),
       ],

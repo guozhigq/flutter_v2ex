@@ -12,6 +12,7 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/http/interceptor.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class Request {
   static final Request _instance = Request._internal();
@@ -135,7 +136,7 @@ class Request {
       );
       return response;
     } on DioException catch (e) {
-      print('get error---------$e');
+      logDebug('get error---------$e');
       return Future.error(ApiInterceptor.dioError(e));
     }
   }
@@ -144,7 +145,7 @@ class Request {
    * post请求
    */
   post(url, {data, options, cancelToken, extra}) async {
-    print('post-data: $data');
+    logDebug('post-data: $data');
     Response response;
     try {
       response = await dio.post(
@@ -153,10 +154,10 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      print('post success---------${response.data}');
+      logDebug('post success---------${response.data}');
       return response;
     } on DioException catch (e) {
-      print('post error---------$e');
+      logDebug('post error---------$e');
       return Future.error(ApiInterceptor.dioError(e));
     }
   }
@@ -170,13 +171,13 @@ class Request {
       response = await dio.download(urlPath, savePath,
           onReceiveProgress: (int count, int total) {
         //进度
-        // print("$count $total");
+        // logDebug("$count $total");
       });
-      print('downloadFile success---------${response.data}');
+      logDebug('downloadFile success---------${response.data}');
 
       return response.data;
     } on DioException catch (e) {
-      print('downloadFile error---------$e');
+      logDebug('downloadFile error---------$e');
       return Future.error(ApiInterceptor.dioError(e));
     }
   }

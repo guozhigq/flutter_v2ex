@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_v2ex/http/init.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class SoV2ex {
   static Future onSearch(String q, int from, int size, {String sort  = 'created', int order = 0, int gte = 0, int lte = 0 } ) async {
     // sort 排序方式 （默认 sumup) ｜ sumup（权重）created（发帖时间）
     // order 升降序，sort 为 created 时有效（默认 降序）｜ 0（降序）, 1（升序）
     Response response;
-    print('soV2ex gte: $gte');
-    print('soV2ex lte: $lte');
+    logDebug('soV2ex gte: $gte');
+    logDebug('soV2ex lte: $lte');
     Options options = Options();
     Map<String, dynamic> data = {
       'q': q,

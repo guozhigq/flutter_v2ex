@@ -8,6 +8,7 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:flutter_v2ex/components/common/image_loading.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 // ignore: must_be_immutable
 class HtmlRender extends StatelessWidget {
@@ -91,7 +92,7 @@ class HtmlRender extends StatelessWidget {
                 language = language == 'js' ? 'javascript' : language;
               }
             } catch (err) {
-              print(err);
+              logDebug(err);
             }
             return Container(
               margin: const EdgeInsets.only(top: 10, bottom: 10),
@@ -102,7 +103,7 @@ class HtmlRender extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.3))),
+                          .withValues(alpha: 0.3))),
               child: language == 'text' || language == 'html'
                   ? Html(data: extensionContext.innerHtml)
                   : HighlightView(
@@ -131,7 +132,7 @@ class HtmlRender extends StatelessWidget {
                 //     value:
                 //         extensionContext.attributes["checked"] == "checked",
                 //     onChanged: null);
-                return SizedBox();
+                return const SizedBox();
               default:
                 return extensionContext.parser;
             }
@@ -170,7 +171,7 @@ class HtmlRender extends StatelessWidget {
             top: BorderSide(
               width: 1.0,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         ),
@@ -179,12 +180,12 @@ class HtmlRender extends StatelessWidget {
             right: BorderSide(
               width: 0.5,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             bottom: BorderSide(
               width: 0.5,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         ),
@@ -193,17 +194,17 @@ class HtmlRender extends StatelessWidget {
             top: BorderSide(
               width: 1.0,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             left: BorderSide(
               width: 1.0,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         ),
         'thead': Style(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         ),
         'th': Style(
           padding: HtmlPaddings.only(left: 3, right: 3),

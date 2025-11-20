@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, avoid_print
+// ignore_for_file: unused_element
 
 import 'dart:io';
 import 'package:get/get.dart';
@@ -11,6 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/http/user.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class LocalNoticeService {
   int noticeId = 0; //  通知id
@@ -89,7 +90,8 @@ class LocalNoticeService {
         //     break;
         // }
         /// 除了回复提醒，都跳转至消息列表页面
-        Map noticeQuery = Utils.stringToMap(notificationResponse.payload);
+        final Map noticeQuery =
+            Utils.stringToMap(notificationResponse.payload ?? '');
         if (noticeQuery.isNotEmpty) {
           Get.toNamed('/t/${noticeQuery['topicId']}');
         } else {
@@ -156,13 +158,13 @@ class LocalNoticeService {
     /// 消息通知开关
     bool noticeOn = GStorage().getNoticeOn();
     if (!noticeOn) {
-      print('local_notice 162 Line: 不接收消息通知');
+      logDebug('local_notice 162 Line: 不接收消息通知');
     }
 
     /// 发送通知前检查目前通知状态、数量
-    print('local notice: $count');
+    logDebug('local notice: $count');
     int noticeCount = await _getActive();
-    print(noticeCount);
+    logDebug(noticeCount);
     if (noticeCount >= count) {
       return;
     } else {
@@ -256,9 +258,13 @@ class LocalNoticeService {
     );
     NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
-    await _localNotificationsPlugin.zonedSchedule(noticeId++, title, body,
-        tz.TZDateTime.now(tz.local).add(endTime), notificationDetails,
-        androidAllowWhileIdle: true,
+    await _localNotificationsPlugin.zonedSchedule(
+        noticeId++,
+        title,
+        body,
+        tz.TZDateTime.now(tz.local).add(endTime),
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload);
@@ -334,9 +340,13 @@ class LocalNoticeService {
             channelDescription: 'repeating description');
     const NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
-    await _localNotificationsPlugin.periodicallyShow(noticeId++, '重复消息 title',
-        '重复消息 body', RepeatInterval.everyMinute, notificationDetails,
-        androidAllowWhileIdle: true);
+    await _localNotificationsPlugin.periodicallyShow(
+        noticeId++,
+        '重复消息 title',
+        '重复消息 body',
+        RepeatInterval.everyMinute,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle);
   }
 
   Future<void> _showNotificationCustomVibrationIconLed() async {
@@ -375,7 +385,7 @@ class LocalNoticeService {
   Future<void> checkPending() async {
     final List<PendingNotificationRequest> pendingNotificationRequests =
         await _localNotificationsPlugin.pendingNotificationRequests();
-    print(pendingNotificationRequests.length);
+    logDebug(pendingNotificationRequests.length);
   }
 
   Future<int> _getActive() async {
@@ -386,11 +396,11 @@ class LocalNoticeService {
 
   @pragma('vm:entry-point')
   void notificationTapBackground(NotificationResponse notificationResponse) {
-    print('notification(${notificationResponse.id}) action tapped: '
+    logDebug('notification(${notificationResponse.id}) action tapped: '
         '${notificationResponse.actionId} with'
         ' payload: ${notificationResponse.payload}');
     if (notificationResponse.input?.isNotEmpty ?? false) {
-      print(
+      logDebug(
           'notification action tapped with input: ${notificationResponse.input}');
     }
   }

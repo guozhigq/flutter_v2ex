@@ -1,18 +1,14 @@
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/adaptive/destinations.dart';
-import 'package:flutter_v2ex/components/adaptive/second_body.dart';
 import 'package:flutter_v2ex/components/adaptive/trailing.dart';
-import 'package:flutter_v2ex/pages/page_home.dart';
-import 'package:flutter_v2ex/pages/t/:topicId.dart';
 import 'package:flutter_v2ex/utils/global.dart';
 import 'package:get/get.dart';
 
 class CAdaptiveLayout extends StatefulWidget {
-  Widget? child;
+  final Widget? child;
 
-  CAdaptiveLayout({this.child, super.key});
+  const CAdaptiveLayout({this.child, super.key});
 
   @override
   State<CAdaptiveLayout> createState() => _CAdaptiveLayoutState();
@@ -274,7 +270,7 @@ class _ExamplePage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(),
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
       ),
     );
   }

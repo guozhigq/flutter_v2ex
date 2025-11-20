@@ -57,7 +57,7 @@ class CAvatar extends StatelessWidget {
   Widget errAvatar(context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(50),
       ),
       clipBehavior: Clip.antiAlias,

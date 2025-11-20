@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/models/network/item_node_topic.dart';
 import 'package:flutter_v2ex/package/markdown_editable_textinput/format_markdown.dart';
 import 'package:flutter_v2ex/package/markdown_editable_textinput/markdown_text_input.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 enum SampleItem { draft, cancel, tips }
 
@@ -45,7 +46,7 @@ class _WritePageState extends State<WritePage> {
       source = Get.parameters['source']!;
       topicId = Get.parameters['topicId']!;
     }
-    print('source: $source');
+    logDebug('source: $source');
     if (source == 'edit') {
       // 查询编辑状态及内容
       queryTopicStatus();
@@ -59,10 +60,13 @@ class _WritePageState extends State<WritePage> {
   // 是否可编辑
   void queryTopicStatus() async {
     var res = await DioRequestWeb.queryTopicStatus(topicId);
+    if (!mounted) {
+      return;
+    }
     if (res['status']) {
       // 可以编辑，渲染内容
       Map topicDetail = res['topicDetail'];
-      print("😊topicDetail: ${topicDetail['topicTitle']}");
+      logDebug("😊topicDetail: ${topicDetail['topicTitle']}");
       String topicTitle = topicDetail['topicTitle'];
       String topicContent = topicDetail['topicContent'];
       String syntax = topicDetail['syntax'];
@@ -72,27 +76,25 @@ class _WritePageState extends State<WritePage> {
         syntax = syntax;
       });
     } else {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('提示'),
-              content: const Text('你不能编辑这个主题。'),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      // 关闭 dialog
-                      Navigator.pop(context);
-                      // 关闭 page
-                      Navigator.pop(context, {'refresh': true});
-                    },
-                    child: const Text('返回'))
-              ],
-            );
-          },
-        );
-      }
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: const Text('你不能编辑这个主题。'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    // 关闭 dialog
+                    Navigator.pop(context);
+                    // 关闭 page
+                    Navigator.pop(context, {'refresh': true});
+                  },
+                  child: const Text('返回'))
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -100,27 +102,28 @@ class _WritePageState extends State<WritePage> {
   void queryAppendStatus() async {
     var res = await DioRequestWeb.appendStatus(topicId);
     if (!res) {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('提示'),
-              content: const Text('不可为该主题增加附言'),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      // 关闭 dialog
-                      Navigator.pop(context);
-                      // 关闭 page
-                      Navigator.pop(context);
-                    },
-                    child: const Text('返回'))
-              ],
-            );
-          },
-        );
+      if (!mounted) {
+        return;
       }
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: const Text('不可为该主题增加附言'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    // 关闭 dialog
+                    Navigator.pop(context);
+                    // 关闭 page
+                    Navigator.pop(context);
+                  },
+                  child: const Text('返回'))
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -183,35 +186,30 @@ class _WritePageState extends State<WritePage> {
         'node_name': currentNode!.name,
       };
       var result = await DioRequestWeb.postTopic(args);
+      if (!mounted) {
+        return;
+      }
       if (result != false) {
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('发布成功'),
-                content: const Text('主题发布成功，是否前往查看'),
-                actions: [
-                  // TextButton(
-                  //     onPressed: () {
-                  //       Navigator.pop(context);
-                  //       Get.back();
-                  //     },
-                  //     child: const Text('返回上一页')),
-                  TextButton(
-                      onPressed: () {
-                        try {
-                          Get.offAndToNamed(result[0]);
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      child: const Text('去查看'))
-                ],
-              );
-            },
-          );
-        }
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('发布成功'),
+              content: const Text('主题发布成功，是否前往查看'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      try {
+                        Get.offAndToNamed(result[0]);
+                      } catch (e) {
+                        logDebug(e);
+                      }
+                    },
+                    child: const Text('去查看'))
+              ],
+            );
+          },
+        );
       }
     }
   }
@@ -230,26 +228,27 @@ class _WritePageState extends State<WritePage> {
         'topicId': topicId
       };
       var result = await DioRequestWeb.eidtTopic(args);
+      if (!mounted) {
+        return;
+      }
       if (result) {
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('编辑成功'),
-                content: const Text('主题编辑成功，是否前往查看'),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        // 返回主题详情页并刷新
-                        Navigator.pop(context, {'refresh', true});
-                      },
-                      child: const Text('去查看'))
-                ],
-              );
-            },
-          );
-        }
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('编辑成功'),
+              content: const Text('主题编辑成功，是否前往查看'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      // 返回主题详情页并刷新
+                      Navigator.pop(context, {'refresh', true});
+                    },
+                    child: const Text('去查看'))
+              ],
+            );
+          },
+        );
       } else {
         SmartDialog.show(
           useSystem: true,
@@ -286,14 +285,15 @@ class _WritePageState extends State<WritePage> {
         'topicId': topicId
       };
       var result = await DioRequestWeb.appendContent(args);
+      if (!mounted) {
+        return;
+      }
       if (result) {
-        if (context.mounted) {
-          SmartDialog.showToast('发布成功',
-                  displayTime: const Duration(milliseconds: 800))
-              .then((value) {
-            Get.back(result: {'refresh': true});
-          });
-        }
+        SmartDialog.showToast('发布成功',
+                displayTime: const Duration(milliseconds: 800))
+            .then((value) {
+          Get.back(result: {'refresh': true});
+        });
       } else {}
     }
   }
@@ -381,7 +381,7 @@ class _WritePageState extends State<WritePage> {
                             bottom: BorderSide(
                                 color: Theme.of(context)
                                     .dividerColor
-                                    .withOpacity(0.2)))),
+                                    .withValues(alpha: 0.2)))),
                     child: Row(
                       children: [
                         Text(
@@ -409,7 +409,7 @@ class _WritePageState extends State<WritePage> {
                         bottom: BorderSide(
                             color: Theme.of(context)
                                 .dividerColor
-                                .withOpacity(0.2)))),
+                                .withValues(alpha: 0.2)))),
                 child: TextFormField(
                   autofocus: true,
                   controller: titleController,

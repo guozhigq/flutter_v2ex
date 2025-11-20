@@ -95,13 +95,13 @@ class _MemberRepliesPageState extends State<MemberRepliesPage> {
                         currentPage: _currentPage,
                         onChildLoad:
                             _totalPage > 1 && _currentPage <= _totalPage
-                                ? queryMemberReply
+                                ? () async => await queryMemberReply()
                                 : null,
-                        onChildRefresh: () {
+                        onChildRefresh: () async {
                           setState(() {
                             _currentPage = 0;
                           });
-                          queryMemberReply();
+                          await queryMemberReply();
                         },
                         child: content(),
                       )

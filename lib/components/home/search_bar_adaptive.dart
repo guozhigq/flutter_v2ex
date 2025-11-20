@@ -7,9 +7,10 @@ import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class HomeSearchBarAdaptive extends StatefulWidget {
-  final userInfo;
+  final Map<String, dynamic>? userInfo;
 
   const HomeSearchBarAdaptive({this.userInfo, super.key});
 
@@ -19,7 +20,7 @@ class HomeSearchBarAdaptive extends StatefulWidget {
 
 class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
   bool loginStatus = false;
-  Map userInfo = {};
+  Map<String, dynamic> userInfo = {};
   bool unRead = false;
 
   @override
@@ -62,7 +63,8 @@ class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
   void readUserInfo() {
     if (GStorage().getUserInfo() != {}) {
       // DioRequestWeb.dailyMission();
-      Map userInfoStorage = GStorage().getUserInfo();
+      final userInfoStorage =
+          Map<String, dynamic>.from(GStorage().getUserInfo());
       setState(() {
         userInfo = userInfoStorage;
         loginStatus = true;
@@ -140,7 +142,7 @@ class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
                   });
                 } else {
                   var res = await Get.toNamed('/login');
-                  print('search_bar: $res');
+                  logDebug('search_bar: $res');
                   if (res != null) {
                     if (res['loginStatus'] == 'cancel') {
                       SmartDialog.showToast('取消登录');
@@ -169,7 +171,7 @@ class _HomeSearchBarAdaptiveState extends State<HomeSearchBarAdaptive> {
                   // ?  Text(userInfo['userName'])
                   : Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       clipBehavior: Clip.antiAlias,

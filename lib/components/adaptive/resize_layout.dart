@@ -1,15 +1,13 @@
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
-import 'package:flutter_v2ex/pages/t/:topicId.dart';
+import 'package:flutter_v2ex/pages/t/topic_id.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
-import 'package:get/get.dart';
 
 class ResizeLayout extends StatefulWidget {
-  Widget leftLayout;
-  Widget? rightLayout;
+  final Widget leftLayout;
+  final Widget? rightLayout;
 
-  ResizeLayout({
+  const ResizeLayout({
     Key? key,
     required this.leftLayout,
     this.rightLayout,
@@ -78,7 +76,7 @@ class _ResizeLayoutState extends State<ResizeLayout> {
                     clipBehavior: Clip.hardEdge,
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                    child: widget.rightLayout ?? TopicDetail(),
+                    child: widget.rightLayout ?? const TopicDetail(),
                   ),
                 ),
               ),

@@ -1,28 +1,29 @@
 import 'package:appscheme/appscheme.dart';
 import 'package:get/get.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class VvexScheme {
-  static AppScheme appScheme = AppSchemeImpl.getInstance()!;
+  static AppScheme appScheme = AppSchemeImpl.getInstance();
   static Future<void> init() async {
     ///
     final SchemeEntity? value = await appScheme.getInitScheme();
     if (value != null) {
-      print('SchemeEntity:${value.host}');
+      logDebug('SchemeEntity:${value.host}');
     }
 
     /// 完整链接进入
     appScheme.getLatestScheme().then((SchemeEntity? value) {
       if (value != null) {
-        print('getLatestScheme: ${value.host}');
+        logDebug('getLatestScheme: ${value.host}');
       }
     });
 
     /// 注册从外部打开的Scheme监听信息 #
     appScheme.registerSchemeListener().listen((SchemeEntity? event) {
       if (event != null) {
-        print('registerSchemeListener: ${event.host}');
-        print('registerSchemeListener: ${event.path}');
-        print('registerSchemeListener: ${event.query}');
+        logDebug('registerSchemeListener: ${event.host}');
+        logDebug('registerSchemeListener: ${event.path}');
+        logDebug('registerSchemeListener: ${event.query}');
         Get.toNamed(event.path!, arguments: null);
       }
     });

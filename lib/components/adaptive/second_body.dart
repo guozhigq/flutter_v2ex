@@ -1,10 +1,9 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
-import 'package:flutter_v2ex/pages/t/:topicId.dart';
-import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
+import 'package:flutter_v2ex/pages/t/topic_id.dart';
 import 'package:flutter_v2ex/utils/event_bus.dart';
-import 'package:flutter_v2ex/utils/global.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class SecondBody extends StatefulWidget {
   const SecondBody({Key? key}) : super(key: key);
@@ -36,7 +35,7 @@ class _SecondBodyState extends State<SecondBody> {
         ColorScheme? darkColorScheme;
         Color brandColor = const Color.fromRGBO(32, 82, 67, 1);
         if (lightDynamic != null && darkDynamic != null) {
-          print('dynamic取色成功');
+          logDebug('dynamic取色成功');
           // dynamic取色成功
           lightColorScheme = lightDynamic.harmonized();
           darkColorScheme = darkDynamic.harmonized();
@@ -72,8 +71,8 @@ class _SecondBodyState extends State<SecondBody> {
                   clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: Theme.of(context).colorScheme.background,
-                    // color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.surface,
+                    // color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   ),
                   child: Center(
                     child: topic != null ? TopicDetail(topicDetail: topic) : Text('VVEX', style: TextStyle(

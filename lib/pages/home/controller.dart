@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class TabStateController extends GetxController {
   RxInt tabIndex = 999.obs;
@@ -13,7 +14,7 @@ class TabStateController extends GetxController {
   }
 
   void setBalance(str) {
-    print('金币： $balance');
+    logDebug('金币： $balance');
     balance.value = str;
   }
 }

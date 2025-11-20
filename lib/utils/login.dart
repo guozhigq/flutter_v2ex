@@ -10,6 +10,7 @@ import 'package:flutter_v2ex/http/dio_web.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class Login {
   static void onLogin() {
@@ -68,8 +69,8 @@ class Login {
   }
 
   static void twoFADialog() {
-    String _currentPage = Get.currentRoute;
-    print('_currentPage: $_currentPage');
+    String currentPage = Get.currentRoute;
+    logDebug('_currentPage: $currentPage');
     var twoFACode = '';
     SmartDialog.show(
       useSystem: true,
@@ -101,8 +102,8 @@ class Login {
                   await Login.signOut();
                   SmartDialog.dismiss();
                   eventBus.emit('login', 'cancel');
-                  if (_currentPage == '/login' ||
-                      _currentPage.startsWith('/t/')) {
+                  if (currentPage == '/login' ||
+                      currentPage.startsWith('/t/')) {
                     Get.back(result: {'loginStatus': 'cancel'});
                   }
                 },
@@ -119,8 +120,8 @@ class Login {
                           .then((res) {
                         // 登录页面需要关闭当前页面，其余情况只关闭dialog
                         SmartDialog.dismiss();
-                        if (_currentPage == '/login') {
-                          print('😊😊 - 登录成功');
+                        if (currentPage == '/login') {
+                          logDebug('😊😊 - 登录成功');
                           Get.back(result: {'loginStatus': 'success'});
                         }
                       });

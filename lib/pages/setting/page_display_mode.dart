@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class SetDiaplayMode extends StatefulWidget {
   const SetDiaplayMode({super.key});
@@ -41,7 +42,7 @@ class _SetDiaplayModeState extends State<SetDiaplayMode> {
     try {
       modes = await FlutterDisplayMode.supported;
     } on PlatformException catch (e) {
-      print(e);
+      logDebug(e);
     }
     var res = await GStorage().getDisplayModeType();
     preferred = modes.toList().firstWhere((el) => el == res);

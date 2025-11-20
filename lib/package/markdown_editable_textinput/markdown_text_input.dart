@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:expandable/expandable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 // import 'package:translator/translator.dart';
@@ -13,7 +10,7 @@ class MarkdownTextInput extends StatefulWidget {
   final Decoration? decoration;
 
   /// Callback called when text changed
-  final Function onTextChanged;
+  final ValueChanged<String> onTextChanged;
 
   /// Initial value you want to display
   final String initialValue;
@@ -47,7 +44,7 @@ class MarkdownTextInput extends StatefulWidget {
   final bool insertLinksByDialog;
 
   /// Constructor for [MarkdownTextInput]
-  MarkdownTextInput(this.onTextChanged, this.initialValue,
+  const MarkdownTextInput(this.onTextChanged, this.initialValue,
       {this.label = '',
       this.validators,
       this.textDirection = TextDirection.ltr,
@@ -63,20 +60,18 @@ class MarkdownTextInput extends StatefulWidget {
       this.controller,
       this.insertLinksByDialog = true,
       this.decoration,
-      this.customActions = const []});
+      this.customActions = const [],
+      super.key});
 
   @override
-  _MarkdownTextInputState createState() =>
-      _MarkdownTextInputState(controller ?? TextEditingController());
+  MarkdownTextInputState createState() => MarkdownTextInputState();
 }
 
-class _MarkdownTextInputState extends State<MarkdownTextInput> {
-  final TextEditingController _controller;
+class MarkdownTextInputState extends State<MarkdownTextInput> {
+  late final TextEditingController _controller;
   TextSelection textSelection =
       const TextSelection(baseOffset: 0, extentOffset: 0);
-  FocusNode focusNode = FocusNode();
-
-  _MarkdownTextInputState(this._controller);
+  final FocusNode focusNode = FocusNode();
 
   void onTap(MarkdownType type,
       {int titleSize = 1, String? link, String? selectedText}) {
@@ -108,10 +103,12 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
 
   @override
   void initState() {
+    _controller = widget.controller ?? TextEditingController();
     _controller.text = widget.initialValue;
     _controller.addListener(() {
-      if (_controller.selection.baseOffset != -1)
+      if (_controller.selection.baseOffset != -1) {
         textSelection = _controller.selection;
+      }
       widget.onTextChanged(_controller.text);
     });
     super.initState();
@@ -119,7 +116,9 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
 
   @override
   void dispose() {
-    if (widget.controller == null) _controller.dispose();
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
     focusNode.dispose();
     super.dispose();
   }

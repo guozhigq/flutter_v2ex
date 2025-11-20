@@ -64,7 +64,7 @@ class _ChangeLogPageState extends State<ChangeLogPage> {
               ),
             ),
             Divider(
-              color: Theme.of(context).dividerColor.withOpacity(0.1),
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
               height: 1,
               indent: 15,
               endIndent: 15,

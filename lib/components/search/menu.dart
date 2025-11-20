@@ -178,7 +178,7 @@ class _SearchMenuState extends State<SearchMenu> {
                             sortType == 'sumup' ? '权重' : '发帖时间',
                             style: TextStyle(
                                 color:
-                                    Theme.of(context).colorScheme.onBackground),
+                                    Theme.of(context).colorScheme.onSurface),
                           )
                         ],
                       ),
@@ -227,7 +227,7 @@ class _SearchMenuState extends State<SearchMenu> {
                               style: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .onBackground))
+                                      .onSurface))
                         ],
                       ),
                     ),
@@ -250,7 +250,7 @@ class _SearchMenuState extends State<SearchMenu> {
                               style: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .onBackground))
+                                      .onSurface))
                         ],
                       ),
                     ),

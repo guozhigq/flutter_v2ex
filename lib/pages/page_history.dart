@@ -104,8 +104,8 @@ class _HistoryPageState extends State<HistoryPage> {
                           stuckAmount = 0.4 - stuckAmount.clamp(0.0, 1.0);
                           return Container(
                             height: 60.0,
-                            color: Theme.of(context).colorScheme.background,
-                            // color: Color.lerp(Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.onInverseSurface, stuckAmount),
+                            color: Theme.of(context).colorScheme.surface,
+                            // color: Color.lerp(Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.onInverseSurface, stuckAmount),
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 16.0),
                             alignment: Alignment.centerLeft,

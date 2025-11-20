@@ -7,6 +7,7 @@ import 'package:flutter_v2ex/utils/hive.dart';
 import 'package:flutter_v2ex/utils/proxy.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class Routes {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey();
@@ -24,13 +25,13 @@ Color getBackground(BuildContext context, tag) {
     if(case_1.contains(tag)){
       return Theme.of(context).colorScheme.onInverseSurface;
     }else if(case_2.contains(tag)){
-      return Theme.of(context).colorScheme.background;
+      return Theme.of(context).colorScheme.surface;
     }else{
       return Theme.of(context).colorScheme.onInverseSurface;
     }
   } else {
     if(case_1.contains(tag)){
-      return Theme.of(context).colorScheme.background;
+      return Theme.of(context).colorScheme.surface;
     }else if(case_2.contains(tag)){
       return Theme.of(context).colorScheme.onInverseSurface;
     }else{
@@ -46,7 +47,7 @@ class Global {
     try {
       await LocalNoticeService().init();
     } catch (err) {
-      print('LocalNoticeService err: ${err.toString()}');
+      logDebug('LocalNoticeService err: ${err.toString()}');
     }
     // 配置代理
     CustomProxy().init();
@@ -54,7 +55,7 @@ class Global {
     try {
       await GetStorage.init();
     } catch (err) {
-      print('GetStorage err: ${err.toString()}');
+      logDebug('GetStorage err: ${err.toString()}');
     }
     // Hive初始化 历史浏览box
     await initHive();

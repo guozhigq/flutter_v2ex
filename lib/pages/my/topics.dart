@@ -101,13 +101,13 @@ class _MyTopicsPageState extends State<MyTopicsPage> {
                             currentPage: _currentPage,
                             onChildLoad:
                                 _totalPage > 1 && _currentPage <= _totalPage
-                                    ? getTopics
+                                    ? () async => await getTopics()
                                     : null,
-                            onChildRefresh: () {
+                            onChildRefresh: () async {
                               setState(() {
                                 _currentPage = 0;
                               });
-                              getTopics();
+                              await getTopics();
                             },
                             child: content(),
                           )

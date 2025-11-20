@@ -13,6 +13,7 @@ import 'package:flutter_v2ex/components/extended_text/text_span_builder.dart';
 import 'package:flutter_v2ex/http/topic.dart';
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class ReplyNew extends StatefulWidget {
   final List? replyMemberList;
@@ -74,8 +75,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
 
-      String _replyContent = _replyContentController.text;
-      _replyContent = _replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
+      String replyContent = _replyContentController.text;
+      replyContent = replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
           onMatch: (match) {
             String matched = match[0]!.substring(1, match[0]!.length - 1);
             if (Strings.coolapkEmoticon.keys.contains(matched)) {
@@ -91,18 +92,17 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           replyUser += '@${i.userName} #${i.floorNumber}  ';
         }
       }
-      // print(_replyContent);
+      // logDebug(_replyContent);
       // return;
       var res = await TopicWebApi.onSubmitReplyTopic(
-          widget.topicId, replyUser + _replyContent, widget.totalPage!);
+          widget.topicId, replyUser + replyContent, widget.totalPage!);
+      if (!mounted) {
+        return;
+      }
       if (res == 'true') {
-        if (context.mounted) {
-          Navigator.pop(context, {'replyStatus': 'success'});
-        }
+        Navigator.pop(context, {'replyStatus': 'success'});
       } else if (res == 'success') {
-        if (context.mounted) {
-          Navigator.pop(context, {'replyStatus': 'fail'});
-        }
+        Navigator.pop(context, {'replyStatus': 'fail'});
       } else {
         SmartDialog.show(
           useSystem: true,
@@ -127,7 +127,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
 
   void onShowMember(context, {type = 'input'}) {
     if (widget.replyList == null) {
-      print('reply_new: widget.replyList为null');
+      logDebug('reply_new: widget.replyList为null');
       return;
     }
     // Don't use 'BuildContext's across async gaps 防止异步函数丢失上下文，传入context
@@ -250,9 +250,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     super.didChangeMetrics();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 键盘高度
-      final viewInsets = EdgeInsets.fromWindowPadding(
-          WidgetsBinding.instance.window.viewInsets,
-          WidgetsBinding.instance.window.devicePixelRatio);
+      final view = View.of(context);
+      final viewInsets =
+          EdgeInsets.fromViewPadding(view.viewInsets, view.devicePixelRatio);
       _debouncer.run(() {
         if (mounted) {
           setState(() {
@@ -264,18 +264,6 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         }
       });
     });
-  }
-
-  _onFocus() {
-    if (replyContentFocusNode.hasFocus) {
-      // 聚焦时候的操作
-      // _isKeyboardActived = true;
-      toolbarType = 'input';
-      return;
-    }
-    // 失去焦点时候的操作
-    // _isKeyboardActived = false;
-    setState(() {});
   }
 
   _printLatestValue() {
@@ -353,7 +341,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                 icon: const Icon(Icons.close),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
-                    backgroundColor: Theme.of(context).colorScheme.background),
+                    backgroundColor: Theme.of(context).colorScheme.surface),
               ),
               Text(
                 widget.replyMemberList!.isEmpty
@@ -369,7 +357,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                 icon: const Icon(Icons.send_outlined),
                 style: IconButton.styleFrom(
                     padding: const EdgeInsets.all(9),
-                    backgroundColor: Theme.of(context).colorScheme.background),
+                    backgroundColor: Theme.of(context).colorScheme.surface),
               ),
             ],
           ),
@@ -425,7 +413,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               padding: const EdgeInsets.only(
                   top: 12, right: 15, left: 15, bottom: 10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Form(
@@ -449,7 +437,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   // },
                   onChanged: (value) {
                     if (value.endsWith('@')) {
-                      print('TextFormField 唤起');
+                      logDebug('TextFormField 唤起');
                       onShowMember(context);
                     }
                   },
@@ -499,15 +487,15 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                         Icons.keyboard,
                         size: 22,
                         color: toolbarType == 'input'
-                            ? Theme.of(context).colorScheme.onBackground
+                            ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.outline,
                       ),
                       highlightColor:
                           Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                         backgroundColor:
-                            MaterialStateProperty.resolveWith((states) {
+                            WidgetStateProperty.resolveWith((states) {
                           return toolbarType == 'input'
                               ? Theme.of(context).highlightColor
                               : null;
@@ -528,7 +516,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                       highlightColor:
                           Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                       )),
                 ),
                 const SizedBox(width: 10),
@@ -544,15 +532,15 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                         Icons.emoji_emotions,
                         size: 22,
                         color: toolbarType == 'emoticon'
-                            ? Theme.of(context).colorScheme.onBackground
+                            ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.outline,
                       ),
                       highlightColor:
                           Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                         backgroundColor:
-                            MaterialStateProperty.resolveWith((states) {
+                            WidgetStateProperty.resolveWith((states) {
                           return toolbarType == 'emoticon'
                               ? Theme.of(context).highlightColor
                               : null;
@@ -578,7 +566,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                       color: Theme.of(context).colorScheme.outline,
                     ),
                     style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero)),
                   ),
                 ),
                 const Spacer(),
@@ -647,7 +635,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   }
 }
 
-typedef void DebounceCallback();
+typedef DebounceCallback = void Function();
 
 class Debouncer {
   DebounceCallback? callback;
@@ -656,7 +644,7 @@ class Debouncer {
 
   Debouncer({this.milliseconds});
 
-  run(DebounceCallback callback) {
+  void run(DebounceCallback callback) {
     if (_timer != null) {
       _timer!.cancel();
     }

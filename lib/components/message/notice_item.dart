@@ -5,6 +5,7 @@ import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_v2ex/components/topic/html_render.dart';
 import 'package:flutter_v2ex/models/web/item_member_notice.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 // TODO 样式
 class NoticeItem extends StatefulWidget {
@@ -25,7 +26,7 @@ class _NoticeItemState extends State<NoticeItem> {
   }
 
   void doNothing(BuildContext context) {
-    print(context);
+    logDebug(context);
   }
 
   @override
@@ -115,7 +116,7 @@ class _NoticeItemState extends State<NoticeItem> {
                     color: Theme.of(context)
                         .colorScheme
                         .primary
-                        .withOpacity(0.1))),
+                        .withValues(alpha: 0.1))),
             // child: Text(widget.noticeItem.topicTitle),
             child: HtmlRender(
               htmlContent: widget.noticeItem.replyContentHtml,

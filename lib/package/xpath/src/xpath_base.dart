@@ -1,13 +1,12 @@
+// ignore_for_file: avoid_print
+
 class ETree {
-  String? _html;
   Element? rootElement;
 
   static ETree fromString(html) {
     var tree = ETree();
-    tree._html = html;
     var bt = BuildTree(html);
     if (!bt.build()) {
-      // ignore: avoid_print
       print('tree build failed');
     }
     tree.rootElement = bt.rootElement;
@@ -46,7 +45,6 @@ class BuildTree {
   int? _current;
   late int _max_idx;
   Element? _parent;
-  int _depth = 0;
 
   Element rootElement = Element()..type = ElementType.root;
 
@@ -56,7 +54,6 @@ class BuildTree {
 
   bool build() {
     _current = 0;
-    _depth = 0;
     _parent = rootElement;
 
     while (_current! < _max_idx) {
@@ -139,7 +136,6 @@ class BuildTree {
     _current = _current! + m.end;
     _parent!.end = _current;
     _parent = _parent!.parent;
-    _depth--;
     return true;
   }
 
@@ -189,7 +185,6 @@ class BuildTree {
     _parent!.children.add(e);
     if (!selfClosure) {
       _parent = e;
-      _depth++;
     }
 
     return true;

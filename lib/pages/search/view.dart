@@ -43,7 +43,7 @@ class _SearchPageState extends State<SearchPage> {
     _screenHeight = MediaQuery.of(context).size.height;
     return PopScope(
       canPop: false,
-      onPopInvoked: (bool didPop) {
+      onPopInvokedWithResult: (bool didPop, Object? _) {
         if (didPop) {
           return;
         }
@@ -70,7 +70,7 @@ class _SearchPageState extends State<SearchPage> {
                                 onChildLoad: _searchController.totalPage > 1 &&
                                         _searchController.currentPage <=
                                             _searchController.totalPage.value
-                                    ? _searchController.search
+                                    ? () async => await _searchController.search()
                                     : null,
                                 child: wrap(),
                               )
@@ -239,7 +239,7 @@ class _SearchPageState extends State<SearchPage> {
             if (source.replies > 0)
               Material(
                 borderRadius: BorderRadius.circular(50),
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(50),
                   child: Ink(

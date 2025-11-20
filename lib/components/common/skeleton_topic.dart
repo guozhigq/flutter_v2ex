@@ -31,7 +31,7 @@ class TopicItemSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var commonColor = Theme.of(context).colorScheme.surfaceVariant;
+    var commonColor = Theme.of(context).colorScheme.surfaceContainerHighest;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),

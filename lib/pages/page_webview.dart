@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/cookie.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class WebView extends StatefulWidget {
   const WebView({super.key});
@@ -52,14 +53,13 @@ class _WebViewState extends State<WebView> {
               child: Stack(
                 children: [
                   InAppWebView(
-                    initialOptions: InAppWebViewGroupOptions(
-                        crossPlatform: InAppWebViewOptions(
+                    initialSettings: InAppWebViewSettings(
                       userAgent: 'random',
                       javaScriptEnabled: true,
                       useShouldOverrideUrlLoading: true,
                       useOnLoadResource: true,
                       cacheEnabled: true,
-                    )),
+                    ),
                     initialUrlRequest: URLRequest(
                       url: WebUri(aUrl),
                       headers: {
@@ -73,7 +73,7 @@ class _WebViewState extends State<WebView> {
                     // initialSettings: settings,
                     onWebViewCreated: (controller) async {
                       webViewController = controller;
-                      // print(await controller.getHtml());
+                      // logDebug(await controller.getHtml());
                     },
                     // 加载url时触发
                     onLoadStart: (controller, url) async {
@@ -82,7 +82,7 @@ class _WebViewState extends State<WebView> {
                     // 触发多次 页面内可能会有跳转
                     onLoadStop: (controller, url) async {
                       pullToRefreshController?.endRefreshing();
-                      print('🔥🔥 👋🌲');
+                      logDebug('🔥🔥 👋🌲');
                       // google登录完成
                       // ignore: unrelated_type_equality_checks
                       String strUrl = url.toString();

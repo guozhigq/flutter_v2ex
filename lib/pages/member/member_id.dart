@@ -36,7 +36,7 @@ class _MemberPageState extends State<MemberPage> {
             if (snapshot.data != null) {
               return _buildView();
             } else {
-              return Text('请求异常');
+              return const Text('请求异常');
             }
           } else {
             return loading();
@@ -148,7 +148,7 @@ class _MemberPageState extends State<MemberPage> {
                               const BorderRadius.all(Radius.circular(10)),
                           border: Border.all(
                               strokeAlign: BorderSide.strokeAlignCenter,
-                              color: Theme.of(context).colorScheme.background,
+                              color: Theme.of(context).colorScheme.surface,
                               width: 2.5),
                         ),
                       ),
@@ -234,7 +234,7 @@ class _MemberPageState extends State<MemberPage> {
                 // },
                 style: {
                   'a': Style(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                     textDecoration: TextDecoration.none,
                     margin: Margins.only(right: 2),
                   ),
@@ -348,7 +348,7 @@ class _MemberPageState extends State<MemberPage> {
           padding: EdgeInsets.zero,
           child: FilledButton.tonal(
             style: ButtonStyle(
-                padding: MaterialStateProperty.all(const EdgeInsets.only(
+                padding: WidgetStateProperty.all(const EdgeInsets.only(
                     top: 7, right: 12, bottom: 7, left: 8))),
             onPressed: () async {
               await Utils.openURL(i.href);
@@ -386,7 +386,7 @@ class _MemberPageState extends State<MemberPage> {
         child: Material(
           borderRadius: BorderRadius.circular(30),
           child: InkWell(
-            splashColor: Theme.of(context).colorScheme.surfaceVariant,
+            splashColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             onTap: () {
               if (type == 'reply') {
                 Get.toNamed('/member/${_memberController.memberId}/replies');

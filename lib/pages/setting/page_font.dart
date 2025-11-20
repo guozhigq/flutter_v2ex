@@ -13,8 +13,8 @@ class SetFontPage extends StatefulWidget {
 class _SetFontPageState extends State<SetFontPage> {
   // 获取当前字体大小
   double _currentGlobalSize = GStorage().getGlobalFs();
-  double _currentHtmlSize = GStorage().getHtmlFs();
-  double _currentReplySize = GStorage().getReplyFs();
+  final double _currentHtmlSize = GStorage().getHtmlFs();
+  final double _currentReplySize = GStorage().getReplyFs();
 
   @override
   Widget build(BuildContext context) {

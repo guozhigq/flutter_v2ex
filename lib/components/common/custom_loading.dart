@@ -12,7 +12,8 @@ class CustomLoading extends StatelessWidget {
       height: 120,
       padding: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).dialogTheme.backgroundColor ??
+              Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -43,12 +44,12 @@ class CustomToast extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-              color: Theme.of(context).colorScheme.background.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
               blurRadius: 20,
               spreadRadius: 2,
               offset: const Offset(0, 0)

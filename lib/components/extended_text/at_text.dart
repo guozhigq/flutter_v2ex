@@ -25,7 +25,7 @@ class AtText extends SpecialText {
         ? BackgroundTextSpan(
             background: Paint()
               ..color =
-                  Theme.of(Get.context!).colorScheme.primary.withOpacity(0.15),
+                  Theme.of(Get.context!).colorScheme.primary.withValues(alpha: 0.15),
             text: atText,
             actualText: atText,
             start: start!,
@@ -53,7 +53,7 @@ class AtText extends SpecialText {
         //               text: '@',
         //               style: TextStyle(
         //                   color:
-        //                       Theme.of(Get.context!).colorScheme.onBackground)),
+        //                       Theme.of(Get.context!).colorScheme.onSurface)),
         //           TextSpan(text: atText.split('@')[1]),
         //         ],
         //       )),

@@ -18,6 +18,7 @@ import 'package:flutter_v2ex/models/web/model_login_detail.dart'; // 用户登�
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import './node.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class DioRequestWeb {
   static dynamic _parseAndDecode(String response) {
@@ -117,7 +118,7 @@ class DioRequestWeb {
     try {
       Read().mark(topicList);
     } catch (err) {
-      print(err);
+      logDebug(err);
     }
     res['topicList'] = topicList;
     var childNode = rootDom.querySelector("div[id='SecondaryTabs']");
@@ -127,7 +128,7 @@ class DioRequestWeb {
           .where((el) => el.attributes['href']!.startsWith('/go'));
       if (childNodeEls.isNotEmpty) {
         for (var i in childNodeEls) {
-          print(i);
+          logDebug(i);
           var nodeItem = {};
           nodeItem['nodeId'] = i.attributes['href']!.split('/go/')[1];
           nodeItem['nodeName'] = i.text;
@@ -150,7 +151,7 @@ class DioRequestWeb {
       var noticeEl = rightBarNode.querySelectorAll('a.fade');
       if (noticeEl.isNotEmpty) {
         var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
-        print('$unRead条未读消息');
+        logDebug('$unRead条未读消息');
         if (int.parse(unRead) > 0) {
           eventBus.emit('unRead', int.parse(unRead));
         }
@@ -176,7 +177,7 @@ class DioRequestWeb {
         extra: {'ua': 'pc'},
       );
     } catch (err) {
-      throw (err);
+      rethrow;
     }
     var tree = ETree.fromString(response.data);
     var aRootNode = tree.xpath("//*[@class='cell item']");
@@ -221,7 +222,7 @@ class DioRequestWeb {
     try {
       Read().mark(topicList);
     } catch (err) {
-      print(err);
+      logDebug(err);
     }
     var document = parse(response.data);
     var rightBarNode = document.querySelector('#Rightbar > div.box');
@@ -237,7 +238,7 @@ class DioRequestWeb {
       var noticeEl = rightBarNode.querySelectorAll('a.fade');
       if (noticeEl.isNotEmpty) {
         var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
-        // print('$unRead条未读消息');
+        // logDebug('$unRead条未读消息');
         if (int.parse(unRead) > 0) {
           eventBus.emit('unRead', int.parse(unRead));
         }
@@ -411,11 +412,11 @@ class DioRequestWeb {
 
   // 获取当前用户信息
   static Future<String> getUserInfo() async {
-    print('getUserInfo');
+    logDebug('getUserInfo');
     var response = await Request().get('/write', extra: {'ua': 'mob'});
     // SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
-      print('getUserInfo 2fa');
+      logDebug('getUserInfo 2fa');
       // 需要两步验证
       if (response.redirects[0].location.path == "/2fa") {
         response = await Request().get('/2fa');
@@ -431,9 +432,9 @@ class DioRequestWeb {
       GStorage().setUserInfo({'avatar': avatar, 'userName': userName});
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
-      print('两步验证判断');
+      logDebug('两步验证判断');
       if (response.requestOptions.path == "/2fa") {
-        print('需要两步验证');
+        logDebug('需要两步验证');
         var tree = ETree.fromString(response.data);
         // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
         String once = tree
@@ -473,7 +474,7 @@ class DioRequestWeb {
     // GStorage().setOnce(once);
     SmartDialog.dismiss();
     if (response.statusCode == 302) {
-      print('成功');
+      logDebug('成功');
       return 'true';
     } else {
       SmartDialog.showToast('验证失败，请重新输入');
@@ -487,7 +488,7 @@ class DioRequestWeb {
     SmartDialog.showLoading(msg: '表示感谢ing');
     try {
       var response = await Request().post("/thank/reply/$replyId?once=$once");
-      // print('1019 thankReply: $response');
+      // logDebug('1019 thankReply: $response');
       var data = jsonDecode(response.toString());
       SmartDialog.dismiss();
       bool responseStatus = data['success'];
@@ -545,7 +546,7 @@ class DioRequestWeb {
       // 未读消息
       var unRead =
           noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-      // print('$unRead条未读消息');
+      // logDebug('$unRead条未读消息');
       if (int.parse(unRead) > 0) {
         eventBus.emit('unRead', int.parse(unRead));
       }
@@ -575,7 +576,7 @@ class DioRequestWeb {
       GStorage().setEightQuery(false);
     }
     if (lastSignDate == currentDate || GStorage().getEightQuery()) {
-      print('已签到 / 不自动签到');
+      logDebug('已签到 / 不自动签到');
       return false;
     }
     try {
@@ -586,7 +587,7 @@ class DioRequestWeb {
       if (response.statusCode == 302) {
         SmartDialog.showToast('签到成功');
       } else if (response.statusCode == 200) {
-        // print(response.redirect!);
+        // logDebug(response.redirect!);
         // log(parse(response.data).body!.innerHtml);
         var res = parse(response.data);
         var document = res.body;
@@ -613,7 +614,7 @@ class DioRequestWeb {
             }
           } else if (currentHour < 8) {
             GStorage().setEightQuery(true);
-            print("未到8点");
+            logDebug("未到8点");
           }
         }
       }
@@ -626,7 +627,7 @@ class DioRequestWeb {
   resolveNode(response, type) {
     List<Map<dynamic, dynamic>> nodesList = [];
     var document = parse(response.data);
-    var nodesBox;
+    dynamic nodesBox;
     if (type == 'mob') {
       // 【设置】中可能关闭【首页显示节点导航】
       if (document.querySelector('#Wrapper > div.content')!.children.length >=
@@ -696,7 +697,7 @@ class DioRequestWeb {
         await Request().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
-    print('1830：${response.headers["location"]}');
+    logDebug('1830：${response.headers["location"]}');
     if (document.querySelector('div.problem') != null) {
       SmartDialog.show(
         useSystem: true,
@@ -822,7 +823,7 @@ class DioRequestWeb {
     Response response =
         await Request().get('/append/topic/$topicId', extra: {'ua': 'mob'});
     SmartDialog.dismiss();
-    print(response);
+    logDebug(response);
     var document = parse(response.data);
     if (document.querySelectorAll('input').length > 2) {
       var onceNode = document.querySelectorAll('input')[1];
@@ -858,7 +859,7 @@ class DioRequestWeb {
           data: formData, options: options);
       SmartDialog.dismiss();
       var document = parse(response!.data);
-      print(document);
+      logDebug(document);
       return true;
     } catch (err) {
       SmartDialog.dismiss();
@@ -875,7 +876,7 @@ class DioRequestWeb {
   //   Response response = await Request().get(
   //       'https://api.github.com/repos/guozhigq/flutter_v2ex/releases/latest');
   //   var versionDetail = VersionModel.fromJson(response.data);
-  //   print(versionDetail.tag_name);
+  //   logDebug(versionDetail.tag_name);
   //   // 版本号
   //   var version = versionDetail.tag_name;
   //   var updateLog = versionDetail.body;

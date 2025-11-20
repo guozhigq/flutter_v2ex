@@ -342,7 +342,7 @@ class TopicWebApi {
       }
       // 操作成功
       return responseStatus;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       SmartDialog.dismiss();
       SmartDialog.showToast(e.message!);
     }
@@ -412,14 +412,14 @@ class TopicWebApi {
   // 历史浏览主题
   static Future<List<TabTopicItem>> getTopicsHistory() async {
     var topics = <TabTopicItem>[];
-    var response;
+    Response response;
     try {
       response = await Request().get(
         '/',
         extra: {'ua': 'pc'},
       );
     } catch (err) {
-      throw (err);
+      rethrow;
     }
     var document = parse(response.data);
     var historyDom = document.body!.querySelector('div[id="my-recent-topics"]');

@@ -21,12 +21,10 @@ class _NetworkCheckPageState extends State<NetworkCheckPage> {
   }
 
   init() async {
-    var res;
     try {
-      res = await Dio().get('${Strings.v2exHost}/');
+      final res = await Dio().get('${Strings.v2exHost}/');
       response = res.data.toString();
-    } on DioError catch (e) {
-      res = e;
+    } on DioException catch (e) {
       response = e.toString();
     }
     setState(() {

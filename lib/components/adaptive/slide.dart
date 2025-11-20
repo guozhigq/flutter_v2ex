@@ -176,7 +176,7 @@ class _AdaptSlideState extends State<AdaptSlide> {
                             style: {
                               'a': Style(
                                 color:
-                                    Theme.of(context).colorScheme.onBackground,
+                                    Theme.of(context).colorScheme.onSurface,
                                 textDecoration: TextDecoration.none,
                                 margin: Margins.only(right: 2),
                               ),
@@ -325,7 +325,7 @@ class StickyHeader extends StatelessWidget {
                   right: 18,
                   child: Divider(
                     height: 1,
-                    color: Theme.of(context).dividerColor.withOpacity(0.1),
+                    color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                   )),
             ],
           ),

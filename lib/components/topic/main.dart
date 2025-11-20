@@ -9,16 +9,16 @@ import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/topic/skeleton_main.dart';
 
 class TopicMain extends StatelessWidget {
-  final detailModel;
-  final topicDetail;
-  String? heroTag;
+  final dynamic detailModel;
+  final dynamic topicDetail;
+  final String? heroTag;
 
-  TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key})
+  const TopicMain({this.detailModel, this.topicDetail, this.heroTag, Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var heroTag = Random().nextInt(999).toString();
+    final heroTagValue = heroTag ?? Random().nextInt(999).toString();
     TextStyle titleStyle = Theme.of(context)
         .textTheme
         .titleLarge!
@@ -83,11 +83,11 @@ class TopicMain extends StatelessWidget {
                           ? Get.toNamed('/member/${detailModel!.createdId}',
                               parameters: {
                                   'memberAvatar': detailModel!.avatar,
-                                  'heroTag': heroTag,
+                                  'heroTag': heroTagValue,
                                 })
                           : null,
                       child: Hero(
-                        tag: heroTag,
+                        tag: heroTagValue,
                         child: CAvatar(
                           url: topicDetail != null && topicDetail!.avatar != ''
                               ? topicDetail!.avatar
@@ -147,7 +147,7 @@ class TopicMain extends StatelessWidget {
         // Divider(
         //   endIndent: 15,
         //   indent: 15,
-        //   color: Theme.of(context).dividerColor.withOpacity(0.15),
+        //   color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
         // ),
         // 内容
         if (detailModel != null) ...[
@@ -156,7 +156,7 @@ class TopicMain extends StatelessWidget {
             Divider(
               endIndent: 20,
               indent: 20,
-              color: Theme.of(context).dividerColor.withOpacity(0.15),
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
             ),
             Container(
               padding: const EdgeInsets.only(
@@ -178,19 +178,19 @@ class TopicMain extends StatelessWidget {
           // if (detailModel!.content.isNotEmpty)
           //   Divider(
           //     height: 1,
-          //     color: Theme.of(context).dividerColor.withOpacity(0.15),
+          //     color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
           //   ),
         ] else ...[
           Divider(
             endIndent: 20,
             indent: 20,
-            color: Theme.of(context).dividerColor.withOpacity(0.15),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
           ),
           const TopicDetailSkeleton(),
         ],
         Divider(
           height: 1,
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
         ),
       ],
     );
@@ -203,7 +203,7 @@ class TopicMain extends StatelessWidget {
       list.add(
         Divider(
           height: 1,
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
         ),
       );
       list.add(
@@ -212,13 +212,13 @@ class TopicMain extends StatelessWidget {
             padding:
                 const EdgeInsets.only(top: 24, left: 18, right: 18, bottom: 20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
               border: Border(
                   left: BorderSide(
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.7),
+                          .withValues(alpha: 0.7),
                       width: 4)),
             ),
             child: Column(

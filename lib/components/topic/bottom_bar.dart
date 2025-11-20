@@ -6,6 +6,7 @@ import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_v2ex/http/topic.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class DetailBottomBar extends StatefulWidget {
   final VoidCallback? onRefresh;
@@ -47,7 +48,7 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
                 Navigator.pop(context, 'OK');
                 var res =
                     await TopicWebApi.thankTopic(widget.detailModel!.topicId);
-                print('54: $res');
+                logDebug('54: $res');
                 if (res) {
                   setState(() {
                     widget.detailModel!.isThank = true;
@@ -71,7 +72,7 @@ class _DetailBottomBarState extends State<DetailBottomBar> {
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ))
         .whenComplete(() {
-      print("share completion block ");
+      logDebug("share completion block ");
     });
     return result;
   }

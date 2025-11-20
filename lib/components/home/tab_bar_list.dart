@@ -15,6 +15,7 @@ import 'package:flutter_v2ex/components/common/network_error.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;
@@ -128,7 +129,7 @@ class _TabBarListState extends State<TabBarList>
               result.removeWhere((j) => j.topicId == i.topicId);
             }
           } catch (err) {
-            print('list去重： $err');
+            logDebug('list去重： $err');
           }
           topicList.addAll(result);
           tempTopicList = result;
@@ -313,7 +314,7 @@ class ChildNodes extends StatelessWidget {
   Widget build(BuildContext context) {
     var line = Expanded(
         child: Divider(
-      color: Theme.of(context).primaryColor.withOpacity(0.1),
+      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
     ));
 
     return Container(

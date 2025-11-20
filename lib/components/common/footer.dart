@@ -23,7 +23,7 @@ class FooterTips extends StatelessWidget {
                   child: CircularProgressIndicator(
                       color: Theme.of(context)
                           .colorScheme
-                          .onBackground,
+                          .onSurface,
                       strokeWidth: 2.0)),
             const SizedBox(width: 16),
             Column(

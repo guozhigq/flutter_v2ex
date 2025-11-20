@@ -51,7 +51,7 @@ class ReplyItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           margin: const EdgeInsets.only(bottom: 7),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Column(
@@ -74,7 +74,7 @@ class ReplyItem extends StatelessWidget {
                 ],
               ),
               Divider(
-                color: Theme.of(context).dividerColor.withOpacity(0.2),
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
               ),
               Text(replyItem.topicTitle)
             ],

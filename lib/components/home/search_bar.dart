@@ -8,7 +8,7 @@ import 'package:flutter_v2ex/components/common/avatar.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class HomeSearchBar extends StatefulWidget {
-  final userInfo;
+  final Map<String, dynamic>? userInfo;
 
   const HomeSearchBar({this.userInfo, super.key});
 
@@ -18,7 +18,7 @@ class HomeSearchBar extends StatefulWidget {
 
 class _HomeSearchBarState extends State<HomeSearchBar> {
   bool loginStatus = false;
-  Map userInfo = {};
+  Map<String, dynamic> userInfo = {};
   bool unRead = false;
 
   @override
@@ -60,8 +60,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
 
   void readUserInfo() {
     if (GStorage().getUserInfo() != {}) {
-      // DioRequestWeb.dailyMission();
-      Map userInfoStorage = GStorage().getUserInfo();
+      final userInfoStorage =
+          Map<String, dynamic>.from(GStorage().getUserInfo());
       setState(() {
         userInfo = userInfoStorage;
         loginStatus = true;
@@ -145,7 +145,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                                 decoration: BoxDecoration(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .surfaceVariant,
+                                      .surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(50),
                                 ),
                                 clipBehavior: Clip.antiAlias,

@@ -25,6 +25,7 @@ import 'package:flutter_v2ex/models/web/item_member_notice.dart';
 
 import 'package:flutter_v2ex/utils/string.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class UserWebApi {
   // 获取用户信息
@@ -35,7 +36,7 @@ class UserWebApi {
     List<MemberSocialItem> socialList = [];
     Response response;
     response = await Request().get('/member/$memberId', extra: {'ua': 'pc'});
-    // print('response.headers:${response.headers['set-cookie']}');
+    // logDebug('response.headers:${response.headers['set-cookie']}');
     var bodyDom = parse(response.data).body;
     var contentDom = bodyDom!.querySelectorAll('#Main > div.box');
     var profileNode = contentDom[0];
@@ -62,19 +63,19 @@ class UserWebApi {
     if (profileCellNode.querySelector('tr>td>strong.online') != null) {
       memberProfile.isOnline = true;
     }
-    print('line 1189: ${memberProfile.isOnline}');
+    logDebug('line 1189: ${memberProfile.isOnline}');
     if (profileNode.querySelectorAll('input[type=button]').isNotEmpty) {
       var buttonDom = profileNode.querySelectorAll('input[type=button]');
       var followBtn = buttonDom[0];
       memberProfile.isFollow =
           followBtn.attributes['value'] == '取消特别关注' ? true : false;
-      print('line 1195: ${memberProfile.isFollow}');
+      logDebug('line 1195: ${memberProfile.isFollow}');
 
       var blockBtn = buttonDom[1];
       // true 已屏蔽
       memberProfile.isBlock =
           blockBtn.attributes['value'] == 'Unblock' ? true : false;
-      print('line 1199: ${blockBtn.attributes['value']}');
+      logDebug('line 1199: ${blockBtn.attributes['value']}');
     }
     // else {
     //   memberProfile.isOwner = false;
@@ -300,7 +301,7 @@ class UserWebApi {
     SmartDialog.showLoading();
     int once = GStorage().getOnce();
     var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
-    final Response response = await Request().get(url, data: {'once': once});
+    await Request().get(url, data: {'once': once});
     SmartDialog.dismiss();
     // if(response.statusCode == 302){
     // 操作成功
@@ -315,7 +316,7 @@ class UserWebApi {
     SmartDialog.showLoading();
     int once = GStorage().getOnce();
     var url = blockStatus ? '/unblock/$blockId' : '/block/$blockId';
-    Response response = await Request().get(url, data: {'once': once});
+    await Request().get(url, data: {'once': once});
     SmartDialog.dismiss();
     // if(response.statusCode == 302){
     // 操作成功
@@ -533,7 +534,7 @@ class UserWebApi {
       noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
       if (noticeItem.topicTitleHtml != null) {
-        // print(noticeItem.topicTitleHtml.querySelectorAll('a'));
+        // logDebug(noticeItem.topicTitleHtml.querySelectorAll('a'));
         noticeItem.topicHref = td2Node
             .querySelector('span.fade')!
             .querySelectorAll('a')[1]

@@ -18,8 +18,8 @@ class _SkeletonState extends State<Skeleton> {
     var shimmerGradient = LinearGradient(
       colors: [
         Colors.transparent,
-        Theme.of(context).colorScheme.background.withAlpha(30),
-        Theme.of(context).colorScheme.background.withAlpha(30),
+        Theme.of(context).colorScheme.surface.withAlpha(30),
+        Theme.of(context).colorScheme.surface.withAlpha(30),
         Colors.transparent,
       ],
       stops: const [

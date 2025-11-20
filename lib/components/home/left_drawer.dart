@@ -186,7 +186,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final _drawerItems = [
+    final drawerItems = [
       Container(
         padding: const EdgeInsets.only(
           top: 15,
@@ -212,7 +212,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
           ),
       ],
       Divider(
-        color: Theme.of(context).dividerColor.withOpacity(0.15),
+        color: Theme.of(context).dividerColor.withValues(alpha: 0.15),
         indent: 20,
         endIndent: 12,
       ),
@@ -225,7 +225,7 @@ class _HomeLeftDrawerState extends State<HomeLeftDrawer> {
     return NavigationDrawer(
       onDestinationSelected: onDestinationSelected,
       selectedIndex: selectedIndex,
-      children: _drawerItems,
+      children: drawerItems,
     );
   }
 }

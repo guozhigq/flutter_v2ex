@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class ReplySheet extends StatefulWidget {
   double height = 0.0; // 容器高
@@ -113,7 +114,7 @@ class _ReplySheetState extends State<ReplySheet> with TickerProviderStateMixin {
                   controller: _tabController,
                   children: widget.replyMemberList.map((e) {
                     var i = widget.replyMemberList.indexOf(e);
-                    print('104: ${widget.resultList[i]}');
+                    logDebug('104: ${widget.resultList[i]}');
                     // return Text(e);
                     return widget.resultList[i][e] != null
                         ? ListView.builder(

@@ -92,21 +92,21 @@ class _MessagePageState extends State<MessagePage> {
             child: _isLoading
                 ? showLoading()
                 : noticeList.isNotEmpty
-                ? PullRefresh(
-              totalPage: _totalPage,
-              currentPage: _currentPage,
-              onChildLoad:
-              _totalPage > 1 && _currentPage <= _totalPage
-                  ? queryNotice
-                  : null,
-              onChildRefresh: () {
-                setState(() {
-                  _currentPage = 0;
-                });
-                queryNotice();
-              },
-              child: content(),
-            )
+                  ? PullRefresh(
+                      totalPage: _totalPage,
+                      currentPage: _currentPage,
+                      onChildLoad:
+                          _totalPage > 1 && _currentPage <= _totalPage
+                              ? () async => await queryNotice()
+                              : null,
+                      onChildRefresh: () async {
+                        setState(() {
+                          _currentPage = 0;
+                        });
+                        await queryNotice();
+                      },
+                      child: content(),
+                    )
                 : const Text('没有数据'),
           ),
           Positioned(

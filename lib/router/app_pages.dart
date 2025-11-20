@@ -6,15 +6,15 @@ import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/page_help.dart';
 import 'package:flutter_v2ex/pages/page_message.dart';
 import 'package:flutter_v2ex/pages/page_nodes.dart';
-import 'package:flutter_v2ex/pages/page_webView.dart';
+import 'package:flutter_v2ex/pages/page_webview.dart';
 import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:flutter_v2ex/pages/page_setting.dart';
 
-import 'package:flutter_v2ex/pages/t/:topicId.dart';
-import 'package:flutter_v2ex/pages/go/:nodeId.dart';
-import 'package:flutter_v2ex/pages/member/:memberId.dart';
-import 'package:flutter_v2ex/pages/member/:memberId/topics.dart';
-import 'package:flutter_v2ex/pages/member/:memberId/replies.dart';
+import 'package:flutter_v2ex/pages/t/topic_id.dart';
+import 'package:flutter_v2ex/pages/go/node_id.dart';
+import 'package:flutter_v2ex/pages/member/member_id.dart';
+import 'package:flutter_v2ex/pages/member/member_id_topics.dart';
+import 'package:flutter_v2ex/pages/member/member_id_replies.dart';
 
 import 'package:flutter_v2ex/pages/my/topics.dart';
 import 'package:flutter_v2ex/pages/my/follow.dart';

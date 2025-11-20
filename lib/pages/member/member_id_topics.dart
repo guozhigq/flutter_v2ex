@@ -105,13 +105,13 @@ class _MemberTopicsPageState extends State<MemberTopicsPage> {
                           currentPage: _currentPage,
                           onChildLoad:
                               _totalPage > 1 && _currentPage <= _totalPage
-                                  ? queryMemberTopic
+                                  ? () async => await queryMemberTopic()
                                   : null,
-                          onChildRefresh: () {
+                          onChildRefresh: () async {
                             setState(() {
                               _currentPage = 0;
                             });
-                            queryMemberTopic();
+                            await queryMemberTopic();
                           },
                           child: content(),
                         )

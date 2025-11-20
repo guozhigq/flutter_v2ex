@@ -77,14 +77,14 @@ class AdpatTabBar extends StatelessWidget {
       }).toList(),
       // iPad
       labelColor: isiPad
-          ? Theme.of(context).colorScheme.onBackground
+          ? Theme.of(context).colorScheme.onSurface
           : Theme.of(context).colorScheme.primary,
       indicator: isiPad
           ? ContainerTabIndicator(
               width: 60,
               height: 36,
               radius: BorderRadius.circular(8.0),
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             )
           : null,
     );

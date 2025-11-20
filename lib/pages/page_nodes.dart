@@ -161,8 +161,8 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
                     ),
                     unselectedLabelColor: Theme.of(context)
                         .colorScheme
-                        .onBackground
-                        .withOpacity(0.8),
+                        .onSurface
+                        .withValues(alpha: 0.8),
                     labelColor: Theme.of(context).colorScheme.primary,
                     scrollDirection: Axis.vertical,
                     labelStyle: Theme.of(context).textTheme.titleSmall,

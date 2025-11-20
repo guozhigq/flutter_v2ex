@@ -97,7 +97,7 @@ class Read {
       for (var i in keys) {
         Map dateItem = {};
         var data = i.split('-');
-        dateItem['date'] = data[1] + '月' + data[2] + '日';
+        dateItem['date'] = '${data[1]}月${data[2]}日';
         dateItem['topicList'] = [];
         for (var j in box.get(i)) {
           Map map = {};

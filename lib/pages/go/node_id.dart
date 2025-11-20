@@ -14,6 +14,7 @@ import 'package:flutter_v2ex/components/common/pull_refresh.dart';
 import 'package:flutter_v2ex/models/web/model_node_list.dart';
 import 'package:flutter_v2ex/components/home/list_item.dart';
 import 'package:flutter_v2ex/http/node.dart';
+import 'package:flutter_v2ex/utils/logger.dart';
 
 class GoPage extends StatefulWidget {
   const GoPage({super.key});
@@ -40,7 +41,7 @@ class _GoPageState extends State<GoPage> {
       nodeId = Get.parameters['nodeId']!;
     });
     getTopics();
-    print('go page');
+    logDebug('go page');
 
     titleStreamC = StreamController<bool>();
     _controller.addListener(
@@ -71,7 +72,7 @@ class _GoPageState extends State<GoPage> {
     super.dispose();
   }
 
-  void getTopics() async {
+  Future<void> getTopics() async {
     var res = await NodeWebApi.getTopicsByNodeId(nodeId, _currentPage + 1);
     setState(() {
       if (_currentPage == 0) {
@@ -109,11 +110,11 @@ class _GoPageState extends State<GoPage> {
               controller: _controller,
               radius: const Radius.circular(10),
               child: PullRefresh(
-                onChildRefresh: () {
+                onChildRefresh: () async {
                   setState(() {
                     _currentPage = 0;
                   });
-                  getTopics();
+                  await getTopics();
                 },
                 // 上拉
                 onChildLoad: _totalPage > 1 && _currentPage < _totalPage
@@ -229,7 +230,7 @@ class _GoPageState extends State<GoPage> {
               child: Container(
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
@@ -254,7 +255,7 @@ class _GoPageState extends State<GoPage> {
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -337,10 +338,10 @@ class _GoPageState extends State<GoPage> {
   }
 
   Widget showLoading() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           CircularProgressIndicator(
             strokeWidth: 3,
           ),

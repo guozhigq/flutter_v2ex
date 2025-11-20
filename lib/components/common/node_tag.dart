@@ -17,7 +17,7 @@ class NodeTag extends StatelessWidget {
   Widget build(BuildContext context) {
     var bgColor = route == 'detail'
         ? Theme.of(context).colorScheme.onInverseSurface
-        : Theme.of(context).colorScheme.surfaceVariant;
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
     return Material(
       borderRadius: BorderRadius.circular(50),
       color: bgColor,
