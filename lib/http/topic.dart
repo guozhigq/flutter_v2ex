@@ -213,7 +213,6 @@ class TopicWebApi {
     if (document.querySelector('#no-comments-yet') == null) {
       /// 回复数 发布时间 评论
       dom.Element replyBoxDom;
-      dom.Element? totalPageDom;
 
       /// tag标签判断：过滤掉分隔符
       final wrapperChildren = wrapperContent.children
@@ -234,14 +233,45 @@ class TopicWebApi {
               .split('条回复')[0]);
         }
 
-        final pageNodes = replyInfoCell.querySelectorAll('div.fr.fade');
-        if (pageNodes.isNotEmpty) {
-          totalPageDom = pageNodes.last;
+        int? extractTotalPage(dom.Element? scope) {
+          if (scope == null) {
+            return null;
+          }
+          int? maxPage;
+          final paginationNodes = scope
+              .querySelectorAll('a.page_normal, a.page_current, span.page_current');
+          if (paginationNodes.isEmpty) {
+            return null;
+          }
+          for (final element in paginationNodes) {
+            final value = int.tryParse(element.text.trim());
+            if (value == null) {
+              continue;
+            }
+            if (maxPage == null || value > maxPage) {
+              maxPage = value;
+            }
+          }
+          return maxPage;
+        }
+
+        int? totalPageFromPagination = extractTotalPage(replyInfoCell);
+
+        if (totalPageFromPagination == null) {
+          final pageNodes = replyInfoCell.querySelectorAll('div.fr.fade');
+          if (pageNodes.isNotEmpty) {
+            totalPageFromPagination = extractTotalPage(pageNodes.last);
+          }
+        }
+
+        if (totalPageFromPagination != null) {
+          detailModel.totalPage = totalPageFromPagination;
         }
       }
-      detailModel.totalPage = totalPageDom != null
-          ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), ''))
-          : 1;
+
+      if (detailModel.totalPage == 1 && detailModel.replyCount > 100) {
+        detailModel.totalPage = ((detailModel.replyCount - 1) ~/ 100) + 1;
+      }
 
       /// 回复楼层
       /// first td user avatar
