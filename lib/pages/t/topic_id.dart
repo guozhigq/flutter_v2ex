@@ -110,7 +110,8 @@ class _TopicDetailState extends State<TopicDetail>
     try {
       topicId = Get.parameters['topicId']!;
     } catch (e) {
-      logDebug('❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
+      logDebug(
+          '❌ :topic.dart line 111 Error: Get parameters don\'t have topicId');
     }
     if (widget.topicDetail != null) {
       _topicDetail = widget.topicDetail;
@@ -610,17 +611,17 @@ class _TopicDetailState extends State<TopicDetail>
               : Scrollbar(
                   radius: const Radius.circular(10),
                   controller: autoScrollController,
-                    child: PullRefresh(
-                      key: _globalKey,
-                      onChildRefresh: () async => await getDetailInit(),
-                      // 上拉
-                      onChildLoad: !reverseSort
-                          ? (_totalPage > 1 && _currentPage < _totalPage
-                              ? () async => await getDetail()
-                              : null)
-                          : (_currentPage > 0
-                              ? () async => await getDetailReverst()
-                              : null),
+                  child: PullRefresh(
+                    key: _globalKey,
+                    onChildRefresh: () async => await getDetailInit(),
+                    // 上拉
+                    onChildLoad: !reverseSort
+                        ? (_totalPage > 1 && _currentPage < _totalPage
+                            ? () async => await getDetail()
+                            : null)
+                        : (_currentPage > 0
+                            ? () async => await getDetailReverst()
+                            : null),
                     currentPage: _currentPage,
                     totalPage: _totalPage,
                     ctr: _controller,
@@ -779,8 +780,10 @@ class _TopicDetailState extends State<TopicDetail>
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              color:
-                  Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -996,9 +999,9 @@ class _TopicDetailState extends State<TopicDetail>
   Widget moreTopic({type = 'noMore'}) {
     return Container(
       width: double.infinity,
-      height: 100 + MediaQuery.of(context).padding.bottom,
+      height: 150 + MediaQuery.of(context).padding.bottom,
       padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
+          EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 90),
       child: Center(
         // child: TextField(),
         child: Text(
