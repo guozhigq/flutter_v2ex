@@ -1,9 +1,11 @@
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_v2ex/utils/cookie.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_v2ex/utils/logger.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:flutter_v2ex/utils/cookie.dart';
+import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WebView extends StatefulWidget {
   const WebView({super.key});
@@ -13,23 +15,53 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> {
-  InAppWebViewController? webViewController;
+  final CookieManager _cookieManager = CookieManager.instance();
+  final InAppWebViewSettings _webViewSettings = InAppWebViewSettings(
+    javaScriptEnabled: true,
+    useShouldOverrideUrlLoading: true,
+    useOnLoadResource: true,
+    cacheEnabled: true,
+    allowsInlineMediaPlayback: true,
+    mediaPlaybackRequiresUserGesture: false,
+  );
 
-  PullToRefreshController? pullToRefreshController;
+  InAppWebViewController? webViewController;
+  late final PullToRefreshController _pullToRefreshController;
+  bool _isDisposing = false;
 
   String aUrl = "";
   double progress = 0;
-  var cookieManager = CookieManager.instance();
 
   @override
   void initState() {
     super.initState();
-    aUrl = Get.parameters['aUrl']!;
+    aUrl = Get.parameters['aUrl'] ?? '';
+    _pullToRefreshController = PullToRefreshController(
+      settings: PullToRefreshSettings(color: Colors.blue),
+      onRefresh: () async {
+        if (Platform.isAndroid) {
+          await webViewController?.reload();
+        } else {
+          final uri = await webViewController?.getUrl();
+          if (uri != null) {
+            await webViewController?.loadUrl(urlRequest: URLRequest(url: uri));
+          }
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _isDisposing = true;
     super.dispose();
+  }
+
+  void _endRefreshingSafely() {
+    if (_isDisposing) {
+      return;
+    }
+    _pullToRefreshController.endRefreshing();
   }
 
   @override
@@ -53,48 +85,60 @@ class _WebViewState extends State<WebView> {
               child: Stack(
                 children: [
                   InAppWebView(
-                    initialSettings: InAppWebViewSettings(
-                      userAgent: 'random',
-                      javaScriptEnabled: true,
-                      useShouldOverrideUrlLoading: true,
-                      useOnLoadResource: true,
-                      cacheEnabled: true,
-                    ),
+                    initialSettings: _webViewSettings,
                     initialUrlRequest: URLRequest(
                       url: WebUri(aUrl),
-                      headers: {
-                        'refer':
-                            'https://www.v2ex.com//signin?next=/mission/daily',
-                        'User-Agent':
-                            'User-Agent: MOT-V9mm/00.62 UP.Browser/6.2.3.4.c.1.123 (GUI) MMP/2.0'
+                      headers: const {
+                        'Referer':
+                            'https://www.v2ex.com/signin?next=/mission/daily',
                       },
                     ),
-                    pullToRefreshController: pullToRefreshController,
-                    // initialSettings: settings,
+                    pullToRefreshController: _pullToRefreshController,
                     onWebViewCreated: (controller) async {
                       webViewController = controller;
-                      // logDebug(await controller.getHtml());
                     },
-                    // 加载url时触发
+                    shouldOverrideUrlLoading:
+                        (controller, navigationAction) async {
+                      final uri = navigationAction.request.url;
+                      if (uri == null) {
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                      const allowedSchemes = {
+                        'http',
+                        'https',
+                        'file',
+                        'chrome',
+                        'data',
+                        'javascript',
+                        'about',
+                      };
+                      if (!allowedSchemes.contains(uri.scheme)) {
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        }
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                      return NavigationActionPolicy.ALLOW;
+                    },
                     onLoadStart: (controller, url) async {
-                      URLRequest(url: WebUri(aUrl));
+                      if (!mounted) {
+                        return;
+                      }
+                      setState(() {
+                        aUrl = url?.toString() ?? aUrl;
+                      });
                     },
-                    // 触发多次 页面内可能会有跳转
                     onLoadStop: (controller, url) async {
-                      pullToRefreshController?.endRefreshing();
-                      logDebug('🔥🔥 👋🌲');
-                      // google登录完成
-                      // ignore: unrelated_type_equality_checks
-                      String strUrl = url.toString();
+                      _endRefreshingSafely();
+                      final strUrl = url.toString();
                       if (strUrl == 'https://www.v2ex.com/#' ||
-                          // ignore: unrelated_type_equality_checks
                           strUrl == 'https://www.v2ex.com/' ||
                           strUrl == 'https://www.v2ex.com/2fa#' ||
                           strUrl == 'https://www.v2ex.com/2fa') {
-                        // 使用cookieJar保存cookie
-                        List<Cookie> cookies =
-                            await cookieManager.getCookies(url: url!);
-                        var res = await SetCookie.onSet(cookies, strUrl);
+                        final cookies =
+                            await _cookieManager.getCookies(url: url!);
+                        final res = await SetCookie.onSet(cookies, strUrl);
                         if (res && strUrl.contains('/2fa')) {
                           SmartDialog.show(
                             useSystem: true,
@@ -126,15 +170,20 @@ class _WebViewState extends State<WebView> {
                         }
                       }
                     },
+                    onReceivedError: (controller, request, error) {
+                      _endRefreshingSafely();
+                    },
                     onProgressChanged: (controller, progress) async {
                       if (progress == 100) {
-                        pullToRefreshController?.endRefreshing();
+                        _endRefreshingSafely();
+                      }
+                      if (!mounted) {
+                        return;
                       }
                       setState(() {
                         this.progress = progress / 100;
                       });
                     },
-                    onCloseWindow: (controller) {},
                   ),
                   progress < 1.0
                       ? LinearProgressIndicator(value: progress)
