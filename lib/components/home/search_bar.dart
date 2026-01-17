@@ -88,7 +88,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
           child: Container(
               width: double.infinity,
               color: Theme.of(context).colorScheme.onInverseSurface,
-              padding: const EdgeInsets.only(right: 8, left: 4),
+              padding: const EdgeInsets.only(right: 4, left: 4),
               child: Stack(
                 children: [
                   Row(
