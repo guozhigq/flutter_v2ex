@@ -248,16 +248,17 @@ class _ReplyListItemState extends State<ReplyListItem>
     SmartDialog.showLoading(msg: '保存中');
     RenderRepaintBoundary boundary =
         repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final devicePixelRatio = View.of(repaintKey.currentContext!).devicePixelRatio;
+    final devicePixelRatio =
+        View.of(repaintKey.currentContext!).devicePixelRatio;
     ui.Image image = await boundary.toImage(pixelRatio: devicePixelRatio);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
     final result = await SaverGallery.saveImage(
       Uint8List.fromList(pngBytes),
       quality: 100,
-      name:
+      fileName:
           "reply${reply.userName}_vvex${DateTime.now().toString().split('-').join()}",
-      androidExistNotSave: false,
+      skipIfExists: true,
     );
     SmartDialog.dismiss();
     if (result.isSuccess) {
@@ -311,7 +312,10 @@ class _ReplyListItemState extends State<ReplyListItem>
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
           border: Border.all(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.03)),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.03)),
           borderRadius: const BorderRadius.all(Radius.circular(18))),
       child: Hero(
         tag: reply.userName + heroTag,
@@ -562,7 +566,8 @@ class _ReplyListItemState extends State<ReplyListItem>
             TextButton(
               onPressed: replyComment,
               child: Row(children: [
-                Icon(Icons.reply, size: 20, color: color.withValues(alpha: 0.8)),
+                Icon(Icons.reply,
+                    size: 20, color: color.withValues(alpha: 0.8)),
                 const SizedBox(width: 2),
                 Text(I18nKeyword.replyAction.tr, style: textStyle),
               ]),

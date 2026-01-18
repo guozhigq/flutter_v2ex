@@ -98,8 +98,8 @@ class _ImagePreviewState extends State<ImagePreview>
     final result = await SaverGallery.saveImage(
       Uint8List.fromList(response.data),
       quality: 100,
-      name: "pic_vvex${DateTime.now().toString().split('-').join()}",
-      androidExistNotSave: false,
+      fileName: "pic_vvex${DateTime.now().toString().split('-').join()}",
+      skipIfExists: true,
     );
     SmartDialog.dismiss();
     if (result.isSuccess) {
