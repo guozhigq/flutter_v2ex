@@ -23,6 +23,7 @@ class _ListItemState extends State<ListItem>
     with SingleTickerProviderStateMixin {
   TabTopicItem topic = TabTopicItem();
   final TopicController _topicController = Get.put(TopicController());
+  int _lastTagTapTime = 0;
 
   @override
   void initState() {
@@ -40,6 +41,11 @@ class _ListItemState extends State<ListItem>
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () async {
+            final now = DateTime.now().millisecondsSinceEpoch;
+            if (now - _lastTagTapTime < 350) {
+              return;
+            }
+
             setState(() {
               topic.readStatus = 'read';
             });
@@ -160,6 +166,8 @@ class _ListItemState extends State<ListItem>
                     child: NodeTag(
                         nodeId: topic.nodeId,
                         nodeName: topic.nodeName,
+                        onTapDown: () =>
+                            _lastTagTapTime = DateTime.now().millisecondsSinceEpoch,
                         route: 'home'),
                   ),
                 ]

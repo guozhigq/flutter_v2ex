@@ -12,5 +12,5 @@ class NodeListModel {
   int totalPage = 1; // 总页数
   String nodeCover = ''; // 封面
 
-  late List<TabTopicItem> topicList;
+  List<TabTopicItem> topicList = [];
 }
