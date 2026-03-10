@@ -212,7 +212,7 @@ class TopicWebApi {
     /// 判断是否有评论
     if (document.querySelector('#no-comments-yet') == null) {
       /// 回复数 发布时间 评论
-      dom.Element replyBoxDom;
+      dom.Element? replyBoxDom;
 
       /// tag标签判断：过滤掉分隔符
       final wrapperChildren = wrapperContent.children
@@ -223,128 +223,139 @@ class TopicWebApi {
       // var isHasTag = wrapperChildren.length > 2 &&
       //     wrapperChildren[2].querySelector('a.tag') != null;
 
-      replyBoxDom = wrapperChildren[2];
-      final replyInfoCell = replyBoxDom.querySelector('div.cell');
-      if (replyInfoCell != null) {
-        final replyInfoSpan = replyInfoCell.querySelector('span');
-        if (replyInfoSpan != null) {
-          detailModel.replyCount = int.parse(replyInfoSpan.text
-              .replaceAll(RegExp(r"\s+"), "")
-              .split('条回复')[0]);
-        }
-
-        int? extractTotalPage(dom.Element? scope) {
-          if (scope == null) {
-            return null;
-          }
-          int? maxPage;
-          final paginationNodes = scope
-              .querySelectorAll('a.page_normal, a.page_current, span.page_current');
-          if (paginationNodes.isEmpty) {
-            return null;
-          }
-          for (final element in paginationNodes) {
-            final value = int.tryParse(element.text.trim());
-            if (value == null) {
-              continue;
-            }
-            if (maxPage == null || value > maxPage) {
-              maxPage = value;
-            }
-          }
-          return maxPage;
-        }
-
-        int? totalPageFromPagination = extractTotalPage(replyInfoCell);
-
-        if (totalPageFromPagination == null) {
-          final pageNodes = replyInfoCell.querySelectorAll('div.fr.fade');
-          if (pageNodes.isNotEmpty) {
-            totalPageFromPagination = extractTotalPage(pageNodes.last);
-          }
-        }
-
-        if (totalPageFromPagination != null) {
-          detailModel.totalPage = totalPageFromPagination;
-        }
+      if (wrapperChildren.length > 2) {
+        replyBoxDom = wrapperChildren[2];
+      } else {
+        replyBoxDom = wrapperContent.querySelector('#Replies') ??
+            wrapperContent.querySelector('div.box[id="Replies"]');
       }
 
-      if (detailModel.totalPage == 1 && detailModel.replyCount > 100) {
-        detailModel.totalPage = ((detailModel.replyCount - 1) ~/ 100) + 1;
-      }
-
-      /// 回复楼层
-      /// first td user avatar
-      /// third td main content
-      List<dom.Element> rootNode =
-          replyBoxDom.querySelectorAll(".box > div[id].cell");
-      var replyTrQuery = 'table > tbody > tr';
-      for (var aNode in rootNode) {
-        ReplyItem replyItem = ReplyItem();
-        final dom.Element replyItemEl = aNode.querySelector(replyTrQuery)!;
-        final dom.Element mainContentEl =
-            replyItemEl.querySelector('td:nth-child(5)')!;
-
-        /// 用户资料
-        replyItem.avatar = Uri.encodeFull(replyItemEl
-            .querySelector('td:nth-child(1) > img')!
-            .attributes["src"]!);
-        replyItem.userName = mainContentEl.querySelector('strong > a')!.text;
-        var badgeElement =
-            mainContentEl.querySelector('div.badges > div.badge');
-        String? status = badgeElement?.text;
-        replyItem.isMod = status == 'MOD';
-        replyItem.isOwner = status == 'OP';
-
-        /// 回复时间
-        replyItem.lastReplyTime = mainContentEl
-            .querySelector('span.fade.small')!
-            .text
-            .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
-
-        /// 平台
-        if (replyItem.lastReplyTime.contains('via')) {
-          var platform = replyItem.lastReplyTime
-              .split('via')[1]
-              .replaceAll(RegExp(r"\s+"), "");
-          replyItem.lastReplyTime =
-              replyItem.lastReplyTime.split('via')[0].replaceAll("/t/", "");
-          replyItem.platform = platform;
-        }
-
-        /// 感谢数 和 状态
-        var smallFade = mainContentEl.querySelector("span[class='small fade']");
-        if (smallFade != null) {
-          replyItem.favorites = int.parse(smallFade.text.split(" ")[1]);
-          if (mainContentEl.querySelector("div.fr > div.thanked") != null) {
-            replyItem.favoritesStatus = true;
+      if (replyBoxDom != null) {
+        final replyInfoCell = replyBoxDom.querySelector('div.cell');
+        if (replyInfoCell != null) {
+          final replyInfoSpan = replyInfoCell.querySelector('span');
+          if (replyInfoSpan != null) {
+            final replyCountText = replyInfoSpan.text
+                .replaceAll(RegExp(r"\s+"), "")
+                .split('条回复')[0];
+            detailModel.replyCount = int.tryParse(replyCountText) ?? 0;
           }
-        }
 
-        /// 楼层
-        replyItem.floorNumber =
-            int.parse(mainContentEl.querySelector('div.fr > span')!.text);
-
-        /// 评论内容
-        var contentDom = mainContentEl.querySelector('div.reply_content')!;
-        replyItem.contentRendered = Utils.linkMatch(contentDom);
-        replyItem.content = contentDom.text;
-        var replyImgs = contentDom.querySelectorAll('img');
-        if (replyImgs.isNotEmpty) {
-          for (var imgNode in replyImgs) {
-            replyItem.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
+          int? extractTotalPage(dom.Element? scope) {
+            if (scope == null) {
+              return null;
+            }
+            int? maxPage;
+            final paginationNodes = scope.querySelectorAll(
+                'a.page_normal, a.page_current, span.page_current');
+            if (paginationNodes.isEmpty) {
+              return null;
+            }
+            for (final element in paginationNodes) {
+              final value = int.tryParse(element.text.trim());
+              if (value == null) {
+                continue;
+              }
+              if (maxPage == null || value > maxPage) {
+                maxPage = value;
+              }
+            }
+            return maxPage;
           }
-        }
-        var replyMemberNodes = contentDom.querySelectorAll('a');
-        if (replyMemberNodes.isNotEmpty) {
-          for (var aNode in replyMemberNodes) {
-            if (aNode.attributes['href']!.startsWith('/member')) {
-              replyItem.replyMemberList.add(aNode.text);
+
+          int? totalPageFromPagination = extractTotalPage(replyInfoCell);
+
+          if (totalPageFromPagination == null) {
+            final pageNodes = replyInfoCell.querySelectorAll('div.fr.fade');
+            if (pageNodes.isNotEmpty) {
+              totalPageFromPagination = extractTotalPage(pageNodes.last);
             }
           }
+
+          if (totalPageFromPagination != null) {
+            detailModel.totalPage = totalPageFromPagination;
+          }
         }
-        replyItem.replyId = aNode.attributes["id"]!.substring(2);
-        replies.add(replyItem);
+
+        if (detailModel.totalPage == 1 && detailModel.replyCount > 100) {
+          detailModel.totalPage = ((detailModel.replyCount - 1) ~/ 100) + 1;
+        }
+
+        /// 回复楼层
+        /// first td user avatar
+        /// third td main content
+        List<dom.Element> rootNode =
+            replyBoxDom.querySelectorAll(".box > div[id].cell");
+        var replyTrQuery = 'table > tbody > tr';
+        for (var aNode in rootNode) {
+          ReplyItem replyItem = ReplyItem();
+          final dom.Element replyItemEl = aNode.querySelector(replyTrQuery)!;
+          final dom.Element mainContentEl =
+              replyItemEl.querySelector('td:nth-child(5)')!;
+
+          /// 用户资料
+          replyItem.avatar = Uri.encodeFull(replyItemEl
+              .querySelector('td:nth-child(1) > img')!
+              .attributes["src"]!);
+          replyItem.userName = mainContentEl.querySelector('strong > a')!.text;
+          var badgeElement =
+              mainContentEl.querySelector('div.badges > div.badge');
+          String? status = badgeElement?.text;
+          replyItem.isMod = status == 'MOD';
+          replyItem.isOwner = status == 'OP';
+
+          /// 回复时间
+          replyItem.lastReplyTime = mainContentEl
+              .querySelector('span.fade.small')!
+              .text
+              .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
+
+          /// 平台
+          if (replyItem.lastReplyTime.contains('via')) {
+            var platform = replyItem.lastReplyTime
+                .split('via')[1]
+                .replaceAll(RegExp(r"\s+"), "");
+            replyItem.lastReplyTime =
+                replyItem.lastReplyTime.split('via')[0].replaceAll("/t/", "");
+            replyItem.platform = platform;
+          }
+
+          /// 感谢数 和 状态
+          var smallFade =
+              mainContentEl.querySelector("span[class='small fade']");
+          if (smallFade != null) {
+            replyItem.favorites = int.parse(smallFade.text.split(" ")[1]);
+            if (mainContentEl.querySelector("div.fr > div.thanked") != null) {
+              replyItem.favoritesStatus = true;
+            }
+          }
+
+          /// 楼层
+          replyItem.floorNumber =
+              int.parse(mainContentEl.querySelector('div.fr > span')!.text);
+
+          /// 评论内容
+          var contentDom = mainContentEl.querySelector('div.reply_content')!;
+          replyItem.contentRendered = Utils.linkMatch(contentDom);
+          replyItem.content = contentDom.text;
+          var replyImgs = contentDom.querySelectorAll('img');
+          if (replyImgs.isNotEmpty) {
+            for (var imgNode in replyImgs) {
+              replyItem.imgList
+                  .add(Utils().imageUrl(imgNode.attributes['src']!));
+            }
+          }
+          var replyMemberNodes = contentDom.querySelectorAll('a');
+          if (replyMemberNodes.isNotEmpty) {
+            for (var aNode in replyMemberNodes) {
+              if (aNode.attributes['href']!.startsWith('/member')) {
+                replyItem.replyMemberList.add(aNode.text);
+              }
+            }
+          }
+          replyItem.replyId = aNode.attributes["id"]!.substring(2);
+          replies.add(replyItem);
+        }
       }
     }
     detailModel.replyList = replies;
