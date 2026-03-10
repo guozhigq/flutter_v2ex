@@ -223,12 +223,14 @@ class TopicWebApi {
       // var isHasTag = wrapperChildren.length > 2 &&
       //     wrapperChildren[2].querySelector('a.tag') != null;
 
-      if (wrapperChildren.length > 2) {
-        replyBoxDom = wrapperChildren[2];
-      } else {
-        replyBoxDom = wrapperContent.querySelector('#Replies') ??
-            wrapperContent.querySelector('div.box[id="Replies"]');
+      for (final element in wrapperChildren) {
+        if (element.querySelector('div[id^="r_"].cell') != null) {
+          replyBoxDom = element;
+          break;
+        }
       }
+      replyBoxDom ??= wrapperContent.querySelector('#Replies') ??
+          wrapperContent.querySelector('div.box[id="Replies"]');
 
       if (replyBoxDom != null) {
         final replyInfoCell = replyBoxDom.querySelector('div.cell');
@@ -285,7 +287,7 @@ class TopicWebApi {
         /// first td user avatar
         /// third td main content
         List<dom.Element> rootNode =
-            replyBoxDom.querySelectorAll(".box > div[id].cell");
+            replyBoxDom.querySelectorAll('div[id^="r_"].cell');
         var replyTrQuery = 'table > tbody > tr';
         for (var aNode in rootNode) {
           ReplyItem replyItem = ReplyItem();
