@@ -569,6 +569,22 @@ class _TopicDetailState extends State<TopicDetail>
     Clipboard.setData(ClipboardData(text: 'https://www.v2ex.com/t/$topicId'));
   }
 
+  void _scrollToTop() {
+    if (!autoScrollController.hasClients) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!autoScrollController.hasClients) {
+        return;
+      }
+      autoScrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -595,9 +611,12 @@ class _TopicDetailState extends State<TopicDetail>
                       return AnimatedOpacity(
                         opacity: snapshot.data ? 1 : 0,
                         duration: const Duration(milliseconds: 300),
-                        child: Text(
-                          _detailModel != null ? _detailModel!.topicTitle : '',
-                          style: Theme.of(context).textTheme.titleMedium,
+                        child: GestureDetector(
+                          onTap: _scrollToTop,
+                          child: Text(
+                            _detailModel != null ? _detailModel!.topicTitle : '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                         ),
                       );
                     },
@@ -755,11 +774,14 @@ class _TopicDetailState extends State<TopicDetail>
                         return AnimatedOpacity(
                           opacity: snapshot.data ? 1 : 0,
                           duration: const Duration(milliseconds: 300),
-                          child: Text(
-                            _detailModel != null
-                                ? _detailModel!.topicTitle
-                                : '',
-                            style: Theme.of(context).textTheme.titleMedium,
+                          child: GestureDetector(
+                            onTap: _scrollToTop,
+                            child: Text(
+                              _detailModel != null
+                                  ? _detailModel!.topicTitle
+                                  : '',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
                           ),
                         );
                       },
