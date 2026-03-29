@@ -1,4 +1,5 @@
 import 'package:flutter_v2ex/models/tabs.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 enum ThemeType { light, dark, system } // 主题切换
 
@@ -10,8 +11,12 @@ class Strings {
   static String v2exHost = "https://www.v2ex.com";
   static String remoteUrl = "https://github.com/guozhigq/flutter_v2ex";
 
-  /// 提交tag时 记得更改
-  static String currentVersion = 'v1.3.0';
+  /// 获取本地应用版本号（如 v1.3.0）
+  static Future<String> getCurrentVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    return info.version;
+  }
+
   List base64BlackList = [
     "bilibili",
     "Bilibili",

@@ -285,8 +285,16 @@ class Utils {
 
   // 版本比较
   static bool needUpdate(String localVersion, String remoteVersion) {
-    List<String> localVersionList = localVersion.split('v')[1].split('.');
-    List<String> remoteVersionList = remoteVersion.split('v')[1].split('.');
+    String cleanLocal = localVersion.trim();
+    String cleanRemote = remoteVersion.trim();
+    if (cleanLocal.startsWith('v') || cleanLocal.startsWith('V')) {
+      cleanLocal = cleanLocal.substring(1);
+    }
+    if (cleanRemote.startsWith('v') || cleanRemote.startsWith('V')) {
+      cleanRemote = cleanRemote.substring(1);
+    }
+    List<String> localVersionList = cleanLocal.split('.');
+    List<String> remoteVersionList = cleanRemote.split('.');
     for (int i = 0; i < localVersionList.length; i++) {
       int localVersion = int.parse(localVersionList[i]);
       int remoteVersion = int.parse(remoteVersionList[i]);
