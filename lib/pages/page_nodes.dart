@@ -42,14 +42,13 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
     }
   }
 
-  Future getNodes() async {
+  Future<void> getNodes() async {
     var res = await DioRequestWeb.getNodes();
     await getAllNodes(res);
   }
 
-  Future getAllNodes(res) async {
+  Future<void> getAllNodes(res) async {
     var result = await DioRequestNet.getAllNodes();
-
     for (var j in res) {
       for (var z in j['childs']) {
         await nodeInfo(z, result);
@@ -59,7 +58,6 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
       _isLoading = false;
       nodesList = res;
     });
-    return result;
   }
 
   Future<Map> nodeInfo(nodeItem, result) async {
@@ -93,7 +91,11 @@ class _NodesPageState extends State<NodesPage> with TickerProviderStateMixin {
       }
     }
     setState(() {
-      nodesList[0]['childs'] = list;
+      if (nodesList.isNotEmpty &&
+          nodesList[0] is Map &&
+          nodesList[0].containsKey('childs')) {
+        nodesList[0]['childs'] = list;
+      }
     });
   }
 
