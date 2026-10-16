@@ -1,6 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'package:flutter_v2ex/service/content_cache.dart';
+import 'package:flutter_v2ex/service/page_request.dart';
+import 'package:flutter_v2ex/components/common/load_more_retry.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
@@ -15,7 +19,6 @@ import 'package:flutter_v2ex/components/common/network_error.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/pages/home/controller.dart';
-import 'package:flutter_v2ex/utils/logger.dart';
 
 class TabBarList extends StatefulWidget {
   final TabModel tabItem;
@@ -34,16 +37,21 @@ class _TabBarListState extends State<TabBarList>
     with AutomaticKeepAliveClientMixin {
   late final ScrollController _controller = ScrollController();
   List<TabTopicItem> topicList = [];
-  List<TabTopicItem> tempTopicList = []; // 临时话题列表
   List childNodeList = [];
   bool _isLoading = true; // 请求状态
   bool _isLoadingMore = false; // 请求状态
+  final _requests = PageRequest();
+  bool _hasMore = true;
+  String? _loadMoreError;
+  bool _prefetchFailed = false;
+  bool _paginationDemanded = false;
   int _currentPage = 0;
   bool showBackTopBtn = false;
   bool _dioError = false;
   String _dioErrorMsg = '';
   // late TabStateController? _tabStateController;
   final TabStateController _tabStateController = Get.put(TabStateController());
+  Worker? _tabSubscription;
   @override
   bool get wantKeepAlive => true;
 
@@ -57,16 +65,14 @@ class _TabBarListState extends State<TabBarList>
         Get.find<HomeController>().searchBarStream;
     _controller.addListener(
       () {
-        if (widget.tabItem.id == 'recent') {
-          if (_controller.position.pixels >=
-              _controller.position.maxScrollExtent - 100) {
-            if (!_isLoadingMore) {
-              setState(() {
-                _isLoadingMore = true;
-              });
-              getTopics();
-            }
-          }
+        if (widget.tabItem.id == 'recent' &&
+            _hasMore &&
+            (!_requests.isRunning || _controller.position.extentAfter <= 72) &&
+            (_loadMoreError == null ||
+                (_prefetchFailed && _controller.position.extentAfter <= 72)) &&
+            _controller.position.extentAfter <
+                _controller.position.viewportDimension * 1.5) {
+          getTopics(prefetch: _controller.position.extentAfter > 72);
         }
 
         var screenHeight = MediaQuery.of(context).size.height;
@@ -90,7 +96,7 @@ class _TabBarListState extends State<TabBarList>
       },
     );
 
-    _tabStateController.tabIndex.listen((value) {
+    _tabSubscription = ever(_tabStateController.tabIndex, (int value) {
       if (value == widget.tabIndex) {
         animateToTop();
       }
@@ -99,66 +105,116 @@ class _TabBarListState extends State<TabBarList>
 
   @override
   void dispose() {
+    _requests.invalidate();
+    _tabSubscription?.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  Future getTopics() async {
-    if (_currentPage == 0 && topicList.isEmpty) {
-      // 没有数据时下拉，显示骨架屏
-      setState(() {
-        _isLoading = true;
-      });
+  @override
+  void didUpdateWidget(covariant TabBarList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tabItem.id != widget.tabItem.id ||
+        oldWidget.tabItem.type != widget.tabItem.type) {
+      _requests.invalidate();
+      topicList = [];
+      childNodeList = [];
+      _currentPage = 0;
+      _hasMore = true;
+      _dioError = false;
+      getTopics(refresh: true);
     }
-    var id = widget.tabItem.id;
-    var type = widget.tabItem.type;
-    try {
-      var res =
-          await DioRequestWeb.getTopicsByTabKey(type, id, _currentPage + 1);
+  }
+
+  Future<void> getTopics({bool refresh = false, bool prefetch = false}) {
+    final showRefreshToast = refresh && topicList.isNotEmpty;
+    if (!refresh && !_hasMore) return Future.value();
+    final account = ContentCache.scope;
+    final page = refresh ? 1 : _currentPage + 1;
+    final key = ContentCache.key(
+        'home:${widget.tabItem.type}:${widget.tabItem.id}', page);
+    // Initialize before scheduling; a later end-of-list request may promote this
+    // prefetch even before the deferred request callback has started.
+    if (refresh || !_requests.isRunning) {
+      _paginationDemanded = !prefetch;
+    } else if (!prefetch && !_paginationDemanded) {
+      setState(() => _paginationDemanded = true);
+    }
+    return _requests.run((generation) async {
+      bool active() =>
+          mounted &&
+          _requests.accepts(generation) &&
+          ContentCache.scope == account;
+      if (!active()) return;
       setState(() {
-        if (_currentPage == 0) {
-          topicList = res['topicList'];
-          _dioError = false;
-          tempTopicList = res['topicList'];
-          childNodeList = res['childNodeList'];
-        } else {
-          // 去除重复数据
-          List<TabTopicItem> result = List.from(res['topicList']);
-          try {
-            for (var i in tempTopicList) {
-              result.removeWhere((j) => j.topicId == i.topicId);
-            }
-          } catch (err) {
-            logDebug('list去重： $err');
-          }
-          topicList.addAll(result);
-          tempTopicList = result;
-          _dioError = false;
-        }
-        _isLoading = false;
-        Timer(const Duration(milliseconds: 500), () {
-          _isLoadingMore = false;
-        });
-        _currentPage += 1;
-
-        var userInfo = GStorage().getUserInfo();
-        if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
-          // 登录状态自动签到 补充用
-          DioRequestWeb.dailyMission();
-        }
-
-        _tabStateController.setActionCounts(res['actionCounts']);
-        _tabStateController.setBalance(res['balance']);
+        _prefetchFailed = false;
+        _isLoadingMore = true;
+        _loadMoreError = null;
+        if (topicList.isEmpty) _isLoading = true;
       });
-    } catch (err) {
-      if (_currentPage == 0) {
+      void apply(Map data) {
+        final incoming = List<TabTopicItem>.from(data['topicList']);
         setState(() {
-          _dioErrorMsg = err.toString();
-          _dioError = true;
+          if (page == 1) {
+            topicList = List.of(incoming);
+            childNodeList = List.from(data['childNodeList'] ?? []);
+          } else {
+            final ids = topicList.map((e) => e.topicId).toSet();
+            topicList.addAll(incoming.where((e) => ids.add(e.topicId)));
+          }
+          _currentPage = page;
+          _hasMore = widget.tabItem.id == 'recent' && incoming.isNotEmpty;
           _isLoading = false;
+          _dioError = false;
         });
       }
-    }
+
+      var cached = page == 1 ? ContentCache.read(key) : null;
+      try {
+        if (cached != null) {
+          final data = cached.data as Map;
+          List<TabTopicItem>.from(data['topicList']);
+          List.from(data['childNodeList'] ?? []);
+          if (page == 1 && topicList.isEmpty) {
+            apply(data);
+          }
+        }
+      } catch (_) {
+        cached = null;
+      }
+      try {
+        final res = await DioRequestWeb.getTopicsByTabKey(
+            widget.tabItem.type, widget.tabItem.id, page,
+            silent: true);
+        if (!active()) return;
+        apply(res as Map);
+        if (page == 1) unawaited(ContentCache.write(key, res));
+        _tabStateController.setActionCounts(res['actionCounts'] ?? []);
+        _tabStateController.setBalance(res['balance'] ?? '');
+        final user = GStorage().getUserInfo();
+        if (page == 1 && user.isNotEmpty && GStorage().getAutoSign()) {
+          DioRequestWeb.dailyMission();
+        }
+      } catch (error) {
+        if (!active()) return;
+        setState(() {
+          _isLoading = false;
+          if (topicList.isEmpty) {
+            _dioError = true;
+            _dioErrorMsg = error.toString();
+          } else if (page > 1) {
+            _loadMoreError = error.toString();
+            _prefetchFailed = !_paginationDemanded;
+          }
+        });
+        if (showRefreshToast) SmartDialog.showToast('刷新失败，已保留当前内容');
+        if (page > 1 && _paginationDemanded) {
+          SmartDialog.showToast('加载失败，请上滑重试');
+        }
+      } finally {
+        if (active()) setState(() => _isLoadingMore = false);
+      }
+    }, refresh: refresh);
   }
 
   Future<List<TabTopicItem>> dateFormat(
@@ -187,7 +243,7 @@ class _TabBarListState extends State<TabBarList>
         ? const TopicSkeleton()
         : _dioError
             ? NetworkErrorPage(
-                message: _dioErrorMsg, onRetry: () => getTopics())
+                message: _dioErrorMsg, onRetry: () => getTopics(refresh: true))
             : topicList.isNotEmpty
                 ? showRes()
                 : emptyData();
@@ -213,43 +269,46 @@ class _TabBarListState extends State<TabBarList>
                 bottomRight: Radius.circular(10),
               ),
             ),
-            child: RefreshIndicator(
-              onRefresh: () {
-                setState(() {
-                  _currentPage = 0;
-                });
-                return getTopics();
-              },
-              // desktop ListView scrollBar
-              child: ScrollConfiguration(
-                behavior:
-                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 1, bottom: 0),
-                  physics: const AlwaysScrollableScrollPhysics(
-                      // parent: BouncingScrollPhysics(), // iOS
-                      parent: ClampingScrollPhysics() // Android
-                      ),
-                  //重要
-                  itemCount: topicList.length + 1,
-                  controller: _controller,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == topicList.length) {
-                      if (childNodeList.isNotEmpty) {
-                        return ChildNodes(childNodeList: childNodeList);
+            child: LoadMoreRetry(
+              hasError: _loadMoreError != null,
+              onRetry: () => getTopics(),
+              child: RefreshIndicator(
+                onRefresh: () => getTopics(refresh: true),
+                // desktop ListView scrollBar
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context)
+                      .copyWith(scrollbars: false),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(top: 1, bottom: 0),
+                    physics: const AlwaysScrollableScrollPhysics(
+                        // parent: BouncingScrollPhysics(), // iOS
+                        parent: ClampingScrollPhysics() // Android
+                        ),
+                    //重要
+                    itemCount: topicList.length + 1,
+                    controller: _controller,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == topicList.length) {
+                        if (_loadMoreError != null) {
+                          return const SizedBox(height: 48);
+                        }
+                        if (childNodeList.isNotEmpty) {
+                          return ChildNodes(childNodeList: childNodeList);
+                        } else {
+                          return _hasMore
+                              ? _isLoadingMore && _paginationDemanded
+                                  ? const LoadMoreLoading()
+                                  : const SizedBox(height: 48)
+                              : const FooterTips(type: 'noMore');
+                        }
                       } else {
-                        return FooterTips(
-                            type: widget.tabItem.id == 'recent'
-                                ? 'loading'
-                                : 'noMore');
+                        return ListItem(
+                          topic: topicList[index],
+                          key: ValueKey(topicList[index].topicId),
+                        );
                       }
-                    } else {
-                      return ListItem(
-                        topic: topicList[index],
-                        key: UniqueKey(),
-                      );
-                    }
-                  },
+                    },
+                  ),
                 ),
               ),
             ),
@@ -268,10 +327,7 @@ class _TabBarListState extends State<TabBarList>
                 _controller.animateTo(0,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
-                setState(() {
-                  _currentPage = 0;
-                });
-                getTopics();
+                getTopics(refresh: true);
               },
               child: FloatingActionButton(
                 heroTag: null,
@@ -287,12 +343,7 @@ class _TabBarListState extends State<TabBarList>
 
   Widget emptyData() {
     return RefreshIndicator(
-      onRefresh: () {
-        setState(() {
-          _currentPage = 0;
-        });
-        return getTopics();
-      },
+      onRefresh: () => getTopics(refresh: true),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: const [
