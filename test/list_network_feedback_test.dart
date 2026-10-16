@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_v2ex/http/interceptor.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
+import 'package:flutter_v2ex/pages/search/controller.dart';
 import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
@@ -22,10 +24,16 @@ class OfflineAdapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];
   String? nextPageHtml;
   Completer<ResponseBody>? pendingPage;
+  Completer<void>? searchStarted;
+  Completer<ResponseBody>? searchResponse;
   @override
   Future<ResponseBody> fetch(RequestOptions options,
       Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     requests.add(options);
+    if (options.uri.host == 'www.sov2ex.com' && searchResponse != null) {
+      if (!searchStarted!.isCompleted) searchStarted!.complete();
+      return searchResponse!.future;
+    }
     if (options.queryParameters['p'] == 2 && pendingPage != null) {
       return pendingPage!.future;
     }
@@ -58,6 +66,7 @@ void main() {
     Hive.init(directory.path);
     Hive.registerAdapter(TabTopicItemAdapter());
     await Hive.openBox(ContentCache.boxName);
+    await Hive.openBox('recentSearchBox');
     Request();
     await Request().setCookie();
     Request.dio.interceptors.clear();
@@ -70,6 +79,8 @@ void main() {
     adapter.requests.clear();
     adapter.nextPageHtml = null;
     adapter.pendingPage = null;
+    adapter.searchStarted = null;
+    adapter.searchResponse = null;
     await Hive.box(ContentCache.boxName).clear();
     await ContentCache.write(ContentCache.key('home:recent:recent', 1), {
       'topicList': List.generate(
@@ -331,4 +342,68 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     Get.reset();
   });
+  for (final keyword in ['', '   ']) {
+    test('submitting "$keyword" leaves search idle without a request',
+        () async {
+      final controller = SSearchController();
+      addTearDown(controller.onClose);
+      controller.errorMessage.value = '旧错误';
+      controller.submit(keyword);
+      await Future<void>.delayed(Duration.zero);
+      expect(controller.isLoading.value, isFalse);
+      expect(controller.hasRequest.value, isFalse);
+      expect(controller.errorMessage.value, isEmpty);
+      expect(adapter.requests, isEmpty);
+    });
+  }
+
+  for (final succeeds in [true, false]) {
+    test('empty submission ignores a late ${succeeds ? 'success' : 'failure'}',
+        () async {
+      final controller = SSearchController();
+      addTearDown(controller.onClose);
+      adapter.searchStarted = Completer<void>();
+      adapter.searchResponse = Completer<ResponseBody>();
+      controller.searchKeyWord.value = 'old query';
+      final pending = controller.search();
+      await adapter.searchStarted!.future;
+      controller.submit('');
+      final body = jsonEncode({
+        'took': 1,
+        'timed_out': false,
+        'total': 1,
+        'hits': [
+          {
+            '_index': 'topics',
+            '_type': 'topic',
+            '_id': '123',
+            '_score': 1.0,
+            'highlight': <String, dynamic>{},
+            '_source': {
+              'created': '2026-10-16T00:00:00',
+              'member': 'reader',
+              'title': 'old result',
+              'content': '',
+              'node': 1,
+              'replies': 0,
+              'id': 123,
+            },
+          },
+        ],
+      });
+      adapter.searchResponse!.complete(ResponseBody.fromString(
+          succeeds ? body : jsonEncode({'error': 'Unavailable'}),
+          succeeds ? 200 : 503,
+          headers: {
+            Headers.contentTypeHeader: ['application/json']
+          }));
+      await pending;
+      expect(controller.resultsList, isEmpty);
+      expect(controller.currentPage.value, 0);
+      expect(controller.isLoading.value, isFalse);
+      expect(controller.hasRequest.value, isFalse);
+      expect(controller.errorMessage.value, isEmpty);
+      expect(adapter.requests, hasLength(1));
+    });
+  }
 }
