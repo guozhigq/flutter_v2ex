@@ -30,14 +30,16 @@ class ApiInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 处理网络请求错误
     // handler.next(err);
-    SmartDialog.showToast(
-      await dioError(err),
-      displayType: SmartToastType.onlyRefresh,
-    );
+    if (err.requestOptions.extra['silentError'] != true) {
+      SmartDialog.showToast(
+        await dioError(err),
+        displayType: SmartToastType.onlyRefresh,
+      );
+    }
     super.onError(err, handler);
   }
 
-  static Future<String> dioError(DioException error) async{
+  static Future<String> dioError(DioException error) async {
     switch (error.type) {
       case DioExceptionType.badCertificate:
         return '证书有误！';
@@ -57,6 +59,7 @@ class ApiInterceptor extends Interceptor {
         return "网络异常，请稍后重试！";
     }
   }
+
   // 登录验证
   loginAuth(reqPath, method, {redirtct}) {
     bool needLogin = !(GStorage().getLoginStatus());
@@ -87,10 +90,10 @@ class ApiInterceptor extends Interceptor {
                   child: const Text('返回')),
               TextButton(
                   // TODO
-                      onPressed: () {
-                        final navigator = Navigator.of(context);
-                        SmartDialog.dismiss()
-                            .then((res) => navigator.pushNamed('/login'));
+                  onPressed: () {
+                    final navigator = Navigator.of(context);
+                    SmartDialog.dismiss()
+                        .then((res) => navigator.pushNamed('/login'));
                   },
                   child: const Text('去登录'))
             ],

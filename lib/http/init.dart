@@ -127,6 +127,9 @@ class Request {
       options.headers = {'user-agent': headerUa(ua)};
       options.responseType = resType;
     }
+    if (extra != null && extra['silentError'] == true) {
+      options.extra = {'silentError': true};
+    }
     try {
       response = await dio.get(
         url,

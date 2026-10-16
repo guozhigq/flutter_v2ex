@@ -13,7 +13,8 @@ import 'package:flutter_v2ex/utils/logger.dart';
 
 class NodeWebApi {
   // 获取节点下的主题
-  static Future<NodeListModel> getTopicsByNodeId(String nodeId, int p) async {
+  static Future<NodeListModel> getTopicsByNodeId(String nodeId, int p,
+      {bool silent = false}) async {
     // logDebug('------getTopicsByNodeKey---------');
     NodeListModel detailModel = NodeListModel();
     List<TabTopicItem> topics = [];
@@ -23,7 +24,7 @@ class NodeWebApi {
     response = await Request().get(
       '/go/$nodeId',
       data: {'p': p},
-      extra: {'ua': 'pc'},
+      extra: {'ua': 'pc', 'silentError': silent},
     );
     var document = parse(response.data);
     if (response.realUri.toString() == '/') {
@@ -91,8 +92,7 @@ class NodeWebApi {
         null) {
       var favNode = mainBox
           .querySelector('div.box:not(.box-title)>div.cell.flex-one-row>div');
-      final favCountText =
-          favNode!.innerHtml.replaceAll(RegExp(r'\D'), '');
+      final favCountText = favNode!.innerHtml.replaceAll(RegExp(r'\D'), '');
       detailModel.favoriteCount = int.tryParse(favCountText) ?? 0;
     }
 

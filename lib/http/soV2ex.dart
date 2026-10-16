@@ -4,7 +4,12 @@ import 'package:flutter_v2ex/http/init.dart';
 import 'package:flutter_v2ex/utils/logger.dart';
 
 class SoV2ex {
-  static Future onSearch(String q, int from, int size, {String sort  = 'created', int order = 0, int gte = 0, int lte = 0 } ) async {
+  static Future onSearch(String q, int from, int size,
+      {String sort = 'created',
+      int order = 0,
+      int gte = 0,
+      int lte = 0,
+      bool silent = false}) async {
     // sort 排序方式 （默认 sumup) ｜ sumup（权重）created（发帖时间）
     // order 升降序，sort 为 created 时有效（默认 降序）｜ 0（降序）, 1（升序）
     Response response;
@@ -20,17 +25,18 @@ class SoV2ex {
       'gte': gte,
       'lte': lte
     };
-    if(gte!= 0){
+    if (gte != 0) {
       data['gte'] = gte;
-      data['lte'] = DateTime.now().millisecondsSinceEpoch~/1000;
+      data['lte'] = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     }
-    if(lte!= 0){
+    if (lte != 0) {
       data['lte'] = lte;
     }
     response = await Request().get(
       'https://www.sov2ex.com/api/search',
       data: data,
       options: options,
+      extra: {'silentError': silent},
     );
     return SoV2exRes.fromMap(response.data);
   }
@@ -42,7 +48,7 @@ class SoV2exRes {
   int total = 0;
   List<HitsList> hits = [];
 
-  static SoV2exRes fromMap(Map<String, dynamic> map){
+  static SoV2exRes fromMap(Map<String, dynamic> map) {
     SoV2exRes soV2exRes = SoV2exRes();
     soV2exRes.took = map['took'];
     soV2exRes.timedOut = map['timed_out'];
@@ -111,24 +117,24 @@ class HighlightList {
 
   static HighlightList fromMap(Map<String, dynamic> map) {
     HighlightList highlightList = HighlightList();
-    if(map['reply_list.content'] != null) {
+    if (map['reply_list.content'] != null) {
       List<dynamic> reply_list = map['reply_list.content'];
       highlightList.reply_list.addAll(reply_list.map((e) => e.toString()));
     }
-    if(map['title'] != null) {
+    if (map['title'] != null) {
       List<dynamic> title = map['title'];
       highlightList.title.addAll(title.map((e) => e.toString()));
     }
-    if(map['postscript_list.content'] != null) {
+    if (map['postscript_list.content'] != null) {
       List<dynamic> postscript_list = map['postscript_list.content'];
-      highlightList.postscript_list.addAll(postscript_list.map((e) => e.toString()));
+      highlightList.postscript_list
+          .addAll(postscript_list.map((e) => e.toString()));
     }
-    if(map['content'] != null) {
+    if (map['content'] != null) {
       List<dynamic> content = map['content'];
       highlightList.content.addAll(content.map((e) => e.toString()));
     }
 
     return highlightList;
   }
-
 }

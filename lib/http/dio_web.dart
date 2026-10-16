@@ -33,11 +33,8 @@ class DioRequestWeb {
   GetStorage storage = GetStorage();
 
   // 获取主页分类内容
-  static Future getTopicsByTabKey(
-    String type,
-    String id,
-    int p,
-  ) async {
+  static Future getTopicsByTabKey(String type, String id, int p,
+      {bool silent = false}) async {
     var res = {};
     List topicList = <TabTopicItem>[];
     List childNodeList = [];
@@ -53,21 +50,26 @@ class DioRequestWeb {
         response = await Request().get(
           '/',
           data: {'tab': id},
-          extra: {'ua': 'pc'},
+          extra: {'ua': 'pc', 'silentError': silent},
         );
         break;
       case 'recent':
-        return await getTopicsRecent('recent', p).then((value) => value);
+        return await getTopicsRecent('recent', p, silent: silent);
       case 'changes':
-        return await getTopicsRecent('changes', p).then((value) => value);
+        return await getTopicsRecent('changes', p, silent: silent);
       case 'go':
-        return await NodeWebApi.getTopicsByNodeId(id, p)
-            .then((value) => value.topicList);
+        final model = await NodeWebApi.getTopicsByNodeId(id, p, silent: silent);
+        return {
+          'topicList': model.topicList,
+          'childNodeList': [],
+          'actionCounts': [],
+          'balance': ''
+        };
       default:
         response = await Request().get(
           '/',
           data: {'tab': 'all'},
-          extra: {'ua': 'mob'},
+          extra: {'ua': 'mob', 'silentError': silent},
         );
         break;
     }
@@ -221,7 +223,8 @@ class DioRequestWeb {
   }
 
   // 获取最新的主题
-  static Future getTopicsRecent(String path, int p) async {
+  static Future getTopicsRecent(String path, int p,
+      {bool silent = false}) async {
     var res = {};
     var topicList = <TabTopicItem>[];
     List childNodeList = [];
@@ -232,7 +235,7 @@ class DioRequestWeb {
       response = await Request().get(
         '/$path',
         data: {'p': p},
-        extra: {'ua': 'pc'},
+        extra: {'ua': 'pc', 'silentError': silent},
       );
     } catch (err) {
       rethrow;
