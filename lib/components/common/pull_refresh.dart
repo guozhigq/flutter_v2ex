@@ -56,7 +56,7 @@ class _PullRefreshState extends State<PullRefresh> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (widget.ctr == null) _controller.dispose();
     super.dispose();
   }
 
@@ -101,10 +101,14 @@ class _PullRefreshState extends State<PullRefresh> {
       ),
       onRefresh: widget.onChildRefresh != null
           ? () async {
-              await widget.onChildRefresh!.call();
-              logDebug('onRefresh Finish');
-              _controller.finishRefresh();
-              _controller.resetFooter();
+              try {
+                await widget.onChildRefresh!.call();
+                if (!mounted) return;
+                _controller.finishRefresh();
+                _controller.resetFooter();
+              } catch (_) {
+                if (mounted) _controller.finishRefresh(IndicatorResult.fail);
+              }
             }
           : null,
       // 下拉
@@ -114,17 +118,18 @@ class _PullRefreshState extends State<PullRefresh> {
               logDebug('-------${widget.currentPage}');
               logDebug('-------${widget.totalPage}');
 
-              if (widget.currentPage == widget.totalPage!) {
-                _controller.finishLoad();
-                _controller.resetFooter();
-                return IndicatorResult.noMore;
+              if (widget.currentPage != null &&
+                  widget.totalPage != null &&
+                  widget.currentPage! >= widget.totalPage!) {
+                _controller.finishLoad(IndicatorResult.noMore);
+                return;
               }
-              await widget.onChildLoad!.call();
-              logDebug('onLoad Finish');
-              logDebug('widget.currentPage: ${widget.currentPage}');
-              logDebug('widget.totalPage: ${widget.totalPage}');
-              _controller.finishLoad();
-              _controller.resetFooter();
+              try {
+                await widget.onChildLoad!.call();
+                if (mounted) _controller.finishLoad();
+              } catch (_) {
+                if (mounted) _controller.finishLoad(IndicatorResult.fail);
+              }
             }
           : null,
       child: widget.child,
