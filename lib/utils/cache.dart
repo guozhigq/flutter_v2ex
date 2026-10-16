@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:hive/hive.dart';
+import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -21,6 +23,12 @@ class CacheManage {
 
     // 缓存大小
     double cacheSize = 0;
+    if (Hive.isBoxOpen(ContentCache.boxName)) {
+      final path = Hive.box(ContentCache.boxName).path;
+      if (path != null && await File(path).exists()) {
+        cacheSize += await File(path).length();
+      }
+    }
     // cached_network_image directory
     Directory tempDirectory = await getTemporaryDirectory();
     // dioCache get_storage directory
@@ -121,6 +129,10 @@ class CacheManage {
 
   /// 清除 Documents 目录下的 DioCache.db
   Future clearApplicationCache() async {
+    if (Hive.isBoxOpen(ContentCache.boxName)) {
+      await Hive.box(ContentCache.boxName).clear();
+    }
+
     /// 无效
     // await DioCacheManager(CacheConfig(baseUrl: Strings.v2exHost)).clearAll();
     Directory directory = await getApplicationDocumentsDirectory();

@@ -19,6 +19,12 @@ Future<void> initHive() async {
   await Hive.openBox('recentTopicsBox');
   // 历史搜索
   await Hive.openBox('recentSearchBox');
+  try {
+    await Hive.openBox('contentPages',
+        compactionStrategy: (entries, deleted) => deleted > 100);
+  } catch (_) {
+    // Optional content caching must not prevent the app from starting.
+  }
 }
 
 void closeHive() {
