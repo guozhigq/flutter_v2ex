@@ -140,7 +140,7 @@ class Request {
       return response;
     } on DioException catch (e) {
       logDebug('get error---------$e');
-      return Future.error(ApiInterceptor.dioError(e));
+      return Future.error(await ApiInterceptor.dioError(e));
     }
   }
 

@@ -226,6 +226,15 @@ void main() {
     Get.reset();
   });
 
+  test('GET failures expose the resolved error message', () async {
+    await expectLater(
+      Request().get('https://www.sov2ex.com/api/search',
+          extra: {'silentError': true}),
+      throwsA(
+          isA<String>().having((value) => value, 'message', '服务器异常，请稍后重试！')),
+    );
+  });
+
   testWidgets(
       'login prompt dismisses on outside tap and keeps the current page',
       (tester) async {
