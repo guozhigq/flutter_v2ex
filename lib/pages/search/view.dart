@@ -54,90 +54,80 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     _screenHeight = MediaQuery.of(context).size.height;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? _) {
-        if (didPop) {
-          return;
-        }
-        _searchController.resetSearch();
-      },
-      child: Scaffold(
-        appBar: SAppBar(),
-        body: Stack(
-          children: [
-            // 显示滚动条
-            Scrollbar(
-              controller: _controller,
-              radius: const Radius.circular(10),
-              child: Obx(
-                () => _searchController.isLoading.value &&
-                        _searchController.resultsList.isEmpty
-                    ? const TopicSkeleton()
-                    : Container(
-                        child: _searchController.resultsList.isNotEmpty
-                            ? PullRefresh(
-                                totalPage: _searchController.totalPage.value,
-                                currentPage:
-                                    _searchController.currentPage.value,
-                                onChildLoad: _searchController
-                                            .errorMessage.value.isEmpty &&
-                                        _searchController.totalPage > 1 &&
-                                        _searchController.currentPage <
-                                            _searchController.totalPage.value
-                                    ? () async =>
-                                        await _searchController.search()
-                                    : null,
-                                child: wrap(),
-                              )
-                            : _searchController
-                                        .searchKeyWord.value.isNotEmpty &&
-                                    _searchController.hasRequest.value
-                                ? Center(
-                                    child: _searchController
-                                            .errorMessage.value.isNotEmpty
-                                        ? TextButton(
-                                            onPressed: () =>
-                                                _searchController.search(),
-                                            child: const Text('加载失败，点击重试'))
-                                        : Text('未找到内容',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium),
-                                  )
-                                : SearchHistory(
-                                    searchHisList:
-                                        _searchController.searchHistoryList,
-                                    onSelect: (text) =>
-                                        _searchController.onSelect(text),
-                                    onClear: () => _searchController.onClear(),
-                                  ),
-                      ),
-              ),
+    return Scaffold(
+      appBar: SAppBar(),
+      body: Stack(
+        children: [
+          // 显示滚动条
+          Scrollbar(
+            controller: _controller,
+            radius: const Radius.circular(10),
+            child: Obx(
+              () => _searchController.isLoading.value &&
+                      _searchController.resultsList.isEmpty
+                  ? const TopicSkeleton()
+                  : Container(
+                      child: _searchController.resultsList.isNotEmpty
+                          ? PullRefresh(
+                              totalPage: _searchController.totalPage.value,
+                              currentPage: _searchController.currentPage.value,
+                              onChildLoad: _searchController
+                                          .errorMessage.value.isEmpty &&
+                                      _searchController.totalPage > 1 &&
+                                      _searchController.currentPage <
+                                          _searchController.totalPage.value
+                                  ? () async => await _searchController.search()
+                                  : null,
+                              child: wrap(),
+                            )
+                          : _searchController.searchKeyWord.value.isNotEmpty &&
+                                  _searchController.hasRequest.value
+                              ? Center(
+                                  child: _searchController
+                                          .errorMessage.value.isNotEmpty
+                                      ? TextButton(
+                                          onPressed: () =>
+                                              _searchController.search(),
+                                          child: const Text('加载失败，点击重试'))
+                                      : Text('未找到内容',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
+                                )
+                              : SearchHistory(
+                                  searchHisList:
+                                      _searchController.searchHistoryList,
+                                  onSelect: (text) =>
+                                      _searchController.onSelect(text),
+                                  onClear: () => _searchController
+                                      .searchHistoryList
+                                      .clear(),
+                                ),
+                    ),
             ),
-            // 返回顶部
-            Positioned(
-              right: 20,
-              bottom: 20,
-              child: Obx(
-                () => AnimatedScale(
-                  scale: _searchController.showBackTopBtn.value ? 1 : 0,
-                  curve: Curves.easeOut,
-                  duration: const Duration(milliseconds: 300),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: const Icon(Icons.vertical_align_top_rounded),
-                    onPressed: () {
-                      _controller.animateTo(0,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease);
-                    },
-                  ),
+          ),
+          // 返回顶部
+          Positioned(
+            right: 20,
+            bottom: 20,
+            child: Obx(
+              () => AnimatedScale(
+                scale: _searchController.showBackTopBtn.value ? 1 : 0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  heroTag: null,
+                  child: const Icon(Icons.vertical_align_top_rounded),
+                  onPressed: () {
+                    _controller.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease);
+                  },
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -27,6 +27,7 @@ class SAppBar extends StatelessWidget implements PreferredSizeWidget {
             border: InputBorder.none,
             suffixIcon: _searchController.searchKeyWord.value.isNotEmpty
                 ? IconButton(
+                    tooltip: '清空搜索',
                     icon: Icon(
                       Icons.clear,
                       color: Theme.of(context).colorScheme.outline,

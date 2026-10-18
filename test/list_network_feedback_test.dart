@@ -17,6 +17,7 @@ import 'package:flutter_v2ex/models/tabs.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/pages/search/controller.dart';
+import 'package:flutter_v2ex/pages/search/view.dart';
 import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
@@ -102,6 +103,65 @@ void main() {
       if (!Platform.isWindows) rethrow;
     }
   });
+
+  testWidgets('clear search shows history and focuses the input',
+      (tester) async {
+    await tester.pumpWidget(const GetMaterialApp(home: SearchPage()));
+    await tester.pumpAndSettle();
+    final controller = Get.find<SSearchController>();
+    controller.searchHistoryList.assignAll(['saved query']);
+    controller.searchKeyWord.value = 'flutter';
+    controller.controller.value.text = 'flutter';
+    controller.hasRequest.value = true;
+    controller.replyContentFocusNode.value.unfocus();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('清空搜索'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SearchPage), findsOneWidget);
+    expect(find.text('saved query'), findsOneWidget);
+    expect(controller.controller.value.text, isEmpty);
+    expect(controller.hasRequest.value, isFalse);
+    expect(controller.replyContentFocusNode.value.hasFocus, isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    Get.reset();
+  });
+
+  for (final hasQuery in [false, true]) {
+    for (final systemBack in [false, true]) {
+      testWidgets(
+          'search exits on one ${systemBack ? 'system' : 'toolbar'} back with query=$hasQuery',
+          (tester) async {
+        await tester.pumpWidget(GetMaterialApp(
+          home: const Scaffold(body: Text('previous page')),
+          getPages: [GetPage(name: '/search', page: () => const SearchPage())],
+        ));
+        Get.toNamed('/search');
+        await tester.pumpAndSettle();
+        final controller = Get.find<SSearchController>();
+        if (hasQuery) {
+          controller.searchKeyWord.value = 'flutter';
+          controller.controller.value.text = 'flutter';
+          controller.hasRequest.value = true;
+        }
+        controller.replyContentFocusNode.value.unfocus();
+        await tester.pumpAndSettle();
+        if (systemBack) {
+          await tester.binding.handlePopRoute();
+        } else {
+          await tester.tap(find.byType(BackButton));
+        }
+        await tester.pumpAndSettle();
+        expect(find.byType(SearchPage), findsNothing);
+        expect(find.text('previous page'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+        Get.reset();
+      });
+    }
+  }
 
   testWidgets(
       'cached launch is quiet, refresh and pagination toast once without a footer',

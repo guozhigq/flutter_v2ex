@@ -22,7 +22,6 @@ class SSearchController extends GetxController {
   int endTime = 0;
   Rx<FocusNode> replyContentFocusNode = FocusNode().obs;
   RxBool hasRequest = false.obs;
-  bool canPop = false;
 
   // 搜索
   final _requests = PageRequest();
@@ -163,13 +162,20 @@ class SSearchController extends GetxController {
 
   void onClear() {
     _requests.invalidate();
+    _queryIdentity = '';
+    _pendingIdentity = '';
+    _paginationDemanded = false;
+    prefetchFailed = false;
     isLoading.value = false;
+    hasRequest.value = false;
     errorMessage.value = '';
     controller.value.clear();
     searchKeyWord.value = '';
     currentPage.value = 0;
-    resultsList.value = [];
-    searchHistoryList.value = [];
+    totalPage.value = 1;
+    showBackTopBtn.value = false;
+    resultsList.clear();
+    replyContentFocusNode.value.requestFocus();
   }
 
   void submit(value) {
@@ -181,19 +187,5 @@ class SSearchController extends GetxController {
 
   void onChange(value) {
     searchKeyWord.value = value;
-  }
-
-  void resetSearch() {
-    if (!canPop) {
-      resultsList.value = [];
-      isLoading.value = false;
-      searchKeyWord.value = '';
-      _requests.invalidate();
-      currentPage.value = 0;
-      hasRequest.value = false;
-      canPop = true;
-    } else {
-      Get.back();
-    }
   }
 }
