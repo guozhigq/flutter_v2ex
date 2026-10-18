@@ -285,13 +285,15 @@ class DioRequestWeb {
   }
 
   // 获取登录字段
-  static Future<LoginDetailModel> getLoginKey() async {
+  static Future<LoginDetailModel> getLoginKey(
+      {CancelToken? cancelToken}) async {
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
-    SmartDialog.showLoading(msg: '获取验证码...');
+
     response = await Request().get(
       '/signin',
-      extra: {'ua': 'mob'},
+      cancelToken: cancelToken,
+      extra: {'ua': 'mob', 'silentError': true},
     );
 
     var document = parse(response.data);
@@ -304,36 +306,7 @@ class DioRequestWeb {
       String tipsIp = document.body!
           .querySelector('#Main > div.box > div.dock_area > div.cell')!
           .text;
-      SmartDialog.dismiss();
-      SmartDialog.show(
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提示'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  tipsIp,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .copyWith(color: Theme.of(context).colorScheme.error),
-                ),
-                const SizedBox(height: 4),
-                Text(tipsContent),
-              ],
-            ),
-            actions: [
-              TextButton(
-                  onPressed: (() => {SmartDialog.dismiss()}),
-                  child: const Text('知道了'))
-            ],
-          );
-        },
-      );
-      return loginKeyMap;
+      throw Exception('$tipsIp\n$tipsContent');
     }
     var trsDom = tableDom!.querySelectorAll('tr');
 
@@ -365,7 +338,8 @@ class DioRequestWeb {
     Response res = await Request().get(
       "/_captcha",
       data: {'once': loginKeyMap.once},
-      extra: {'ua': 'mob', 'resType': resType},
+      cancelToken: cancelToken,
+      extra: {'ua': 'mob', 'resType': resType, 'silentError': true},
     );
     //  登录后未2fa 退出，第二次进入触发
     if (res.redirects.isNotEmpty && res.redirects[0].location.path == '/2fa') {
@@ -376,7 +350,7 @@ class DioRequestWeb {
       }
       loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
     }
-    SmartDialog.dismiss();
+
     return loginKeyMap;
   }
 

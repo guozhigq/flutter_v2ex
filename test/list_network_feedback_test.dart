@@ -16,8 +16,11 @@ import 'package:flutter_v2ex/http/interceptor.dart';
 import 'package:flutter_v2ex/models/tabs.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
+import 'package:flutter_v2ex/pages/page_login.dart';
 import 'package:flutter_v2ex/pages/search/controller.dart';
 import 'package:flutter_v2ex/pages/search/view.dart';
+import 'package:flutter_v2ex/utils/global.dart';
+import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
@@ -27,10 +30,24 @@ class OfflineAdapter implements HttpClientAdapter {
   Completer<ResponseBody>? pendingPage;
   Completer<void>? searchStarted;
   Completer<ResponseBody>? searchResponse;
+  Completer<ResponseBody>? loginResponse;
   @override
   Future<ResponseBody> fetch(RequestOptions options,
       Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     requests.add(options);
+    if (options.path == '/signin' && loginResponse != null) {
+      return loginResponse!.future;
+    }
+    if (options.path == '/_captcha' && loginResponse != null) {
+      return ResponseBody.fromBytes(
+        base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII='),
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['image/png']
+        },
+      );
+    }
     if (options.uri.host == 'www.sov2ex.com' && searchResponse != null) {
       if (!searchStarted!.isCompleted) searchStarted!.complete();
       return searchResponse!.future;
@@ -82,6 +99,7 @@ void main() {
     adapter.pendingPage = null;
     adapter.searchStarted = null;
     adapter.searchResponse = null;
+    adapter.loginResponse = null;
     await Hive.box(ContentCache.boxName).clear();
     await ContentCache.write(ContentCache.key('home:recent:recent', 1), {
       'topicList': List.generate(
@@ -102,6 +120,129 @@ void main() {
     } on FileSystemException {
       if (!Platform.isWindows) rethrow;
     }
+  });
+
+  testWidgets('captcha loading stays inside form and allows closing login',
+      (tester) async {
+    adapter.loginResponse = Completer<ResponseBody>();
+    await tester.pumpWidget(GetMaterialApp(
+      home: const Scaffold(body: Text('previous page')),
+      getPages: [GetPage(name: '/login', page: () => const LoginPage())],
+    ));
+    Get.toNamed('/login');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('加载中…'), findsNothing);
+    final placeholder = find.byKey(const ValueKey('captcha-loading'));
+    expect(placeholder, findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(tester.widget<Semantics>(placeholder).properties.label, '验证码加载中');
+    final fieldRect = tester.getRect(find.byType(TextFormField).at(2));
+    final placeholderRect = tester.getRect(placeholder);
+    expect(placeholderRect.size, const Size(145, 50));
+    expect(placeholderRect.top, closeTo(fieldRect.top + 3, 0.1));
+    expect(placeholderRect.right, closeTo(fieldRect.right - 3, 0.1));
+    expect(placeholderRect.bottom, closeTo(fieldRect.bottom - 3, 0.1));
+    expect(SmartDialog.checkExist(), isFalse);
+    expect(tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+        isNull);
+    await tester.tap(find.byTooltip('关闭登录'));
+    await tester.pumpAndSettle();
+    adapter.loginResponse!
+        .complete(ResponseBody.fromString('Unavailable', 503));
+    await tester.pumpAndSettle();
+    expect(find.byType(LoginPage), findsNothing);
+    expect(find.text('previous page'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    Get.reset();
+  });
+
+  testWidgets('captcha failure offers inline retry without blocking close',
+      (tester) async {
+    await tester.pumpWidget(const GetMaterialApp(home: LoginPage()));
+    await tester.pumpAndSettle();
+    expect(find.text('加载失败，重试'), findsOneWidget);
+    adapter.loginResponse = Completer<ResponseBody>();
+    await tester.tap(find.text('加载失败，重试'));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('captcha-loading')), findsOneWidget);
+    expect(find.text('加载中…'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    adapter.loginResponse!
+        .complete(ResponseBody.fromString('Unavailable', 503));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    Get.reset();
+  });
+
+  testWidgets('captcha image stays centered inside its input and refreshes',
+      (tester) async {
+    adapter.loginResponse = Completer<ResponseBody>();
+    adapter.loginResponse!.complete(ResponseBody.fromString(
+        '''
+<table>
+<tr><td>用户名</td><td><input name="username"></td></tr>
+<tr><td>密码</td><td><input value="123"><input class="sl" name="password"></td></tr>
+<tr><td>机器人</td><td><input name="captcha"><img src="/_captcha"></td></tr>
+</table>
+''',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['text/html; charset=utf-8']
+        }));
+    await tester.pumpWidget(const GetMaterialApp(home: LoginPage()));
+    await tester.pumpAndSettle();
+    final image = find.descendant(
+      of: find.byTooltip('点击刷新验证码'),
+      matching: find.byType(Image),
+    );
+    expect(image, findsOneWidget);
+    final imageRect = tester.getRect(image);
+    final fieldRect = tester.getRect(find.byType(TextFormField).at(2));
+    expect(imageRect.center.dy, closeTo(fieldRect.center.dy, 1));
+    expect(imageRect.top, closeTo(fieldRect.top + 3, 0.1));
+    expect(imageRect.bottom, closeTo(fieldRect.bottom - 3, 0.1));
+    expect(imageRect.right, closeTo(fieldRect.right - 3, 0.1));
+    final clip = tester.widget<ClipRRect>(find
+        .ancestor(
+          of: image,
+          matching: find.byType(ClipRRect),
+        )
+        .first);
+    expect(clip.borderRadius, BorderRadius.circular(4));
+    expect(tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+        isNotNull);
+    adapter.loginResponse = Completer<ResponseBody>();
+    await tester.tap(image);
+    await tester.pump();
+    expect(find.byKey(const ValueKey('captcha-loading')), findsOneWidget);
+    expect(find.text('加载中…'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    adapter.loginResponse!
+        .complete(ResponseBody.fromString('Unavailable', 503));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    Get.reset();
+  });
+
+  testWidgets(
+      'login prompt dismisses on outside tap and keeps the current page',
+      (tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      navigatorKey: Routes.navigatorKey,
+      home: const Scaffold(body: Text('current page')),
+    ));
+    Login.loginDialog('该操作需要登录');
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('current page'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    Get.reset();
   });
 
   testWidgets('clear search shows history and focuses the input',
