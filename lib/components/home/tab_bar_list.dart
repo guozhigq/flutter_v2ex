@@ -47,6 +47,7 @@ class _TabBarListState extends State<TabBarList>
   bool _paginationDemanded = false;
   int _currentPage = 0;
   bool showBackTopBtn = false;
+  bool _isReturningToTop = false;
   bool _dioError = false;
   String _dioErrorMsg = '';
   // late TabStateController? _tabStateController;
@@ -76,11 +77,15 @@ class _TabBarListState extends State<TabBarList>
         }
 
         var screenHeight = MediaQuery.of(context).size.height;
-        if (_controller.offset >= screenHeight && showBackTopBtn == false) {
+        if (!_isReturningToTop &&
+            _controller.offset >= screenHeight &&
+            showBackTopBtn == false) {
           setState(() {
             showBackTopBtn = true;
           });
-        } else if (_controller.offset < screenHeight && showBackTopBtn) {
+        } else if (!_isReturningToTop &&
+            _controller.offset < screenHeight &&
+            showBackTopBtn) {
           setState(() {
             showBackTopBtn = false;
           });
@@ -88,7 +93,10 @@ class _TabBarListState extends State<TabBarList>
 
         final ScrollDirection direction =
             _controller.position.userScrollDirection;
-        if (direction == ScrollDirection.forward) {
+        // Programmatic scrolling does not report a forward user gesture.
+        if (_isReturningToTop ||
+            _controller.offset <= _controller.position.minScrollExtent ||
+            direction == ScrollDirection.forward) {
           homeStream.add(true);
         } else if (direction == ScrollDirection.reverse) {
           homeStream.add(false);
@@ -230,10 +238,29 @@ class _TabBarListState extends State<TabBarList>
     return res;
   }
 
-  void animateToTop() async {
-    await _controller.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.ease);
-    _tabStateController.setTabIndex(999);
+  Future<void> animateToTop() async {
+    Get.find<HomeController>().searchBarStream.add(true);
+    if (!_controller.hasClients || _isReturningToTop) return;
+
+    setState(() => _isReturningToTop = true);
+    try {
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _controller.jumpTo(_controller.position.minScrollExtent);
+      } else {
+        await _controller.animateTo(_controller.position.minScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: const Cubic(0.22, 1, 0.36, 1));
+      }
+    } finally {
+      _isReturningToTop = false;
+      if (mounted && _controller.hasClients) {
+        setState(() {
+          showBackTopBtn =
+              _controller.offset >= MediaQuery.sizeOf(context).height;
+        });
+        _tabStateController.setTabIndex(999);
+      }
+    }
   }
 
   @override
@@ -317,22 +344,32 @@ class _TabBarListState extends State<TabBarList>
         Positioned(
           right: 20,
           bottom: 20,
-          child: AnimatedScale(
-            scale: showBackTopBtn ? 1 : 0,
-            curve: Curves.easeInOut,
-            duration: const Duration(milliseconds: 300),
-            child: GestureDetector(
-              // 长按回顶刷新
-              onLongPress: () {
-                _controller.animateTo(0,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.ease);
-                getTopics(refresh: true);
-              },
-              child: FloatingActionButton(
-                heroTag: null,
-                child: const Icon(Icons.vertical_align_top_rounded),
-                onPressed: () => animateToTop(),
+          child: IgnorePointer(
+            ignoring: !showBackTopBtn || _isReturningToTop,
+            child: AnimatedOpacity(
+              opacity: showBackTopBtn ? 1 : 0,
+              duration: Duration(
+                  milliseconds:
+                      MediaQuery.disableAnimationsOf(context) ? 0 : 180),
+              child: AnimatedScale(
+                scale: showBackTopBtn ? 1 : 0.65,
+                curve: Curves.easeOut,
+                duration: Duration(
+                    milliseconds:
+                        MediaQuery.disableAnimationsOf(context) ? 0 : 220),
+                child: GestureDetector(
+                  // 长按回顶刷新，与点击共用顶部栏恢复逻辑。
+                  onLongPress: () async {
+                    await animateToTop();
+                    if (mounted) getTopics(refresh: true);
+                  },
+                  child: FloatingActionButton(
+                    heroTag: null,
+                    tooltip: '返回顶部',
+                    onPressed: animateToTop,
+                    child: const Icon(Icons.vertical_align_top_rounded),
+                  ),
+                ),
               ),
             ),
           ),

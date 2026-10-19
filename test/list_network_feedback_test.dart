@@ -313,6 +313,73 @@ void main() {
     }
   }
 
+  for (final reduceMotion in [false, true]) {
+    testWidgets(
+        'back to top restores the home toolbar (reduceMotion=$reduceMotion)',
+        (tester) async {
+      Get.testMode = true;
+      final home = Get.put(HomeController());
+      await tester.pumpWidget(GetMaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(
+              size: const Size(800, 600), disableAnimations: reduceMotion),
+          child: Scaffold(
+            drawer: const Drawer(child: Text('menu contents')),
+            body: Column(children: [
+              CustomAppBar(stream: home.searchBarStream.stream),
+              Expanded(
+                child: TabBarList(
+                    tabItem: TabModel('最新', 'recent', 'recent', true)),
+              ),
+            ]),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final scroll = tester.widget<ListView>(find.byType(ListView)).controller!;
+      scroll.jumpTo(650);
+      await tester.drag(find.byType(ListView), const Offset(0, -80));
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(CustomAppBar)).height, 0);
+      final offsetBefore = scroll.offset;
+      final button = find.byType(FloatingActionButton);
+      await tester.tap(button);
+      await tester.pump();
+      if (!reduceMotion) {
+        await tester.pump(const Duration(milliseconds: 140));
+        expect(tester.getSize(find.byType(CustomAppBar)).height,
+            allOf(greaterThan(0), lessThan(52)));
+        expect(scroll.offset, allOf(greaterThan(0), lessThan(offsetBefore)));
+        // Keep the button visible until the list has reached the top.
+        final opacity =
+            find.ancestor(of: button, matching: find.byType(AnimatedOpacity));
+        expect(tester.widget<AnimatedOpacity>(opacity).opacity, 1);
+      }
+      await tester.pumpAndSettle();
+      expect(scroll.offset, 0);
+      expect(tester.getSize(find.byType(CustomAppBar)).height, 52);
+      expect(find.byIcon(Icons.menu).hitTestable(), findsOneWidget);
+      expect(
+          find
+              .descendant(
+                  of: find.byType(CustomAppBar),
+                  matching: find.byIcon(Icons.person_rounded))
+              .hitTestable(),
+          findsOneWidget);
+      final opacity =
+          find.ancestor(of: button, matching: find.byType(AnimatedOpacity));
+      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
+      // The restored menu remains usable.
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      expect(find.text('menu contents'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await home.searchBarStream.close();
+      Get.reset();
+    });
+  }
+
   testWidgets(
       'cached launch is quiet, refresh and pagination toast once without a footer',
       (tester) async {
