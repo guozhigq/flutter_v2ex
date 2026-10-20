@@ -25,6 +25,8 @@ import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 
 class OfflineAdapter implements HttpClientAdapter {
+  bool failFirstPage = false;
+  String firstPageHtml = '';
   final requests = <RequestOptions>[];
   String? nextPageHtml;
   Completer<ResponseBody>? pendingPage;
@@ -35,6 +37,13 @@ class OfflineAdapter implements HttpClientAdapter {
   Future<ResponseBody> fetch(RequestOptions options,
       Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     requests.add(options);
+    if (options.path == '/recent' &&
+        options.queryParameters['p'] == 1 &&
+        !failFirstPage) {
+      return ResponseBody.fromString(firstPageHtml, 200, headers: {
+        Headers.contentTypeHeader: ['text/html; charset=utf-8']
+      });
+    }
     if (options.path == '/signin' && loginResponse != null) {
       return loginResponse!.future;
     }
@@ -85,6 +94,7 @@ void main() {
     Hive.registerAdapter(TabTopicItemAdapter());
     await Hive.openBox(ContentCache.boxName);
     await Hive.openBox('recentSearchBox');
+    await Hive.openBox('recentTopicsBox');
     Request();
     await Request().setCookie();
     Request.dio.interceptors.clear();
@@ -95,21 +105,18 @@ void main() {
 
   setUp(() async {
     adapter.requests.clear();
+    adapter.failFirstPage = false;
+    adapter.firstPageHtml = List.generate(
+            20,
+            (i) =>
+                '<div class="cell item"><span class="item_title"><a href="/t/$i">第一页 $i</a></span></div>')
+        .join();
     adapter.nextPageHtml = null;
     adapter.pendingPage = null;
     adapter.searchStarted = null;
     adapter.searchResponse = null;
     adapter.loginResponse = null;
     await Hive.box(ContentCache.boxName).clear();
-    await ContentCache.write(ContentCache.key('home:recent:recent', 1), {
-      'topicList': List.generate(
-          20,
-          (i) => TabTopicItem()
-            ..topicId = '$i'
-            ..topicTitle = '第一页 $i'
-            ..memberId = 'reader'),
-      'childNodeList': [],
-    });
   });
 
   tearDownAll(() async {
@@ -381,22 +388,13 @@ void main() {
   }
 
   testWidgets(
-      'cached launch is quiet, refresh and pagination toast once without a footer',
+      'network list stays in memory on failed refresh and never persists',
       (tester) async {
     Get.testMode = true;
     Get.put(HomeController());
-    final cached = List.generate(
-        20,
-        (i) => TabTopicItem()
-          ..topicId = '$i'
-          ..topicTitle = '已保存的帖子 $i'
-          ..memberId = 'reader');
-    await tester.runAsync(() => ContentCache.write(
-        ContentCache.key('home:recent:recent', 1),
-        {'topicList': cached, 'childNodeList': []}));
     final messages = <String>[];
     final cachedTitle = find.byWidgetPredicate((widget) =>
-        widget is Text && widget.data?.replaceAll('\u200B', '') == '已保存的帖子 0');
+        widget is Text && widget.data?.replaceAll('\u200B', '') == '第一页 0');
     await tester.pumpWidget(GetMaterialApp(
       navigatorObservers: [FlutterSmartDialog.observer],
       builder: FlutterSmartDialog.init(toastBuilder: (message) {
@@ -411,6 +409,8 @@ void main() {
     expect(find.textContaining('缓存'), findsNothing);
     expect(messages, isEmpty);
     expect(adapter.requests, hasLength(1));
+    expect(Hive.box(ContentCache.boxName).isEmpty, isTrue);
+    adapter.failFirstPage = true;
 
     final refresh = tester
         .state<RefreshIndicatorState>(find.byType(RefreshIndicator))
@@ -452,28 +452,20 @@ void main() {
     adapter.requests.clear();
     Get.testMode = true;
     Get.put(HomeController());
-    await tester.runAsync(() => ContentCache.write(
-          ContentCache.key('home:recent:recent', 1),
-          {
-            'topicList': List.generate(
-                20,
-                (i) => TabTopicItem()
-                  ..topicId = '$i'
-                  ..topicTitle = '第一页 $i'
-                  ..memberId = 'reader'),
-            'childNodeList': []
-          },
-        ));
-    await tester.runAsync(() => ContentCache.write(
+    // Seed the legacy format directly: lists must ignore records left by older builds.
+    await tester.runAsync(() => Hive.box(ContentCache.boxName).put(
           ContentCache.key('home:recent:recent', 2),
           {
-            'topicList': List.generate(
-                20,
-                (i) => TabTopicItem()
-                  ..topicId = '${i + 20}'
-                  ..topicTitle = '离线的下一页 ${i + 20}'
-                  ..memberId = 'reader'),
-            'childNodeList': []
+            'savedAt': DateTime.now().millisecondsSinceEpoch,
+            'data': {
+              'topicList': List.generate(
+                  20,
+                  (i) => TabTopicItem()
+                    ..topicId = '${i + 20}'
+                    ..topicTitle = '离线的下一页 ${i + 20}'
+                    ..memberId = 'reader'),
+              'childNodeList': [],
+            },
           },
         ));
     final messages = <String>[];

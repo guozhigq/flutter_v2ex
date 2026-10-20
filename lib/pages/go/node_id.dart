@@ -99,7 +99,6 @@ class _GoPageState extends State<GoPage> {
     final page = refresh ? 1 : _currentPage + 1;
     final id = nodeId;
     final account = ContentCache.scope;
-    final key = ContentCache.key('node:$id', page);
     // Initialize before scheduling; a later end-of-list request may promote this
     // prefetch even before the deferred request callback has started.
     if (refresh || !_requests.isRunning) {
@@ -134,24 +133,10 @@ class _GoPageState extends State<GoPage> {
         });
       }
 
-      var cached = page == 1 ? ContentCache.read(key) : null;
-      NodeListModel? cachedModel;
-      try {
-        if (cached != null) {
-          cachedModel = NodeListModel.fromCache(cached.data as Map);
-          if (page == 1 && topicListDetail == null) {
-            apply(cachedModel);
-          }
-        }
-      } catch (_) {
-        cached = null;
-        cachedModel = null;
-      }
       try {
         final res = await NodeWebApi.getTopicsByNodeId(id, page, silent: true);
         if (!active()) return;
         apply(res);
-        if (page == 1) unawaited(ContentCache.write(key, res.toCache()));
         if (page == 1 && res.topicList.isNotEmpty) {
           _topicController.setTopic(res.topicList.first);
         }

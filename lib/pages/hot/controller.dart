@@ -1,5 +1,4 @@
 import 'package:flutter_v2ex/http/dio_network.dart';
-import 'dart:async';
 import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:flutter_v2ex/service/page_request.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
@@ -17,7 +16,6 @@ class HotPageController extends GetxController {
   Future<void> queryHotTopic({bool userRefresh = false}) {
     final showRefreshToast = userRefresh && hotTopicList.isNotEmpty;
     final account = ContentCache.scope;
-    final key = ContentCache.key('hot', 1);
     return _requests.run((generation) async {
       bool active() =>
           _requests.accepts(generation) && ContentCache.scope == account;
@@ -25,12 +23,6 @@ class HotPageController extends GetxController {
       loading.value = true;
       error.value = null;
       try {
-        final cached = ContentCache.read(key);
-        if (hotTopicList.isEmpty &&
-            cached?.data is List &&
-            (cached!.data as List).every((e) => e is TabTopicItem)) {
-          hotTopicList.value = List<TabTopicItem>.from(cached.data);
-        }
         var res = await DioRequestNet.getHotTopic(silent: true);
         List<TabTopicItem> list = [];
         for (var i in res) {
@@ -51,7 +43,6 @@ class HotPageController extends GetxController {
         final TopicController topicController = Get.find<TopicController>();
         hotTopicList.value = list;
         if (list.isNotEmpty) topicController.setTopic(list.first);
-        unawaited(ContentCache.write(key, list));
       } catch (_) {
         if (!active()) return;
         if (hotTopicList.isEmpty) error.value = '更新失败';

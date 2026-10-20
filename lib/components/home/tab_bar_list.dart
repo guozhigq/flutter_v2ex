@@ -139,8 +139,6 @@ class _TabBarListState extends State<TabBarList>
     if (!refresh && !_hasMore) return Future.value();
     final account = ContentCache.scope;
     final page = refresh ? 1 : _currentPage + 1;
-    final key = ContentCache.key(
-        'home:${widget.tabItem.type}:${widget.tabItem.id}', page);
     // Initialize before scheduling; a later end-of-list request may promote this
     // prefetch even before the deferred request callback has started.
     if (refresh || !_requests.isRunning) {
@@ -177,26 +175,12 @@ class _TabBarListState extends State<TabBarList>
         });
       }
 
-      var cached = page == 1 ? ContentCache.read(key) : null;
-      try {
-        if (cached != null) {
-          final data = cached.data as Map;
-          List<TabTopicItem>.from(data['topicList']);
-          List.from(data['childNodeList'] ?? []);
-          if (page == 1 && topicList.isEmpty) {
-            apply(data);
-          }
-        }
-      } catch (_) {
-        cached = null;
-      }
       try {
         final res = await DioRequestWeb.getTopicsByTabKey(
             widget.tabItem.type, widget.tabItem.id, page,
             silent: true);
         if (!active()) return;
         apply(res as Map);
-        if (page == 1) unawaited(ContentCache.write(key, res));
         _tabStateController.setActionCounts(res['actionCounts'] ?? []);
         _tabStateController.setBalance(res['balance'] ?? '');
         final user = GStorage().getUserInfo();
