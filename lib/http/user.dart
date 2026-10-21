@@ -29,26 +29,34 @@ import 'package:flutter_v2ex/utils/logger.dart';
 
 class UserWebApi {
   // 获取用户信息
-  static Future queryMemberProfile(String memberId) async {
+  static Future<ModelMemberProfile> queryMemberProfile(String memberId,
+      {CancelToken? cancelToken}) async {
+    final response = await Request().get('/member/$memberId',
+        cancelToken: cancelToken, extra: {'ua': 'pc', 'silentError': true});
+    return parseMemberProfile(response.data, memberId);
+  }
+
+  static ModelMemberProfile parseMemberProfile(String html, String memberId) {
     ModelMemberProfile memberProfile = ModelMemberProfile();
     List<MemberTopicItem> topicList = [];
     List<MemberReplyItem> replyList = [];
     List<MemberSocialItem> socialList = [];
-    Response response;
-    response = await Request().get('/member/$memberId', extra: {'ua': 'pc'});
-    // logDebug('response.headers:${response.headers['set-cookie']}');
-    var bodyDom = parse(response.data).body;
+    var bodyDom = parse(html).body;
     var contentDom = bodyDom!.querySelectorAll('#Main > div.box');
+    if (contentDom.length < 3) {
+      throw const FormatException('用户资料页面内容不完整');
+    }
     var profileNode = contentDom[0];
     var topicsNode = contentDom[1];
     var replysNode = contentDom[2];
 
     var menuBodyNode =
         bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
-    var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
-    if (loginOutNode.attributes['onclick'] != null) {
+    final menuLinks = menuBodyNode?.querySelectorAll('a') ?? <dom.Element>[];
+    final loginOutNode = menuLinks.isEmpty ? null : menuLinks.last;
+    if (loginOutNode?.attributes['onclick'] != null) {
       // 登录状态
-      var loginOutHref = loginOutNode.attributes['onclick']!;
+      var loginOutHref = loginOutNode!.attributes['onclick']!;
       RegExp regExp = RegExp(r'\d{3,}');
       Iterable<Match> matches = regExp.allMatches(loginOutHref);
       for (Match m in matches) {
@@ -71,20 +79,23 @@ class UserWebApi {
           followBtn.attributes['value'] == '取消特别关注' ? true : false;
       logDebug('line 1195: ${memberProfile.isFollow}');
 
-      var blockBtn = buttonDom[1];
+      var blockBtn = buttonDom.length > 1 ? buttonDom[1] : null;
       // true 已屏蔽
       memberProfile.isBlock =
-          blockBtn.attributes['value'] == 'Unblock' ? true : false;
-      logDebug('line 1199: ${blockBtn.attributes['value']}');
+          blockBtn?.attributes['value'] == 'Unblock' ? true : false;
     }
     // else {
     //   memberProfile.isOwner = false;
     // }
 
     // 加入时间
-    var mbCreatedTimeDom = profileCellNode.querySelector('span.gray')!.text;
-    memberProfile.mbSort = mbCreatedTimeDom.split('+')[0].split('，')[0];
-    memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0].split('，')[1];
+    final metadata = profileCellNode.querySelector('span.gray')?.text ?? '';
+    // V2EX may return either Chinese or English membership information.
+    // Preserve the original translated date label and omit the timezone.
+    final membershipInfo = metadata.split('+').first.split(RegExp(r'[，,]'));
+    memberProfile.mbSort = membershipInfo.first;
+    memberProfile.mbCreatedTime =
+        membershipInfo.length > 1 ? membershipInfo[1] : '';
     // 社交
     if (profileNode.querySelector('div.widgets') != null) {
       var socialNodes =

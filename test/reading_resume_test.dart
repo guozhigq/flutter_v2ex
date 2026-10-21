@@ -376,6 +376,17 @@ void main() {
         await tester.pump(const Duration(seconds: 3));
         await tester.pumpAndSettle();
         expect(tester.widget<Material>(target).color, baseColor);
+        final appTitle = find.ancestor(
+            of: find.text('阅读测试主题'), matching: find.byType(AnimatedOpacity));
+        expect(appTitle, findsOneWidget);
+        expect(tester.widget<AnimatedOpacity>(appTitle).opacity, 1);
+        expect(find.text('阅读测试主题').hitTestable(), findsOneWidget);
+        tester
+            .widget<CustomScrollView>(find.byType(CustomScrollView))
+            .controller!
+            .jumpTo(0);
+        await tester.pumpAndSettle();
+        expect(tester.widget<AnimatedOpacity>(appTitle).opacity, 0);
         expect(tester.takeException(), isNull);
         await unmount(tester);
       });

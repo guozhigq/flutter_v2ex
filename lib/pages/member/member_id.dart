@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -13,24 +14,44 @@ import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
 import 'controller.dart';
 
 class MemberPage extends StatefulWidget {
-  const MemberPage({Key? key}) : super(key: key);
+  const MemberPage({this.loadProfile, Key? key}) : super(key: key);
+
+  final Future<ModelMemberProfile> Function(String, CancelToken)? loadProfile;
 
   @override
   State<MemberPage> createState() => _MemberPageState();
 }
 
 class _MemberPageState extends State<MemberPage> {
-  final MemberController _memberController =
-      Get.put(MemberController(), tag: Get.parameters['memberId']);
+  late final MemberController _memberController;
+  late final String _controllerTag;
+  late final Future<ModelMemberProfile> _profileFuture;
   final GlobalKey signStatusKey = GlobalKey();
   final GlobalKey followBtnKey = GlobalKey();
   final GlobalKey blockBtnKey = GlobalKey();
 
   @override
+  void initState() {
+    super.initState();
+    // Each route owns its controller, including overlapping return transitions.
+    _controllerTag = 'member-${identityHashCode(this)}';
+    _memberController = Get.put(
+        MemberController(loadProfile: widget.loadProfile),
+        tag: _controllerTag);
+    _profileFuture = _memberController.queryMemberProfile();
+  }
+
+  @override
+  void dispose() {
+    Get.delete<MemberController>(tag: _controllerTag, force: true);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<ModelMemberProfile>(
-        future: _memberController.queryMemberProfile(),
+        future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data != null) {

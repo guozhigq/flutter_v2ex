@@ -170,6 +170,7 @@ class _ReplyListItemState extends State<ReplyListItem>
 
   // 回复评论
   void replyComment() {
+    if (!mounted) return;
     var replyId = reply.replyId;
     if (replyId == '') {
       // 刚回复的楼层没有回复replyId
@@ -349,34 +350,35 @@ class _ReplyListItemState extends State<ReplyListItem>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             GestureDetector(
-              onTap: () =>
-                  Get.toNamed('/member/${reply.userName}', parameters: {
-                'memberAvatar': reply.avatar,
-                'heroTag': reply.userName + heroTag,
-              }),
+              behavior: HitTestBehavior.opaque,
+              onTap: replyComment,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  lfAvtar(),
+                  GestureDetector(onTap: _openMember, child: lfAvtar()),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            reply.userName,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                    color: reply.isMod || reply.isOwner
-                                        ? Theme.of(context).colorScheme.primary
-                                        : null),
-                          ),
+                          GestureDetector(
+                              onTap: _openMember,
+                              child: Text(
+                                reply.userName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                        color: reply.isMod || reply.isOwner
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : null),
+                              )),
                           const SizedBox(width: 4),
                           if (reply.isOwner) ...[
                             Icon(
@@ -460,17 +462,26 @@ class _ReplyListItemState extends State<ReplyListItem>
         Container(
           margin: const EdgeInsets.only(top: 5, left: 45, right: 10),
           child: SelectionArea(
-            /// TODO SelectionArea ignore Inkwell onTap event
-            // https://github.com/flutter/flutter/issues/53797
-            child: HtmlRender(
-                htmlContent: reply.contentRendered,
-                imgList: reply.imgList,
-                fs: GStorage().getReplyFs()),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: replyComment,
+              child: HtmlRender(
+                  htmlContent: reply.contentRendered,
+                  imgList: reply.imgList,
+                  fs: GStorage().getReplyFs()),
+            ),
           ),
         ),
         bottonAction(),
       ],
     );
+  }
+
+  void _openMember() {
+    Get.toNamed('/member/${reply.userName}', parameters: {
+      'memberAvatar': reply.avatar,
+      'heroTag': reply.userName + heroTag,
+    });
   }
 
   Widget replyItemTopic(context, child) {

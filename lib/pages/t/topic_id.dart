@@ -676,6 +676,7 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   void _listen() {
+    _updateTitleVisibility();
     if (_isJumping) return;
     if (_detailModel != null &&
         (!_requests.isRunning ||
@@ -699,7 +700,10 @@ class _TopicDetailState extends State<TopicDetail>
     } else if (direction == ScrollDirection.reverse) {
       _hide();
     }
+  }
 
+  void _updateTitleVisibility() {
+    if (!autoScrollController.hasClients) return;
     if (autoScrollController.offset > 100 && !_visibleTitle) {
       _visibleTitle = true;
       titleStreamC.add(true);
@@ -1027,7 +1031,7 @@ class _TopicDetailState extends State<TopicDetail>
                       centerTitle: false,
                       title: StreamBuilder(
                         stream: titleStreamC.stream,
-                        initialData: false,
+                        initialData: _visibleTitle,
                         builder: (context, AsyncSnapshot snapshot) {
                           return AnimatedOpacity(
                             opacity: snapshot.data ? 1 : 0,
@@ -1206,7 +1210,7 @@ class _TopicDetailState extends State<TopicDetail>
                             centerTitle: false,
                             title: StreamBuilder(
                               stream: titleStreamC.stream,
-                              initialData: false,
+                              initialData: _visibleTitle,
                               builder: (context, AsyncSnapshot snapshot) {
                                 return AnimatedOpacity(
                                   opacity: snapshot.data ? 1 : 0,
