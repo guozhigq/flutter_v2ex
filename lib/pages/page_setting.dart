@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/pages/page_home.dart';
 import 'package:flutter_v2ex/utils/login.dart';
@@ -108,6 +109,20 @@ class _SettingPageState extends State<SettingPage> {
             title: const Text('节点设置'),
             subtitle: Text('调整节点顺序', style: subTitleStyle),
           ),
+          if (Platform.isAndroid)
+            ListTile(
+              title: const Text('浏览器链接打开设置'),
+              subtitle: Text('在系统中允许打开 V2EX 链接，并勾选需要的域名', style: subTitleStyle),
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () async {
+                try {
+                  await const MethodChannel('vvex/link_settings')
+                      .invokeMethod<void>('openLinkSettings');
+                } catch (error) {
+                  SmartDialog.showToast('请前往系统设置 → 应用 → VVEX → 默认打开');
+                }
+              },
+            ),
           ListTile(
             enableFeedback: true,
             onTap: () {

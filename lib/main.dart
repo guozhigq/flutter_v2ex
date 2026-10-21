@@ -64,6 +64,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final VvexScheme _links = VvexScheme();
   final SystemUiOverlayStyle kDark = SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent /*Android=27*/,
     systemNavigationBarDividerColor:
@@ -108,11 +109,16 @@ class _MyAppState extends State<MyApp> {
     if (widget.enableBackgroundTasks && GStorage().getAutoUpdate()) {
       GithubApi.checkUpdate();
     }
-    VvexScheme.init();
+    if (widget.enableBackgroundTasks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _links.init();
+      });
+    }
   }
 
   @override
   void dispose() {
+    _links.dispose();
     eventBus.off('login');
     eventBus.off('topicReply');
     eventBus.off('ignoreTopic');

@@ -172,6 +172,8 @@ class _TopicDetailState extends State<TopicDetail>
       heroTag = Get.arguments['heroTag'];
     }
     var keys = Get.parameters.keys;
+    final linkPage = int.tryParse(Get.parameters['p'] ?? '');
+    if (linkPage != null && linkPage > 0) _currentPage = linkPage - 1;
     // 从消息页面进入 跳转至指定楼层
     if (keys.contains('floorNumber')) {
       routerSource = Get.parameters['source'] ?? '';
