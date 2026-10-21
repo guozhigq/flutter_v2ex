@@ -71,7 +71,11 @@ class _MemberPageState extends State<MemberPage> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 120,
+          title: Text(
+            '个人信息',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18),
+          ),
+          centerTitle: false,
           actions: _memberController.isOwner
               ? [
                   StatefulBuilder(
@@ -131,20 +135,11 @@ class _MemberPageState extends State<MemberPage> {
                   const SizedBox(width: 12)
                 ],
           pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
         ),
         SliverToBoxAdapter(
           child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
+            margin: const EdgeInsetsDirectional.only(top: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Stack(
@@ -153,7 +148,7 @@ class _MemberPageState extends State<MemberPage> {
                       tag: _memberController.heroTag,
                       child: CAvatar(
                         url: _memberController.memberAvatar,
-                        size: 80,
+                        size: 64,
                         quality: 'origin',
                       ),
                     ),
@@ -176,7 +171,7 @@ class _MemberPageState extends State<MemberPage> {
                     )
                   ],
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,32 +436,27 @@ class _MemberPageState extends State<MemberPage> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 120,
+          title: Text(
+            '个人信息',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18),
+          ),
+          centerTitle: false,
           pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
         ),
         SliverToBoxAdapter(
           child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
+            margin: const EdgeInsetsDirectional.only(top: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Hero(
                   tag: _memberController.heroTag,
                   child: CAvatar(
                     url: _memberController.memberAvatar,
-                    size: 80,
+                    size: 64,
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                     child: Skeleton(
                   child: Column(
