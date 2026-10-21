@@ -133,6 +133,63 @@ void main() {
     }
   }
 
+  for (final expandable in [false, true]) {
+    testWidgets(
+        'reading shortcuts preserve viewport and never refresh ($expandable)',
+        (tester) async {
+      GetStorage().writeInMemory(StoreKeys.expendAppBar.toString(), expandable);
+      response = (_) async => page(1)
+        ..totalPage = 1
+        ..contentRendered =
+            '<p>${List.filled(250, '用于验证长正文阅读和定位。').join('<br>')}</p>';
+      await mount(tester);
+      expect(find.byType(BottomAppBar), findsNothing);
+      expect(find.byTooltip('返回顶部'), findsNothing);
+      final replyBefore = tester.getRect(find.byTooltip('回复'));
+      final scrollable = tester.state<ScrollableState>(find
+          .descendant(
+              of: find.byType(CustomScrollView),
+              matching: find.byType(Scrollable))
+          .first);
+      final viewportBefore = scrollable.position.viewportDimension;
+      scrollable.position.jumpTo(viewportBefore + 100);
+      await settle(tester);
+      expect(find.byTooltip('返回顶部'), findsOneWidget);
+      expect(tester.getRect(find.byTooltip('回复')), replyBefore);
+      expect(scrollable.position.viewportDimension, viewportBefore);
+      final requestCount = requests.length;
+      await tester.tap(find.byTooltip('返回顶部'));
+      await settle(tester);
+      expect(scrollable.position.pixels, 0);
+      expect(requests.length, requestCount);
+      expect(find.byTooltip('返回顶部'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await unmount(tester);
+    });
+  }
+
+  testWidgets('theme menu shows completed actions without duplicate shortcuts',
+      (tester) async {
+    response = (_) async => page(1)
+      ..isFavorite = true
+      ..isThank = true;
+    await mount(tester);
+    expect(find.byTooltip('已收藏'), findsOneWidget);
+    await tester.tap(find.byTooltip('更多操作'));
+    await settle(tester);
+    expect(find.text('已感谢'), findsOneWidget);
+    final thanked = tester.widget<PopupMenuItem<SampleItem>>(find.ancestor(
+        of: find.text('已感谢'),
+        matching: find.byType(PopupMenuItem<SampleItem>)));
+    expect(thanked.enabled, isFalse);
+    expect(find.text('复制链接'), findsOneWidget);
+    expect(find.byIcon(Icons.share_outlined), findsOneWidget);
+    expect(find.byType(BottomAppBar), findsNothing);
+    await tester.tapAt(const Offset(10, 500));
+    await settle(tester);
+    await unmount(tester);
+  });
+
   testWidgets(
       'cached detail appears on the first frame and resumes offline without another request',
       (tester) async {

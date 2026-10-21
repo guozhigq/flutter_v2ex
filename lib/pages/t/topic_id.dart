@@ -34,7 +34,7 @@ import 'package:flutter_v2ex/service/read.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:flutter_v2ex/utils/logger.dart';
 
-enum SampleItem { ignore, share, report, browse }
+enum SampleItem { thank, copy, share, browse, ignore, report }
 
 class TopicDetail extends StatefulWidget {
   final dynamic topicDetail;
@@ -45,8 +45,7 @@ class TopicDetail extends StatefulWidget {
   State<TopicDetail> createState() => _TopicDetailState();
 }
 
-class _TopicDetailState extends State<TopicDetail>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class _TopicDetailState extends State<TopicDetail> with WidgetsBindingObserver {
   // TabTopicItem? topic;
   String topicId = '';
   dynamic _topicDetail;
@@ -82,14 +81,14 @@ class _TopicDetailState extends State<TopicDetail>
   Worker? _topicSubscription;
   final GlobalKey _globalKey = GlobalKey();
   GlobalKey listGlobalKey = GlobalKey(); // 获取pin时的滚动条高度
-  late StreamController<bool> aStreamC; // bottomBar
+  late StreamController<bool> backToTopStream;
   late StreamController<bool> titleStreamC; // appBar title
 
   // action
   bool reverseSort = false; // 倒序
   bool isLoading = false; // 请求状态 正序/倒序
 
-  bool _isVisible = true;
+  bool _showBackToTop = false;
   bool floorReplyVisible = false; // 查看回复
   String myUserName = ''; // 当前用户名
 
@@ -98,7 +97,6 @@ class _TopicDetailState extends State<TopicDetail>
 
   bool expendAppBar = GStorage().getExpendAppBar(); // 伸缩appBar
 
-  late AnimationController animationController;
   bool _visibleTitle = false;
   double? pinScrollHeight;
   late AutoScrollController autoScrollController;
@@ -225,11 +223,8 @@ class _TopicDetailState extends State<TopicDetail>
       }
     });
 
-    aStreamC = StreamController<bool>();
+    backToTopStream = StreamController<bool>();
     titleStreamC = StreamController<bool>();
-
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
 
     if (Platform.isAndroid) {
       platform = 'android';
@@ -670,15 +665,9 @@ class _TopicDetailState extends State<TopicDetail>
     }, refresh: refresh);
   }
 
-  // 返回顶部并 todo 刷新
-  Future onRefreshBtm() async {
-    await autoScrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.ease);
-    _controller.callRefresh();
-  }
-
   void _listen() {
     _updateTitleVisibility();
+    _updateReadingActions();
     if (_isJumping) return;
     if (_detailModel != null &&
         (!_requests.isRunning ||
@@ -695,13 +684,6 @@ class _TopicDetailState extends State<TopicDetail>
       }
       if (reverseSort && _currentPage > 0) getDetailReverst(prefetch: prefetch);
     }
-    final ScrollDirection direction =
-        autoScrollController.position.userScrollDirection;
-    if (direction == ScrollDirection.forward) {
-      _show();
-    } else if (direction == ScrollDirection.reverse) {
-      _hide();
-    }
   }
 
   void _updateTitleVisibility() {
@@ -715,22 +697,13 @@ class _TopicDetailState extends State<TopicDetail>
     }
   }
 
-  void _show() {
-    if (!_isVisible) {
-      // stream
-      _isVisible = true;
-      aStreamC.add(true);
-      animationController.forward();
-    }
-  }
-
-  void _hide() {
-    if (_isVisible) {
-      // stream
-      _isVisible = false;
-      aStreamC.add(false);
-      animationController.reverse();
-    }
+  void _updateReadingActions() {
+    if (!autoScrollController.hasClients) return;
+    final visible = autoScrollController.offset >
+        autoScrollController.position.viewportDimension;
+    if (visible == _showBackToTop) return;
+    _showBackToTop = visible;
+    backToTopStream.add(visible);
   }
 
   // 回复框
@@ -1014,6 +987,8 @@ class _TopicDetailState extends State<TopicDetail>
     autoScrollController.removeListener(_listen);
     autoScrollController.dispose();
     eventBus.off('topicReply');
+    backToTopStream.close();
+    titleStreamC.close();
     super.dispose();
   }
 
@@ -1083,36 +1058,21 @@ class _TopicDetailState extends State<TopicDetail>
                             child: showRes(),
                           ),
                         ),
-              bottomNavigationBar: StreamBuilder(
-                stream: aStreamC.stream,
-                initialData: false,
-                builder: (context, AsyncSnapshot snapshot) {
-                  return DetailBottomBar(
-                    onRefresh: onRefreshBtm,
-                    isVisible: snapshot.data,
-                    detailModel: _detailModel,
-                    topicId: topicId,
-                  );
-                },
-              ),
             ),
             Positioned(
               bottom: 18,
               right: 20,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, -0),
-                  end: const Offset(0, 0.05),
-                ).animate(CurvedAnimation(
-                  parent: animationController,
-                  curve: Curves.easeInOut,
-                )),
-                child: FloatingActionButton(
-                  heroTag: null,
-                  elevation: 4,
-                  onPressed: _detailModel != null ? showReplySheet : null,
-                  tooltip: '回复',
-                  child: const Icon(Icons.edit),
+              child: SafeArea(
+                top: false,
+                left: false,
+                child: StreamBuilder<bool>(
+                  stream: backToTopStream.stream,
+                  initialData: _showBackToTop,
+                  builder: (context, snapshot) => DetailReadingActions(
+                    showBackToTop: snapshot.data ?? false,
+                    onBackToTop: _scrollToTop,
+                    onReply: _detailModel != null ? showReplySheet : null,
+                  ),
                 ),
               ),
             ),
@@ -1120,64 +1080,97 @@ class _TopicDetailState extends State<TopicDetail>
         ));
   }
 
-  // 顶部操作栏
+  // Theme actions live in one menu; reading shortcuts stay near the thumb.
   List<Widget> appBarAction() {
-    List<Widget>? list = [];
-    if (_detailModel != null) {
-      list.add(
+    final model = _detailModel;
+    Widget menuLabel(IconData icon, String text, {Color? color}) => Row(
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 16),
+            Flexible(
+              child: Text(text,
+                  style: color == null ? null : TextStyle(color: color)),
+            ),
+          ],
+        );
+    return [
+      if (model != null)
         IconButton(
           onPressed: onFavTopic,
-          tooltip: '收藏主题',
-          icon: const Icon(Icons.bookmark_add_outlined),
-          selectedIcon: Icon(
-            Icons.bookmark_add_rounded,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          isSelected: _detailModel!.isFavorite,
+          tooltip: model.isFavorite ? '已收藏' : '收藏主题',
+          icon: const Icon(Icons.bookmark_border_rounded),
+          selectedIcon: Icon(Icons.bookmark_rounded,
+              color: Theme.of(context).colorScheme.primary),
+          isSelected: model.isFavorite,
         ),
-      );
-    }
-    list.add(
       PopupMenuButton<SampleItem>(
-        tooltip: 'action',
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.share,
-            onTap: onCopyTopicLink,
-            child: const Text('复制链接'),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.ignore,
-            onTap: onIgnoreTopic,
-            child: Text(I18nKeyword.topicIgnore.tr),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.share,
-            onTap: onShareTopic,
-            child: Text(I18nKeyword.topicShare.tr),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.report,
-            onTap: onReportTopic,
-            child: Text(
-              I18nKeyword.topicReport.tr,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.error.withAlpha(200)),
+        tooltip: '更多操作',
+        enabled: model != null,
+        position: PopupMenuPosition.under,
+        onSelected: (action) {
+          switch (action) {
+            case SampleItem.thank:
+              onThankTopic();
+              break;
+            case SampleItem.copy:
+              onCopyTopicLink();
+              break;
+            case SampleItem.share:
+              onShareTopic();
+              break;
+            case SampleItem.browse:
+              Utils.openURL('https://www.v2ex.com/t/$topicId');
+              break;
+            case SampleItem.ignore:
+              onIgnoreTopic();
+              break;
+            case SampleItem.report:
+              onReportTopic();
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: SampleItem.thank,
+            enabled: model != null && !model.isThank,
+            child: menuLabel(
+              model?.isThank == true
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              model?.isThank == true ? '已感谢' : '感谢主题',
+              color: model?.isThank == true
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
             ),
+          ),
+          PopupMenuItem(
+            value: SampleItem.copy,
+            child: menuLabel(Icons.link_rounded, '复制链接'),
+          ),
+          PopupMenuItem(
+            value: SampleItem.share,
+            child: menuLabel(Icons.share_outlined, I18nKeyword.topicShare.tr),
+          ),
+          PopupMenuItem(
+            value: SampleItem.browse,
+            child:
+                menuLabel(Icons.language_rounded, I18nKeyword.openInBrowser.tr),
           ),
           const PopupMenuDivider(),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.browse,
-            onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: Text(
-              I18nKeyword.openInBrowser.tr,
-            ),
+          PopupMenuItem(
+            value: SampleItem.ignore,
+            child: menuLabel(
+                Icons.visibility_off_outlined, I18nKeyword.topicIgnore.tr),
+          ),
+          PopupMenuItem(
+            value: SampleItem.report,
+            child: menuLabel(Icons.report_outlined, I18nKeyword.topicReport.tr,
+                color: Theme.of(context).colorScheme.error),
           ),
         ],
       ),
-    );
-    list.add(const SizedBox(width: 12));
-    return list;
+      const SizedBox(width: 12),
+    ];
   }
 
   Widget showRes() {

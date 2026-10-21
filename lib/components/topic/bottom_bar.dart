@@ -1,123 +1,55 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
-import 'package:flutter_v2ex/models/web/model_topic_detail.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:flutter_v2ex/http/topic.dart';
-import 'package:flutter_v2ex/utils/logger.dart';
 
-class DetailBottomBar extends StatefulWidget {
-  final VoidCallback? onRefresh;
-  final VoidCallback? onLoad;
-  final bool? isVisible;
-  final TopicDetailModel? detailModel;
-  final String? topicId;
+/// Floating shortcuts keep the reading viewport stable.
+class DetailReadingActions extends StatelessWidget {
+  final bool showBackToTop;
+  final VoidCallback onBackToTop;
+  final VoidCallback? onReply;
 
-  const DetailBottomBar({
-    this.onRefresh,
-    this.onLoad,
-    this.isVisible,
-    this.detailModel,
-    this.topicId,
+  const DetailReadingActions({
+    required this.showBackToTop,
+    required this.onBackToTop,
+    required this.onReply,
     super.key,
   });
 
   @override
-  State<DetailBottomBar> createState() => _DetailBottomBarState();
-}
-
-class _DetailBottomBarState extends State<DetailBottomBar> {
-  void onThankAction() {
-    if (widget.detailModel!.isThank) {
-      SmartDialog.showToast('这个主题已经被感谢过了');
-    } else {
-      showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('提示'),
-          content: const Text('确认向本主题创建者表示感谢吗？'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('手误了'),
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (showBackToTop) ...[
+            SizedBox(
+              width: 56,
+              height: 48,
+              child: Center(
+                child: IconButton.filledTonal(
+                  tooltip: '返回顶部',
+                  onPressed: onBackToTop,
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                    foregroundColor:
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 1,
+                    shadowColor: Colors.black26,
+                  ),
+                  icon: const Icon(Icons.expand_less_rounded, size: 24),
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: (() async {
-                Navigator.pop(context, 'OK');
-                var res =
-                    await TopicWebApi.thankTopic(widget.detailModel!.topicId);
-                logDebug('54: $res');
-                if (res) {
-                  setState(() {
-                    widget.detailModel!.isThank = true;
-                  });
-                  SmartDialog.showToast('感谢成功');
-                }
-              }),
-              child: const Text('确定'),
-            ),
+            const SizedBox(height: 12),
           ],
-        ),
+          FloatingActionButton(
+            heroTag: null,
+            elevation: 4,
+            onPressed: onReply,
+            tooltip: '回复',
+            child: const Icon(Icons.edit),
+          ),
+        ],
       );
-    }
-  }
-
-  Future<ShareResult> onShareTopic() async {
-    final box = context.findRenderObject() as RenderBox?;
-    var result = await SharePlus.instance
-        .share(ShareParams(
-      text: 'https://www.v2ex.com/t/${widget.topicId}',
-      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-    ))
-        .whenComplete(() {
-      logDebug("share completion block ");
-    });
-    return result;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      curve: Curves.easeInOut,
-      duration: const Duration(milliseconds: 600),
-      height: widget.isVisible! ? 80.0 : 0,
-      child: BottomAppBar(
-        elevation: 1,
-        child: Row(
-          children: <Widget>[
-            IconButton(
-              tooltip: '返回顶部',
-              icon: const Icon(Icons.vertical_align_top_rounded),
-              onPressed: widget.onRefresh,
-            ),
-            IconButton(
-              tooltip: widget.detailModel != null && widget.detailModel!.isThank
-                  ? '已感谢'
-                  : '感谢',
-              icon: widget.detailModel != null && widget.detailModel!.isThank
-                  ? Icon(
-                      Icons.favorite_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                  : const Icon(Icons.favorite_border_rounded),
-              onPressed: () => onThankAction(),
-            ),
-            IconButton(
-              tooltip: '在浏览器中打开',
-              icon: const Icon(Icons.language_rounded),
-              onPressed: () =>
-                  Utils.openURL('https://www.v2ex.com/t/${widget.topicId}'),
-            ),
-            IconButton(
-              tooltip: '分享',
-              icon: const Icon(Icons.share_outlined),
-              onPressed: onShareTopic,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
