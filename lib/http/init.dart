@@ -127,6 +127,9 @@ class Request {
       options.headers = {'user-agent': headerUa(ua)};
       options.responseType = resType;
     }
+    if (extra != null && extra['silentError'] == true) {
+      options.extra = {'silentError': true};
+    }
     try {
       response = await dio.get(
         url,
@@ -137,7 +140,7 @@ class Request {
       return response;
     } on DioException catch (e) {
       logDebug('get error---------$e');
-      return Future.error(ApiInterceptor.dioError(e));
+      return Future.error(await ApiInterceptor.dioError(e));
     }
   }
 

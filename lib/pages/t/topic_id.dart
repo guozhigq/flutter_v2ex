@@ -1,6 +1,10 @@
 // ignore_for_file: avoid_print
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter_v2ex/service/content_cache.dart';
+import 'package:flutter_v2ex/service/page_request.dart';
+import 'package:flutter_v2ex/components/common/load_more_retry.dart';
+import 'package:flutter_v2ex/components/common/network_error.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_v2ex/components/topic/main.dart';
@@ -10,6 +14,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:flutter_v2ex/components/topic/bottom_bar.dart';
 import 'package:flutter_v2ex/components/topic/reply_item.dart';
@@ -29,18 +34,18 @@ import 'package:flutter_v2ex/service/read.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:flutter_v2ex/utils/logger.dart';
 
-enum SampleItem { ignore, share, report, browse }
+enum SampleItem { thank, copy, share, browse, ignore, report }
 
 class TopicDetail extends StatefulWidget {
   final dynamic topicDetail;
-  const TopicDetail({this.topicDetail, super.key});
+  final Future<TopicDetailModel> Function(String, int)? loadDetail;
+  const TopicDetail({this.topicDetail, this.loadDetail, super.key});
 
   @override
   State<TopicDetail> createState() => _TopicDetailState();
 }
 
-class _TopicDetailState extends State<TopicDetail>
-    with TickerProviderStateMixin {
+class _TopicDetailState extends State<TopicDetail> with WidgetsBindingObserver {
   // TabTopicItem? topic;
   String topicId = '';
   dynamic _topicDetail;
@@ -56,16 +61,34 @@ class _TopicDetailState extends State<TopicDetail>
   late List<ReplyItem> _replyList = []; // 回复列表
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
+  int _entryPage = 1;
+  int _loadedStartPage = 1;
+  final Map<String, int> _replyPages = {};
+  final GlobalKey _readingViewportKey = GlobalKey();
+  ReadingProgress? _lastVisibleProgress;
+  ReadingProgress? _resumeProgress;
+  late String _progressKey;
+  late String _progressScope;
+  bool _isJumping = false;
+  bool _readingActivated = false;
+  int _interactionVersion = 0;
+  final _requests = PageRequest();
+  String? _detailError;
+  String? _pageError;
+  bool _prefetchFailed = false;
+  bool _paginationDemanded = false;
+  bool _isLoadingMore = false;
+  Worker? _topicSubscription;
   final GlobalKey _globalKey = GlobalKey();
   GlobalKey listGlobalKey = GlobalKey(); // 获取pin时的滚动条高度
-  late StreamController<bool> aStreamC; // bottomBar
+  late StreamController<bool> backToTopStream;
   late StreamController<bool> titleStreamC; // appBar title
 
   // action
   bool reverseSort = false; // 倒序
   bool isLoading = false; // 请求状态 正序/倒序
 
-  bool _isVisible = true;
+  bool _showBackToTop = false;
   bool floorReplyVisible = false; // 查看回复
   String myUserName = ''; // 当前用户名
 
@@ -74,7 +97,6 @@ class _TopicDetailState extends State<TopicDetail>
 
   bool expendAppBar = GStorage().getExpendAppBar(); // 伸缩appBar
 
-  late AnimationController animationController;
   bool _visibleTitle = false;
   double? pinScrollHeight;
   late AutoScrollController autoScrollController;
@@ -82,6 +104,10 @@ class _TopicDetailState extends State<TopicDetail>
   // 消息页面进入
   String routerSource = '';
   int noticeFloorNumber = 0;
+  int? _highlightedFloor;
+  int _highlightVersion = 0;
+  int _consumedHighlightVersion = 0;
+  bool _entryLocationPending = false;
 
   String replyId = '';
 
@@ -90,17 +116,38 @@ class _TopicDetailState extends State<TopicDetail>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     autoScrollController = AutoScrollController(
-        viewportBoundaryGetter: () =>
-            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+        viewportBoundaryGetter: () => Rect.fromLTRB(
+            0, _readingTopInset, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
-    _topicController.topicId.listen((value) async {
+    _topicSubscription = ever(_topicController.topicId, (String value) async {
+      if (!mounted || value == topicId) return;
+      _saveReadingProgress();
+      _requests.invalidate();
       topicId = value;
       _topicDetail = _topicController.topic.value;
       _detailModel = null;
       _currentPage = 0;
+      _entryPage = 1;
+      _replyList = [];
+      _totalPage = 1;
+      _detailError = null;
+      _pageError = null;
+      pinScrollHeight = null;
+      routerSource = '';
+      replyId = '';
+      noticeFloorNumber = 0;
+      _entryLocationPending = false;
+      _highlightedFloor = null;
+      reverseSort = false;
+      _loadedStartPage = 1;
+      _replyPages.clear();
+      _readingActivated = false;
+      _isJumping = false;
+      _resetReadingProgress();
       if (mounted) {
         await getDetailInit();
       }
@@ -123,11 +170,13 @@ class _TopicDetailState extends State<TopicDetail>
       heroTag = Get.arguments['heroTag'];
     }
     var keys = Get.parameters.keys;
+    final linkPage = int.tryParse(Get.parameters['p'] ?? '');
+    if (linkPage != null && linkPage > 0) _currentPage = linkPage - 1;
     // 从消息页面进入 跳转至指定楼层
     if (keys.contains('floorNumber')) {
       routerSource = Get.parameters['source'] ?? '';
       noticeFloorNumber = int.parse(Get.parameters['floorNumber'] ?? '0');
-      _currentPage = (noticeFloorNumber / 100).ceil() - 1;
+      _currentPage = ReadingProgress.pageForFloor(noticeFloorNumber) - 1;
       //  noticeReplyCount 小于等于100 直接请求第一页 大于100 请求
     }
     // 直接跳转指定楼层
@@ -135,6 +184,10 @@ class _TopicDetailState extends State<TopicDetail>
       replyId = Get.parameters['replyId'] ?? '';
       _currentPage = int.parse(Get.parameters['p']!) - 1;
     }
+    _entryPage = _currentPage < 0 ? 1 : _currentPage + 1;
+    _entryLocationPending = noticeFloorNumber > 0 || replyId.isNotEmpty;
+    _loadedStartPage = _entryPage;
+    _resetReadingProgress();
     myUserName = GStorage().getUserInfo().isNotEmpty
         ? GStorage().getUserInfo()['userName']
         : '';
@@ -170,11 +223,8 @@ class _TopicDetailState extends State<TopicDetail>
       }
     });
 
-    aStreamC = StreamController<bool>();
+    backToTopStream = StreamController<bool>();
     titleStreamC = StreamController<bool>();
-
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
 
     if (Platform.isAndroid) {
       platform = 'android';
@@ -186,111 +236,458 @@ class _TopicDetailState extends State<TopicDetail>
     }
   }
 
-  Future getDetailInit() async {
-    await getDetail(type: 'init');
-    // 标记已读
-    Read().add(_detailModel!);
-  }
-
-  Future getDetail({type}) async {
-    if (type == 'init' && routerSource == '' && replyId == '') {
-      // 初始化加载  正序首页为0 倒序首页为最后一页
-      setState(() {
-        _currentPage = !reverseSort ? 0 : _totalPage;
-      });
-    }
-    if (reverseSort) {
-      SmartDialog.showLoading(msg: '加载中ing');
-    }
-    TopicDetailModel topicDetailModel =
-        await TopicWebApi.getTopicDetail(topicId, _currentPage + 1);
-    setState(() {
-      _detailModel = topicDetailModel;
-      if (_currentPage == 0) {
-        _replyList = topicDetailModel.replyList;
-        _totalPage = topicDetailModel.totalPage;
-      } else {
-        _replyList.addAll(topicDetailModel.replyList);
+  void _resetReadingProgress() {
+    _lastVisibleProgress = null;
+    _progressScope = ContentCache.scope;
+    _progressKey = ContentCache.key('topic:$topicId', 1);
+    final cached = ContentCache.read(_progressKey);
+    _resumeProgress =
+        noticeFloorNumber > 0 || replyId.isNotEmpty ? null : cached?.progress;
+    // Hydrate before the first build; the network request starts on a later turn.
+    if (_detailModel == null && _entryPage == 1 && cached != null) {
+      _detailModel = cached.data;
+      _replyList = List.of(cached.data.replyList);
+      _totalPage = cached.data.totalPage;
+      _currentPage = 1;
+      _loadedStartPage = 1;
+      _replyPages.clear();
+      for (final reply in _replyList) {
+        _replyPages[reply.replyId] = 1;
       }
-      if (replyId != '') {
-        noticeFloorNumber = topicDetailModel.replyList
-            .where((i) => i.replyId == replyId)
-            .first
-            .floorNumber;
-      }
-      _currentPage += 1;
-    });
-
-    if (pinScrollHeight == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (listGlobalKey.currentContext != null) {
-          final pinBox =
-              listGlobalKey.currentContext?.findRenderObject() as RenderBox;
-          final pinPosition = pinBox.localToGlobal(Offset.zero).dy - 100;
-          setState(() {
-            pinScrollHeight = pinPosition;
-          });
-        }
-      });
-      if (noticeFloorNumber > 0) {
-        SmartDialog.showLoading(msg: '前往楼层');
-        await _scrollToCounter();
-        SmartDialog.dismiss();
-      }
-    }
-    if (!topicDetailModel.isAuth) {
-      SmartDialog.dismiss();
     }
   }
 
-  // todo 下拉刷新逻辑优化  正倒序排列数据复用
-  Future getDetailReverst({type}) async {
-    if (type == 'init') {
-      setState(() {
-        _currentPage = _totalPage;
-      });
-      SmartDialog.showLoading(msg: '加载中ing');
+  Future<TopicDetailModel> _fetchPage(String id, int page) =>
+      widget.loadDetail?.call(id, page) ??
+      TopicWebApi.getTopicDetail(id, page, silent: true);
+
+  bool _consumeHighlight(int version) {
+    if (version != _highlightVersion || version <= _consumedHighlightVersion) {
+      return false;
     }
-    if (!reverseSort || _currentPage == 0) {
+    _consumedHighlightVersion = version;
+    return true;
+  }
+
+  double get _readingTopInset {
+    final header = listGlobalKey.currentContext?.findRenderObject();
+    final headerHeight =
+        header is RenderBox && header.hasSize ? header.size.height : 55.0;
+    final toolbar = platform == 'android'
+        ? MediaQuery.of(context).padding.top + 6
+        : platform == 'ios'
+            ? MediaQuery.of(context).padding.top - 2
+            : kToolbarHeight;
+    return headerHeight + (expendAppBar ? toolbar : 0);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) _saveReadingProgress();
+  }
+
+  ReadingProgress? _visibleReadingProgress() {
+    // Dimension changes can dispatch scroll notifications during layout. Keep
+    // the last stable snapshot instead of reading ancestor transforms mid-frame.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      return null;
+    }
+    if (!autoScrollController.hasClients || _replyList.isEmpty) return null;
+    final viewport = _readingViewportKey.currentContext?.findRenderObject();
+    if (viewport is! RenderBox || !viewport.hasSize) return null;
+    final top = viewport.localToGlobal(Offset.zero).dy + _readingTopInset;
+    final bottom =
+        viewport.localToGlobal(Offset.zero).dy + viewport.size.height;
+    double? firstTop;
+    int? firstIndex;
+    for (final entry in autoScrollController.tagMap.entries) {
+      if (entry.key < 0 || entry.key >= _replyList.length) continue;
+      final box = entry.value.context.findRenderObject();
+      if (box is! RenderBox || !box.hasSize || !box.attached) continue;
+      final y = box.localToGlobal(Offset.zero).dy;
+      if (y + box.size.height <= top || y >= bottom) continue;
+      if (firstTop == null || y < firstTop) {
+        firstTop = y;
+        firstIndex = entry.key;
+      }
+    }
+    if (firstIndex == null) return null;
+    final reply = _replyList[firstIndex];
+    if (reply.floorNumber <= 0) return null;
+    return ReadingProgress(
+        replyId: reply.replyId,
+        floorNumber: reply.floorNumber,
+        page: _replyPages[reply.replyId] ??
+            ReadingProgress.pageForFloor(reply.floorNumber),
+        offsetWithinReply: (top - firstTop!).clamp(0, double.infinity));
+  }
+
+  void _saveReadingProgress() {
+    if (!_readingActivated ||
+        _isJumping ||
+        ContentCache.scope != _progressScope) {
       return;
     }
-    // logDebug('line 155: $_currentPage');
-    TopicDetailModel topicDetailModel =
-        await TopicWebApi.getTopicDetail(topicId, _currentPage);
-    setState(() {
-      if (_currentPage == _totalPage) {
-        _replyList = topicDetailModel.replyList.reversed.toList();
-        _totalPage = topicDetailModel.totalPage;
-      } else {
-        _replyList.addAll(topicDetailModel.replyList.reversed);
-      }
-      _currentPage -= 1;
-      logDebug('---_totalPage---:$_totalPage');
-    });
-    if (type == 'init') {
-      autoScrollController.animateTo(pinScrollHeight!,
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOut);
+    final progress = _visibleReadingProgress() ?? _lastVisibleProgress;
+    if (progress != null) {
+      unawaited(ContentCache.saveProgress(_progressKey, progress));
     }
-    SmartDialog.dismiss();
   }
 
-  // 返回顶部并 todo 刷新
-  Future onRefreshBtm() async {
-    await autoScrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.ease);
-    _controller.callRefresh();
+  bool _onReadingScroll(ScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    if ((notification is ScrollStartNotification &&
+            notification.dragDetails != null) ||
+        (notification is UserScrollNotification &&
+            notification.direction != ScrollDirection.idle)) {
+      _interactionVersion++;
+      _entryLocationPending = false;
+      if (!_isJumping) _readingActivated = true;
+    }
+    if (_readingActivated && !_isJumping) {
+      _lastVisibleProgress = _visibleReadingProgress() ?? _lastVisibleProgress;
+      if (notification is ScrollEndNotification) {
+        _saveReadingProgress();
+      }
+    }
+    return false;
+  }
+
+  Future<bool> _positionAt(int index, {double offset = 0}) async {
+    final id = topicId;
+    final scope = _progressScope;
+    final interaction = _interactionVersion;
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted ||
+        topicId != id ||
+        ContentCache.scope != scope ||
+        interaction != _interactionVersion ||
+        !autoScrollController.hasClients ||
+        index < 0 ||
+        index >= _replyList.length) {
+      return false;
+    }
+    await autoScrollController.scrollToIndex(index,
+        preferPosition: AutoScrollPosition.begin,
+        duration: const Duration(milliseconds: 150));
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted ||
+        topicId != id ||
+        ContentCache.scope != scope ||
+        interaction != _interactionVersion ||
+        !autoScrollController.hasClients ||
+        index >= _replyList.length) {
+      return false;
+    }
+    final box = autoScrollController.tagMap[index]?.context.findRenderObject();
+    final viewport = _readingViewportKey.currentContext?.findRenderObject();
+    if (box is RenderBox &&
+        box.hasSize &&
+        viewport is RenderBox &&
+        viewport.hasSize) {
+      final withinReply =
+          offset.clamp(0, (box.size.height - 24).clamp(0, double.infinity));
+      final desiredTop = viewport.localToGlobal(Offset.zero).dy +
+          _readingTopInset +
+          (offset > 0 ? -withinReply : 0);
+      final correction = box.localToGlobal(Offset.zero).dy - desiredTop;
+      autoScrollController.jumpTo((autoScrollController.offset + correction)
+          .clamp(autoScrollController.position.minScrollExtent,
+              autoScrollController.position.maxScrollExtent));
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _jumpReplies(
+      {ReadingProgress? progress,
+      bool latest = false,
+      bool earlier = false}) async {
+    if (_isJumping || _detailModel == null) return;
+    if (progress != null) {
+      final index = progress.indexIn(_replyList);
+      if (index != null &&
+          (_replyList[index].replyId == progress.replyId ||
+              _replyList[index].floorNumber == progress.floorNumber)) {
+        _readingActivated = false;
+        setState(() {
+          _isJumping = true;
+          _resumeProgress = null;
+        });
+        final id = topicId;
+        final scope = _progressScope;
+        try {
+          final positioned = await _positionAt(index);
+          if (mounted && topicId == id && ContentCache.scope == scope) {
+            setState(() {
+              if (positioned) {
+                _highlightedFloor = _replyList[index].floorNumber;
+                _highlightVersion++;
+              } else {
+                _resumeProgress = progress;
+              }
+            });
+          }
+        } finally {
+          if (mounted && topicId == id) setState(() => _isJumping = false);
+        }
+        return;
+      }
+    }
+    final id = topicId;
+    final scope = _progressScope;
+    final interaction = _interactionVersion;
+    final anchor = earlier ? _visibleReadingProgress() : null;
+    final target = earlier
+        ? _loadedStartPage - 1
+        : latest
+            ? _totalPage
+            : progress!.page.clamp(1, _totalPage);
+    if (target < 1) return;
+    _readingActivated = false;
+    setState(() {
+      _isJumping = true;
+      _isLoadingMore = false;
+    });
+    await _requests.run((generation) async {
+      bool active() =>
+          mounted &&
+          topicId == id &&
+          ContentCache.scope == scope &&
+          _requests.accepts(generation);
+      try {
+        var page = target;
+        var model = await _fetchPage(id, page);
+        if (!active() || interaction != _interactionVersion) return;
+        if ((latest && page != model.totalPage) || page > model.totalPage) {
+          page = model.totalPage.clamp(1, 1000000);
+          model = await _fetchPage(id, page);
+        }
+        if (!active() || interaction != _interactionVersion) return;
+        if (model.replyList.isEmpty) {
+          SmartDialog.showToast('该页暂无回复');
+          return;
+        }
+        final incoming = List<ReplyItem>.of(model.replyList);
+        setState(() {
+          for (final r in incoming) {
+            _replyPages[r.replyId] = page;
+          }
+          if (earlier) {
+            final ids = _replyList.map((r) => r.replyId).toSet();
+            _replyList = [
+              ...incoming.where((r) => !ids.contains(r.replyId)),
+              ..._replyList
+            ];
+            _loadedStartPage = page;
+          } else {
+            _replyList = incoming;
+            _replyPages.removeWhere(
+                (key, _) => !incoming.any((r) => r.replyId == key));
+            _entryPage = page;
+            _currentPage = page;
+            _loadedStartPage = page;
+            reverseSort = false;
+          }
+          _detailModel = model;
+          _totalPage = model.totalPage;
+          _pageError = null;
+          _detailError = null;
+          _isLoadingMore = false;
+          _resumeProgress = null;
+        });
+        await ContentCache.write(_progressKey, model, cacheReplies: page == 1);
+        if (!active()) return;
+        final position = earlier ? anchor : progress;
+        final index =
+            latest ? _replyList.length - 1 : position?.indexIn(_replyList) ?? 0;
+        final sameReply =
+            position != null && _replyList[index].replyId == position.replyId;
+        if (progress != null &&
+            !sameReply &&
+            _replyList[index].floorNumber != progress.floorNumber) {
+          SmartDialog.showToast('原回复已变化，已定位到附近楼层');
+        }
+        final positioned = await _positionAt(index,
+            offset: earlier && sameReply ? position.offsetWithinReply : 0);
+        if (active() && !earlier && positioned) {
+          setState(() {
+            _highlightedFloor = _replyList[index].floorNumber;
+            _highlightVersion++;
+          });
+        }
+      } catch (_) {
+        if (active()) SmartDialog.showToast('定位失败，已保留当前内容，请重试');
+      } finally {
+        if (mounted && topicId == id && _requests.accepts(generation)) {
+          setState(() => _isJumping = false);
+        }
+      }
+    }, refresh: true);
+  }
+
+  Future<void> getDetailInit({bool userRefresh = false}) async {
+    await _loadDetail(
+        refresh: true, reversed: reverseSort, userRefresh: userRefresh);
+    if (mounted && _detailModel != null) Read().add(_detailModel!);
+  }
+
+  Future<void> getDetail({dynamic type, bool prefetch = false}) => _loadDetail(
+      refresh: type == 'init',
+      reversed: reverseSort,
+      prefetch: prefetch,
+      userRefresh: type == 'init');
+
+  Future<void> getDetailReverst({dynamic type, bool prefetch = false}) =>
+      _loadDetail(
+          refresh: type == 'init',
+          reversed: true,
+          prefetch: prefetch,
+          userRefresh: type == 'init');
+
+  Future<void> _loadDetail(
+      {bool refresh = false,
+      bool reversed = false,
+      bool prefetch = false,
+      bool userRefresh = false}) {
+    if (_isJumping) return Future.value();
+    if (ContentCache.scope != _progressScope) {
+      _readingActivated = false;
+      _resetReadingProgress();
+    }
+    final showRefreshToast = userRefresh && _detailModel != null;
+    final id = topicId;
+    if (id.isEmpty) return Future.value();
+    final account = ContentCache.scope;
+    final page = refresh
+        ? (reversed ? _totalPage : _entryPage)
+        : (reversed ? _currentPage : _currentPage + 1);
+    if (page < 1 || (!refresh && page > _totalPage)) return Future.value();
+    final key = ContentCache.key('topic:$id', 1);
+    // Initialize before scheduling; a later end-of-list request may promote this
+    // prefetch even before the deferred request callback has started.
+    if (refresh || !_requests.isRunning) {
+      _paginationDemanded = !refresh && !prefetch;
+    } else if (!prefetch && !_paginationDemanded) {
+      setState(() => _paginationDemanded = true);
+    }
+    return _requests.run((generation) async {
+      bool active() =>
+          mounted &&
+          _requests.accepts(generation) &&
+          topicId == id &&
+          ContentCache.scope == account;
+      if (!active()) return;
+      setState(() {
+        _isLoadingMore = true;
+        _prefetchFailed = false;
+        _detailError = null;
+        _pageError = null;
+      });
+      void apply(TopicDetailModel model) {
+        final replies = reversed
+            ? model.replyList.reversed.toList()
+            : List<ReplyItem>.of(model.replyList);
+        setState(() {
+          _detailModel = model;
+          if (refresh || _replyList.isEmpty) {
+            _replyList = replies;
+            _loadedStartPage = page;
+            _replyPages.clear();
+          } else {
+            final ids = _replyList.map((r) => r.replyId).toSet();
+            _replyList.addAll(replies.where((r) => ids.add(r.replyId)));
+          }
+          _totalPage = model.totalPage;
+          for (final reply in replies) {
+            _replyPages[reply.replyId] = page;
+          }
+          _currentPage = reversed ? page - 1 : page;
+          if (replyId.isNotEmpty) {
+            final matches = model.replyList.where((r) => r.replyId == replyId);
+            if (matches.isNotEmpty) {
+              noticeFloorNumber = matches.first.floorNumber;
+            }
+          }
+        });
+      }
+
+      final cached = page == 1 ? ContentCache.read(key) : null;
+      if (_detailModel == null && cached?.data is TopicDetailModel) {
+        apply(cached!.data);
+      }
+      try {
+        final model = await _fetchPage(id, page);
+        if (!active()) return;
+        apply(model);
+        await ContentCache.write(key, model, cacheReplies: page == 1);
+        if (!active()) return;
+        if (pinScrollHeight == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!active()) return;
+            final box = listGlobalKey.currentContext?.findRenderObject();
+            if (box is RenderBox) {
+              pinScrollHeight = box.localToGlobal(Offset.zero).dy - 100;
+            }
+          });
+          if (_entryLocationPending && noticeFloorNumber > 0) {
+            _entryLocationPending = false;
+            await _scrollToCounter();
+          }
+        }
+        if (active() &&
+            reversed &&
+            refresh &&
+            autoScrollController.hasClients &&
+            pinScrollHeight != null) {
+          await autoScrollController.animateTo(pinScrollHeight!,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut);
+        }
+      } catch (error) {
+        if (!active()) return;
+        setState(() {
+          if (_detailModel == null) {
+            _detailError = error.toString();
+          } else if (!refresh) {
+            _pageError = error.toString();
+            _prefetchFailed = !_paginationDemanded;
+          }
+        });
+        if (showRefreshToast) SmartDialog.showToast('刷新失败，已保留当前内容');
+        if (!refresh && _detailModel != null && _paginationDemanded) {
+          SmartDialog.showToast('加载失败，请上滑重试');
+        }
+      } finally {
+        if (active()) setState(() => _isLoadingMore = false);
+      }
+    }, refresh: refresh);
   }
 
   void _listen() {
-    final ScrollDirection direction =
-        autoScrollController.position.userScrollDirection;
-    if (direction == ScrollDirection.forward) {
-      _show();
-    } else if (direction == ScrollDirection.reverse) {
-      _hide();
+    _updateTitleVisibility();
+    _updateReadingActions();
+    if (_isJumping) return;
+    if (_detailModel != null &&
+        (!_requests.isRunning ||
+            autoScrollController.position.extentAfter <= 72) &&
+        (_pageError == null ||
+            (_prefetchFailed &&
+                autoScrollController.position.extentAfter <= 72)) &&
+        _detailError == null &&
+        autoScrollController.position.extentAfter <
+            autoScrollController.position.viewportDimension * 1.5) {
+      final prefetch = autoScrollController.position.extentAfter > 72;
+      if (!reverseSort && _currentPage < _totalPage) {
+        getDetail(prefetch: prefetch);
+      }
+      if (reverseSort && _currentPage > 0) getDetailReverst(prefetch: prefetch);
     }
+  }
 
+  void _updateTitleVisibility() {
+    if (!autoScrollController.hasClients) return;
     if (autoScrollController.offset > 100 && !_visibleTitle) {
       _visibleTitle = true;
       titleStreamC.add(true);
@@ -300,22 +697,13 @@ class _TopicDetailState extends State<TopicDetail>
     }
   }
 
-  void _show() {
-    if (!_isVisible) {
-      // stream
-      _isVisible = true;
-      aStreamC.add(true);
-      animationController.forward();
-    }
-  }
-
-  void _hide() {
-    if (_isVisible) {
-      // stream
-      _isVisible = false;
-      aStreamC.add(false);
-      animationController.reverse();
-    }
+  void _updateReadingActions() {
+    if (!autoScrollController.hasClients) return;
+    final visible = autoScrollController.offset >
+        autoScrollController.position.viewportDimension;
+    if (visible == _showBackToTop) return;
+    _showBackToTop = visible;
+    backToTopStream.add(visible);
   }
 
   // 回复框
@@ -556,11 +944,15 @@ class _TopicDetailState extends State<TopicDetail>
   }
 
   Future _scrollToCounter() async {
-    await autoScrollController.scrollToIndex(
-      (noticeFloorNumber % 100) - 1,
-      preferPosition: AutoScrollPosition.begin,
-      duration: const Duration(milliseconds: 100),
-    );
+    final index = ReadingProgress(
+            replyId: replyId, floorNumber: noticeFloorNumber, page: _entryPage)
+        .indexIn(_replyList);
+    if (index != null && await _positionAt(index) && mounted) {
+      setState(() {
+        _highlightedFloor = _replyList[index].floorNumber;
+        _highlightVersion++;
+      });
+    }
     // autoScrollController.highlight(5);
   }
 
@@ -587,434 +979,521 @@ class _TopicDetailState extends State<TopicDetail>
 
   @override
   void dispose() {
+    _saveReadingProgress();
+    WidgetsBinding.instance.removeObserver(this);
+    _requests.invalidate();
+    _topicSubscription?.dispose();
     _controller.dispose();
     autoScrollController.removeListener(_listen);
     autoScrollController.dispose();
     eventBus.off('topicReply');
+    backToTopStream.close();
+    titleStreamC.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: !expendAppBar
-              ? AppBar(
-                  scrolledUnderElevation:
-                      Breakpoints.mediumAndUp.isActive(context) ? 0 : 4,
-                  centerTitle: false,
-                  title: StreamBuilder(
-                    stream: titleStreamC.stream,
-                    initialData: false,
-                    builder: (context, AsyncSnapshot snapshot) {
-                      return AnimatedOpacity(
-                        opacity: snapshot.data ? 1 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: GestureDetector(
-                          onTap: _scrollToTop,
-                          child: Text(
-                            _detailModel != null ? _detailModel!.topicTitle : '',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // actions: _detailModel != null ? appBarAction() : [],
-                  actions: appBarAction(),
-                )
-              : null,
-          body: _topicDetail == null && _detailModel == null
-              ? showLoading()
-              : Scrollbar(
-                  radius: const Radius.circular(10),
-                  controller: autoScrollController,
-                  child: PullRefresh(
-                    key: _globalKey,
-                    onChildRefresh: () async => await getDetailInit(),
-                    // 上拉
-                    onChildLoad: !reverseSort
-                        ? (_totalPage > 1 && _currentPage < _totalPage
-                            ? () async => await getDetail()
-                            : null)
-                        : (_currentPage > 0
-                            ? () async => await getDetailReverst()
-                            : null),
-                    currentPage: _currentPage,
-                    totalPage: _totalPage,
-                    ctr: _controller,
-                    child: showRes(),
-                  ),
-                ),
-          bottomNavigationBar: StreamBuilder(
-            stream: aStreamC.stream,
-            initialData: false,
-            builder: (context, AsyncSnapshot snapshot) {
-              return DetailBottomBar(
-                onRefresh: onRefreshBtm,
-                isVisible: snapshot.data,
-                detailModel: _detailModel,
-                topicId: topicId,
-              );
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 18,
-          right: 20,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, -0),
-              end: const Offset(0, 0.05),
-            ).animate(CurvedAnimation(
-              parent: animationController,
-              curve: Curves.easeInOut,
-            )),
-            child: FloatingActionButton(
-              heroTag: null,
-              elevation: 4,
-              onPressed: _detailModel != null ? showReplySheet : null,
-              tooltip: '回复',
-              child: const Icon(Icons.edit),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 顶部操作栏
-  List<Widget> appBarAction() {
-    List<Widget>? list = [];
-    if (_detailModel != null) {
-      list.add(
-        IconButton(
-          onPressed: onFavTopic,
-          tooltip: '收藏主题',
-          icon: const Icon(Icons.bookmark_add_outlined),
-          selectedIcon: Icon(
-            Icons.bookmark_add_rounded,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          isSelected: _detailModel!.isFavorite,
-        ),
-      );
-    }
-    list.add(
-      PopupMenuButton<SampleItem>(
-        tooltip: 'action',
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.share,
-            onTap: onCopyTopicLink,
-            child: const Text('复制链接'),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.ignore,
-            onTap: onIgnoreTopic,
-            child: Text(I18nKeyword.topicIgnore.tr),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.share,
-            onTap: onShareTopic,
-            child: Text(I18nKeyword.topicShare.tr),
-          ),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.report,
-            onTap: onReportTopic,
-            child: Text(
-              I18nKeyword.topicReport.tr,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.error.withAlpha(200)),
-            ),
-          ),
-          const PopupMenuDivider(),
-          PopupMenuItem<SampleItem>(
-            value: SampleItem.browse,
-            onTap: () => Utils.openURL('https://www.v2ex.com/t/$topicId'),
-            child: Text(
-              I18nKeyword.openInBrowser.tr,
-            ),
-          ),
-        ],
-      ),
-    );
-    list.add(const SizedBox(width: 12));
-    return list;
-  }
-
-  Widget showRes() {
-    return CustomScrollView(
-      controller: autoScrollController,
-      // key: listGlobalKey,
-      slivers: [
-        if (expendAppBar) ...[
-          SliverAppBar(
-            toolbarHeight: platform == 'android'
-                ? (MediaQuery.of(context).padding.top + 6)
-                : platform == 'ios'
-                    ? MediaQuery.of(context).padding.top - 2
-                    : kToolbarHeight,
-            expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
-            automaticallyImplyLeading: false,
-            elevation: 1,
-            pinned: true,
-            floating: true,
-            primary: false,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Column(
-                children: [
-                  AppBar(
-                    centerTitle: false,
-                    title: StreamBuilder(
-                      stream: titleStreamC.stream,
-                      initialData: false,
-                      builder: (context, AsyncSnapshot snapshot) {
-                        return AnimatedOpacity(
-                          opacity: snapshot.data ? 1 : 0,
-                          duration: const Duration(milliseconds: 300),
-                          child: GestureDetector(
-                            onTap: _scrollToTop,
-                            child: Text(
-                              _detailModel != null
-                                  ? _detailModel!.topicTitle
-                                  : '',
-                              style: Theme.of(context).textTheme.titleMedium,
+    return PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) _saveReadingProgress();
+        },
+        child: Stack(
+          children: [
+            Scaffold(
+              appBar: !expendAppBar
+                  ? AppBar(
+                      scrolledUnderElevation:
+                          Breakpoints.mediumAndUp.isActive(context) ? 0 : 4,
+                      centerTitle: false,
+                      title: StreamBuilder(
+                        stream: titleStreamC.stream,
+                        initialData: _visibleTitle,
+                        builder: (context, AsyncSnapshot snapshot) {
+                          return AnimatedOpacity(
+                            opacity: snapshot.data ? 1 : 0,
+                            duration: const Duration(milliseconds: 300),
+                            child: GestureDetector(
+                              onTap: _scrollToTop,
+                              child: Text(
+                                _detailModel != null
+                                    ? _detailModel!.topicTitle
+                                    : '',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                    // actions: _detailModel != null ? appBarAction() : [],
-                    actions: appBarAction(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-        if (_detailModel != null &&
-            myUserName == _detailModel!.createdId &&
-            (_detailModel!.isAPPEND ||
-                _detailModel!.isEDIT ||
-                _detailModel!.isMOVE))
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
-                  .withValues(alpha: 0.6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(' 对主题进行操作'),
-                  Row(
-                    children: [
-                      if (_detailModel!.isAPPEND)
-                        TextButton(
-                            onPressed: () async {
-                              var res = await Get.toNamed('/write',
-                                  parameters: {
-                                    'source': 'append',
-                                    'topicId': _detailModel!.topicId
-                                  });
-                              if (res != null && res['refresh']) {
-                                SmartDialog.showLoading(msg: '刷新中...');
-                                getDetailInit();
-                              }
-                            },
-                            child: const Text('增加附言')),
-                      if (_detailModel!.isEDIT)
-                        TextButton(
-                            onPressed: () async {
-                              var res = await Get.toNamed('/write',
-                                  parameters: {
-                                    'source': 'edit',
-                                    'topicId': _detailModel!.topicId
-                                  });
-                              if (res != null && res['refresh']) {
-                                SmartDialog.showLoading(msg: '刷新中...');
-                                getDetailInit();
-                              }
-                            },
-                            child: const Text('编辑主题')),
-                      if (_detailModel!.isMOVE)
-                        TextButton(
-                            onPressed: () async {
-                              var res = await Get.toNamed('/topicNodes',
-                                  parameters: {
-                                    'source': 'move',
-                                    'topicId': _detailModel!.topicId
-                                  });
-                              if (res != null && res['nodeDetail'].isNotEmpty) {
-                                setState(() {
-                                  _detailModel!.nodeName =
-                                      res['nodeDetail']['nodeName'];
-                                  _detailModel!.nodeId =
-                                      res['nodeDetail']['nodeId'];
-                                });
-                              }
-                            },
-                            child: const Text('移动节点')),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        SliverToBoxAdapter(
-          child: TopicMain(
-              detailModel: _detailModel,
-              topicDetail: _topicDetail,
-              heroTag: heroTag),
-        ),
-        if (_detailModel != null) ...[
-          if (_replyList.isNotEmpty) ...[
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 10),
-            ),
-            SliverPersistentHeader(
-              delegate: _MySliverPersistentHeaderDelegate(
-                child: Container(
-                  key: listGlobalKey,
-                  height: 60,
-                  padding: const EdgeInsets.only(left: 15, right: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${_detailModel!.replyCount}条回复',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(fontSize: 18),
+                          );
+                        },
                       ),
-                      if (_replyList.length > 2) ...[
-                        RawChip(
-                          side: BorderSide.none,
-                          showCheckmark: false,
-                          labelPadding:
-                              const EdgeInsets.only(left: 1, right: 4),
-                          label: Text(
-                            '倒序查看',
-                            style: Theme.of(context).textTheme.labelLarge,
+                      // actions: _detailModel != null ? appBarAction() : [],
+                      actions: appBarAction(),
+                    )
+                  : null,
+              body: _detailError != null && _detailModel == null
+                  ? NetworkErrorPage(
+                      message: '正文尚未缓存或更新失败，请联网后重试', onRetry: getDetailInit)
+                  : _topicDetail == null && _detailModel == null
+                      ? showLoading()
+                      : Scrollbar(
+                          radius: const Radius.circular(10),
+                          controller: autoScrollController,
+                          child: PullRefresh(
+                            key: _globalKey,
+                            onChildRefresh: () async =>
+                                await getDetailInit(userRefresh: true),
+                            // 上拉
+                            onChildLoad: _pageError != null
+                                ? null
+                                : !reverseSort
+                                    ? (_totalPage > 1 &&
+                                            _currentPage < _totalPage
+                                        ? () async => await getDetail()
+                                        : null)
+                                    : (_currentPage > 0
+                                        ? () async => await getDetailReverst()
+                                        : null),
+                            currentPage: _currentPage,
+                            totalPage: _totalPage,
+                            ctr: _controller,
+                            child: showRes(),
                           ),
-                          avatar: const Icon(
-                            Icons.swap_vert,
-                            size: 19,
-                          ),
-                          onPressed: () => setState(() {
-                            reverseSort = !reverseSort;
-                            if (reverseSort) {
-                              getDetailReverst(type: 'init');
-                            } else {
-                              getDetail(type: 'init');
-                            }
-                          }),
-                          shape: StadiumBorder(
-                            side: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest),
-                          ),
-                          selectedColor:
-                              Theme.of(context).colorScheme.outlineVariant,
-                          selected: reverseSort,
                         ),
-                      ]
-                    ],
-                  ),
-                ),
-              ),
-              pinned: true,
             ),
-            if (noticeFloorNumber > 0 && _currentPage > 1)
-              SliverToBoxAdapter(
-                child: Container(
-                  width: double.infinity,
-                  height: 60,
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.commit,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        const SizedBox(width: 6),
-                        Text('前 ${_currentPage - 1} 页已隐藏')
-                      ],
-                    ),
+            Positioned(
+              bottom: 18,
+              right: 20,
+              child: SafeArea(
+                top: false,
+                left: false,
+                child: StreamBuilder<bool>(
+                  stream: backToTopStream.stream,
+                  initialData: _showBackToTop,
+                  builder: (context, snapshot) => DetailReadingActions(
+                    showBackToTop: snapshot.data ?? false,
+                    onBackToTop: _scrollToTop,
+                    onReply: _detailModel != null ? showReplySheet : null,
                   ),
                 ),
-              ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                childCount: _replyList.length,
-                (context, index) {
-                  return AutoScrollTag(
-                      key: ValueKey(index),
-                      controller: autoScrollController,
-                      index: index,
-                      child:
-                          // noticeFloorNumber > 0 && index == 0 ? Text('123') :
-                          ReplyListItem(
-                        reply: _replyList[index],
-                        topicId: _detailModel!.topicId,
-                        totalPage: _totalPage,
-                        key: UniqueKey(),
-                        queryReplyList: (replyMemberList, floorNumber,
-                                resultList, totalPage) =>
-                            queryReplyList(replyMemberList, floorNumber,
-                                resultList, _totalPage),
-                        source: 'topic',
-                        replyList: _replyList,
-                        floorNumber: noticeFloorNumber,
-                      ));
-                  // return ReplyListItem(
-                  //   reply: _replyList[index],
-                  //   topicId: _detailModel!.topicId,
-                  //   totalPage: _totalPage,
-                  //   key: UniqueKey(),
-                  //   queryReplyList:
-                  //       (replyMemberList, floorNumber, resultList, totalPage) =>
-                  //           queryReplyList(replyMemberList, floorNumber,
-                  //               resultList, _totalPage),
-                  //   source: 'topic',
-                  //   replyList: _replyList,
-                  // );
-                },
-                // childCount: _replyList.length,
               ),
             ),
           ],
-          // 没有更多
-          SliverToBoxAdapter(
-            child: Offstage(
-              // when true hidden
-              offstage: _detailModel!.replyCount != 0,
-              child: moreTopic(type: 'null'),
+        ));
+  }
+
+  // Theme actions live in one menu; reading shortcuts stay near the thumb.
+  List<Widget> appBarAction() {
+    final model = _detailModel;
+    Widget menuLabel(IconData icon, String text, {Color? color}) => Row(
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 16),
+            Flexible(
+              child: Text(text,
+                  style: color == null ? null : TextStyle(color: color)),
+            ),
+          ],
+        );
+    return [
+      if (model != null)
+        IconButton(
+          onPressed: onFavTopic,
+          tooltip: model.isFavorite ? '已收藏' : '收藏主题',
+          icon: const Icon(Icons.bookmark_border_rounded),
+          selectedIcon: Icon(Icons.bookmark_rounded,
+              color: Theme.of(context).colorScheme.primary),
+          isSelected: model.isFavorite,
+        ),
+      PopupMenuButton<SampleItem>(
+        tooltip: '更多操作',
+        enabled: model != null,
+        position: PopupMenuPosition.under,
+        onSelected: (action) {
+          switch (action) {
+            case SampleItem.thank:
+              onThankTopic();
+              break;
+            case SampleItem.copy:
+              onCopyTopicLink();
+              break;
+            case SampleItem.share:
+              onShareTopic();
+              break;
+            case SampleItem.browse:
+              Utils.openURL('https://www.v2ex.com/t/$topicId');
+              break;
+            case SampleItem.ignore:
+              onIgnoreTopic();
+              break;
+            case SampleItem.report:
+              onReportTopic();
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: SampleItem.thank,
+            enabled: model != null && !model.isThank,
+            child: menuLabel(
+              model?.isThank == true
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              model?.isThank == true ? '已感谢' : '感谢主题',
+              color: model?.isThank == true
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
             ),
           ),
-          // 加载更多
-          SliverToBoxAdapter(
-            child: Offstage(
-              // when true hidden
-              // no reply hidden
-              //
-              offstage: _detailModel!.replyCount == 0 ||
-                  (!reverseSort && (_currentPage < _totalPage)) ||
-                  (reverseSort && (_currentPage > 0)),
-              child: moreTopic(),
-            ),
-          )
+          PopupMenuItem(
+            value: SampleItem.copy,
+            child: menuLabel(Icons.link_rounded, '复制链接'),
+          ),
+          PopupMenuItem(
+            value: SampleItem.share,
+            child: menuLabel(Icons.share_outlined, I18nKeyword.topicShare.tr),
+          ),
+          PopupMenuItem(
+            value: SampleItem.browse,
+            child:
+                menuLabel(Icons.language_rounded, I18nKeyword.openInBrowser.tr),
+          ),
+          const PopupMenuDivider(),
+          PopupMenuItem(
+            value: SampleItem.ignore,
+            child: menuLabel(
+                Icons.visibility_off_outlined, I18nKeyword.topicIgnore.tr),
+          ),
+          PopupMenuItem(
+            value: SampleItem.report,
+            child: menuLabel(Icons.report_outlined, I18nKeyword.topicReport.tr,
+                color: Theme.of(context).colorScheme.error),
+          ),
         ],
-        // 回复列表
-      ],
-    );
+      ),
+      const SizedBox(width: 12),
+    ];
+  }
+
+  Widget showRes() {
+    return LoadMoreRetry(
+        hasError: _pageError != null,
+        onRetry: () => reverseSort ? getDetailReverst() : getDetail(),
+        child: NotificationListener<ScrollNotification>(
+            onNotification: _onReadingScroll,
+            child: CustomScrollView(
+              key: _readingViewportKey,
+              controller: autoScrollController,
+              // key: listGlobalKey,
+              slivers: [
+                if (expendAppBar) ...[
+                  SliverAppBar(
+                    toolbarHeight: platform == 'android'
+                        ? (MediaQuery.of(context).padding.top + 6)
+                        : platform == 'ios'
+                            ? MediaQuery.of(context).padding.top - 2
+                            : kToolbarHeight,
+                    expandedHeight:
+                        kToolbarHeight + MediaQuery.of(context).padding.top,
+                    automaticallyImplyLeading: false,
+                    elevation: 1,
+                    pinned: true,
+                    floating: true,
+                    primary: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Column(
+                        children: [
+                          AppBar(
+                            centerTitle: false,
+                            title: StreamBuilder(
+                              stream: titleStreamC.stream,
+                              initialData: _visibleTitle,
+                              builder: (context, AsyncSnapshot snapshot) {
+                                return AnimatedOpacity(
+                                  opacity: snapshot.data ? 1 : 0,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: GestureDetector(
+                                    onTap: _scrollToTop,
+                                    child: Text(
+                                      _detailModel != null
+                                          ? _detailModel!.topicTitle
+                                          : '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            // actions: _detailModel != null ? appBarAction() : [],
+                            actions: appBarAction(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                if (_detailModel != null &&
+                    myUserName == _detailModel!.createdId &&
+                    (_detailModel!.isAPPEND ||
+                        _detailModel!.isEDIT ||
+                        _detailModel!.isMOVE))
+                  SliverToBoxAdapter(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(' 对主题进行操作'),
+                          Row(
+                            children: [
+                              if (_detailModel!.isAPPEND)
+                                TextButton(
+                                    onPressed: () async {
+                                      var res = await Get.toNamed('/write',
+                                          parameters: {
+                                            'source': 'append',
+                                            'topicId': _detailModel!.topicId
+                                          });
+                                      if (res != null && res['refresh']) {
+                                        getDetailInit();
+                                      }
+                                    },
+                                    child: const Text('增加附言')),
+                              if (_detailModel!.isEDIT)
+                                TextButton(
+                                    onPressed: () async {
+                                      var res = await Get.toNamed('/write',
+                                          parameters: {
+                                            'source': 'edit',
+                                            'topicId': _detailModel!.topicId
+                                          });
+                                      if (res != null && res['refresh']) {
+                                        getDetailInit();
+                                      }
+                                    },
+                                    child: const Text('编辑主题')),
+                              if (_detailModel!.isMOVE)
+                                TextButton(
+                                    onPressed: () async {
+                                      var res = await Get.toNamed('/topicNodes',
+                                          parameters: {
+                                            'source': 'move',
+                                            'topicId': _detailModel!.topicId
+                                          });
+                                      if (res != null &&
+                                          res['nodeDetail'].isNotEmpty) {
+                                        setState(() {
+                                          _detailModel!.nodeName =
+                                              res['nodeDetail']['nodeName'];
+                                          _detailModel!.nodeId =
+                                              res['nodeDetail']['nodeId'];
+                                        });
+                                      }
+                                    },
+                                    child: const Text('移动节点')),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (_detailModel != null && _resumeProgress != null)
+                  SliverToBoxAdapter(
+                    child: ListTile(
+                      dense: true,
+                      leading:
+                          const Icon(Icons.bookmark_border_rounded, size: 20),
+                      title: Text('上次读到第 ${_resumeProgress!.floorNumber} 楼'),
+                      trailing: TextButton(
+                        onPressed: _isJumping
+                            ? null
+                            : () => _jumpReplies(progress: _resumeProgress),
+                        child: Text(_isJumping ? '定位中…' : '继续阅读'),
+                      ),
+                    ),
+                  ),
+                SliverToBoxAdapter(
+                  child: TopicMain(
+                      detailModel: _detailModel,
+                      topicDetail: _topicDetail,
+                      heroTag: heroTag),
+                ),
+                if (_detailModel != null) ...[
+                  if (_replyList.isNotEmpty) ...[
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 10),
+                    ),
+                    SliverPersistentHeader(
+                      delegate: _MySliverPersistentHeaderDelegate(
+                        child: Container(
+                          key: listGlobalKey,
+                          height: 60,
+                          padding: const EdgeInsets.only(left: 15, right: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${_detailModel!.replyCount}条回复',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(fontSize: 18),
+                              ),
+                              Row(mainAxisSize: MainAxisSize.min, children: [
+                                TextButton(
+                                  onPressed: _isJumping
+                                      ? null
+                                      : () => _jumpReplies(latest: true),
+                                  child: const Text('最新回复'),
+                                ),
+                                if (_replyList.length > 2) ...[
+                                  RawChip(
+                                    side: BorderSide.none,
+                                    showCheckmark: false,
+                                    labelPadding: const EdgeInsets.only(
+                                        left: 1, right: 4),
+                                    label: Text(
+                                      '倒序查看',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge,
+                                    ),
+                                    avatar: const Icon(
+                                      Icons.swap_vert,
+                                      size: 19,
+                                    ),
+                                    onPressed: () => setState(() {
+                                      if (_isJumping) return;
+                                      _saveReadingProgress();
+                                      _readingActivated = false;
+                                      reverseSort = !reverseSort;
+                                      if (reverseSort) {
+                                        getDetailReverst(type: 'init');
+                                      } else {
+                                        getDetail(type: 'init');
+                                      }
+                                    }),
+                                    shape: StadiumBorder(
+                                      side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHighest),
+                                    ),
+                                    selectedColor: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant,
+                                    selected: reverseSort,
+                                  ),
+                                ]
+                              ]),
+                            ],
+                          ),
+                        ),
+                      ),
+                      pinned: true,
+                    ),
+                    if (!reverseSort && _loadedStartPage > 1)
+                      SliverToBoxAdapter(
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.commit,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                const SizedBox(width: 6),
+                                TextButton(
+                                  onPressed: _isJumping
+                                      ? null
+                                      : () => _jumpReplies(earlier: true),
+                                  child: Text(
+                                      '查看更早回复（前 ${_loadedStartPage - 1} 页）'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        childCount: _replyList.length,
+                        (context, index) {
+                          return AutoScrollTag(
+                              key: ValueKey(_replyList[index].replyId),
+                              controller: autoScrollController,
+                              index: index,
+                              child:
+                                  // noticeFloorNumber > 0 && index == 0 ? Text('123') :
+                                  ReplyListItem(
+                                reply: _replyList[index],
+                                topicId: _detailModel!.topicId,
+                                totalPage: _totalPage,
+                                key: ValueKey(_replyList[index].replyId),
+                                queryReplyList: (replyMemberList, floorNumber,
+                                        resultList, totalPage) =>
+                                    queryReplyList(replyMemberList, floorNumber,
+                                        resultList, _totalPage),
+                                source: 'topic',
+                                replyList: _replyList,
+                                floorNumber: _highlightedFloor ?? 0,
+                                highlightVersion: _highlightVersion,
+                                consumeHighlight: _consumeHighlight,
+                              ));
+                          // return ReplyListItem(
+                          //   reply: _replyList[index],
+                          //   topicId: _detailModel!.topicId,
+                          //   totalPage: _totalPage,
+                          //   key: UniqueKey(),
+                          //   queryReplyList:
+                          //       (replyMemberList, floorNumber, resultList, totalPage) =>
+                          //           queryReplyList(replyMemberList, floorNumber,
+                          //               resultList, _totalPage),
+                          //   source: 'topic',
+                          //   replyList: _replyList,
+                          // );
+                        },
+                        // childCount: _replyList.length,
+                      ),
+                    ),
+                  ],
+                  if (_pageError == null &&
+                      _isLoadingMore &&
+                      _paginationDemanded &&
+                      _currentPage > 0)
+                    const SliverToBoxAdapter(child: LoadMoreLoading()),
+                  // 没有更多
+                  SliverToBoxAdapter(
+                    child: Offstage(
+                      // when true hidden
+                      offstage: _detailModel!.replyCount != 0,
+                      child: moreTopic(type: 'null'),
+                    ),
+                  ),
+                  // 加载更多
+                  SliverToBoxAdapter(
+                    child: Offstage(
+                      // when true hidden
+                      // no reply hidden
+                      //
+                      offstage: _detailModel!.replyCount == 0 ||
+                          (!reverseSort && (_currentPage < _totalPage)) ||
+                          (reverseSort && (_currentPage > 0)),
+                      child: moreTopic(),
+                    ),
+                  )
+                ],
+                // 回复列表
+              ],
+            )));
   }
 
   // 底部 没有更多

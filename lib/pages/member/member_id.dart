@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -13,24 +14,44 @@ import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
 import 'controller.dart';
 
 class MemberPage extends StatefulWidget {
-  const MemberPage({Key? key}) : super(key: key);
+  const MemberPage({this.loadProfile, Key? key}) : super(key: key);
+
+  final Future<ModelMemberProfile> Function(String, CancelToken)? loadProfile;
 
   @override
   State<MemberPage> createState() => _MemberPageState();
 }
 
 class _MemberPageState extends State<MemberPage> {
-  final MemberController _memberController =
-      Get.put(MemberController(), tag: Get.parameters['memberId']);
+  late final MemberController _memberController;
+  late final String _controllerTag;
+  late final Future<ModelMemberProfile> _profileFuture;
   final GlobalKey signStatusKey = GlobalKey();
   final GlobalKey followBtnKey = GlobalKey();
   final GlobalKey blockBtnKey = GlobalKey();
 
   @override
+  void initState() {
+    super.initState();
+    // Each route owns its controller, including overlapping return transitions.
+    _controllerTag = 'member-${identityHashCode(this)}';
+    _memberController = Get.put(
+        MemberController(loadProfile: widget.loadProfile),
+        tag: _controllerTag);
+    _profileFuture = _memberController.queryMemberProfile();
+  }
+
+  @override
+  void dispose() {
+    Get.delete<MemberController>(tag: _controllerTag, force: true);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<ModelMemberProfile>(
-        future: _memberController.queryMemberProfile(),
+        future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data != null) {
@@ -50,7 +71,11 @@ class _MemberPageState extends State<MemberPage> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 120,
+          title: Text(
+            '个人信息',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18),
+          ),
+          centerTitle: false,
           actions: _memberController.isOwner
               ? [
                   StatefulBuilder(
@@ -110,20 +135,11 @@ class _MemberPageState extends State<MemberPage> {
                   const SizedBox(width: 12)
                 ],
           pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
         ),
         SliverToBoxAdapter(
           child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
+            margin: const EdgeInsetsDirectional.only(top: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Stack(
@@ -132,7 +148,7 @@ class _MemberPageState extends State<MemberPage> {
                       tag: _memberController.heroTag,
                       child: CAvatar(
                         url: _memberController.memberAvatar,
-                        size: 80,
+                        size: 64,
                         quality: 'origin',
                       ),
                     ),
@@ -155,7 +171,7 @@ class _MemberPageState extends State<MemberPage> {
                     )
                   ],
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,32 +436,27 @@ class _MemberPageState extends State<MemberPage> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 120,
+          title: Text(
+            '个人信息',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18),
+          ),
+          centerTitle: false,
           pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
         ),
         SliverToBoxAdapter(
           child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
+            margin: const EdgeInsetsDirectional.only(top: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Hero(
                   tag: _memberController.heroTag,
                   child: CAvatar(
                     url: _memberController.memberAvatar,
-                    size: 80,
+                    size: 64,
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                     child: Skeleton(
                   child: Column(

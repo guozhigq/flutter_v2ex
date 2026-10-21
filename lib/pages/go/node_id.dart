@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:flutter_v2ex/service/content_cache.dart';
+import 'package:flutter_v2ex/service/page_request.dart';
+import 'package:flutter_v2ex/components/common/load_more_retry.dart';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -35,6 +38,11 @@ class _GoPageState extends State<GoPage> {
   bool _loadError = false;
   String _loadErrorMsg = '';
   String nodeId = '';
+  final _requests = PageRequest();
+  String? _pageError;
+  bool _prefetchFailed = false;
+  bool _paginationDemanded = false;
+  bool _isLoadingMore = false;
   late StreamController<bool> titleStreamC; // appBar title
 
   @override
@@ -50,6 +58,15 @@ class _GoPageState extends State<GoPage> {
     _controller.addListener(
       () {
         var screenHeight = MediaQuery.of(context).size.height;
+        if (_controller.position.extentAfter <
+                _controller.position.viewportDimension * 1.5 &&
+            _currentPage > 0 &&
+            _currentPage < _totalPage &&
+            (!_requests.isRunning || _controller.position.extentAfter <= 72) &&
+            (_pageError == null ||
+                (_prefetchFailed && _controller.position.extentAfter <= 72))) {
+          getTopics(prefetch: _controller.position.extentAfter > 72);
+        }
         if (_controller.offset >= screenHeight && showBackTopBtn == false) {
           setState(() {
             showBackTopBtn = true;
@@ -71,39 +88,76 @@ class _GoPageState extends State<GoPage> {
 
   @override
   void dispose() {
+    _requests.invalidate();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> getTopics() async {
-    try {
-      var res = await NodeWebApi.getTopicsByNodeId(nodeId, _currentPage + 1);
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        if (_currentPage == 0) {
-          topicList = res.topicList;
-          _totalPage = res.totalPage;
-          if (res.topicList.isNotEmpty) {
-            _topicController.setTopic(res.topicList[0]);
-          }
-        } else {
-          topicList.addAll(res.topicList);
-        }
-        _currentPage += 1;
-        topicListDetail = res;
-        _loadError = false;
-      });
-    } catch (err) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _loadError = true;
-        _loadErrorMsg = err.toString();
-      });
+  Future<void> getTopics({bool refresh = false, bool prefetch = false}) {
+    final showRefreshToast = refresh && topicListDetail != null;
+    if (!refresh && _currentPage >= _totalPage) return Future.value();
+    final page = refresh ? 1 : _currentPage + 1;
+    final id = nodeId;
+    final account = ContentCache.scope;
+    // Initialize before scheduling; a later end-of-list request may promote this
+    // prefetch even before the deferred request callback has started.
+    if (refresh || !_requests.isRunning) {
+      _paginationDemanded = !prefetch;
+    } else if (!prefetch && !_paginationDemanded) {
+      setState(() => _paginationDemanded = true);
     }
+    return _requests.run((generation) async {
+      bool active() =>
+          mounted &&
+          _requests.accepts(generation) &&
+          nodeId == id &&
+          ContentCache.scope == account;
+      if (!active()) return;
+      setState(() {
+        _isLoadingMore = true;
+        _prefetchFailed = false;
+        _pageError = null;
+      });
+      void apply(NodeListModel res) {
+        setState(() {
+          if (page == 1) {
+            topicList = List.of(res.topicList);
+          } else {
+            final ids = topicList.map((e) => e.topicId).toSet();
+            topicList.addAll(res.topicList.where((e) => ids.add(e.topicId)));
+          }
+          _totalPage = res.totalPage;
+          _currentPage = page;
+          topicListDetail = res;
+          _loadError = false;
+        });
+      }
+
+      try {
+        final res = await NodeWebApi.getTopicsByNodeId(id, page, silent: true);
+        if (!active()) return;
+        apply(res);
+        if (page == 1 && res.topicList.isNotEmpty) {
+          _topicController.setTopic(res.topicList.first);
+        }
+      } catch (error) {
+        if (!active()) return;
+        setState(() {
+          _loadError = topicListDetail == null;
+          _loadErrorMsg = error.toString();
+          if (page > 1) {
+            _pageError = error.toString();
+            _prefetchFailed = !_paginationDemanded;
+          }
+        });
+        if (showRefreshToast) SmartDialog.showToast('刷新失败，已保留当前内容');
+        if (page > 1 && _paginationDemanded) {
+          SmartDialog.showToast('加载失败，请上滑重试');
+        }
+      } finally {
+        if (active()) setState(() => _isLoadingMore = false);
+      }
+    }, refresh: refresh);
   }
 
   Future<bool> favNode() async {
@@ -129,14 +183,11 @@ class _GoPageState extends State<GoPage> {
               controller: _controller,
               radius: const Radius.circular(10),
               child: PullRefresh(
-                onChildRefresh: () async {
-                  setState(() {
-                    _currentPage = 0;
-                  });
-                  await getTopics();
-                },
+                onChildRefresh: () => getTopics(refresh: true),
                 // 上拉
-                onChildLoad: _totalPage > 1 && _currentPage < _totalPage
+                onChildLoad: _pageError == null &&
+                        _totalPage > 1 &&
+                        _currentPage < _totalPage
                     ? getTopics
                     : null,
                 currentPage: _currentPage,
@@ -145,11 +196,7 @@ class _GoPageState extends State<GoPage> {
                     ? NetworkErrorPage(
                         message: _loadErrorMsg,
                         onRetry: () {
-                          setState(() {
-                            _currentPage = 0;
-                            _loadError = false;
-                          });
-                          getTopics();
+                          getTopics(refresh: true);
                         },
                       )
                     : topicListDetail != null
@@ -182,191 +229,203 @@ class _GoPageState extends State<GoPage> {
   }
 
   Widget content() {
-    return CustomScrollView(
-      controller: _controller,
-      slivers: [
-        SliverAppBar(
-    automaticallyImplyLeading: Breakpoints.mediumAndUp.isActive(context) ? false : true,
-          backgroundColor: Get.isDarkMode
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.primary,
-          expandedHeight: 280 - MediaQuery.of(context).padding.top,
-          iconTheme: IconThemeData(
-              color: Get.isDarkMode
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.onPrimary),
-          pinned: true,
-          title: StreamBuilder(
-            stream: titleStreamC.stream,
-            initialData: false,
-            builder: (context, AsyncSnapshot snapshot) {
-              return AnimatedOpacity(
-                opacity: snapshot.data ? 1 : 0,
-                curve: Curves.easeOut,
-                duration: const Duration(milliseconds: 500),
-                child: Row(
-                  children: [
-                    CAvatar(url: topicListDetail!.nodeCover, size: 35),
-                    const SizedBox(width: 6),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return LoadMoreRetry(
+        hasError: _pageError != null,
+        onRetry: () => getTopics(),
+        child: CustomScrollView(
+          controller: _controller,
+          slivers: [
+            SliverAppBar(
+              automaticallyImplyLeading:
+                  Breakpoints.mediumAndUp.isActive(context) ? false : true,
+              backgroundColor: Get.isDarkMode
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.primary,
+              expandedHeight: 280 - MediaQuery.of(context).padding.top,
+              iconTheme: IconThemeData(
+                  color: Get.isDarkMode
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onPrimary),
+              pinned: true,
+              title: StreamBuilder(
+                stream: titleStreamC.stream,
+                initialData: false,
+                builder: (context, AsyncSnapshot snapshot) {
+                  return AnimatedOpacity(
+                    opacity: snapshot.data ? 1 : 0,
+                    curve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 500),
+                    child: Row(
                       children: [
-                        Text(topicListDetail!.nodeName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                    color: Get.isDarkMode
-                                        ? Colors.white
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary)),
-                        Text(
-                          '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall!
-                              .copyWith(
-                                  color: Get.isDarkMode
-                                      ? Colors.white
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            // IconButton(
-            //   onPressed: () => favNode(),
-            //   icon: const Icon(Icons.bookmark_add_outlined),
-            //   selectedIcon: const Icon(Icons.bookmark_added),
-            //   isSelected: topicListDetail!.isFavorite,
-            // ),
-            // IconButton(
-            //   onPressed: () => favNode(),
-            //   icon: const Icon(Icons.search_rounded),
-            // ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.more_vert),
-            ),
-            const SizedBox(width: 4)
-          ],
-          bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(25),
-              child: Container(
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-              )),
-          flexibleSpace: FlexibleSpaceBar(
-            background: Stack(
-              children: [
-                topicListDetail!.nodeCover != ''
-                    ? Container(
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: NetworkImage(
-                                  topicListDetail!.nodeCover,
-                                ),
-                                fit: BoxFit.fitWidth)),
-                      )
-                    : const Spacer(),
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.only(top: 112, left: 24, right: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CachedNetworkImage(
-                            imageUrl: topicListDetail!.nodeCover,
-                            height: 62,
-                            width: 62,
-                            fit: BoxFit.cover,
-                            // fadeOutDuration: const Duration(milliseconds: 800),
-                            // fadeInDuration: const Duration(milliseconds: 300),
-                            errorWidget: (context, url, error) =>
-                                const Center(child: Text('加载失败')),
-                            placeholder: (context, url) =>
-                                const Center(child: Text('加载中')),
-                          ),
-                          const SizedBox(width: 6),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                topicListDetail!.nodeName,
+                        CAvatar(url: topicListDetail!.nodeCover, size: 35),
+                        const SizedBox(width: 6),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(topicListDetail!.nodeName,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
-                                    .copyWith(color: Colors.white),
+                                    .copyWith(
+                                        color: Get.isDarkMode
+                                            ? Colors.white
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary)),
+                            Text(
+                              '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                },
+              ),
+              actions: [
+                // IconButton(
+                //   onPressed: () => favNode(),
+                //   icon: const Icon(Icons.bookmark_add_outlined),
+                //   selectedIcon: const Icon(Icons.bookmark_added),
+                //   isSelected: topicListDetail!.isFavorite,
+                // ),
+                // IconButton(
+                //   onPressed: () => favNode(),
+                //   icon: const Icon(Icons.search_rounded),
+                // ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.more_vert),
+                ),
+                const SizedBox(width: 4)
+              ],
+              bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(25),
+                  child: Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                  )),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    topicListDetail!.nodeCover != ''
+                        ? Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                      topicListDetail!.nodeCover,
+                                    ),
+                                    fit: BoxFit.fitWidth)),
+                          )
+                        : const Spacer(),
+                    Positioned.fill(
+                      child: BackdropFilter(
+                        filter:
+                            ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          const EdgeInsets.only(top: 112, left: 24, right: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: topicListDetail!.nodeCover,
+                                height: 62,
+                                width: 62,
+                                fit: BoxFit.cover,
+                                // fadeOutDuration: const Duration(milliseconds: 800),
+                                // fadeInDuration: const Duration(milliseconds: 300),
+                                errorWidget: (context, url, error) =>
+                                    const Center(child: Text('加载失败')),
+                                placeholder: (context, url) =>
+                                    const Center(child: Text('加载中')),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(color: Colors.white),
+                              const SizedBox(width: 6),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    topicListDetail!.nodeName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '   ${topicListDetail!.topicCount} 主题  ${topicListDetail!.favoriteCount} 收藏',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                ],
                               ),
+                              const Spacer(),
+                              ElevatedButton(
+                                  onPressed: () => favNode(),
+                                  child: Text(topicListDetail!.isFavorite
+                                      ? '已收藏'
+                                      : '收藏'))
                             ],
                           ),
-                          const Spacer(),
-                          ElevatedButton(
-                              onPressed: () => favNode(),
-                              child: Text(
-                                  topicListDetail!.isFavorite ? '已收藏' : '收藏'))
+                          const SizedBox(height: 15),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Text(
+                                topicListDetail!.nodeIntro != ''
+                                    ? topicListDetail!.nodeIntro
+                                    : '还没有节点描述 😊',
+                                style: const TextStyle(color: Colors.white),
+                                maxLines: 2),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 15),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Text(
-                            topicListDetail!.nodeIntro != ''
-                                ? topicListDetail!.nodeIntro
-                                : '还没有节点描述 😊',
-                            style: const TextStyle(color: Colors.white),
-                            maxLines: 2),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12),
-              child: ListItem(topic: topicList[index]),
-            );
-          }, childCount: topicList.length),
-        ),
-      ],
-    );
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: ListItem(topic: topicList[index]),
+                );
+              }, childCount: topicList.length),
+            ),
+            if (_pageError == null &&
+                _isLoadingMore &&
+                _paginationDemanded &&
+                _currentPage > 0)
+              const SliverToBoxAdapter(child: LoadMoreLoading()),
+          ],
+        ));
   }
 
   Widget showLoading() {

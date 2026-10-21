@@ -3,6 +3,7 @@ import 'package:flutter_v2ex/components/search/history.dart';
 import 'package:flutter_v2ex/pages/search/index.dart';
 import 'package:get/get.dart';
 import 'package:flutter_v2ex/components/common/pull_refresh.dart';
+import 'package:flutter_v2ex/components/common/load_more_retry.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic.dart';
 import 'widgets/appbar.dart';
 
@@ -26,6 +27,18 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _handleScroll() {
+    if (_controller.position.extentAfter <
+            _controller.position.viewportDimension * 1.5 &&
+        (!_searchController.isLoading.value ||
+            _controller.position.extentAfter <= 72) &&
+        (_searchController.errorMessage.value.isEmpty ||
+            (_searchController.prefetchFailed &&
+                _controller.position.extentAfter <= 72)) &&
+        _searchController.currentPage.value > 0 &&
+        _searchController.currentPage.value <
+            _searchController.totalPage.value) {
+      _searchController.search(prefetch: _controller.position.extentAfter > 72);
+    }
     var shouldShowBackTopBtn = _controller.offset >= _screenHeight;
     if (_searchController.showBackTopBtn.value != shouldShowBackTopBtn) {
       _searchController.showBackTopBtn.value = shouldShowBackTopBtn;
@@ -41,120 +54,120 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     _screenHeight = MediaQuery.of(context).size.height;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? _) {
-        if (didPop) {
-          return;
-        }
-        _searchController.resetSearch();
-      },
-      child: Scaffold(
-        appBar: SAppBar(),
-        body: Stack(
-          children: [
-            // 显示滚动条
-            Scrollbar(
-              controller: _controller,
-              radius: const Radius.circular(10),
-              child: Obx(
-                () => _searchController.isLoading.value &&
-                        _searchController.currentPage.value == 0
-                    ? const TopicSkeleton()
-                    : Container(
-                        child: _searchController.resultsList.isNotEmpty
-                            ? PullRefresh(
-                                totalPage: _searchController.totalPage.value,
-                                currentPage:
-                                    _searchController.currentPage.value,
-                                onChildLoad: _searchController.totalPage > 1 &&
-                                        _searchController.currentPage <=
-                                            _searchController.totalPage.value
-                                    ? () async => await _searchController.search()
-                                    : null,
-                                child: wrap(),
-                              )
-                            : _searchController
-                                        .searchKeyWord.value.isNotEmpty &&
-                                    _searchController.hasRequest.value
-                                ? Center(
-                                    child: Text(
-                                      '未找到内容',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
-                                    ),
-                                  )
-                                : SearchHistory(
-                                    searchHisList:
-                                        _searchController.searchHistoryList,
-                                    onSelect: (text) =>
-                                        _searchController.onSelect(text),
-                                    onClear: () => _searchController.onClear(),
-                                  ),
-                      ),
-              ),
+    return Scaffold(
+      appBar: SAppBar(),
+      body: Stack(
+        children: [
+          // 显示滚动条
+          Scrollbar(
+            controller: _controller,
+            radius: const Radius.circular(10),
+            child: Obx(
+              () => _searchController.isLoading.value &&
+                      _searchController.resultsList.isEmpty
+                  ? const TopicSkeleton()
+                  : Container(
+                      child: _searchController.resultsList.isNotEmpty
+                          ? PullRefresh(
+                              totalPage: _searchController.totalPage.value,
+                              currentPage: _searchController.currentPage.value,
+                              onChildLoad: _searchController
+                                          .errorMessage.value.isEmpty &&
+                                      _searchController.totalPage > 1 &&
+                                      _searchController.currentPage <
+                                          _searchController.totalPage.value
+                                  ? () async => await _searchController.search()
+                                  : null,
+                              child: wrap(),
+                            )
+                          : _searchController.searchKeyWord.value.isNotEmpty &&
+                                  _searchController.hasRequest.value
+                              ? Center(
+                                  child: _searchController
+                                          .errorMessage.value.isNotEmpty
+                                      ? TextButton(
+                                          onPressed: () =>
+                                              _searchController.search(),
+                                          child: const Text('加载失败，点击重试'))
+                                      : Text('未找到内容',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
+                                )
+                              : SearchHistory(
+                                  searchHisList:
+                                      _searchController.searchHistoryList,
+                                  onSelect: (text) =>
+                                      _searchController.onSelect(text),
+                                  onClear: () => _searchController
+                                      .searchHistoryList
+                                      .clear(),
+                                ),
+                    ),
             ),
-            // 返回顶部
-            Positioned(
-              right: 20,
-              bottom: 20,
-              child: Obx(
-                () => AnimatedScale(
-                  scale: _searchController.showBackTopBtn.value ? 1 : 0,
-                  curve: Curves.easeOut,
-                  duration: const Duration(milliseconds: 300),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: const Icon(Icons.vertical_align_top_rounded),
-                    onPressed: () {
-                      _controller.animateTo(0,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease);
-                    },
-                  ),
+          ),
+          // 返回顶部
+          Positioned(
+            right: 20,
+            bottom: 20,
+            child: Obx(
+              () => AnimatedScale(
+                scale: _searchController.showBackTopBtn.value ? 1 : 0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  heroTag: null,
+                  child: const Icon(Icons.vertical_align_top_rounded),
+                  onPressed: () {
+                    _controller.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease);
+                  },
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget wrap() {
-    return CustomScrollView(
-      controller: _controller,
-      slivers: [
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 8),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            return Container(
-              margin:
-                  const EdgeInsets.only(top: 0, right: 12, bottom: 7, left: 12),
-              child: Material(
-                color: Theme.of(context).colorScheme.onInverseSurface,
-                borderRadius: BorderRadius.circular(10),
-                child: InkWell(
-                  onTap: () {
-                    // var arguments = <String, TabTopicItem>{"topic": widget.topic};
-                    Get.toNamed(
-                        "/t/${_searchController.resultsList[index].id}");
-                  },
-                  borderRadius: BorderRadius.circular(10),
-                  child: Ink(
-                    padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
-                    child: content(_searchController.resultsList[index]),
+    return LoadMoreRetry(
+        hasError: _searchController.errorMessage.value.isNotEmpty,
+        onRetry: () => _searchController.search(),
+        child: CustomScrollView(
+          controller: _controller,
+          slivers: [
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 8),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Container(
+                  margin: const EdgeInsets.only(
+                      top: 0, right: 12, bottom: 7, left: 12),
+                  child: Material(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
+                      onTap: () {
+                        // var arguments = <String, TabTopicItem>{"topic": widget.topic};
+                        Get.toNamed(
+                            "/t/${_searchController.resultsList[index].id}");
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Ink(
+                        padding: const EdgeInsets.fromLTRB(12, 15, 12, 12),
+                        child: content(_searchController.resultsList[index]),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          }, childCount: _searchController.resultsList.length),
-        )
-      ],
-    );
+                );
+              }, childCount: _searchController.resultsList.length),
+            ),
+          ],
+        ));
   }
 
   Widget content(hitItem) {

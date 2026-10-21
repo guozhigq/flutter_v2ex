@@ -22,9 +22,9 @@ class Login {
       ),
     ).then(
       (value) => {
-        if (value['loginStatus'] == 'cancel')
+        if (value == null || value['loginStatus'] == 'cancel')
           {SmartDialog.showToast('取消登录'), eventBus.emit('login', 'cancel')},
-        if (value['loginStatus'] == 'success')
+        if (value?['loginStatus'] == 'success')
           {SmartDialog.showToast('登录成功'), eventBus.emit('login', 'success')}
       },
     );
@@ -38,9 +38,11 @@ class Login {
     bool isPopContext = false,
     bool isPopDialog = true,
   }) {
-    SmartDialog.show(
-      useSystem: true,
-      animationType: SmartAnimationType.centerFade_otherSlide,
+    final navigator =
+        Navigator.of(Routes.navigatorKey.currentContext ?? Get.overlayContext!);
+    showDialog<void>(
+      context: navigator.context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
@@ -48,15 +50,15 @@ class Login {
           actions: [
             TextButton(
                 onPressed: () {
-                  SmartDialog.dismiss();
-                  isPopContext ? Navigator.pop(context) : null;
+                  Navigator.pop(context);
+                  if (isPopContext) navigator.pop();
                 },
                 child: Text(cancelText)),
             TextButton(
                 onPressed: () async {
                   if (isPopDialog) {
-                    SmartDialog.dismiss()
-                        .then((value) => Get.toNamed('/login'));
+                    Navigator.pop(context);
+                    Get.toNamed('/login');
                   } else {
                     Get.toNamed('/login');
                   }

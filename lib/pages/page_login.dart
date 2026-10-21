@@ -1,7 +1,8 @@
-import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_v2ex/components/common/skeleton.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/utils.dart';
 import 'package:flutter_v2ex/utils/string.dart';
@@ -35,6 +36,9 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode passwordTextFieldNode = FocusNode();
   final FocusNode captchaTextFieldNode = FocusNode();
   bool passwordVisible = true; // 默认隐藏密码
+  bool _captchaLoading = false;
+  String? _captchaError;
+  CancelToken? _captchaRequest;
 
   @override
   void initState() {
@@ -42,16 +46,60 @@ class _LoginPageState extends State<LoginPage> {
     getSignKey();
   }
 
-  Future<LoginDetailModel> getSignKey() async {
-    var res = await DioRequestWeb.getLoginKey();
-    if (res.twoFa) {
-      Login.twoFADialog();
-    } else {
+  Future<void> getSignKey() async {
+    if (!mounted || _captchaLoading) return;
+    final request = CancelToken();
+    _captchaRequest = request;
+    setState(() {
+      _captchaLoading = true;
+      _captchaError = null;
+      loginKey = LoginDetailModel();
+      _codeController.clear();
+    });
+    try {
+      final res = await DioRequestWeb.getLoginKey(cancelToken: request);
+      if (!mounted || request.isCancelled) return;
+      if (res.twoFa) {
+        Login.twoFADialog();
+      }
       setState(() {
         loginKey = res;
       });
+    } catch (error) {
+      if (!mounted || request.isCancelled) return;
+      setState(() => _captchaError = error.toString());
+    } finally {
+      if (mounted && !request.isCancelled) {
+        setState(() => _captchaLoading = false);
+      }
     }
-    return res;
+  }
+
+  @override
+  void dispose() {
+    _captchaRequest?.cancel('Login page closed');
+    _userNameController.dispose();
+    _passwordController.dispose();
+    _codeController.dispose();
+    userNameTextFieldNode.dispose();
+    passwordTextFieldNode.dispose();
+    captchaTextFieldNode.dispose();
+    super.dispose();
+  }
+
+  Widget _captchaPlaceholder(BuildContext context) {
+    final placeholder = ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: const SizedBox.expand(),
+    );
+    return Semantics(
+      key: const ValueKey('captcha-loading'),
+      label: '验证码加载中',
+      liveRegion: true,
+      child: MediaQuery.disableAnimationsOf(context)
+          ? placeholder
+          : Skeleton(child: placeholder),
+    );
   }
 
   @override
@@ -62,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
+              tooltip: '关闭登录',
               icon: const Icon(Icons.close),
               onPressed: () => Get.back(result: {'loginStatus': 'cancel'}),
             );
@@ -152,53 +201,60 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-                    child: Stack(
-                      children: [
-                        TextFormField(
-                          controller: _codeController,
-                          keyboardType: TextInputType.text,
-                          focusNode: captchaTextFieldNode,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(6.0),
-                            ),
-                            labelText: '验证码',
-                          ),
-                          validator: (v) {
-                            return v!.trim().isNotEmpty ? null : "验证码不能为空";
-                          },
-                          onSaved: (val) {
-                            _code = val;
-                          },
+                    child: TextFormField(
+                      controller: _codeController,
+                      keyboardType: TextInputType.text,
+                      focusNode: captchaTextFieldNode,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6.0),
                         ),
-                        if (loginKey.captchaImg != '') ...[
-                          Positioned(
-                            right: 6,
-                            top: 6,
-                            height: 52,
-                            child: Container(
-                              clipBehavior: Clip.hardEdge,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(6),
-                                ),
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    getSignKey();
-                                  });
-                                },
-                                child: Image.memory(
-                                  loginKey.captchaImgBytes!,
-                                  height: 52.0,
-                                  fit: BoxFit.fitHeight,
-                                ),
-                              ),
-                            ),
+                        labelText: '验证码',
+                        suffixIconConstraints: const BoxConstraints.tightFor(
+                          width: 148,
+                          height: 56,
+                        ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 3, bottom: 3, right: 3),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: _captchaLoading
+                                ? _captchaPlaceholder(context)
+                                : _captchaError != null
+                                    ? Tooltip(
+                                        message: _captchaError!,
+                                        child: TextButton(
+                                          onPressed: getSignKey,
+                                          child: const Text('加载失败，重试'),
+                                        ),
+                                      )
+                                    : InkWell(
+                                        onTap: getSignKey,
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Tooltip(
+                                          message: '点击刷新验证码',
+                                          child:
+                                              loginKey.captchaImgBytes == null
+                                                  ? const Center(
+                                                      child: Text('点击加载'))
+                                                  : Image.memory(
+                                                      loginKey.captchaImgBytes!,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                        ),
+                                      ),
                           ),
-                        ]
-                      ],
+                        ),
+                      ),
+                      validator: (v) {
+                        return v!.trim().isNotEmpty ? null : "验证码不能为空";
+                      },
+                      onSaved: (val) {
+                        _code = val;
+                      },
                     ),
                   ),
                   Container(
@@ -207,41 +263,47 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size.fromHeight(50)),
+                      onPressed: _captchaLoading ||
+                              loginKey.captchaImgBytes == null
+                          ? null
+                          : () async {
+                              if ((_formKey.currentState as FormState)
+                                  .validate()) {
+                                TextInput.finishAutofillContext();
+                                //验证通过提交数据
+                                (_formKey.currentState as FormState).save();
+                                loginKey.userNameValue = _userName!;
+                                loginKey.passwordValue = _password!;
+                                loginKey.codeValue = _code!;
+                                // 键盘收起
+                                captchaTextFieldNode.unfocus();
+                                var result =
+                                    await DioRequestWeb.onLogin(loginKey);
+                                SmartDialog.dismiss(
+                                    status: SmartStatus.loading);
+                                if (!mounted) return;
+                                if (result == 'true') {
+                                  // 登录成功
+                                  GStorage().setLoginStatus(true);
+                                  Get.back(result: {'loginStatus': 'success'});
+                                } else if (result == 'false') {
+                                  // 登录失败
+                                  setState(() {
+                                    // _passwordController.value =
+                                    //     const TextEditingValue(text: '');
+                                    _codeController.value =
+                                        const TextEditingValue(text: '');
+                                  });
+                                  getSignKey();
+                                } else if (result == '2fa') {
+                                  Login.twoFADialog();
+                                }
+                              }
+                            },
                       child: Text(
                         '登录',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      onPressed: () async {
-                        if ((_formKey.currentState as FormState).validate()) {
-                          TextInput.finishAutofillContext();
-                          //验证通过提交数据
-                          (_formKey.currentState as FormState).save();
-                          loginKey.userNameValue = _userName!;
-                          loginKey.passwordValue = _password!;
-                          loginKey.codeValue = _code!;
-                          // 键盘收起
-                          captchaTextFieldNode.unfocus();
-                          var result = await DioRequestWeb.onLogin(loginKey);
-                          if (result == 'true') {
-                            // 登录成功
-                            GStorage().setLoginStatus(true);
-                            Get.back(result: {'loginStatus': 'success'});
-                          } else if (result == 'false') {
-                            // 登录失败
-                            setState(() {
-                              // _passwordController.value =
-                              //     const TextEditingValue(text: '');
-                              _codeController.value =
-                                  const TextEditingValue(text: '');
-                            });
-                            Timer(const Duration(milliseconds: 500), () {
-                              getSignKey();
-                            });
-                          } else if (result == '2fa') {
-                            Login.twoFADialog();
-                          }
-                        }
-                      },
                     ),
                   ),
                   Row(

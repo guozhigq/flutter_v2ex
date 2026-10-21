@@ -32,6 +32,12 @@ class _ListItemState extends State<ListItem>
   }
 
   @override
+  void didUpdateWidget(covariant ListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    topic = widget.topic;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 0, right: 0, bottom: 7, left: 0),
@@ -166,8 +172,8 @@ class _ListItemState extends State<ListItem>
                     child: NodeTag(
                         nodeId: topic.nodeId,
                         nodeName: topic.nodeName,
-                        onTapDown: () =>
-                            _lastTagTapTime = DateTime.now().millisecondsSinceEpoch,
+                        onTapDown: () => _lastTagTapTime =
+                            DateTime.now().millisecondsSinceEpoch,
                         route: 'home'),
                   ),
                 ]

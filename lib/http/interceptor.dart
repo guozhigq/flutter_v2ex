@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/utils/login.dart';
 import 'package:flutter_v2ex/utils/storage.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -30,14 +29,16 @@ class ApiInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 处理网络请求错误
     // handler.next(err);
-    SmartDialog.showToast(
-      await dioError(err),
-      displayType: SmartToastType.onlyRefresh,
-    );
+    if (err.requestOptions.extra['silentError'] != true) {
+      SmartDialog.showToast(
+        await dioError(err),
+        displayType: SmartToastType.onlyRefresh,
+      );
+    }
     super.onError(err, handler);
   }
 
-  static Future<String> dioError(DioException error) async{
+  static Future<String> dioError(DioException error) async {
     switch (error.type) {
       case DioExceptionType.badCertificate:
         return '证书有误！';
@@ -57,6 +58,7 @@ class ApiInterceptor extends Interceptor {
         return "网络异常，请稍后重试！";
     }
   }
+
   // 登录验证
   loginAuth(reqPath, method, {redirtct}) {
     bool needLogin = !(GStorage().getLoginStatus());
@@ -72,30 +74,10 @@ class ApiInterceptor extends Interceptor {
     if ((needLogin && authUrl) ||
         (needLogin && method == 'POST' && reqPath.startsWith('/t'))) {
       SmartDialog.dismiss();
-      SmartDialog.show(
-        useSystem: true,
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('权限不足'),
-            content: const Text('该操作需要登录'),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    SmartDialog.dismiss();
-                  },
-                  child: const Text('返回')),
-              TextButton(
-                  // TODO
-                      onPressed: () {
-                        final navigator = Navigator.of(context);
-                        SmartDialog.dismiss()
-                            .then((res) => navigator.pushNamed('/login'));
-                  },
-                  child: const Text('去登录'))
-            ],
-          );
-        },
+      Login.loginDialog(
+        '该操作需要登录',
+        title: '权限不足',
+        cancelText: '返回',
       );
       throw ('该操作需要登录！');
     }
