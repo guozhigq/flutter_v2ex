@@ -102,7 +102,7 @@ class VvexScheme with WidgetsBindingObserver {
         return;
       }
       final text = data?.text;
-      if (text == _lastClipboard) return;
+      if (text == null || text == _lastClipboard) return;
       final link = TopicLink.fromText(text);
       if (Get.isDialogOpen == true) return;
       _lastClipboard = text;
