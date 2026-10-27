@@ -89,13 +89,19 @@ class UserWebApi {
     // }
 
     // 加入时间
-    final metadata = profileCellNode.querySelector('span.gray')?.text ?? '';
-    // V2EX may return either Chinese or English membership information.
-    // Preserve the original translated date label and omit the timezone.
-    final membershipInfo = metadata.split('+').first.split(RegExp(r'[，,]'));
-    memberProfile.mbSort = membershipInfo.first;
-    memberProfile.mbCreatedTime =
-        membershipInfo.length > 1 ? membershipInfo[1] : '';
+    // 中文：V2EX 第 1 号会员，加入于 2010-04-25 21:45:46 +08:00
+    // 英文：V2EX member #1, joined on 2010-04-25 21:45:46 +08:00
+    var mbCreatedTimeDom =
+        profileCellNode.querySelector('span.gray')?.text ?? '';
+    var mbCreatedLine = mbCreatedTimeDom.split('+')[0];
+    var mbSortMatch = RegExp(r'^(.*?)[，,]').firstMatch(mbCreatedLine);
+    memberProfile.mbSort = (mbSortMatch?.group(1) ?? mbCreatedLine).trim();
+    var mbTimeMatch = RegExp(r'\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?')
+        .firstMatch(mbCreatedLine);
+    memberProfile.mbCreatedTime = mbTimeMatch != null
+        ? (mbCreatedLine.contains('加入于') ? '加入于 ' : 'joined on ') +
+            mbTimeMatch.group(0)!
+        : '';
     // 社交
     if (profileNode.querySelector('div.widgets') != null) {
       var socialNodes =

@@ -49,8 +49,8 @@ void main() {
       expect(
           result.mbCreatedTime,
           prefix.startsWith('V2EX member')
-              ? ' joined on 2023-05-30 17:55:14 '
-              : '加入于 2023-05-30 17:55:14 ');
+              ? 'joined on 2023-05-30 17:55:14'
+              : '加入于 2023-05-30 17:55:14');
       expect(result.isShowTopic, isFalse);
       expect(result.replyList.single.topicId, '1250253');
       expect(result.replyList.single.replyContent, '一条真实结构的回复');
