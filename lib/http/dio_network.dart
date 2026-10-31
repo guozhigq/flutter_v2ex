@@ -10,8 +10,7 @@ class DioRequestNet {
   final String allNodes = '/api/nodes/all.json';
 
   // 所有节点 topic
-  final String allNodesT =
-      '/api/nodes/list.json';
+  final String allNodesT = '/api/nodes/list.json';
 
   // 热议
   final String hotTopics = '/api/topics/hot.json';
@@ -32,9 +31,10 @@ class DioRequestNet {
   }
 
   // 热议
-  static Future<List<TopicItem>> getHotTopic() async {
+  static Future<List<TopicItem>> getHotTopic({bool silent = false}) async {
     Response response = await Request().get(
       DioRequestNet().hotTopics,
+      extra: {'silentError': silent},
     );
     List<dynamic> list = response.data;
     return list.map((e) => TopicItem.fromJson(e)).toList();
@@ -54,5 +54,4 @@ class DioRequestNet {
     List<dynamic> list = response.data;
     return list.map((e) => TopicNodeItem.fromJson(e)).toList();
   }
-
 }

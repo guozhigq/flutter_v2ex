@@ -71,11 +71,18 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vvex" android:host="v2ex.com" android:pathPrefix="/t/" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
                 <data android:scheme="https" android:host="www.v2ex.com" android:pathPattern="/t/.*" />
                 <data android:scheme="https" android:host="v2ex.com" android:pathPattern="/t/.*" />
                 <data android:scheme="https" android:host="www.cn.v2ex.com" android:pathPattern="/t/.*" />

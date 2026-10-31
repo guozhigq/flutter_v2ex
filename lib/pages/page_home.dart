@@ -236,27 +236,44 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<bool>(
       stream: stream,
       initialData: true,
-      builder: (context, AsyncSnapshot snapshot) {
-        return AnimatedOpacity(
-          opacity: snapshot.data ? 1 : 0,
-          duration: const Duration(milliseconds: 300),
-          child: AnimatedContainer(
-            curve: Curves.easeInOutCubicEmphasized,
-            duration: const Duration(milliseconds: 500),
-            height: snapshot.data
-                ? MediaQuery.of(context).padding.top + 52
-                : MediaQuery.of(context).padding.top,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 2,
-                top: MediaQuery.of(context).padding.top + 5,
+      builder: (context, snapshot) {
+        final visible = snapshot.data ?? true;
+        return Padding(
+          padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+          child: IgnorePointer(
+            ignoring: !visible,
+            child: ExcludeSemantics(
+              excluding: !visible,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 1, end: visible ? 1 : 0),
+                duration: Duration(
+                    milliseconds:
+                        MediaQuery.disableAnimationsOf(context) ? 0 : 280),
+                curve: const Cubic(0.2, 0, 0, 1),
+                builder: (context, value, child) => ClipRect(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: value,
+                    child: Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, -8 * (1 - value)),
+                        child: child,
+                      ),
+                    ),
+                  ),
+                ),
+                child: const SizedBox(
+                  height: 52,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 5, 16, 2),
+                    child: HomeSearchBar(),
+                  ),
+                ),
               ),
-              child: const HomeSearchBar(),
             ),
           ),
         );

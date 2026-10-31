@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/soV2ex.dart';
 import 'package:flutter_v2ex/service/search.dart';
 import 'package:get/get.dart';
+import 'package:flutter_v2ex/service/page_request.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class SSearchController extends GetxController {
   SoV2exRes searchRes = SoV2exRes();
@@ -20,44 +22,98 @@ class SSearchController extends GetxController {
   int endTime = 0;
   Rx<FocusNode> replyContentFocusNode = FocusNode().obs;
   RxBool hasRequest = false.obs;
-  bool canPop = false;
 
   // 搜索
-  Future<SoV2exRes> search() async {
-    SoV2exRes res = SoV2exRes();
-    if (searchKeyWord.isEmpty || searchKeyWord.value == '') {
+  final _requests = PageRequest();
+  final RxString errorMessage = ''.obs;
+  String _queryIdentity = '';
+  String _pendingIdentity = '';
+  bool prefetchFailed = false;
+  bool _paginationDemanded = false;
+
+  Future<SoV2exRes> search({bool prefetch = false}) async {
+    final identity = '$searchKeyWord|$sortType|$orderType|$startTime|$endTime';
+    final keyword = searchKeyWord.value.trim();
+    if (keyword.isEmpty) {
+      _requests.invalidate();
+      _queryIdentity = '';
+      _pendingIdentity = '';
+      _paginationDemanded = false;
+      prefetchFailed = false;
       isLoading.value = false;
-      return res;
+      hasRequest.value = false;
+      errorMessage.value = '';
+      resultsList.clear();
+      currentPage.value = 0;
+      totalPage.value = 1;
+      showBackTopBtn.value = false;
+      return SoV2exRes();
     }
-    hasRequest.value = true;
-    List historyList = await Search().add(searchKeyWord.value);
-    searchHistoryList.value = historyList;
-    if (currentPage.value == 0) {
+    final refresh = currentPage.value == 0 || identity != _queryIdentity;
+    if (identity != _queryIdentity) {
+      _queryIdentity = identity;
+      currentPage.value = 0;
+      resultsList.clear();
+    }
+    final page = refresh ? 0 : currentPage.value;
+    if (!refresh && page >= totalPage.value) return SoV2exRes();
+    final requestIdentity = '$identity:$page';
+    final supersede = refresh &&
+        (!_requests.isRunning || requestIdentity != _pendingIdentity);
+    if (supersede || !_requests.isRunning) {
+      _paginationDemanded = !prefetch;
+    } else if (!prefetch) {
+      _paginationDemanded = true;
+    }
+    _pendingIdentity = requestIdentity;
+    final sort = sortType;
+    final order = orderType;
+    final start = startTime;
+    final end = endTime;
+    var result = SoV2exRes();
+    await _requests.run((generation) async {
+      if (!_requests.accepts(generation)) return;
+      prefetchFailed = false;
+      hasRequest.value = true;
       isLoading.value = true;
-    }
-    res = await SoV2ex.onSearch(
-      searchKeyWord.value,
-      currentPage.toInt() * pageCount,
-      pageCount,
-      sort: sortType,
-      order: orderType,
-      gte: startTime,
-      lte: endTime,
-    );
-    if (res.total > 0) {
-      if (currentPage.value == 0) {
-        resultsList.value = res.hits;
-        totalPage.value = (res.total / pageCount).ceil();
-      } else {
-        resultsList.addAll(res.hits);
+      errorMessage.value = '';
+      try {
+        final history = await Search().add(keyword);
+        if (!_requests.accepts(generation)) return;
+        searchHistoryList.value = history;
+        final res = await SoV2ex.onSearch(keyword, page * pageCount, pageCount,
+            sort: sort, order: order, gte: start, lte: end, silent: true);
+        if (!_requests.accepts(generation)) return;
+        result = res;
+        if (page == 0) {
+          resultsList.value = res.hits;
+          totalPage.value = (res.total / pageCount).ceil();
+        } else {
+          final ids = resultsList.map((e) => e.id).toSet();
+          resultsList.addAll(res.hits.where((e) => ids.add(e.id)));
+        }
+        currentPage.value = page + 1;
+      } catch (error) {
+        if (_requests.accepts(generation)) {
+          prefetchFailed = !_paginationDemanded;
+          errorMessage.value = '加载失败，请重试';
+          if (page > 0 && _paginationDemanded) {
+            SmartDialog.showToast('加载失败，请上滑重试');
+          }
+        }
+      } finally {
+        if (_requests.accepts(generation)) isLoading.value = false;
       }
-    } else if (res.total == 0) {
-      // 无结果
-      resultsList.value = [];
-    }
-    currentPage.value += 1;
-    isLoading.value = false;
-    return res;
+    }, refresh: supersede);
+    return result;
+  }
+
+  @override
+  void onClose() {
+    _requests.invalidate();
+    controller.value.dispose();
+    replyContentFocusNode.value.dispose();
+    super.onClose();
   }
 
   void searchHistory() async {
@@ -93,6 +149,7 @@ class SSearchController extends GetxController {
   }
 
   void onSelect(text) async {
+    currentPage.value = 0;
     searchKeyWord.value = text;
     controller.value.text = text;
     // 移动光标
@@ -104,11 +161,21 @@ class SSearchController extends GetxController {
   }
 
   void onClear() {
+    _requests.invalidate();
+    _queryIdentity = '';
+    _pendingIdentity = '';
+    _paginationDemanded = false;
+    prefetchFailed = false;
+    isLoading.value = false;
+    hasRequest.value = false;
+    errorMessage.value = '';
     controller.value.clear();
     searchKeyWord.value = '';
     currentPage.value = 0;
-    resultsList.value = [];
-    searchHistoryList.value = [];
+    totalPage.value = 1;
+    showBackTopBtn.value = false;
+    resultsList.clear();
+    replyContentFocusNode.value.requestFocus();
   }
 
   void submit(value) {
@@ -120,18 +187,5 @@ class SSearchController extends GetxController {
 
   void onChange(value) {
     searchKeyWord.value = value;
-  }
-
-  void resetSearch() {
-    if (!canPop) {
-      resultsList.value = [];
-      isLoading.value = false;
-      searchKeyWord.value = '';
-      currentPage.value == 0;
-      hasRequest.value = false;
-      canPop = true;
-    } else {
-      Get.back();
-    }
   }
 }

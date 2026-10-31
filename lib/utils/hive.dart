@@ -1,4 +1,6 @@
 import 'package:path_provider/path_provider.dart';
+import 'dart:async';
+import 'package:flutter_v2ex/service/content_cache.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_v2ex/models/web/item_tab_topic.dart';
 import 'package:flutter_v2ex/models/web/item_topic_reply.dart';
@@ -19,6 +21,13 @@ Future<void> initHive() async {
   await Hive.openBox('recentTopicsBox');
   // 历史搜索
   await Hive.openBox('recentSearchBox');
+  try {
+    await Hive.openBox('contentPages',
+        compactionStrategy: (entries, deleted) => deleted > 100);
+    unawaited(ContentCache.cleanUp());
+  } catch (_) {
+    // Optional content caching must not prevent the app from starting.
+  }
 }
 
 void closeHive() {

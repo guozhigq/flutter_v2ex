@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ex/http/user.dart';
 import 'package:flutter_v2ex/http/dio_web.dart';
@@ -7,6 +8,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_v2ex/models/web/model_member_profile.dart';
 
 class MemberController extends GetxController {
+  MemberController({this.loadProfile});
+
+  final Future<ModelMemberProfile> Function(String, CancelToken)? loadProfile;
+  final CancelToken _profileRequest = CancelToken();
   ModelMemberProfile memberProfile = ModelMemberProfile();
   Map signDetail = {};
   String memberId = '';
@@ -32,13 +37,20 @@ class MemberController extends GetxController {
       if (memberId == GStorage().getUserInfo()['userName']) {
         isOwner = true;
       }
-      // 查询签到状态、余额、消息提醒
-      await queryDaily();
+      // Only the owner's profile displays daily rewards and balance.
+      if (isOwner) {
+        try {
+          await queryDaily();
+        } catch (_) {
+          // Optional daily data must not fail the profile or escape onInit.
+        }
+      }
     }
   }
 
   Future<Map<dynamic, dynamic>> queryDaily() async {
     var res = await DioRequestWeb.queryDaily();
+    if (isClosed) return res;
     signDetail = res;
     if (onRefreshSign != null) {
       onRefreshSign!.call();
@@ -47,9 +59,19 @@ class MemberController extends GetxController {
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
-    var res = await UserWebApi.queryMemberProfile(memberId);
-    memberProfile = res;
+    final res = await (loadProfile?.call(memberId, _profileRequest) ??
+        UserWebApi.queryMemberProfile(memberId, cancelToken: _profileRequest));
+    if (!isClosed) memberProfile = res;
     return res;
+  }
+
+  @override
+  void onClose() {
+    _profileRequest.cancel('用户已离开个人主页');
+    onRefreshSign = null;
+    onRefreshFollow = null;
+    onRefreshBlock = null;
+    super.onClose();
   }
 
   //  签到领取奖励
@@ -108,7 +130,7 @@ class MemberController extends GetxController {
     if (res) {
       SmartDialog.showToast(followStatus ? '已取消关注' : '关注成功');
       memberProfile.isFollow = !followStatus;
-      onRefreshFollow!.call();
+      if (!isClosed) onRefreshFollow?.call();
     } else {
       SmartDialog.showToast('操作失败');
     }
@@ -162,7 +184,7 @@ class MemberController extends GetxController {
     if (res) {
       SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
       memberProfile.isBlock = !blockStatus;
-      onRefreshBlock!.call();
+      if (!isClosed) onRefreshBlock?.call();
       // if(!blockStatus && followStatus){
       //   memberProfile.isFollow = false;
       // }

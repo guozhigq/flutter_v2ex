@@ -17,7 +17,8 @@ import 'package:flutter_v2ex/models/web/item_topic_subtle.dart'; // 主题附言
 
 class TopicWebApi {
   // 获取帖子详情及下面的评论信息
-  static Future<TopicDetailModel> getTopicDetail(String topicId, int p) async {
+  static Future<TopicDetailModel> getTopicDetail(String topicId, int p,
+      {bool silent = false}) async {
     TopicDetailModel detailModel = TopicDetailModel();
     List<TopicSubtleItem> subtleList = []; // 附言
     List<ReplyItem> replies = [];
@@ -26,7 +27,7 @@ class TopicWebApi {
       data: {'p': p},
       // cacheOptions:
       //     buildCacheOptions(const Duration(days: 4), forceRefresh: true),
-      extra: {'ua': 'mob'},
+      extra: {'ua': 'mob', 'silentError': silent},
     );
     // Use html parser and query selector
     var document = parse(response.data);

@@ -25,6 +25,8 @@ class ReplyListItem extends StatefulWidget {
     this.source,
     this.replyList,
     this.floorNumber,
+    this.highlightVersion = 0,
+    this.consumeHighlight,
     Key? key,
   }) : super(key: key);
 
@@ -35,6 +37,8 @@ class ReplyListItem extends StatefulWidget {
   final String? source;
   final List? replyList;
   final int? floorNumber;
+  final int highlightVersion;
+  final bool Function(int version)? consumeHighlight;
 
   @override
   State<ReplyListItem> createState() => _ReplyListItemState();
@@ -86,8 +90,10 @@ class _ReplyListItemState extends State<ReplyListItem>
   bool highLightOp = GStorage().getHighlightOp();
 
   late AnimationController _controller;
-  int _animationCount = 0;
-  final int _maxAnimationCount = 3;
+  bool get _isHighlighted =>
+      widget.floorNumber != null &&
+      widget.floorNumber! > 0 &&
+      reply.floorNumber == widget.floorNumber;
 
   @override
   void initState() {
@@ -108,22 +114,28 @@ class _ReplyListItemState extends State<ReplyListItem>
     });
 
     _controller = AnimationController(
-      lowerBound: 0.95,
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    )..addListener(() {
-        if (_controller.status == AnimationStatus.completed) {
-          _animationCount++;
-          if (_animationCount >= _maxAnimationCount) {
-            _controller.stop();
-          } else {
-            _controller.reverse();
-          }
-        } else if (_controller.status == AnimationStatus.dismissed) {
-          _controller.forward();
-        }
-      });
-    _controller.forward();
+        duration: const Duration(milliseconds: 600), vsync: this);
+    _startHighlight();
+  }
+
+  void _startHighlight() {
+    if (_isHighlighted &&
+        (widget.consumeHighlight?.call(widget.highlightVersion) ?? true)) {
+      _controller.reverse(from: 1);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ReplyListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    reply = widget.reply;
+    if (_isHighlighted &&
+        (widget.floorNumber != oldWidget.floorNumber ||
+            widget.highlightVersion != oldWidget.highlightVersion)) {
+      _startHighlight();
+    } else if (!_isHighlighted) {
+      _controller.value = 0;
+    }
   }
 
   void menuAction(id) {
@@ -158,6 +170,7 @@ class _ReplyListItemState extends State<ReplyListItem>
 
   // 回复评论
   void replyComment() {
+    if (!mounted) return;
     var replyId = reply.replyId;
     if (replyId == '') {
       // 刚回复的楼层没有回复replyId
@@ -337,34 +350,35 @@ class _ReplyListItemState extends State<ReplyListItem>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             GestureDetector(
-              onTap: () =>
-                  Get.toNamed('/member/${reply.userName}', parameters: {
-                'memberAvatar': reply.avatar,
-                'heroTag': reply.userName + heroTag,
-              }),
+              behavior: HitTestBehavior.opaque,
+              onTap: replyComment,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  lfAvtar(),
+                  GestureDetector(onTap: _openMember, child: lfAvtar()),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            reply.userName,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                    color: reply.isMod || reply.isOwner
-                                        ? Theme.of(context).colorScheme.primary
-                                        : null),
-                          ),
+                          GestureDetector(
+                              onTap: _openMember,
+                              child: Text(
+                                reply.userName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                        color: reply.isMod || reply.isOwner
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : null),
+                              )),
                           const SizedBox(width: 4),
                           if (reply.isOwner) ...[
                             Icon(
@@ -448,12 +462,14 @@ class _ReplyListItemState extends State<ReplyListItem>
         Container(
           margin: const EdgeInsets.only(top: 5, left: 45, right: 10),
           child: SelectionArea(
-            /// TODO SelectionArea ignore Inkwell onTap event
-            // https://github.com/flutter/flutter/issues/53797
-            child: HtmlRender(
-                htmlContent: reply.contentRendered,
-                imgList: reply.imgList,
-                fs: GStorage().getReplyFs()),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: replyComment,
+              child: HtmlRender(
+                  htmlContent: reply.contentRendered,
+                  imgList: reply.imgList,
+                  fs: GStorage().getReplyFs()),
+            ),
           ),
         ),
         bottonAction(),
@@ -461,36 +477,51 @@ class _ReplyListItemState extends State<ReplyListItem>
     );
   }
 
+  void _openMember() {
+    Get.toNamed('/member/${reply.userName}', parameters: {
+      'memberAvatar': reply.avatar,
+      'heroTag': reply.userName + heroTag,
+    });
+  }
+
   Widget replyItemTopic(context, child) {
+    final colors = Theme.of(context).colorScheme;
+    final baseColor =
+        reply.isOwner && highLightOp ? colors.onInverseSurface : colors.surface;
     return AnimatedBuilder(
       animation: _controller,
-      child: RepaintBoundary(
-        key: repaintKey,
-        child: Material(
-          color: reply.isOwner && highLightOp
-              ? Theme.of(context).colorScheme.onInverseSurface
-              : null,
-          child: InkWell(
-            onTap: () async {
-              /// 增加200毫秒延迟 水波纹动画
-              await Future.delayed(const Duration(milliseconds: 200));
-              replyComment();
-            },
-            onLongPress: () {},
-            child: Ink(
-              padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
-              child: child,
-            ),
-          ),
+      child: InkWell(
+        onTap: () async {
+          /// 增加200毫秒延迟 水波纹动画
+          await Future.delayed(const Duration(milliseconds: 200));
+          replyComment();
+        },
+        onLongPress: () {},
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(14, 12, 12, 0),
+          child: child,
         ),
       ),
       builder: (BuildContext context, Widget? child) {
-        return Transform.scale(
-          scale: widget.floorNumber! > 0 &&
-                  reply.floorNumber == widget.floorNumber!
-              ? _controller.value
-              : 1,
-          child: child,
+        final strength =
+            Curves.easeOut.transform((_controller.value * 4).clamp(0.0, 1.0));
+        final pulseProgress = 1 - _controller.value;
+        final scale = pulseProgress < 1
+            ? 1 + 0.03 * sin(pi * Curves.easeInOut.transform(pulseProgress))
+            : 1.0;
+        return RepaintBoundary(
+          key: repaintKey,
+          child: Transform.scale(
+            key: ValueKey('reply-arrival-scale-${reply.replyId}'),
+            alignment: Alignment.topCenter,
+            scale: scale,
+            child: Material(
+              key: ValueKey('reply-highlight-${reply.replyId}'),
+              color: Color.lerp(
+                  baseColor, colors.primaryContainer, strength * 0.7),
+              child: child,
+            ),
+          ),
         );
       },
     );
